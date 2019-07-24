@@ -67,4 +67,33 @@ hit.Post(t, "https://httpbin.org/post").
 	Do()
 ```
 
+## Custom Send and Expects
+```go
+hit.Get(t, "https://httpbin.org/get").
+	Send().Custom(func(hit hit.Hit) {
+		hit.Request().Body().SetStringf("Hello %s", "World")
+	}).
+	Do().
+	Expect().Custom(func(hit hit.Hit) {
+		if len(hit.Response().Body().String()) <= 0 {
+			t.FailNow()
+		}
+	})
+```
+
+## Templates
+```go
+template := hit.Post(t, "https://httpbin.org/post").
+	Send().Headers().Set("Content-Type", "application/json").
+	Expect().Headers("Content-Type").Equal("application/json")
+
+template.Copy().
+	Send().Body().JSON("Hello World").
+	Do()
+
+template.Copy().
+	Send().Body().JSON("Hello Universe").
+	Do()
+```
+
 More examples in the `example_*.go` files
