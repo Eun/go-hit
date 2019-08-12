@@ -83,7 +83,7 @@ hit.Get(t, "https://httpbin.org/get").
 
 ## Templates
 ```go
-template := hit.Post(t, "https://httpbin.org/post").>
+template := hit.Post(t, "https://httpbin.org/post").
 	Send().Headers().Set("Content-Type", "application/json").
 	Expect().Headers("Content-Type").Equal("application/json")
 
@@ -93,6 +93,17 @@ template.Copy().
 
 template.Copy().
 	Send().Body().JSON("Hello Universe").
+	Do()
+```
+
+## BaseURL Template
+```go
+template := hit.New(t, "https://httpbin.org").
+
+template.Copy().Get("/get").
+	Do()
+
+template.Copy().Post("/post").
 	Do()
 ```
 

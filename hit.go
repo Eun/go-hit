@@ -40,6 +40,11 @@ type Hit interface {
 	HTTPClient() *http.Client
 	SetStdout(w io.Writer) Hit
 	Stdout() io.Writer
+	// SetBaseURL sets the base url for each Connect, Delete, Get, Head, Post, Options, Put, Trace, WithMethod call
+	SetBaseURL(string) Hit
+
+	// BaseURL returns the current base url
+	BaseURL() string
 
 	// Expect expects the body to be equal the specified value, omit the parameter to get more options
 	// Examples:
@@ -67,6 +72,7 @@ type defaultInstance struct {
 	send     *defaultSend
 	expect   *defaultExpect
 	stdout   io.Writer
+	baseURL  string
 }
 
 // SetRequest sets the request for the current instance
@@ -76,7 +82,7 @@ func (hit *defaultInstance) SetRequest(request *http.Request) Hit {
 }
 
 func (hit *defaultInstance) setMethodAndUrl(method, url string) Hit {
-	request, err := http.NewRequest(method, url, nil)
+	request, err := http.NewRequest(method, hit.baseURL+url, nil)
 	errortrace.Panic.NoError(hit.T(), err, "unable to create request")
 	return hit.SetRequest(request)
 }
@@ -272,9 +278,10 @@ func (hit *defaultInstance) Debug() Hit {
 // Copy creates a new instance with the values of the parent instance
 func (hit *defaultInstance) Copy() Hit {
 	e := &defaultInstance{
-		t:      hit.t,
-		client: hit.client,
-		stdout: hit.stdout,
+		t:       hit.t,
+		client:  hit.client,
+		stdout:  hit.stdout,
+		baseURL: hit.baseURL,
 	}
 	// copy hit.request.Request
 
@@ -287,6 +294,16 @@ func (hit *defaultInstance) Copy() Hit {
 	// copy expect
 	e.expect = hit.expect.copy(e)
 	return e
+}
+
+// SetBaseURL sets the base url for each Connect, Delete, Get, Head, Post, Options, Put, Trace, WithMethod call
+func (hit *defaultInstance) SetBaseURL(s string) Hit {
+	hit.baseURL = s
+	return hit
+}
+
+func (hit *defaultInstance) BaseURL() string {
+	return hit.baseURL
 }
 
 func New(t TestingT) Hit {
@@ -314,6 +331,7 @@ func WithMethod(t TestingT, method, url string) Hit {
 func Connect(t TestingT, url string) Hit {
 	return WithMethod(t, "CONNECT", url)
 }
+
 func Delete(t TestingT, url string) Hit {
 	return WithMethod(t, "DELETE", url)
 }

@@ -265,3 +265,15 @@ func TestMutate(t *testing.T) {
 
 	require.Equal(t, hit.Done, v.State())
 }
+
+func TestBaseURL(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	v := hit.New(t).SetBaseURL(s.URL)
+
+	v.Get("/").Expect().Status(http.StatusOK).Do()
+	v.Copy().Get("/").Expect().Status(http.StatusOK).Do()
+	require.Panics(t, func() {
+		hit.Get(NewPanicWithMessage(t, PtrStr(`Get /: unsupported protocol scheme ""`), PtrStr("unable to perform request")), "/").Do()
+	})
+}
