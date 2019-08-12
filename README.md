@@ -15,18 +15,18 @@ import (
 
 func TestHttpBin(t *testing.T) {
 	hit.Get(t, "https://httpbin.org/post").
-		Do().
-		Expect().Status(http.StatusMethodNotAllowed)
+		Expect().Status(http.StatusMethodNotAllowed).
+		Do()
 }
 ``` 
 
 ## expect, expect, expect, ....
 ```go
 hit.Get(t, "https://httpbin.org/post").
-	Do().
 	Expect().Status(http.StatusMethodNotAllowed).
 	Expect().Headers().Contains("Content-Type").
-	Expect().Body().Contains("Method Not Allowed")
+	Expect().Body().Contains("Method Not Allowed").
+	Do()
 }
 ``` 
 
@@ -34,9 +34,9 @@ hit.Get(t, "https://httpbin.org/post").
 ```go
 hit.Post(t, "https://httpbin.org/post").
 	Send().Body("Hello HttpBin").
-	Do().
 	Expect().Status(http.StatusOK).
-	Expect().Body().Contains("Hello HttpBin")
+	Expect().Body().Contains("Hello HttpBin").
+	Do()
 ``` 
 
 ### Sending and expecting JSON
@@ -44,9 +44,9 @@ hit.Post(t, "https://httpbin.org/post").
 hit.Post(t, "https://httpbin.org/post").
 	Send().Headers().Set("Content-Type", "application/json").
 	Send().Body().JSON(map[string][]string{"Foo": []string{"Bar", "Baz"}}).
-	Do().
 	Expect().Status(http.StatusOK).
-	Expect().Body().JSON().Equal("json.Foo.1", "Baz")
+	Expect().Body().JSON().Equal("json.Foo.1", "Baz").
+	Do()
 ``` 
 
 ## Problems? `Debug`!
@@ -63,8 +63,8 @@ Although the following is hard to read it is possible to do!
 hit.Post(t, "https://httpbin.org/post").
 	Expect().Status(200).
 	Send("Hello World").
-	Expect().Body().Contains("Hello").
-	Do()
+	Do().
+	Expect().Body().Contains("Hello")
 ```
 
 ## Custom Send and Expects
@@ -73,17 +73,17 @@ hit.Get(t, "https://httpbin.org/get").
 	Send().Custom(func(hit hit.Hit) {
 		hit.Request().Body().SetStringf("Hello %s", "World")
 	}).
-	Do().
 	Expect().Custom(func(hit hit.Hit) {
 		if len(hit.Response().Body().String()) <= 0 {
 			t.FailNow()
 		}
-	})
+	}).
+	Do()
 ```
 
 ## Templates
 ```go
-template := hit.Post(t, "https://httpbin.org/post").
+template := hit.Post(t, "https://httpbin.org/post").>
 	Send().Headers().Set("Content-Type", "application/json").
 	Expect().Headers("Content-Type").Equal("application/json")
 
