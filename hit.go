@@ -8,6 +8,8 @@ import (
 
 	"os"
 
+	"fmt"
+
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/tidwall/pretty"
 )
@@ -27,14 +29,38 @@ type Hit interface {
 	SetRequest(r *http.Request) Hit
 	Request() *HTTPRequest
 	Response() *HTTPResponse
-	Connect(url string) Hit
-	Delete(url string) Hit
-	Get(url string) Hit
-	Head(url string) Hit
-	Post(url string) Hit
-	Options(url string) Hit
-	Put(url string) Hit
-	Trace(url string) Hit
+
+	// Connect uses the CONNECT http method in the request, use the optional arguments to format the url
+	// Connect("http://%s/%s", domain, path)
+	Connect(url string, args ...interface{}) Hit
+
+	// Delete uses the DELETE http method in the request, use the optional arguments to format the url
+	// Delete("http://%s/%s", domain, path)
+	Delete(url string, args ...interface{}) Hit
+
+	// Get uses the GET http method in the request, use the optional arguments to format the url
+	// Get("http://%s/%s", domain, path)
+	Get(url string, args ...interface{}) Hit
+
+	// Head uses the HEAD http method in the request, use the optional arguments to format the url
+	// Head("http://%s/%s", domain, path)
+	Head(url string, args ...interface{}) Hit
+
+	// Post uses the POST http method in the request, use the optional arguments to format the url
+	// Post("http://%s/%s", domain, path)
+	Post(url string, args ...interface{}) Hit
+
+	// Options uses the OPTIONS http method in the request, use the optional arguments to format the url
+	// Options("http://%s/%s", domain, path)
+	Options(url string, args ...interface{}) Hit
+
+	// Put uses the PUT http method in the request, use the optional arguments to format the url
+	// Put("http://%s/%s", domain, path)
+	Put(url string, args ...interface{}) Hit
+
+	// Trace uses the TRACE http method in the request, use the optional arguments to format the url
+	// Trace("http://%s/%s", domain, path)
+	Trace(url string, args ...interface{}) Hit
 
 	SetHTTPClient(client *http.Client) Hit
 	HTTPClient() *http.Client
@@ -81,41 +107,41 @@ func (hit *defaultInstance) SetRequest(request *http.Request) Hit {
 	return hit
 }
 
-func (hit *defaultInstance) setMethodAndUrl(method, url string) Hit {
-	request, err := http.NewRequest(method, hit.baseURL+url, nil)
+func (hit *defaultInstance) setMethodAndUrl(method, url string, a ...interface{}) Hit {
+	request, err := http.NewRequest(method, hit.baseURL+fmt.Sprintf(url, a...), nil)
 	errortrace.Panic.NoError(hit.T(), err, "unable to create request")
 	return hit.SetRequest(request)
 }
 
-func (hit *defaultInstance) Connect(url string) Hit {
-	return hit.setMethodAndUrl("CONNECT", url)
+func (hit *defaultInstance) Connect(url string, a ...interface{}) Hit {
+	return hit.setMethodAndUrl("CONNECT", url, a...)
 }
-func (hit *defaultInstance) Delete(url string) Hit {
-	return hit.setMethodAndUrl("DELETE", url)
-}
-
-func (hit *defaultInstance) Get(url string) Hit {
-	return hit.setMethodAndUrl("GET", url)
+func (hit *defaultInstance) Delete(url string, a ...interface{}) Hit {
+	return hit.setMethodAndUrl("DELETE", url, a...)
 }
 
-func (hit *defaultInstance) Head(url string) Hit {
-	return hit.setMethodAndUrl("HEAD", url)
+func (hit *defaultInstance) Get(url string, a ...interface{}) Hit {
+	return hit.setMethodAndUrl("GET", url, a...)
 }
 
-func (hit *defaultInstance) Post(url string) Hit {
-	return hit.setMethodAndUrl("POST", url)
+func (hit *defaultInstance) Head(url string, a ...interface{}) Hit {
+	return hit.setMethodAndUrl("HEAD", url, a...)
 }
 
-func (hit *defaultInstance) Options(url string) Hit {
-	return hit.setMethodAndUrl("OPTIONS", url)
+func (hit *defaultInstance) Post(url string, a ...interface{}) Hit {
+	return hit.setMethodAndUrl("POST", url, a...)
 }
 
-func (hit *defaultInstance) Put(url string) Hit {
-	return hit.setMethodAndUrl("PUT", url)
+func (hit *defaultInstance) Options(url string, a ...interface{}) Hit {
+	return hit.setMethodAndUrl("OPTIONS", url, a...)
 }
 
-func (hit *defaultInstance) Trace(url string) Hit {
-	return hit.setMethodAndUrl("TRACE", url)
+func (hit *defaultInstance) Put(url string, a ...interface{}) Hit {
+	return hit.setMethodAndUrl("PUT", url, a...)
+}
+
+func (hit *defaultInstance) Trace(url string, a ...interface{}) Hit {
+	return hit.setMethodAndUrl("TRACE", url, a...)
 }
 
 func (hit *defaultInstance) T() TestingT {
@@ -322,40 +348,58 @@ func WithRequest(t TestingT, request *http.Request) Hit {
 	return New(t).SetRequest(request)
 }
 
-func WithMethod(t TestingT, method, url string) Hit {
-	request, err := http.NewRequest(method, url, nil)
+// WithMethod creates a new Hit instance with the specified method and url
+// WithMethod(t, "POST", "http://%s/%s", domain, path)
+func WithMethod(t TestingT, method, url string, a ...interface{}) Hit {
+	request, err := http.NewRequest(method, fmt.Sprintf(url, a...), nil)
 	errortrace.Panic.NoError(t, err, "unable to create request")
 	return WithRequest(t, request)
 }
 
-func Connect(t TestingT, url string) Hit {
-	return WithMethod(t, "CONNECT", url)
+// Connect creates a new Hit instance with CONNECT as the http method, use the optional arguments to format the url
+// Connect(t, "http://%s/%s", domain, path)
+func Connect(t TestingT, url string, a ...interface{}) Hit {
+	return WithMethod(t, "CONNECT", url, a...)
 }
 
-func Delete(t TestingT, url string) Hit {
-	return WithMethod(t, "DELETE", url)
+// Delete creates a new Hit instance with DELETE as the http method, use the optional arguments to format the url
+// Delete(t, "http://%s/%s", domain, path)
+func Delete(t TestingT, url string, a ...interface{}) Hit {
+	return WithMethod(t, "DELETE", url, a...)
 }
 
-func Get(t TestingT, url string) Hit {
-	return WithMethod(t, "GET", url)
+// Get creates a new Hit instance with GET as the http method, use the optional arguments to format the url
+// Get(t, "http://%s/%s", domain, path)
+func Get(t TestingT, url string, a ...interface{}) Hit {
+	return WithMethod(t, "GET", url, a...)
 }
 
-func Head(t TestingT, url string) Hit {
-	return WithMethod(t, "HEAD", url)
+// Head creates a new Hit instance with HEAD as the http method, use the optional arguments to format the url
+// Head(t, "http://%s/%s", domain, path)
+func Head(t TestingT, url string, a ...interface{}) Hit {
+	return WithMethod(t, "HEAD", url, a...)
 }
 
-func Post(t TestingT, url string) Hit {
-	return WithMethod(t, "POST", url)
+// Post creates a new Hit instance with POST as the http method, use the optional arguments to format the url
+// Post(t, "http://%s/%s", domain, path)
+func Post(t TestingT, url string, a ...interface{}) Hit {
+	return WithMethod(t, "POST", url, a...)
 }
 
-func Options(t TestingT, url string) Hit {
-	return WithMethod(t, "OPTIONS", url)
+// Options creates a new Hit instance with OPTIONS as the http method, use the optional arguments to format the url
+// Options(t, "http://%s/%s", domain, path)
+func Options(t TestingT, url string, a ...interface{}) Hit {
+	return WithMethod(t, "OPTIONS", url, a...)
 }
 
-func Put(t TestingT, url string) Hit {
-	return WithMethod(t, "PUT", url)
+// Put creates a new Hit instance with PUT as the http method, use the optional arguments to format the url
+// Put(t, "http://%s/%s", domain, path)
+func Put(t TestingT, url string, a ...interface{}) Hit {
+	return WithMethod(t, "PUT", url, a...)
 }
 
-func Trace(t TestingT, url string) Hit {
-	return WithMethod(t, "TRACE", url)
+// Trace creates a new Hit instance with TRACE as the http method, use the optional arguments to format the url
+// Trace(t, "http://%s/%s", domain, path)
+func Trace(t TestingT, url string, a ...interface{}) Hit {
+	return WithMethod(t, "TRACE", url, a...)
 }

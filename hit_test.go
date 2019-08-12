@@ -277,3 +277,9 @@ func TestBaseURL(t *testing.T) {
 		hit.Get(NewPanicWithMessage(t, PtrStr(`Get /: unsupported protocol scheme ""`), PtrStr("unable to perform request")), "/").Do()
 	})
 }
+
+func TestFormatURL(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	hit.Get(t, "%s", s.URL).Expect().Status(http.StatusOK).Do()
+}
