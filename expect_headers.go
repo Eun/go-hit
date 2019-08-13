@@ -11,15 +11,13 @@ import (
 type ExpectHeadersCallback func(headers *http.Header)
 
 type expectHeaders struct {
-	Hit
-	expect         *defaultExpect
+	*defaultExpect
 	specificHeader string
 }
 
 func newExpectHeaders(expect *defaultExpect, name string) *expectHeaders {
 	return &expectHeaders{
-		Hit:            expect.Hit,
-		expect:         expect,
+		defaultExpect:  expect,
 		specificHeader: name,
 	}
 }
@@ -36,23 +34,25 @@ func (hdr *expectHeaders) value(headers http.Header) interface{} {
 // Examples:
 //           Expect().Headers().Contains("Content-Type")
 //           Expect().Headers("Content-Type").Contains("application")
-func (hdr *expectHeaders) Contains(v string) Hit {
+func (hdr *expectHeaders) Contains(v string) Step {
 	et := errortrace.Prepare()
-	return hdr.expect.Custom(func(hit Hit) {
-		et.Panic.Contains(hit.T(), hdr.value(hit.Response().Header), v)
+	return hdr.Custom(func(hit Hit) {
+		et.Contains(hdr.value(hit.Response().Header), v)
 	})
 }
 
 // OneOf checks if the value is one of the specified values
 // Example:
 //           Expect().Headers("Content-Type").OneOf("application/json", "text/x-json")
-func (hdr *expectHeaders) OneOf(values ...interface{}) Hit {
-	if hdr.specificHeader == "" {
-		errortrace.Panic.FailNow(hdr.T(), errors.New("OneOf can only be used if a header was already specified"))
-	}
+func (hdr *expectHeaders) OneOf(values ...interface{}) Step {
 	et := errortrace.Prepare()
-	return hdr.expect.Custom(func(hit Hit) {
-		et.Panic.Contains(hit.T(), values, hdr.value(hit.Response().Header))
+	if hdr.specificHeader == "" {
+		return hdr.Custom(func(hit Hit) {
+			et.FailNow(errors.New("OneOf can only be used if a header was already specified"))
+		})
+	}
+	return hdr.Custom(func(hit Hit) {
+		et.Contains(values, hdr.value(hit.Response().Header))
 	})
 }
 
@@ -61,10 +61,10 @@ func (hdr *expectHeaders) OneOf(values ...interface{}) Hit {
 // Examples:
 //           Expect().Headers().Empty()
 //           Expect().Headers("Content-Type").Empty()
-func (hdr *expectHeaders) Empty() Hit {
+func (hdr *expectHeaders) Empty() Step {
 	et := errortrace.Prepare()
-	return hdr.expect.Custom(func(hit Hit) {
-		et.Panic.Empty(hit.T(), hdr.value(hit.Response().Header))
+	return hdr.Custom(func(hit Hit) {
+		et.Empty(hdr.value(hit.Response().Header))
 	})
 }
 
@@ -73,10 +73,10 @@ func (hdr *expectHeaders) Empty() Hit {
 // Examples:
 //           Expect().Headers().Len(0)
 //           Expect().Headers("Content-Type").Len(16)
-func (hdr *expectHeaders) Len(size int) Hit {
+func (hdr *expectHeaders) Len(size int) Step {
 	et := errortrace.Prepare()
-	return hdr.expect.Custom(func(hit Hit) {
-		et.Panic.Len(hit.T(), hdr.value(hit.Response().Header), size)
+	return hdr.Custom(func(hit Hit) {
+		et.Len(hdr.value(hit.Response().Header), size)
 	})
 }
 
@@ -85,12 +85,12 @@ func (hdr *expectHeaders) Len(size int) Hit {
 // Examples:
 //           Expect().Headers().Equal(map[string]string{"Content-Type": "application/json"})
 //           Expect().Headers("Content-Type").Equal("application/json")
-func (hdr *expectHeaders) Equal(v interface{}) Hit {
+func (hdr *expectHeaders) Equal(v interface{}) Step {
 	et := errortrace.Prepare()
-	return hdr.expect.Custom(func(hit Hit) {
+	return hdr.Custom(func(hit Hit) {
 		compareData, err := converter.Convert(hdr.value(hit.Response().Header), v, convert.Options.ConvertEmbeddedStructToParentType())
-		et.Panic.NoError(hit.T(), err)
-		et.Panic.Equal(hit.T(), v, compareData)
+		et.NoError(err)
+		et.Equal(v, compareData)
 	})
 }
 
@@ -100,11 +100,10 @@ func (hdr *expectHeaders) Equal(v interface{}) Hit {
 //           Expect().Headers().Get("Content-Type").Contains("json")
 func (hdr *expectHeaders) Get(name string) *expectHeaders {
 	if hdr.specificHeader != "" {
-		errortrace.Panic.FailNow(hdr.T(), errors.New("Get can only be used if no header was already specified"))
+		errortrace.Errorf("Get can only be used if no header was already specified")
 	}
 	return &expectHeaders{
-		Hit:            hdr.Hit,
-		expect:         hdr.expect,
+		defaultExpect:  hdr.defaultExpect,
 		specificHeader: name,
 	}
 }

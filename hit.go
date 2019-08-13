@@ -10,6 +10,8 @@ import (
 
 	"fmt"
 
+	"strings"
+
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/tidwall/pretty"
 )
@@ -25,127 +27,42 @@ const (
 )
 
 type Hit interface {
-	T() TestingT
-	SetRequest(r *http.Request) Hit
+	SetRequest(*http.Request)
 	Request() *HTTPRequest
 	Response() *HTTPResponse
 
-	// Connect uses the CONNECT http method in the request, use the optional arguments to format the url
-	// Connect("http://%s/%s", domain, path)
-	Connect(url string, args ...interface{}) Hit
-
-	// Delete uses the DELETE http method in the request, use the optional arguments to format the url
-	// Delete("http://%s/%s", domain, path)
-	Delete(url string, args ...interface{}) Hit
-
-	// Get uses the GET http method in the request, use the optional arguments to format the url
-	// Get("http://%s/%s", domain, path)
-	Get(url string, args ...interface{}) Hit
-
-	// Head uses the HEAD http method in the request, use the optional arguments to format the url
-	// Head("http://%s/%s", domain, path)
-	Head(url string, args ...interface{}) Hit
-
-	// Post uses the POST http method in the request, use the optional arguments to format the url
-	// Post("http://%s/%s", domain, path)
-	Post(url string, args ...interface{}) Hit
-
-	// Options uses the OPTIONS http method in the request, use the optional arguments to format the url
-	// Options("http://%s/%s", domain, path)
-	Options(url string, args ...interface{}) Hit
-
-	// Put uses the PUT http method in the request, use the optional arguments to format the url
-	// Put("http://%s/%s", domain, path)
-	Put(url string, args ...interface{}) Hit
-
-	// Trace uses the TRACE http method in the request, use the optional arguments to format the url
-	// Trace("http://%s/%s", domain, path)
-	Trace(url string, args ...interface{}) Hit
-
-	SetHTTPClient(client *http.Client) Hit
+	SetHTTPClient(*http.Client)
 	HTTPClient() *http.Client
-	SetStdout(w io.Writer) Hit
-	Stdout() io.Writer
-	// SetBaseURL sets the base url for each Connect, Delete, Get, Head, Post, Options, Put, Trace, WithMethod call
-	SetBaseURL(string) Hit
 
+	SetStdout(io.Writer)
+	Stdout() io.Writer
+
+	SetBaseURL(string)
 	// BaseURL returns the current base url
 	BaseURL() string
 
-	// Expect expects the body to be equal the specified value, omit the parameter to get more options
-	// Examples:
-	//           Expect("Hello World")
-	//           Expect().Body().Contains("Hello World")
-	Expect(data ...interface{}) Expect
+	SetSteps([]Step)
+	Steps() []Step
+	AddSteps(...Step)
+	RemoveSteps(...Step)
 
-	// Send sends the specified data as the body payload
-	// Examples:
-	//           Send("Hello World")
-	//           Send().Body("Hello World")
-	Send(data ...interface{}) Send
-	Do() Hit
-	State() State
-	Debug() Hit
-	Copy() Hit
+	Send(data ...interface{}) ISend
+	Expect(data ...interface{}) IExpect
 }
 
 type defaultInstance struct {
-	t        TestingT
+	steps    []Step
 	request  *HTTPRequest
 	response *HTTPResponse
 	client   *http.Client
 	state    State
-	send     *defaultSend
-	expect   *defaultExpect
 	stdout   io.Writer
 	baseURL  string
 }
 
 // SetRequest sets the request for the current instance
-func (hit *defaultInstance) SetRequest(request *http.Request) Hit {
+func (hit *defaultInstance) SetRequest(request *http.Request) {
 	hit.request = newHTTPRequest(hit, request)
-	return hit
-}
-
-func (hit *defaultInstance) setMethodAndUrl(method, url string, a ...interface{}) Hit {
-	request, err := http.NewRequest(method, hit.baseURL+fmt.Sprintf(url, a...), nil)
-	errortrace.Panic.NoError(hit.T(), err, "unable to create request")
-	return hit.SetRequest(request)
-}
-
-func (hit *defaultInstance) Connect(url string, a ...interface{}) Hit {
-	return hit.setMethodAndUrl("CONNECT", url, a...)
-}
-func (hit *defaultInstance) Delete(url string, a ...interface{}) Hit {
-	return hit.setMethodAndUrl("DELETE", url, a...)
-}
-
-func (hit *defaultInstance) Get(url string, a ...interface{}) Hit {
-	return hit.setMethodAndUrl("GET", url, a...)
-}
-
-func (hit *defaultInstance) Head(url string, a ...interface{}) Hit {
-	return hit.setMethodAndUrl("HEAD", url, a...)
-}
-
-func (hit *defaultInstance) Post(url string, a ...interface{}) Hit {
-	return hit.setMethodAndUrl("POST", url, a...)
-}
-
-func (hit *defaultInstance) Options(url string, a ...interface{}) Hit {
-	return hit.setMethodAndUrl("OPTIONS", url, a...)
-}
-
-func (hit *defaultInstance) Put(url string, a ...interface{}) Hit {
-	return hit.setMethodAndUrl("PUT", url, a...)
-}
-
-func (hit *defaultInstance) Trace(url string, a ...interface{}) Hit {
-	return hit.setMethodAndUrl("TRACE", url, a...)
-}
-
-func (hit *defaultInstance) T() TestingT {
-	return hit.t
 }
 
 func (hit *defaultInstance) Request() *HTTPRequest {
@@ -156,250 +73,354 @@ func (hit *defaultInstance) Response() *HTTPResponse {
 	return hit.response
 }
 
-func (hit *defaultInstance) SetHTTPClient(client *http.Client) Hit {
+func (hit *defaultInstance) SetHTTPClient(client *http.Client) {
 	hit.client = client
-	return hit
 }
 
 func (hit *defaultInstance) HTTPClient() *http.Client {
 	return hit.client
 }
 
-func (hit *defaultInstance) SetStdout(w io.Writer) Hit {
+func (hit *defaultInstance) SetStdout(w io.Writer) {
 	hit.stdout = w
-	return hit
 }
 
 func (hit *defaultInstance) Stdout() io.Writer {
 	return hit.stdout
 }
 
-// Expects expects the body to be equal the specified value, omit the parameter to get more options
-// Examples:
-//           Expect("Hello World")
-//           Expect().Body().Contains("Hello World")
-func (hit *defaultInstance) Expect(data ...interface{}) Expect {
-	if arg := getLastArgument(data); arg != nil {
-		hit.expect.Interface(arg)
-	}
-	return hit.expect
-}
-
-// Send sends the specified data as the body payload
-// Examples:
-//           Send("Hello World")
-//           Send().Body("Hello World")
-func (hit *defaultInstance) Send(data ...interface{}) Send {
-	if arg := getLastArgument(data); arg != nil {
-		hit.send.Interface(arg)
-	}
-	return hit.send
-}
-
-func (hit *defaultInstance) Do() Hit {
-	if hit.State() != Ready {
-		errortrace.Panic.Errorf(hit.T(), "request already fired")
-	}
-
-	hit.state = Working
-	hit.runSendCalls()
-
-	hit.request.Request.Body = hit.request.Body().Reader()
-
-	res, err := hit.client.Do(hit.request.Request)
-	errortrace.Panic.NoError(hit.T(), err, "unable to perform request")
-	hit.response = newHTTPResponse(hit, res)
-	hit.runExpectCalls()
-	if hit.request.Request.Body != nil {
-		_ = hit.request.Request.Body.Close()
-	}
-	hit.state = Done
-	return hit
-}
-
-func (hit *defaultInstance) State() State {
-	return hit.state
-}
-
-func (hit *defaultInstance) runSendCalls() {
-	send := hit.send.CollectedSends()
-	for i := 0; i < len(send); i++ {
-		send[i](hit)
-	}
-}
-
-func (hit *defaultInstance) runExpectCalls() {
-	expect := hit.expect.CollectedExpects()
-	for i := 0; i < len(expect); i++ {
-		expect[i](hit)
-	}
-}
-
-func (hit *defaultInstance) Debug() Hit {
-	type M map[string]interface{}
-
-	getBody := func(body *HTTPBody) interface{} {
-		reader := body.JSON().body.Reader()
-		// if there is a json reader
-		if reader != nil {
-			var container interface{}
-			if err := json.NewDecoder(reader).Decode(&container); err == nil {
-				return container
-			}
-		}
-		return body.Bytes()
-	}
-
-	getHeader := func(header http.Header) map[string]interface{} {
-		m := make(map[string]interface{})
-		for key := range header {
-			m[key] = header.Get(key)
-		}
-		return m
-	}
-
-	m := M{
-		"Request": M{
-			"Header":           getHeader(hit.request.Header),
-			"Trailer":          getHeader(hit.request.Trailer),
-			"Method":           hit.request.Method,
-			"URL":              hit.request.URL,
-			"Proto":            hit.request.Proto,
-			"ProtoMajor":       hit.request.ProtoMajor,
-			"ProtoMinor":       hit.request.ProtoMinor,
-			"ContentLength":    hit.request.ContentLength,
-			"TransferEncoding": hit.request.TransferEncoding,
-			"Host":             hit.request.Host,
-			"Form":             hit.request.Form,
-			"PostForm":         hit.request.PostForm,
-			"MultipartForm":    hit.request.MultipartForm,
-			"RemoteAddr":       hit.request.RemoteAddr,
-			"RequestURI":       hit.request.RequestURI,
-			"Body":             getBody(hit.request.body),
-		},
-	}
-
-	if hit.response != nil {
-		m["Response"] = M{
-			"Header":           getHeader(hit.response.Header),
-			"Trailer":          getHeader(hit.response.Trailer),
-			"Proto":            hit.response.Proto,
-			"ProtoMajor":       hit.response.ProtoMajor,
-			"ProtoMinor":       hit.response.ProtoMinor,
-			"ContentLength":    hit.response.ContentLength,
-			"TransferEncoding": hit.response.TransferEncoding,
-			"Body":             getBody(hit.response.body),
-			"Status":           hit.response.Status,
-			"StatusCode":       hit.response.StatusCode,
-		}
-	}
-
-	bytes, err := json.Marshal(m)
-	errortrace.Panic.NoError(hit.T(), err)
-	_, _ = hit.stdout.Write(pretty.Color(pretty.Pretty(bytes), nil))
-
-	return hit
-}
-
-// Copy creates a new instance with the values of the parent instance
-func (hit *defaultInstance) Copy() Hit {
-	e := &defaultInstance{
-		t:       hit.t,
-		client:  hit.client,
-		stdout:  hit.stdout,
-		baseURL: hit.baseURL,
-	}
-	// copy hit.request.Request
-
-	if hit.request != nil {
-		e.request = hit.request.copy(e)
-	}
-
-	// copy send
-	e.send = hit.send.copy(e)
-	// copy expect
-	e.expect = hit.expect.copy(e)
-	return e
-}
-
-// SetBaseURL sets the base url for each Connect, Delete, Get, Head, Post, Options, Put, Trace, WithMethod call
-func (hit *defaultInstance) SetBaseURL(s string) Hit {
+func (hit *defaultInstance) SetBaseURL(s string) {
 	hit.baseURL = s
-	return hit
 }
 
 func (hit *defaultInstance) BaseURL() string {
 	return hit.baseURL
 }
 
-func New(t TestingT) Hit {
-	e := &defaultInstance{
-		t:      t,
-		client: http.DefaultClient,
-		stdout: os.Stdout,
+func (hit *defaultInstance) SetSteps(calls []Step) {
+	hit.steps = calls
+}
+
+func (hit *defaultInstance) Steps() []Step {
+	return hit.steps
+}
+
+func (hit *defaultInstance) AddSteps(steps ...Step) {
+	if len(steps) <= 0 {
+		return
 	}
-	e.send = newSend(e)
-	e.expect = newExpect(e)
-	return e
+	hit.steps = append(hit.steps, steps...)
+}
+
+func (hit *defaultInstance) RemoveSteps(steps ...Step) {
+	size := len(steps)
+	if size <= 0 {
+		return
+	}
+	for i := 0; i < size; i++ {
+		for j := len(hit.steps) - 1; j >= 0; j++ {
+			if hit.steps[j] == steps[i] {
+				hit.steps = append(hit.steps[:j], hit.steps[j+1:]...)
+				break
+			}
+		}
+	}
+}
+
+func (hit *defaultInstance) collectSteps(state StepTime, offset int) []Step {
+	var steps []Step
+	for i := offset; i < len(hit.steps); i++ {
+		w := hit.steps[i].when()
+		if w&^CleanStep == state { // remove CleanStep flag
+			if w&CleanStep == CleanStep { // if CleanStep is set
+				steps = nil
+				continue
+			}
+			steps = append(steps, hit.steps[i])
+		}
+	}
+	return steps
+}
+
+func (hit *defaultInstance) runSteps(state StepTime) (err error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			if _, ok := r.(errortrace.ErrorTraceError); !ok {
+				err = errortrace.FormatError(fmt.Sprintf("%v", r))
+				return
+			}
+			err = fmt.Errorf("%v", r)
+		}
+	}()
+
+	totalSteps := len(hit.steps)
+	// find all steps we want to run
+	stepsToRun := hit.collectSteps(state, 0)
+	size := len(stepsToRun)
+	i := 0
+	for {
+		if i >= size {
+			return nil
+		}
+		stepsToRun[i].exec(hit)
+
+		// maybe there is a new step added
+		newTotalSteps := len(hit.steps)
+		if totalSteps != newTotalSteps {
+			// yes they have been modified
+			// find all new steps after the last scan
+			stepsToRun = append(stepsToRun[:i], hit.collectSteps(state, totalSteps-1)...)
+			size = len(stepsToRun)
+			i = 0
+			totalSteps = newTotalSteps
+			continue
+		}
+		i++
+	}
+}
+
+// Expects expects the body to be equal the specified value, omit the parameter to get more options
+// Examples:
+//           Expect("Hello World")
+//           Expect().Body().Contains("Hello World")
+func (hit *defaultInstance) Expect(data ...interface{}) IExpect {
+	step := Expect(data...)
+	hit.AddSteps(step)
+	return step
+}
+
+// Send sends the specified data as the body payload
+// Examples:
+//           Send("Hello World")
+//           Send().Body("Hello World")
+func (hit *defaultInstance) Send(data ...interface{}) ISend {
+	step := Send(data...)
+	hit.AddSteps(step)
+	return step
+}
+
+func makeURL(base, url string, a ...interface{}) string {
+	if base != "" {
+		base = strings.TrimRight(base, "/")
+	}
+	return base + strings.TrimLeft(fmt.Sprintf(url, a...), "/")
+}
+
+// Expects expects the body to be equal the specified value, omit the parameter to get more options
+// Examples:
+//           Expect("Hello World")
+//           Expect().Body().Contains("Hello World")
+func Expect(data ...interface{}) IExpect {
+	if arg, ok := getLastArgument(data); ok {
+		return &dummyExpect{newExpect().Interface(arg)}
+	}
+	return newExpect()
+}
+
+// Send sends the specified data as the body payload
+// Examples:
+//           Send("Hello World")
+//           Send().Body("Hello World")
+func Send(data ...interface{}) ISend {
+	if arg, ok := getLastArgument(data); ok {
+		return &dummySend{newSend().Interface(arg)}
+	}
+	return newSend()
+}
+
+func Debug() Step {
+	return MakeStep(BeforeExpectStep, func(hit Hit) {
+		type M map[string]interface{}
+
+		getBody := func(body *HTTPBody) interface{} {
+			reader := body.JSON().body.Reader()
+			// if there is a json reader
+			if reader != nil {
+				var container interface{}
+				if err := json.NewDecoder(reader).Decode(&container); err == nil {
+					return container
+				}
+			}
+			return body.Bytes()
+		}
+
+		getHeader := func(header http.Header) map[string]interface{} {
+			m := make(map[string]interface{})
+			for key := range header {
+				m[key] = header.Get(key)
+			}
+			return m
+		}
+
+		m := M{
+			"Request": M{
+				"Header":           getHeader(hit.Request().Header),
+				"Trailer":          getHeader(hit.Request().Trailer),
+				"Method":           hit.Request().Method,
+				"URL":              hit.Request().URL,
+				"Proto":            hit.Request().Proto,
+				"ProtoMajor":       hit.Request().ProtoMajor,
+				"ProtoMinor":       hit.Request().ProtoMinor,
+				"ContentLength":    hit.Request().ContentLength,
+				"TransferEncoding": hit.Request().TransferEncoding,
+				"Host":             hit.Request().Host,
+				"Form":             hit.Request().Form,
+				"PostForm":         hit.Request().PostForm,
+				"MultipartForm":    hit.Request().MultipartForm,
+				"RemoteAddr":       hit.Request().RemoteAddr,
+				"RequestURI":       hit.Request().RequestURI,
+				"Body":             getBody(hit.Request().Body()),
+			},
+			"Response": M{
+				"Header":           getHeader(hit.Response().Header),
+				"Trailer":          getHeader(hit.Response().Trailer),
+				"Proto":            hit.Response().Proto,
+				"ProtoMajor":       hit.Response().ProtoMajor,
+				"ProtoMinor":       hit.Response().ProtoMinor,
+				"ContentLength":    hit.Response().ContentLength,
+				"TransferEncoding": hit.Response().TransferEncoding,
+				"Body":             getBody(hit.Response().body),
+				"Status":           hit.Response().Status,
+				"StatusCode":       hit.Response().StatusCode,
+			},
+		}
+
+		bytes, err := json.Marshal(m)
+		errortrace.NoError(err)
+		_, _ = hit.Stdout().Write(pretty.Color(pretty.Pretty(bytes), nil))
+	})
+}
+
+// SetBaseURL sets the base url for each Connect, Delete, Get, Head, Post, Options, Put, Trace, WithMethod call
+func SetBaseURL(s string) Step {
+	return MakeStep(BeforeSendStep, func(hit Hit) {
+		hit.SetBaseURL(s)
+	})
 }
 
 // WithRequest creates a new Hit instance with an existing http request
-func WithRequest(t TestingT, request *http.Request) Hit {
-	return New(t).SetRequest(request)
+func WithRequest(request *http.Request) Step {
+	return MakeStep(BeforeSendStep, func(hit Hit) {
+		hit.SetRequest(request)
+	})
 }
 
 // WithMethod creates a new Hit instance with the specified method and url
 // WithMethod(t, "POST", "http://%s/%s", domain, path)
-func WithMethod(t TestingT, method, url string, a ...interface{}) Hit {
-	request, err := http.NewRequest(method, fmt.Sprintf(url, a...), nil)
-	errortrace.Panic.NoError(t, err, "unable to create request")
-	return WithRequest(t, request)
+func WithMethod(method, url string, a ...interface{}) Step {
+	et := errortrace.Prepare()
+	return MakeStep(BeforeSendStep, func(hit Hit) {
+		request, err := http.NewRequest(method, makeURL(hit.BaseURL(), url, a...), nil)
+		et.NoError(err, "unable to create request")
+		hit.SetRequest(request)
+	})
 }
 
 // Connect creates a new Hit instance with CONNECT as the http method, use the optional arguments to format the url
 // Connect(t, "http://%s/%s", domain, path)
-func Connect(t TestingT, url string, a ...interface{}) Hit {
-	return WithMethod(t, "CONNECT", url, a...)
+func Connect(url string, a ...interface{}) Step {
+	return WithMethod("CONNECT", url, a...)
 }
 
 // Delete creates a new Hit instance with DELETE as the http method, use the optional arguments to format the url
-// Delete(t, "http://%s/%s", domain, path)
-func Delete(t TestingT, url string, a ...interface{}) Hit {
-	return WithMethod(t, "DELETE", url, a...)
+// Delete("http://%s/%s", domain, path)
+func Delete(url string, a ...interface{}) Step {
+	return WithMethod("DELETE", url, a...)
 }
 
 // Get creates a new Hit instance with GET as the http method, use the optional arguments to format the url
-// Get(t, "http://%s/%s", domain, path)
-func Get(t TestingT, url string, a ...interface{}) Hit {
-	return WithMethod(t, "GET", url, a...)
+// Get("http://%s/%s", domain, path)
+func Get(url string, a ...interface{}) Step {
+	return WithMethod("GET", url, a...)
 }
 
 // Head creates a new Hit instance with HEAD as the http method, use the optional arguments to format the url
-// Head(t, "http://%s/%s", domain, path)
-func Head(t TestingT, url string, a ...interface{}) Hit {
-	return WithMethod(t, "HEAD", url, a...)
+// Head("http://%s/%s", domain, path)
+func Head(url string, a ...interface{}) Step {
+	return WithMethod("HEAD", url, a...)
 }
 
 // Post creates a new Hit instance with POST as the http method, use the optional arguments to format the url
-// Post(t, "http://%s/%s", domain, path)
-func Post(t TestingT, url string, a ...interface{}) Hit {
-	return WithMethod(t, "POST", url, a...)
+// Post("http://%s/%s", domain, path)
+func Post(url string, a ...interface{}) Step {
+	return WithMethod("POST", url, a...)
 }
 
 // Options creates a new Hit instance with OPTIONS as the http method, use the optional arguments to format the url
-// Options(t, "http://%s/%s", domain, path)
-func Options(t TestingT, url string, a ...interface{}) Hit {
-	return WithMethod(t, "OPTIONS", url, a...)
+// Options("http://%s/%s", domain, path)
+func Options(url string, a ...interface{}) Step {
+	return WithMethod("OPTIONS", url, a...)
 }
 
 // Put creates a new Hit instance with PUT as the http method, use the optional arguments to format the url
-// Put(t, "http://%s/%s", domain, path)
-func Put(t TestingT, url string, a ...interface{}) Hit {
-	return WithMethod(t, "PUT", url, a...)
+// Put("http://%s/%s", domain, path)
+func Put(url string, a ...interface{}) Step {
+	return WithMethod("PUT", url, a...)
 }
 
 // Trace creates a new Hit instance with TRACE as the http method, use the optional arguments to format the url
-// Trace(t, "http://%s/%s", domain, path)
-func Trace(t TestingT, url string, a ...interface{}) Hit {
-	return WithMethod(t, "TRACE", url, a...)
+// Trace("http://%s/%s", domain, path)
+func Trace(url string, a ...interface{}) Step {
+	return WithMethod("TRACE", url, a...)
+}
+
+func Test(t TestingT, steps ...Step) {
+	if err := Do(steps...); err != nil {
+		t.Error(err.Error())
+	}
+}
+
+func Do(steps ...Step) error {
+	hit := &defaultInstance{
+		client: http.DefaultClient,
+		stdout: os.Stdout,
+		steps:  steps,
+	}
+	if err := hit.runSteps(BeforeSendStep); err != nil {
+		return err
+	}
+	if hit.request == nil {
+		return fmt.Errorf("unable to perform request: no request set, did you called Post(), Get(), ...?")
+	}
+	if err := hit.runSteps(SendStep); err != nil {
+		return err
+	}
+	if err := hit.runSteps(AfterSendStep); err != nil {
+		return err
+	}
+	hit.request.Request.Body = hit.request.Body().Reader()
+	res, err := hit.client.Do(hit.request.Request)
+	if err != nil {
+		return fmt.Errorf("unable to perform request: %s", err.Error())
+	}
+
+	hit.response = newHTTPResponse(hit, res)
+	if err := hit.runSteps(BeforeExpectStep); err != nil {
+		return err
+	}
+	if err := hit.runSteps(ExpectStep); err != nil {
+		return err
+	}
+	if err := hit.runSteps(AfterExpectStep); err != nil {
+		return err
+	}
+	if hit.request.Request.Body != nil {
+		_ = hit.request.Request.Body.Close()
+	}
+	return nil
+}
+
+func RemoveCalls(whenToRun, whichToRemove StepTime) Step {
+	return MakeStep(whenToRun, func(hit Hit) {
+		calls := hit.Steps()
+		size := len(calls)
+		newCalls := make([]Step, 0, size)
+		for i := 0; i < size; i++ {
+			if calls[i].when() == whichToRemove {
+				newCalls = append(newCalls, calls[i])
+			}
+		}
+		hit.SetSteps(calls)
+	})
 }

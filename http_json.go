@@ -20,19 +20,19 @@ func newHTTPJson(body *HTTPBody) *HTTPJson {
 
 // Get returns the body as an interface type based on the underlying data
 func (jsn *HTTPJson) Get() (container interface{}) {
-	errortrace.Panic.NoError(jsn.Hit.T(), json.NewDecoder(jsn.body.Reader()).Decode(&container))
+	errortrace.NoError(json.NewDecoder(jsn.body.Reader()).Decode(&container))
 	return container
 }
 
 // GetAs returns the body as the specified interface type
 func (jsn *HTTPJson) GetAs(container interface{}) interface{} {
-	errortrace.Panic.NoError(jsn.Hit.T(), json.NewDecoder(jsn.body.Reader()).Decode(container))
+	errortrace.NoError(json.NewDecoder(jsn.body.Reader()).Decode(container))
 	return container
 }
 
 // Set sets the body to the specified json data
 func (jsn *HTTPJson) Set(data interface{}) {
 	buf, err := json.Marshal(data)
-	errortrace.Panic.NoError(jsn.Hit.T(), err)
+	errortrace.NoError(err)
 	jsn.body.SetBytes(buf)
 }

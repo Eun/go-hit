@@ -2,8 +2,8 @@ package hit
 
 import "github.com/Eun/go-hit/internal"
 
-type Expect interface {
-	Hit
+type IExpect interface {
+	Step
 	// Body expects the body to be equal the specified value, omit the parameter to get more options
 	// Examples:
 	//           Expect().Body("Hello World")
@@ -11,7 +11,7 @@ type Expect interface {
 	Body(data ...interface{}) *expectBody
 
 	// Interface expects the specified interface
-	Interface(interface{}) Hit
+	Interface(interface{}) Step
 
 	// Custom can be used to expect a custom behaviour
 	// Example:
@@ -20,7 +20,7 @@ type Expect interface {
 	//                   hit.T().FailNow()
 	//               }
 	//           })
-	Custom(f Callback) Hit
+	Custom(f Callback) Step
 
 	// Headers gets the specified header, omit the parameter to get all headers
 	// Examples:
@@ -34,26 +34,28 @@ type Expect interface {
 	//           Expect().Status().Equal(200)
 	Status(code ...int) *expectStatus
 
-	// Clear removes all previous expect calls
+	// Clear removes all previous expect steps
 	// Example:
 	//           Expect().Status(200).  // Will be ignored
-	//           Clear().
+	//           Expect().Clear().
 	//           Expect().Status(404)
-	Clear() Hit
-
-	// CollectedExpects returns all the collected expect calls
-	CollectedExpects() []Callback
+	Clear() Step
 }
 
 type defaultExpect struct {
-	Hit
-	expectCalls []Callback
+	call Callback
 }
 
-func newExpect(hit Hit) *defaultExpect {
-	return &defaultExpect{
-		Hit: hit,
-	}
+func newExpect() *defaultExpect {
+	return &defaultExpect{}
+}
+
+func (exp *defaultExpect) when() StepTime {
+	return ExpectStep
+}
+
+func (exp *defaultExpect) exec(hit Hit) {
+	exp.call(hit)
 }
 
 // Body expects the body to be equal the specified value, omit the parameter to get more options
@@ -62,7 +64,7 @@ func newExpect(hit Hit) *defaultExpect {
 //           Expect().Body().Contains("Hello World")
 func (exp *defaultExpect) Body(data ...interface{}) *expectBody {
 	body := newExpectBody(exp)
-	if arg := getLastArgument(data); arg != nil {
+	if arg, ok := getLastArgument(data); ok {
 		body.Equal(arg)
 	}
 	return body
@@ -75,14 +77,9 @@ func (exp *defaultExpect) Body(data ...interface{}) *expectBody {
 //                   hit.T().FailNow()
 //               }
 //           })
-func (exp *defaultExpect) Custom(f Callback) Hit {
-	switch exp.Hit.State() {
-	case Done, Working:
-		f(exp.Hit)
-	default: // ready
-		exp.expectCalls = append(exp.expectCalls, f)
-	}
-	return exp.Hit
+func (exp *defaultExpect) Custom(f Callback) Step {
+	exp.call = f
+	return exp
 }
 
 // Headers gets the specified header, omit the parameter to get all headers
@@ -108,18 +105,17 @@ func (exp *defaultExpect) Status(code ...int) *expectStatus {
 	return s
 }
 
-// Clear removes all previous expect calls
+// Clear removes all previous expect steps
 // Example:
 //           Expect().Status(200).  // Will be ignored
-//           Clear().
+//           Expect().Clear().
 //           Expect().Status(404)
-func (exp *defaultExpect) Clear() Hit {
-	exp.expectCalls = nil
-	return exp.Hit
+func (exp *defaultExpect) Clear() Step {
+	return MakeStep(ExpectStep|CleanStep, func(hit Hit) {})
 }
 
 // Interface expects the specified interface
-func (exp *defaultExpect) Interface(data interface{}) Hit {
+func (exp *defaultExpect) Interface(data interface{}) Step {
 	switch x := data.(type) {
 	case func(e Hit):
 		return exp.Custom(x)
@@ -133,19 +129,30 @@ func (exp *defaultExpect) Interface(data interface{}) Hit {
 	}
 }
 
-// CollectedExpects returns all the collected expect calls
-func (exp *defaultExpect) CollectedExpects() []Callback {
-	return exp.expectCalls
+type dummyExpect struct {
+	Step
 }
 
-func (exp *defaultExpect) copy(toHit Hit) *defaultExpect {
-	n := &defaultExpect{
-		Hit: toHit,
-	}
-	// copy the expect calls
-	n.expectCalls = make([]Callback, len(exp.expectCalls))
-	for i, v := range exp.expectCalls {
-		n.expectCalls[i] = v
-	}
-	return n
+func (d *dummyExpect) Body(data ...interface{}) *expectBody {
+	panic("implement me")
+}
+
+func (d *dummyExpect) Interface(interface{}) Step {
+	panic("implement me")
+}
+
+func (d *dummyExpect) Custom(f Callback) Step {
+	panic("implement me")
+}
+
+func (d *dummyExpect) Headers(name ...string) *expectHeaders {
+	panic("implement me")
+}
+
+func (d *dummyExpect) Status(code ...int) *expectStatus {
+	panic("implement me")
+}
+
+func (d *dummyExpect) Clear() Step {
+	panic("implement me")
 }

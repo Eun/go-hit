@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Eun/go-hit"
+	. "github.com/Eun/go-hit"
 	"github.com/stretchr/testify/require"
 )
 
@@ -19,9 +19,10 @@ func TestExpectHeader_Equal(t *testing.T) {
 	defer s.Close()
 
 	t.Run("", func(t *testing.T) {
-		hit.Post(t, s.URL).
-			Expect().Headers().Equal(map[string]string{"X-Header": "Hello", "Content-Length": "0"}).
-			Do()
+		Test(t,
+			Post(s.URL),
+			Expect().Headers().Equal(map[string]string{"X-Header": "Hello", "Content-Length": "0"}),
+		)
 	})
 }
 
@@ -35,17 +36,20 @@ func TestExpectHeaders_Contains(t *testing.T) {
 	defer s.Close()
 
 	t.Run("", func(t *testing.T) {
-		hit.Post(t, s.URL).
-			Expect().Headers().Contains("X-Header").
-			Do()
+		Test(t,
+			Post(s.URL),
+			Expect().Headers().Contains("X-Header"),
+		)
 	})
 
 	t.Run("", func(t *testing.T) {
-		require.Panics(t, func() {
-			hit.Post(NewPanicWithMessage(t, PtrStr("http.Header{"), nil, nil, nil, nil, nil, nil, PtrStr(`} does not contain "X-Header2"`)), s.URL).
-				Expect().Headers().Contains("X-Header2").
-				Do()
-		})
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Expect().Headers().Contains("X-Header2"),
+			),
+			PtrStr("http.Header{"), nil, nil, nil, nil, nil, nil, PtrStr(`} does not contain "X-Header2"`),
+		)
 	})
 }
 
@@ -58,16 +62,15 @@ func TestExpectHeaders_Get(t *testing.T) {
 	defer s.Close()
 
 	t.Run("", func(t *testing.T) {
-		hit.Post(t, s.URL).
-			Expect().Headers().Get("X-Header").Equal("Hello").
-			Do()
+		Test(t,
+			Post(s.URL),
+			Expect().Headers().Get("X-Header").Equal("Hello"),
+		)
 	})
 
 	t.Run("", func(t *testing.T) {
 		require.Panics(t, func() {
-			hit.Post(NewPanicWithMessage(t, PtrStr("Get can only be used if no header was already specified")), s.URL).
-				Expect().Headers().Get("X-Header").Get("X-Header").Equal("Hello").
-				Do()
+			Expect().Headers().Get("X-Header").Get("X-Header")
 		})
 	})
 }
@@ -81,17 +84,20 @@ func TestExpectHeadersSpecificHeader_Len(t *testing.T) {
 	defer s.Close()
 
 	t.Run("", func(t *testing.T) {
-		hit.Post(t, s.URL).
-			Expect().Headers("X-Header").Len(5).
-			Do()
+		Test(t,
+			Post(s.URL),
+			Expect().Headers("X-Header").Len(5),
+		)
 	})
 
 	t.Run("", func(t *testing.T) {
-		require.Panics(t, func() {
-			hit.Post(NewPanicWithMessage(t, PtrStr(`"Hello" should have 0 item(s), but has 5`)), s.URL).
-				Expect().Headers("X-Header").Len(0).
-				Do()
-		})
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Expect().Headers("X-Header").Len(0),
+			),
+			PtrStr(`"Hello" should have 0 item(s), but has 5`),
+		)
 	})
 }
 
@@ -104,17 +110,20 @@ func TestExpectHeadersSpecificHeader_Empty(t *testing.T) {
 	defer s.Close()
 
 	t.Run("", func(t *testing.T) {
-		hit.Post(t, s.URL).
-			Expect().Headers("X-Header2").Empty().
-			Do()
+		Test(t,
+			Post(s.URL),
+			Expect().Headers("X-Header2").Empty(),
+		)
 	})
 
 	t.Run("", func(t *testing.T) {
-		require.Panics(t, func() {
-			hit.Post(NewPanicWithMessage(t, PtrStr(`"Hello" should be empty, but has 5 item(s)`)), s.URL).
-				Expect().Headers("X-Header1").Empty().
-				Do()
-		})
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Expect().Headers("X-Header1").Empty(),
+			),
+			PtrStr(`"Hello" should be empty, but has 5 item(s)`),
+		)
 	})
 }
 
@@ -127,17 +136,20 @@ func TestExpectSpecificHeader_Equal(t *testing.T) {
 	defer s.Close()
 
 	t.Run("", func(t *testing.T) {
-		hit.Post(t, s.URL).
-			Expect().Headers("X-Header").Equal("Hello").
-			Do()
+		Test(t,
+			Post(s.URL),
+			Expect().Headers("X-Header").Equal("Hello"),
+		)
 	})
 
 	t.Run("", func(t *testing.T) {
-		require.Panics(t, func() {
-			hit.Post(NewPanicWithMessage(t, PtrStr("Not equal"), nil, nil, nil, nil, nil, nil), s.URL).
-				Expect().Headers("X-Header").Equal("Bye").
-				Do()
-		})
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Expect().Headers("X-Header").Equal("Bye"),
+			),
+			PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+		)
 	})
 }
 
@@ -150,17 +162,20 @@ func TestExpectSpecificHeader_Contains(t *testing.T) {
 	defer s.Close()
 
 	t.Run("", func(t *testing.T) {
-		hit.Post(t, s.URL).
-			Expect().Headers("X-Header").Contains("Hello").
-			Do()
+		Test(t,
+			Post(s.URL),
+			Expect().Headers("X-Header").Contains("Hello"),
+		)
 	})
 
 	t.Run("", func(t *testing.T) {
-		require.Panics(t, func() {
-			hit.Post(NewPanicWithMessage(t, PtrStr(`"Hello" does not contain "Bye"`)), s.URL).
-				Expect().Headers("X-Header").Contains("Bye").
-				Do()
-		})
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Expect().Headers("X-Header").Contains("Bye"),
+			),
+			PtrStr(`"Hello" does not contain "Bye"`),
+		)
 	})
 }
 
@@ -173,24 +188,29 @@ func TestExpectSpecificHeader_OneOf(t *testing.T) {
 	defer s.Close()
 
 	t.Run("", func(t *testing.T) {
-		hit.Post(t, s.URL).
-			Expect().Headers("X-Header").OneOf("Hello", "World").
-			Do()
+		Test(t,
+			Post(s.URL),
+			Expect().Headers("X-Header").OneOf("Hello", "World"),
+		)
 	})
 
 	t.Run("", func(t *testing.T) {
-		require.Panics(t, func() {
-			hit.Post(NewPanicWithMessage(t, PtrStr("[]interface {}{"), PtrStr(`"Universe",`), PtrStr(`} does not contain "Hello"`)), s.URL).
-				Expect().Headers("X-Header").OneOf("Universe").
-				Do()
-		})
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Expect().Headers("X-Header").OneOf("Universe"),
+			),
+			PtrStr("[]interface {}{"), PtrStr(`"Universe",`), PtrStr(`} does not contain "Hello"`),
+		)
 	})
 
 	t.Run("", func(t *testing.T) {
-		require.Panics(t, func() {
-			hit.Post(NewPanicWithMessage(t, PtrStr("OneOf can only be used if a header was already specified")), s.URL).
-				Expect().Headers().OneOf("Universe").
-				Do()
-		})
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Expect().Headers().OneOf("Universe"),
+			),
+			PtrStr("OneOf can only be used if a header was already specified"),
+		)
 	})
 }

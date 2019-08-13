@@ -1,78 +1,72 @@
 package hit
 
 import (
-	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
 )
 
-type Send interface {
-	Hit
+// import (
+// 	"github.com/Eun/go-hit/errortrace"
+// 	"github.com/Eun/go-hit/internal"
+// )
+//
+type ISend interface {
+	Step
 	Body(data ...interface{}) *sendBody
-	Custom(f Callback) Hit
-	JSON(data interface{}) Hit
-	Headers() *sendHeaders
-	Clear() Hit
-	Interface(data interface{}) Hit
-	CollectedSends() []Callback
+	Custom(f Callback) Step
+	JSON(data interface{}) Step
+	Headers(name ...string) *sendHeaders
+	Clear() Step
+	Interface(data interface{}) Step
 }
 
 type defaultSend struct {
-	Hit
-	sendCalls []Callback
-	headers   *sendHeaders
-	body      *sendBody
+	headers *sendHeaders
+	body    *sendBody
+	call    Callback
 }
 
-func newSend(hit Hit) *defaultSend {
-	snd := &defaultSend{
-		Hit: hit,
-	}
+func (exp *defaultSend) when() StepTime {
+	return SendStep
+}
+
+func (exp *defaultSend) exec(hit Hit) {
+	exp.call(hit)
+}
+
+func newSend() *defaultSend {
+	snd := &defaultSend{}
 	snd.headers = newSendHeaders(snd)
 	snd.body = newSendBody(snd)
 	return snd
 }
 
 func (snd *defaultSend) Body(data ...interface{}) *sendBody {
-	if arg := getLastArgument(data); arg != nil {
+	if arg, ok := getLastArgument(data); ok {
 		snd.Interface(arg)
 	}
 	return snd.body
 }
 
 // Custom can be used to send a custom behaviour
-func (snd *defaultSend) Custom(f Callback) Hit {
-	switch snd.State() {
-	case Done:
-		errortrace.Panic.Errorf(snd.Hit.T(), "request already fired")
-	case Working:
-		f(snd.Hit)
-	default:
-		snd.sendCalls = append(snd.sendCalls, f)
-	}
-	return snd.Hit
+func (snd *defaultSend) Custom(f Callback) Step {
+	snd.call = f
+	return snd
 }
 
 // JSON sets the body to the specific data (shortcut for Body().JSON()
-func (snd *defaultSend) JSON(data interface{}) Hit {
+func (snd *defaultSend) JSON(data interface{}) Step {
 	return snd.body.JSON(data)
 }
 
-func (snd *defaultSend) Headers() *sendHeaders {
-	switch snd.State() {
-	case Done:
-		errortrace.Panic.Errorf(snd.Hit.T(), "request already fired")
-		return nil
-	default: // Ready, Working
-		return snd.headers
-	}
+func (snd *defaultSend) Headers(name ...string) *sendHeaders {
+	return snd.headers
 }
 
-func (snd *defaultSend) Clear() Hit {
-	snd.sendCalls = nil
-	return snd.Hit
+func (snd *defaultSend) Clear() Step {
+	return MakeStep(SendStep|CleanStep, func(hit Hit) {})
 }
 
-func (snd *defaultSend) Interface(data interface{}) Hit {
+func (snd *defaultSend) Interface(data interface{}) Step {
 	switch x := data.(type) {
 	case func(e Hit):
 		return snd.Custom(x)
@@ -86,20 +80,30 @@ func (snd *defaultSend) Interface(data interface{}) Hit {
 	}
 }
 
-func (snd *defaultSend) CollectedSends() []Callback {
-	return snd.sendCalls
+type dummySend struct {
+	Step
 }
 
-func (snd *defaultSend) copy(toHit Hit) *defaultSend {
-	n := &defaultSend{
-		Hit: toHit,
-	}
-	n.headers = newSendHeaders(n)
-	n.body = newSendBody(n)
-	// copy the send calls
-	n.sendCalls = make([]Callback, len(snd.sendCalls))
-	for i, v := range snd.sendCalls {
-		n.sendCalls[i] = v
-	}
-	return n
+func (d dummySend) Body(data ...interface{}) *sendBody {
+	panic("implement me")
+}
+
+func (d dummySend) Custom(f Callback) Step {
+	panic("implement me")
+}
+
+func (d dummySend) JSON(data interface{}) Step {
+	panic("implement me")
+}
+
+func (d dummySend) Headers(name ...string) *sendHeaders {
+	panic("implement me")
+}
+
+func (d dummySend) Clear() Step {
+	panic("implement me")
+}
+
+func (d dummySend) Interface(data interface{}) Step {
+	panic("implement me")
 }
