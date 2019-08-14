@@ -34,7 +34,7 @@ func (hdr *expectHeaders) value(headers http.Header) interface{} {
 // Examples:
 //           Expect().Headers().Contains("Content-Type")
 //           Expect().Headers("Content-Type").Contains("application")
-func (hdr *expectHeaders) Contains(v string) Step {
+func (hdr *expectHeaders) Contains(v string) IStep {
 	et := errortrace.Prepare()
 	return hdr.Custom(func(hit Hit) {
 		et.Contains(hdr.value(hit.Response().Header), v)
@@ -44,7 +44,7 @@ func (hdr *expectHeaders) Contains(v string) Step {
 // OneOf checks if the value is one of the specified values
 // Example:
 //           Expect().Headers("Content-Type").OneOf("application/json", "text/x-json")
-func (hdr *expectHeaders) OneOf(values ...interface{}) Step {
+func (hdr *expectHeaders) OneOf(values ...interface{}) IStep {
 	et := errortrace.Prepare()
 	if hdr.specificHeader == "" {
 		return hdr.Custom(func(hit Hit) {
@@ -61,7 +61,7 @@ func (hdr *expectHeaders) OneOf(values ...interface{}) Step {
 // Examples:
 //           Expect().Headers().Empty()
 //           Expect().Headers("Content-Type").Empty()
-func (hdr *expectHeaders) Empty() Step {
+func (hdr *expectHeaders) Empty() IStep {
 	et := errortrace.Prepare()
 	return hdr.Custom(func(hit Hit) {
 		et.Empty(hdr.value(hit.Response().Header))
@@ -73,7 +73,7 @@ func (hdr *expectHeaders) Empty() Step {
 // Examples:
 //           Expect().Headers().Len(0)
 //           Expect().Headers("Content-Type").Len(16)
-func (hdr *expectHeaders) Len(size int) Step {
+func (hdr *expectHeaders) Len(size int) IStep {
 	et := errortrace.Prepare()
 	return hdr.Custom(func(hit Hit) {
 		et.Len(hdr.value(hit.Response().Header), size)
@@ -85,7 +85,7 @@ func (hdr *expectHeaders) Len(size int) Step {
 // Examples:
 //           Expect().Headers().Equal(map[string]string{"Content-Type": "application/json"})
 //           Expect().Headers("Content-Type").Equal("application/json")
-func (hdr *expectHeaders) Equal(v interface{}) Step {
+func (hdr *expectHeaders) Equal(v interface{}) IStep {
 	et := errortrace.Prepare()
 	return hdr.Custom(func(hit Hit) {
 		compareData, err := converter.Convert(hdr.value(hit.Response().Header), v, convert.Options.ConvertEmbeddedStructToParentType())

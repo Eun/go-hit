@@ -3,7 +3,7 @@ package hit
 import "github.com/Eun/go-hit/internal"
 
 type IExpect interface {
-	Step
+	IStep
 	// Body expects the body to be equal the specified value, omit the parameter to get more options
 	// Examples:
 	//           Expect().Body("Hello World")
@@ -11,16 +11,16 @@ type IExpect interface {
 	Body(data ...interface{}) *expectBody
 
 	// Interface expects the specified interface
-	Interface(interface{}) Step
+	Interface(interface{}) IStep
 
 	// Custom can be used to expect a custom behaviour
 	// Example:
-	//           Expect().Custom(func(hit Hit){
+	//           Expect().Custom(func(hit Hit) {
 	//               if hit.Response().StatusCode != 200 {
-	//                   hit.T().FailNow()
+	//                   panic("Expected 200")
 	//               }
 	//           })
-	Custom(f Callback) Step
+	Custom(f Callback) IStep
 
 	// Headers gets the specified header, omit the parameter to get all headers
 	// Examples:
@@ -36,10 +36,12 @@ type IExpect interface {
 
 	// Clear removes all previous expect steps
 	// Example:
-	//           Expect().Status(200).  // Will be ignored
-	//           Expect().Clear().
-	//           Expect().Status(404)
-	Clear() Step
+	//           Do(
+	//               Expect().Status(200),  // Will be ignored
+	//               Expect().Clear(),
+	//               Expect().Status(404),
+	//           )
+	Clear() IStep
 }
 
 type defaultExpect struct {
@@ -74,10 +76,10 @@ func (exp *defaultExpect) Body(data ...interface{}) *expectBody {
 // Example:
 //           Expect().Custom(func(hit Hit){
 //               if hit.Response().StatusCode != 200 {
-//                   hit.T().FailNow()
+//                   panic("Expected 200")
 //               }
 //           })
-func (exp *defaultExpect) Custom(f Callback) Step {
+func (exp *defaultExpect) Custom(f Callback) IStep {
 	exp.call = f
 	return exp
 }
@@ -107,15 +109,17 @@ func (exp *defaultExpect) Status(code ...int) *expectStatus {
 
 // Clear removes all previous expect steps
 // Example:
-//           Expect().Status(200).  // Will be ignored
-//           Expect().Clear().
-//           Expect().Status(404)
-func (exp *defaultExpect) Clear() Step {
-	return MakeStep(ExpectStep|CleanStep, func(hit Hit) {})
+//           Do(
+//               Expect().Status(200),  // Will be ignored
+//               Expect().Clear(),
+//               Expect().Status(404),
+//           )
+func (exp *defaultExpect) Clear() IStep {
+	return Custom(ExpectStep|CleanStep, func(hit Hit) {})
 }
 
 // Interface expects the specified interface
-func (exp *defaultExpect) Interface(data interface{}) Step {
+func (exp *defaultExpect) Interface(data interface{}) IStep {
 	switch x := data.(type) {
 	case func(e Hit):
 		return exp.Custom(x)
@@ -130,18 +134,18 @@ func (exp *defaultExpect) Interface(data interface{}) Step {
 }
 
 type dummyExpect struct {
-	Step
+	IStep
 }
 
 func (d *dummyExpect) Body(data ...interface{}) *expectBody {
 	panic("implement me")
 }
 
-func (d *dummyExpect) Interface(interface{}) Step {
+func (d *dummyExpect) Interface(interface{}) IStep {
 	panic("implement me")
 }
 
-func (d *dummyExpect) Custom(f Callback) Step {
+func (d *dummyExpect) Custom(f Callback) IStep {
 	panic("implement me")
 }
 
@@ -153,6 +157,6 @@ func (d *dummyExpect) Status(code ...int) *expectStatus {
 	panic("implement me")
 }
 
-func (d *dummyExpect) Clear() Step {
+func (d *dummyExpect) Clear() IStep {
 	panic("implement me")
 }

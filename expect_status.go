@@ -17,7 +17,7 @@ func newExpectStatus(expect *defaultExpect) *expectStatus {
 // Equal checks if the status is equal to the specified value
 // Examples:
 //           Expect().Status().Equal(200)
-func (status *expectStatus) Equal(statusCode int) Step {
+func (status *expectStatus) Equal(statusCode int) IStep {
 	et := errortrace.Prepare()
 	return status.Custom(func(hit Hit) {
 		if hit.Response().StatusCode != statusCode {
@@ -29,7 +29,7 @@ func (status *expectStatus) Equal(statusCode int) Step {
 // OneOf checks if the status is one of the specified values
 // Examples:
 //           Expect().Status().OneOf(200, 201)
-func (status *expectStatus) OneOf(statusCodes ...int) Step {
+func (status *expectStatus) OneOf(statusCodes ...int) IStep {
 	et := errortrace.Prepare()
 	return status.Custom(func(hit Hit) {
 		et.Contains(statusCodes, hit.Response().StatusCode)
@@ -39,7 +39,7 @@ func (status *expectStatus) OneOf(statusCodes ...int) Step {
 // GreaterThan checks if the status is greater than the specified value
 // Examples:
 //           Expect().Status().GreaterThan(400)
-func (status *expectStatus) GreaterThan(statusCode int) Step {
+func (status *expectStatus) GreaterThan(statusCode int) IStep {
 	et := errortrace.Prepare()
 	return status.Custom(func(hit Hit) {
 		if hit.Response().StatusCode <= statusCode {
@@ -51,7 +51,7 @@ func (status *expectStatus) GreaterThan(statusCode int) Step {
 // LessThan checks if the status is less than the specified value
 // Examples:
 //           Expect().Status().LessThan(400)
-func (status *expectStatus) LessThan(statusCode int) Step {
+func (status *expectStatus) LessThan(statusCode int) IStep {
 	et := errortrace.Prepare()
 	return status.Custom(func(hit Hit) {
 		if hit.Response().StatusCode >= statusCode {
@@ -63,7 +63,7 @@ func (status *expectStatus) LessThan(statusCode int) Step {
 // GreaterOrEqualThan checks if the status is greater or equal than the specified value
 // Examples:
 //           Expect().Status().GreaterOrEqualThan(200)
-func (status *expectStatus) GreaterOrEqualThan(statusCode int) Step {
+func (status *expectStatus) GreaterOrEqualThan(statusCode int) IStep {
 	et := errortrace.Prepare()
 	return status.Custom(func(hit Hit) {
 		if hit.Response().StatusCode < statusCode {
@@ -75,7 +75,7 @@ func (status *expectStatus) GreaterOrEqualThan(statusCode int) Step {
 // LessOrEqualThan checks if the status is less or equal than the specified value
 // Examples:
 //           Expect().Status().LessOrEqualThan(200)
-func (status *expectStatus) LessOrEqualThan(statusCode int) Step {
+func (status *expectStatus) LessOrEqualThan(statusCode int) IStep {
 	et := errortrace.Prepare()
 	return status.Custom(func(hit Hit) {
 		if hit.Response().StatusCode > statusCode {
@@ -87,7 +87,7 @@ func (status *expectStatus) LessOrEqualThan(statusCode int) Step {
 // Between checks if the status is between the specified value (inclusive)
 // Examples:
 //           Expect().Status().Between(200, 400)
-func (status *expectStatus) Between(min, max int) Step {
+func (status *expectStatus) Between(min, max int) IStep {
 	et := errortrace.Prepare()
 	return status.Custom(func(hit Hit) {
 		if hit.Response().StatusCode < min || hit.Response().StatusCode > max {

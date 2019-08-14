@@ -10,13 +10,13 @@ func newSendBody(send *defaultSend) *sendBody {
 	}
 }
 
-func (body *sendBody) JSON(data interface{}) Step {
+func (body *sendBody) JSON(data interface{}) IStep {
 	return body.Custom(func(hit Hit) {
 		hit.Request().Body().JSON().Set(data)
 	})
 }
 
-func (body *sendBody) Interface(data interface{}) Step {
+func (body *sendBody) Interface(data interface{}) IStep {
 	return body.Custom(func(hit Hit) {
 		hit.Request().Body().Set(data)
 	})

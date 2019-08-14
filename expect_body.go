@@ -27,7 +27,7 @@ func (body *expectBody) JSON(data ...interface{}) *expectBodyJSON {
 // Equal expects the body to be equal to the specified value
 // Example:
 //           Expect().Body().Equal("Hello World")
-func (body *expectBody) Equal(data interface{}) Step {
+func (body *expectBody) Equal(data interface{}) IStep {
 	return body.defaultExpect.Custom(func(hit Hit) {
 		if hit.Response().body.equalOnlyNativeTypes(data) {
 			return
@@ -40,7 +40,7 @@ func (body *expectBody) Equal(data interface{}) Step {
 // Contains expects the body to contains the specified value
 // Example:
 //           Expect().Body().Contains("Hello World")
-func (body *expectBody) Contains(data interface{}) Step {
+func (body *expectBody) Contains(data interface{}) IStep {
 	return body.defaultExpect.Custom(func(hit Hit) {
 		if hit.Response().body.containsOnlyNativeTypes(data) {
 			return

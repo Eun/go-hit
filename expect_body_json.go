@@ -22,9 +22,9 @@ func newExpectBodyJSON(body *expectBody) *expectBodyJSON {
 // Equal expects the json body to be equal the specified value, the first parameter can be used to narrow down the search path
 // Example:
 //           Giving following response: { "ID": 10, "Name": Joe }
-//           IExpect().Body().JSON().Equal("", map[string]interface{}{"ID": 10, "Name": "Joe"})
-//           IExpect().Body().JSON().Equal("ID", 10)
-func (jsn *expectBodyJSON) Equal(expression string, data interface{}) Step {
+//           Expect().Body().JSON().Equal("", map[string]interface{}{"ID": 10, "Name": "Joe"})
+//           Expect().Body().JSON().Equal("ID", 10)
+func (jsn *expectBodyJSON) Equal(expression string, data interface{}) IStep {
 	et := errortrace.Prepare()
 	return jsn.Custom(func(hit Hit) {
 		v, ok, err := expr.GetValue(hit.Response().body.JSON().Get(), expression, expr.IgnoreCase)
@@ -51,9 +51,9 @@ func (jsn *expectBodyJSON) Equal(expression string, data interface{}) Step {
 // Contains expects the json body to contain the specified value, the first parameter can be used to narrow down the search path
 // Example:
 //           Giving following response: { "ID": 10, "Name": Joe }
-//           IExpect().Body().JSON().Contains("", "ID")
-//           IExpect().Body().JSON().Contains("Name", "J")
-func (jsn *expectBodyJSON) Contains(expression string, data interface{}) Step {
+//           Expect().Body().JSON().Contains("", "ID")
+//           Expect().Body().JSON().Contains("Name", "J")
+func (jsn *expectBodyJSON) Contains(expression string, data interface{}) IStep {
 	et := errortrace.Prepare()
 	return jsn.Custom(func(hit Hit) {
 		v, ok, err := expr.GetValue(hit.Response().body.JSON().Get(), expression, expr.IgnoreCase)

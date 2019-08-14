@@ -12,7 +12,7 @@ const (
 	CleanStep StepTime = 0x80
 )
 
-type Step interface {
+type IStep interface {
 	exec(Hit)
 	when() StepTime
 }
@@ -30,7 +30,7 @@ func (c hitStep) when() StepTime {
 	return c.w
 }
 
-func MakeStep(when StepTime, exec func(Hit)) Step {
+func Custom(when StepTime, exec func(Hit)) IStep {
 	return hitStep{
 		w: when,
 		e: exec,

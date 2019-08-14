@@ -10,13 +10,13 @@ import (
 // )
 //
 type ISend interface {
-	Step
+	IStep
 	Body(data ...interface{}) *sendBody
-	Custom(f Callback) Step
-	JSON(data interface{}) Step
+	Custom(f Callback) IStep
+	JSON(data interface{}) IStep
 	Headers(name ...string) *sendHeaders
-	Clear() Step
-	Interface(data interface{}) Step
+	Clear() IStep
+	Interface(data interface{}) IStep
 }
 
 type defaultSend struct {
@@ -48,13 +48,13 @@ func (snd *defaultSend) Body(data ...interface{}) *sendBody {
 }
 
 // Custom can be used to send a custom behaviour
-func (snd *defaultSend) Custom(f Callback) Step {
+func (snd *defaultSend) Custom(f Callback) IStep {
 	snd.call = f
 	return snd
 }
 
 // JSON sets the body to the specific data (shortcut for Body().JSON()
-func (snd *defaultSend) JSON(data interface{}) Step {
+func (snd *defaultSend) JSON(data interface{}) IStep {
 	return snd.body.JSON(data)
 }
 
@@ -62,11 +62,11 @@ func (snd *defaultSend) Headers(name ...string) *sendHeaders {
 	return snd.headers
 }
 
-func (snd *defaultSend) Clear() Step {
-	return MakeStep(SendStep|CleanStep, func(hit Hit) {})
+func (snd *defaultSend) Clear() IStep {
+	return Custom(SendStep|CleanStep, func(hit Hit) {})
 }
 
-func (snd *defaultSend) Interface(data interface{}) Step {
+func (snd *defaultSend) Interface(data interface{}) IStep {
 	switch x := data.(type) {
 	case func(e Hit):
 		return snd.Custom(x)
@@ -81,18 +81,18 @@ func (snd *defaultSend) Interface(data interface{}) Step {
 }
 
 type dummySend struct {
-	Step
+	IStep
 }
 
 func (d dummySend) Body(data ...interface{}) *sendBody {
 	panic("implement me")
 }
 
-func (d dummySend) Custom(f Callback) Step {
+func (d dummySend) Custom(f Callback) IStep {
 	panic("implement me")
 }
 
-func (d dummySend) JSON(data interface{}) Step {
+func (d dummySend) JSON(data interface{}) IStep {
 	panic("implement me")
 }
 
@@ -100,10 +100,10 @@ func (d dummySend) Headers(name ...string) *sendHeaders {
 	panic("implement me")
 }
 
-func (d dummySend) Clear() Step {
+func (d dummySend) Clear() IStep {
 	panic("implement me")
 }
 
-func (d dummySend) Interface(data interface{}) Step {
+func (d dummySend) Interface(data interface{}) IStep {
 	panic("implement me")
 }

@@ -10,19 +10,19 @@ func newSendHeaders(send *defaultSend) *sendHeaders {
 	}
 }
 
-func (hdr *sendHeaders) Set(name, value string) Step {
+func (hdr *sendHeaders) Set(name, value string) IStep {
 	return hdr.Custom(func(hit Hit) {
 		hit.Request().Header.Set(name, value)
 	})
 }
 
-func (hdr *sendHeaders) Delete(name string) Step {
+func (hdr *sendHeaders) Delete(name string) IStep {
 	return hdr.Custom(func(hit Hit) {
 		hit.Request().Header.Del(name)
 	})
 }
 
-func (hdr *sendHeaders) Clear() Step {
+func (hdr *sendHeaders) Clear() IStep {
 	return hdr.Custom(func(hit Hit) {
 		var names []string
 		for name := range hit.Request().Header {

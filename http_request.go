@@ -1,11 +1,11 @@
 package hit
 
 import (
+	"mime/multipart"
 	"net/http"
-
 	"net/url"
 
-	"mime/multipart"
+	"github.com/Eun/go-doppelgangerreader"
 )
 
 type HTTPRequest struct {
@@ -14,19 +14,7 @@ type HTTPRequest struct {
 	body *HTTPBody
 }
 
-func newHTTPRequest(hit Hit, request *http.Request) *HTTPRequest {
-	return &HTTPRequest{
-		Hit:     hit,
-		Request: request,
-		body:    newHTTPBody(hit, request.Body),
-	}
-}
-
-func (req *HTTPRequest) Body() *HTTPBody {
-	return req.body
-}
-
-func (req *HTTPRequest) copy(hit Hit) *HTTPRequest {
+func newHTTPRequest(hit Hit, req *http.Request) *HTTPRequest {
 	u := *req.URL
 
 	newRequest := &http.Request{
@@ -90,9 +78,22 @@ func (req *HTTPRequest) copy(hit Hit) *HTTPRequest {
 		newRequest.TransferEncoding[i] = v
 	}
 
+	var factory *doppelgangerreader.DoppelgangerFactory
+	if req.Body != nil {
+		factory = doppelgangerreader.NewFactory(req.Body)
+		req.Body = factory.NewDoppelganger()
+	}
+
 	return &HTTPRequest{
 		Hit:     hit,
 		Request: newRequest,
-		body:    newHTTPBody(hit, req.Body().Reader()),
+		body: &HTTPBody{
+			hit:     hit,
+			factory: factory,
+		},
 	}
+}
+
+func (req *HTTPRequest) Body() *HTTPBody {
+	return req.body
 }
