@@ -22,11 +22,16 @@ type IExpect interface {
 	//           })
 	Custom(f Callback) IStep
 
-	// Headers gets the specified header, omit the parameter to get all headers
+	// Headers gets all headers
 	// Examples:
-	//           Expect().Headers("Content-Type").Equal("application/json")
 	//           Expect().Headers().Contains("Content-Type")
-	Headers(name ...string) *expectHeaders
+	//           Expect().Headers().Get("Content-Type").Contains("json")
+	Headers() *expectHeaders
+
+	// Header gets the specified header
+	// Example:
+	//           Expect().Headers("Content-Type").Equal("application/json")
+	Header(name string) *expectSpecificHeader
 
 	// Status expects the status to be the specified code, omit the code to get more options
 	// Examples:
@@ -84,15 +89,19 @@ func (exp *defaultExpect) Custom(f Callback) IStep {
 	return exp
 }
 
-// Headers gets the specified header, omit the parameter to get all headers
+// Headers gets all headers
 // Examples:
-//           Expect().Headers("Content-Type").Equal("application/json")
 //           Expect().Headers().Contains("Content-Type")
-func (exp *defaultExpect) Headers(name ...string) *expectHeaders {
-	if size := len(name); size > 0 {
-		return newExpectHeaders(exp, name[size-1])
-	}
-	return newExpectHeaders(exp, "")
+//           Expect().Headers().Get("Content-Type").Contains("json")
+func (exp *defaultExpect) Headers() *expectHeaders {
+	return newExpectHeaders(exp)
+}
+
+// Header gets the specified header
+// Example:
+//           Expect().Header("Content-Type").Equal("application/json")
+func (exp *defaultExpect) Header(name string) *expectSpecificHeader {
+	return newExpectSpecificHeader(exp, name)
 }
 
 // Status expects the status to be the specified code, omit the code to get more options
@@ -149,7 +158,11 @@ func (d *dummyExpect) Custom(f Callback) IStep {
 	panic("implement me")
 }
 
-func (d *dummyExpect) Headers(name ...string) *expectHeaders {
+func (d *dummyExpect) Headers() *expectHeaders {
+	panic("implement me")
+}
+
+func (d *dummyExpect) Header(name string) *expectSpecificHeader {
 	panic("implement me")
 }
 

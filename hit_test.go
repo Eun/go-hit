@@ -265,8 +265,8 @@ func TestMultiUse(t *testing.T) {
 		defer s.Close()
 		template := []IStep{
 			Post(s.URL),
-			Send().Headers().Set("Content-Type", "application/json"),
-			Expect().Headers("Content-Type").Equal("application/json"),
+			Send().Header("Content-Type").Set("application/json"),
+			Expect().Header("Content-Type").Equal("application/json"),
 		}
 		Test(t,
 			append(template,
