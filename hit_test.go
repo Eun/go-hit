@@ -43,7 +43,6 @@ func Test_Debug(t *testing.T) {
 		require.NotNil(t, expr.MustGetValue(m, "Request"))
 		require.Equal(t, "Hello World", expr.MustGetValue(m, "Request.Body"))
 		require.NotNil(t, expr.MustGetValue(m, "Response"))
-
 	})
 
 	t.Run("json decode", func(t *testing.T) {
@@ -258,6 +257,29 @@ func TestMultiUse(t *testing.T) {
 			Custom(AfterSendStep, func(hit Hit) {
 				require.Equal(t, []string{"a", "b"}, hit.Request().TransferEncoding)
 			}),
+		)
+	})
+
+	t.Run("with embedded request", func(t *testing.T) {
+		s := EchoServer()
+		defer s.Close()
+		template := []IStep{
+			Post(s.URL),
+			Send().Headers().Set("Content-Type", "application/json"),
+			Expect().Headers("Content-Type").Equal("application/json"),
+		}
+		Test(t,
+			append(template,
+				Send().Body().JSON("Hello World"),
+				Expect().Body().JSON("Hello World"),
+			)...,
+		)
+
+		Test(t,
+			append(template,
+				Send().Body().JSON("Hello Universe"),
+				Expect().Body().JSON("Hello Universe"),
+			)...,
 		)
 	})
 }
