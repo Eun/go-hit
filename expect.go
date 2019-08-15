@@ -8,7 +8,7 @@ type IExpect interface {
 	// Examples:
 	//           Expect().Body("Hello World")
 	//           Expect().Body().Contains("Hello World")
-	Body(data ...interface{}) *expectBody
+	Body(data ...interface{}) IExpectBody
 
 	// Interface expects the specified interface
 	Interface(interface{}) IStep
@@ -26,18 +26,18 @@ type IExpect interface {
 	// Examples:
 	//           Expect().Headers().Contains("Content-Type")
 	//           Expect().Headers().Get("Content-Type").Contains("json")
-	Headers() *expectHeaders
+	Headers() IExpectHeaders
 
 	// Header gets the specified header
 	// Example:
 	//           Expect().Headers("Content-Type").Equal("application/json")
-	Header(name string) *expectSpecificHeader
+	Header(name string) IExpectSpecificHeader
 
 	// Status expects the status to be the specified code, omit the code to get more options
 	// Examples:
 	//           Expect().Status(200)
 	//           Expect().Status().Equal(200)
-	Status(code ...int) *expectStatus
+	Status(code ...int) IExpectStatus
 
 	// Clear removes all previous expect steps
 	// Example:
@@ -49,32 +49,33 @@ type IExpect interface {
 	Clear() IStep
 }
 
-type defaultExpect struct {
+type expect struct {
 	call Callback
 }
 
-func newExpect() *defaultExpect {
-	return &defaultExpect{}
+func newExpect() IExpect {
+	return &expect{}
 }
 
-func (exp *defaultExpect) when() StepTime {
+func (exp *expect) when() StepTime {
 	return ExpectStep
 }
 
-func (exp *defaultExpect) exec(hit Hit) {
-	exp.call(hit)
+func (exp *expect) exec(hit Hit) {
+	if exp.call != nil {
+		exp.call(hit)
+	}
 }
 
 // Body expects the body to be equal the specified value, omit the parameter to get more options
 // Examples:
 //           Expect().Body("Hello World")
 //           Expect().Body().Contains("Hello World")
-func (exp *defaultExpect) Body(data ...interface{}) *expectBody {
-	body := newExpectBody(exp)
+func (exp *expect) Body(data ...interface{}) IExpectBody {
 	if arg, ok := getLastArgument(data); ok {
-		body.Equal(arg)
+		return finalExpectBody{newExpectBody(exp).Equal(arg)}
 	}
-	return body
+	return newExpectBody(exp)
 }
 
 // Custom can be used to expect a custom behaviour
@@ -84,7 +85,7 @@ func (exp *defaultExpect) Body(data ...interface{}) *expectBody {
 //                   panic("Expected 200")
 //               }
 //           })
-func (exp *defaultExpect) Custom(f Callback) IStep {
+func (exp *expect) Custom(f Callback) IStep {
 	exp.call = f
 	return exp
 }
@@ -93,14 +94,14 @@ func (exp *defaultExpect) Custom(f Callback) IStep {
 // Examples:
 //           Expect().Headers().Contains("Content-Type")
 //           Expect().Headers().Get("Content-Type").Contains("json")
-func (exp *defaultExpect) Headers() *expectHeaders {
+func (exp *expect) Headers() IExpectHeaders {
 	return newExpectHeaders(exp)
 }
 
 // Header gets the specified header
 // Example:
 //           Expect().Header("Content-Type").Equal("application/json")
-func (exp *defaultExpect) Header(name string) *expectSpecificHeader {
+func (exp *expect) Header(name string) IExpectSpecificHeader {
 	return newExpectSpecificHeader(exp, name)
 }
 
@@ -108,12 +109,11 @@ func (exp *defaultExpect) Header(name string) *expectSpecificHeader {
 // Examples:
 //           Expect().Status(200)
 //           Expect().Status().Equal(200)
-func (exp *defaultExpect) Status(code ...int) *expectStatus {
-	s := newExpectStatus(exp)
+func (exp *expect) Status(code ...int) IExpectStatus {
 	if size := len(code); size > 0 {
-		s.Equal(code[size-1])
+		return finalExpectStatus{newExpectStatus(exp).Equal(code[size-1])}
 	}
-	return s
+	return newExpectStatus(exp)
 }
 
 // Clear removes all previous expect steps
@@ -123,12 +123,12 @@ func (exp *defaultExpect) Status(code ...int) *expectStatus {
 //               Expect().Clear(),
 //               Expect().Status(404),
 //           )
-func (exp *defaultExpect) Clear() IStep {
+func (exp *expect) Clear() IStep {
 	return Custom(ExpectStep|CleanStep, func(hit Hit) {})
 }
 
 // Interface expects the specified interface
-func (exp *defaultExpect) Interface(data interface{}) IStep {
+func (exp *expect) Interface(data interface{}) IStep {
 	switch x := data.(type) {
 	case func(e Hit):
 		return exp.Custom(x)
@@ -142,34 +142,34 @@ func (exp *defaultExpect) Interface(data interface{}) IStep {
 	}
 }
 
-type dummyExpect struct {
+type finalExpect struct {
 	IStep
 }
 
-func (d *dummyExpect) Body(data ...interface{}) *expectBody {
-	panic("implement me")
+func (f finalExpect) Body(data ...interface{}) IExpectBody {
+	panic("only usable with Expect() not with Expect(value)")
 }
 
-func (d *dummyExpect) Interface(interface{}) IStep {
-	panic("implement me")
+func (f finalExpect) Interface(interface{}) IStep {
+	panic("only usable with Expect() not with Expect(value)")
 }
 
-func (d *dummyExpect) Custom(f Callback) IStep {
-	panic("implement me")
+func (f finalExpect) Custom(Callback) IStep {
+	panic("only usable with Expect() not with Expect(value)")
 }
 
-func (d *dummyExpect) Headers() *expectHeaders {
-	panic("implement me")
+func (f finalExpect) Headers() IExpectHeaders {
+	panic("only usable with Expect() not with Expect(value)")
 }
 
-func (d *dummyExpect) Header(name string) *expectSpecificHeader {
-	panic("implement me")
+func (f finalExpect) Header(name string) IExpectSpecificHeader {
+	panic("only usable with Expect() not with Expect(value)")
 }
 
-func (d *dummyExpect) Status(code ...int) *expectStatus {
-	panic("implement me")
+func (f finalExpect) Status(code ...int) IExpectStatus {
+	panic("only usable with Expect() not with Expect(value)")
 }
 
-func (d *dummyExpect) Clear() IStep {
-	panic("implement me")
+func (f finalExpect) Clear() IStep {
+	panic("only usable with Expect() not with Expect(value)")
 }

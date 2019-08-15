@@ -1,27 +1,41 @@
 package hit
 
+type ISendSpecificHeader interface {
+	IStep
+	Set(value string) IStep
+	Delete() IStep
+}
+
 type sendSpecificHeader struct {
-	send   *defaultSend
+	send   ISend
 	header string
 }
 
-func newSendSpecificHeader(send *defaultSend, header string) *sendSpecificHeader {
+func newSendSpecificHeader(send ISend, header string) ISendSpecificHeader {
 	return &sendSpecificHeader{
 		send:   send,
 		header: header,
 	}
 }
 
+func (snd *sendSpecificHeader) when() StepTime {
+	return snd.send.when()
+}
+
+func (snd *sendSpecificHeader) exec(hit Hit) {
+	snd.send.exec(hit)
+}
+
 // Set sets the header to the specified value
-func (hdr *sendSpecificHeader) Set(value string) IStep {
-	return hdr.send.Custom(func(hit Hit) {
-		hit.Request().Header.Set(hdr.header, value)
+func (snd *sendSpecificHeader) Set(value string) IStep {
+	return snd.send.Custom(func(hit Hit) {
+		hit.Request().Header.Set(snd.header, value)
 	})
 }
 
 // Delete deletes the header
-func (hdr *sendSpecificHeader) Delete() IStep {
-	return hdr.send.Custom(func(hit Hit) {
-		hit.Request().Header.Del(hdr.header)
+func (snd *sendSpecificHeader) Delete() IStep {
+	return snd.send.Custom(func(hit Hit) {
+		hit.Request().Header.Del(snd.header)
 	})
 }

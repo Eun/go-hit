@@ -17,6 +17,15 @@ func TestExpectBodyJSON_Equal(t *testing.T) {
 			Send().Body(`"Hello World"`),
 			Expect().Body().JSON("Hello World"),
 		)
+
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Body(`"Hello Universe"`),
+				Expect().Body().JSON("Hello World"),
+			),
+			PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+		)
 	})
 	t.Run("slice", func(t *testing.T) {
 		Test(t,

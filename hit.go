@@ -147,6 +147,7 @@ func (hit *defaultInstance) runSteps(state StepTime) (err error) {
 		if r != nil {
 			if _, ok := r.(errortrace.ErrorTraceError); !ok {
 				err = errortrace.FormatError(fmt.Sprintf("%v", r))
+				fmt.Println(err)
 				return
 			}
 			err = fmt.Errorf("%v", r)

@@ -5,16 +5,32 @@ import (
 	"github.com/Eun/go-hit/errortrace"
 )
 
+type IExpectSpecificHeader interface {
+	IStep
+	Contains(v string) IStep
+	OneOf(values ...interface{}) IStep
+	Empty() IStep
+	Len(size int) IStep
+	Equal(v interface{}) IStep
+}
 type expectSpecificHeader struct {
-	expect *defaultExpect
 	header string
+	expect IExpect
 }
 
-func newExpectSpecificHeader(expect *defaultExpect, header string) *expectSpecificHeader {
+func newExpectSpecificHeader(expect IExpect, header string) IExpectSpecificHeader {
 	return &expectSpecificHeader{
 		expect: expect,
 		header: header,
 	}
+}
+
+func (exp *expectSpecificHeader) when() StepTime {
+	return exp.expect.when()
+}
+
+func (exp *expectSpecificHeader) exec(hit Hit) {
+	exp.expect.exec(hit)
 }
 
 // Contains checks if the header value contains the specified value

@@ -7,14 +7,26 @@ import (
 	"github.com/Eun/go-hit/internal"
 )
 
-type expectBodyJSON struct {
-	*expectBody
+type IExpectBodyJSON interface {
+	IStep
+	Equal(expression string, data interface{}) IStep
+	Contains(expression string, data interface{}) IStep
 }
 
-func newExpectBodyJSON(body *expectBody) *expectBodyJSON {
-	return &expectBodyJSON{
-		expectBody: body,
-	}
+type expectBodyJSON struct {
+	expect IExpect
+}
+
+func newExpectBodyJSON(expect IExpect) IExpectBodyJSON {
+	return &expectBodyJSON{expect}
+}
+
+func (body *expectBodyJSON) when() StepTime {
+	return body.expect.when()
+}
+
+func (body *expectBodyJSON) exec(hit Hit) {
+	body.expect.exec(hit)
 }
 
 // Compare functions
@@ -24,9 +36,9 @@ func newExpectBodyJSON(body *expectBody) *expectBodyJSON {
 //           Giving following response: { "ID": 10, "Name": Joe }
 //           Expect().Body().JSON().Equal("", map[string]interface{}{"ID": 10, "Name": "Joe"})
 //           Expect().Body().JSON().Equal("ID", 10)
-func (jsn *expectBodyJSON) Equal(expression string, data interface{}) IStep {
+func (body *expectBodyJSON) Equal(expression string, data interface{}) IStep {
 	et := errortrace.Prepare()
-	return jsn.Custom(func(hit Hit) {
+	return body.expect.Custom(func(hit Hit) {
 		v, ok, err := expr.GetValue(hit.Response().body.JSON().Get(), expression, expr.IgnoreCase)
 		et.NoError(err)
 		if !ok {
@@ -53,9 +65,9 @@ func (jsn *expectBodyJSON) Equal(expression string, data interface{}) IStep {
 //           Giving following response: { "ID": 10, "Name": Joe }
 //           Expect().Body().JSON().Contains("", "ID")
 //           Expect().Body().JSON().Contains("Name", "J")
-func (jsn *expectBodyJSON) Contains(expression string, data interface{}) IStep {
+func (body *expectBodyJSON) Contains(expression string, data interface{}) IStep {
 	et := errortrace.Prepare()
-	return jsn.Custom(func(hit Hit) {
+	return body.expect.Custom(func(hit Hit) {
 		v, ok, err := expr.GetValue(hit.Response().body.JSON().Get(), expression, expr.IgnoreCase)
 		et.NoError(err)
 		if !ok {
@@ -70,4 +82,16 @@ func (jsn *expectBodyJSON) Contains(expression string, data interface{}) IStep {
 			et.Errorf("%#v does not contain %#v", v, data)
 		}
 	})
+}
+
+type finalExpectBodyJSON struct {
+	IStep
+}
+
+func (finalExpectBodyJSON) Equal(expression string, data interface{}) IStep {
+	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+}
+
+func (finalExpectBodyJSON) Contains(expression string, data interface{}) IStep {
+	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
 }

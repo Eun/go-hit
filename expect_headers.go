@@ -5,14 +5,29 @@ import (
 	"github.com/Eun/go-hit/errortrace"
 )
 
-type expectHeaders struct {
-	expect *defaultExpect
+type IExpectHeaders interface {
+	IStep
+	Contains(v string) IStep
+	Empty() IStep
+	Len(size int) IStep
+	Equal(v interface{}) IStep
+	Get(header string) IExpectSpecificHeader
 }
 
-func newExpectHeaders(expect *defaultExpect) *expectHeaders {
-	return &expectHeaders{
-		expect: expect,
-	}
+type expectHeaders struct {
+	expect IExpect
+}
+
+func newExpectHeaders(expect IExpect) IExpectHeaders {
+	return &expectHeaders{expect}
+}
+
+func (exp *expectHeaders) when() StepTime {
+	return exp.expect.when()
+}
+
+func (exp *expectHeaders) exec(hit Hit) {
+	exp.expect.exec(hit)
 }
 
 // Contains checks if the specified header is present
@@ -61,6 +76,6 @@ func (hdr *expectHeaders) Equal(v interface{}) IStep {
 // Examples:
 //           Expect().Headers().Get("Content-Type").Equal("application/json")
 //           Expect().Headers().Get("Content-Type").Contains("json")
-func (hdr *expectHeaders) Get(header string) *expectSpecificHeader {
+func (hdr *expectHeaders) Get(header string) IExpectSpecificHeader {
 	return newExpectSpecificHeader(hdr.expect, header)
 }

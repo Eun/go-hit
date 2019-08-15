@@ -16,7 +16,7 @@ import (
 //           Send().Body("Hello World")
 func Send(data ...interface{}) ISend {
 	if arg, ok := getLastArgument(data); ok {
-		return &dummySend{newSend().Interface(arg)}
+		return finalSend{newSend().Interface(arg)}
 	}
 	return newSend()
 }
@@ -27,7 +27,7 @@ func Send(data ...interface{}) ISend {
 //           Expect().Body().Contains("Hello World")
 func Expect(data ...interface{}) IExpect {
 	if arg, ok := getLastArgument(data); ok {
-		return &dummyExpect{newExpect().Interface(arg)}
+		return finalExpect{newExpect().Interface(arg)}
 	}
 	return newExpect()
 }
