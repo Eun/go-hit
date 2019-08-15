@@ -30,6 +30,7 @@ func (c hitStep) when() StepTime {
 	return c.w
 }
 
+// Custom calls a custom Step on the specified execution time
 func Custom(when StepTime, exec func(Hit)) IStep {
 	return hitStep{
 		w: when,

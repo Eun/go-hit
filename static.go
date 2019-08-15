@@ -53,10 +53,13 @@ func SetStdout(w io.Writer) IStep {
 	})
 }
 
-// SetBaseURL sets the base url for each Connect, Delete, Get, Head, Post, Options, Put, Trace, SetMethod call
-func SetBaseURL(s string) IStep {
+// SetBaseURL sets the base url for each Connect, Delete, Get, Head, Post, Options, Put, Trace, SetMethod method
+// Examples:
+//           SetBaseURL("http://example.com")
+//           SetBaseURL("http://%s/%s", domain, path)
+func SetBaseURL(url string, a ...interface{}) IStep {
 	return Custom(BeforeSendStep, func(hit Hit) {
-		hit.SetBaseURL(s)
+		hit.SetBaseURL(url, a...)
 	})
 }
 
@@ -68,7 +71,9 @@ func SetRequest(request *http.Request) IStep {
 }
 
 // SetMethod creates a new Hit instance with the specified method and url
-// SetMethod(t, "POST", "http://%s/%s", domain, path)
+// Examples:
+//           SetMethod("POST", "http://example.com")
+//           SetMethod("POST", "http://%s/%s", domain, path)
 func SetMethod(method, url string, a ...interface{}) IStep {
 	et := errortrace.Prepare()
 	return Custom(BeforeSendStep, func(hit Hit) {
@@ -79,49 +84,65 @@ func SetMethod(method, url string, a ...interface{}) IStep {
 }
 
 // Connect creates a new Hit instance with CONNECT as the http method, use the optional arguments to format the url
-// Connect(t, "http://%s/%s", domain, path)
+// Examples:
+//           Connect("http://example.com")
+//           Connect("http://%s/%s", domain, path)
 func Connect(url string, a ...interface{}) IStep {
 	return SetMethod("CONNECT", url, a...)
 }
 
 // Delete creates a new Hit instance with DELETE as the http method, use the optional arguments to format the url
-// Delete("http://%s/%s", domain, path)
+// Examples:
+//           Delete("http://example.com")
+//           Delete("http://%s/%s", domain, path)
 func Delete(url string, a ...interface{}) IStep {
 	return SetMethod("DELETE", url, a...)
 }
 
 // Get creates a new Hit instance with GET as the http method, use the optional arguments to format the url
-// Get("http://%s/%s", domain, path)
+// Examples:
+//           Get("http://example.com")
+//           Get("http://%s/%s", domain, path)
 func Get(url string, a ...interface{}) IStep {
 	return SetMethod("GET", url, a...)
 }
 
 // Head creates a new Hit instance with HEAD as the http method, use the optional arguments to format the url
-// Head("http://%s/%s", domain, path)
+// Examples:
+//           Head("http://example.com")
+//           Head("http://%s/%s", domain, path)
 func Head(url string, a ...interface{}) IStep {
 	return SetMethod("HEAD", url, a...)
 }
 
 // Post creates a new Hit instance with POST as the http method, use the optional arguments to format the url
-// Post("http://%s/%s", domain, path)
+// Examples:
+//           Post("http://example.com")
+//           Post("http://%s/%s", domain, path)
 func Post(url string, a ...interface{}) IStep {
 	return SetMethod("POST", url, a...)
 }
 
 // Options creates a new Hit instance with OPTIONS as the http method, use the optional arguments to format the url
-// Options("http://%s/%s", domain, path)
+// Examples:
+//           Options("http://example.com")
+//           Options("http://%s/%s", domain, path)
 func Options(url string, a ...interface{}) IStep {
 	return SetMethod("OPTIONS", url, a...)
 }
 
 // Put creates a new Hit instance with PUT as the http method, use the optional arguments to format the url
-// Put("http://%s/%s", domain, path)
+// Examples:
+//           Put("http://example.com")
+//           Put("http://%s/%s", domain, path)
 func Put(url string, a ...interface{}) IStep {
 	return SetMethod("PUT", url, a...)
 }
 
 // Trace creates a new Hit instance with TRACE as the http method, use the optional arguments to format the url
-// Trace("http://%s/%s", domain, path)
+// Examples:
+//           Trace("http://example.com")
+//           Trace("http://%s/%s", domain, path)
 func Trace(url string, a ...interface{}) IStep {
 	return SetMethod("TRACE", url, a...)
 }

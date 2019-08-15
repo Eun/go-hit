@@ -37,13 +37,13 @@ type Hit interface {
 	SetStdout(io.Writer)
 
 	BaseURL() string
-	SetBaseURL(string)
+	SetBaseURL(string, ...interface{})
 
 	AddSteps(...IStep)
 	RemoveSteps(...IStep)
 
-	Send(data ...interface{}) ISend
-	Expect(data ...interface{}) IExpect
+	Send(...interface{}) ISend
+	Expect(...interface{}) IExpect
 	Debug()
 }
 
@@ -98,8 +98,8 @@ func (hit *defaultInstance) BaseURL() string {
 }
 
 // SetBaseURL sets the base url
-func (hit *defaultInstance) SetBaseURL(s string) {
-	hit.baseURL = s
+func (hit *defaultInstance) SetBaseURL(url string, a ...interface{}) {
+	hit.baseURL = fmt.Sprintf(url, a...)
 }
 
 // AddSteps adds the specified steps to the queue

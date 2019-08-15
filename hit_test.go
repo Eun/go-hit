@@ -328,3 +328,18 @@ func TestTestError(t *testing.T) {
 
 	ExpectError(t, errors.New(sb.String()), PtrStr("Expected status code to be 404 but was 200 instead"))
 }
+
+func TestSetHTTPClient(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	client := &http.Client{}
+
+	Test(t,
+		Post(s.URL),
+		SetHTTPClient(client),
+		Custom(AfterSendStep, func(hit Hit) {
+			require.Equal(t, client, hit.HTTPClient())
+		}),
+	)
+}

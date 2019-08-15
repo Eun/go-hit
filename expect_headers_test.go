@@ -65,3 +65,17 @@ func TestExpectHeaders_Get(t *testing.T) {
 		Expect().Headers().Get("X-Header").Equal("Hello"),
 	)
 }
+
+func TestExpectHeaders_Empty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	Test(t,
+		Post(s.URL),
+		Custom(BeforeExpectStep, func(hit Hit) {
+			hit.Response().Header = map[string][]string{}
+		}),
+		Expect().Headers().Empty(),
+		Expect().Headers().Len(0),
+	)
+}

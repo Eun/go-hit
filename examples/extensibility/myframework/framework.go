@@ -72,7 +72,7 @@ func (exp MyExpect) User(user User) hit.IStep {
 	// We have to return our Framework to make sure we can use our custom functions later on
 	return hit.Custom(hit.ExpectStep, func(hit hit.Hit) {
 		// use hit.IExpect
-		hit.Expect().Headers("Content-Type").Equal("application/json")
+		hit.Expect().Header("Content-Type").Equal("application/json")
 		hit.Expect().Body().JSON().Equal("", user)
 
 		// or hit.Response()
