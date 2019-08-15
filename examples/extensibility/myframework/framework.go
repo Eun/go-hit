@@ -88,61 +88,109 @@ func (exp MyExpect) User(user User) hit.IStep {
 // Implement the rest for convenience reasons
 // you can copy the contents from the template_framework.go file
 
+// Custom calls a custom Step on the specified execution time
+func Custom(when hit.StepTime, exec func(hit.Hit)) hit.IStep {
+	return hit.Custom(when, exec)
+}
+
 // Debug prints the current Request and Response to hit.Stdout()
-func Debug() hit.IStep { return hit.Debug() }
+func Debug() hit.IStep {
+	return hit.Debug()
+}
 
 // SetHTTPClient sets the client for the request
-func SetHTTPClient(client *http.Client) hit.IStep { return hit.SetHTTPClient(client) }
+func SetHTTPClient(client *http.Client) hit.IStep {
+	return hit.SetHTTPClient(client)
+}
 
 // SetStdout sets the output to the specified writer
-func SetStdout(w io.Writer) hit.IStep { return hit.SetStdout(w) }
+func SetStdout(w io.Writer) hit.IStep {
+	return hit.SetStdout(w)
+}
 
 // SetBaseURL sets the base url for each Connect, Delete, Get, Head, Post, Options, Put, Trace, SetMethod call
-func SetBaseURL(s string) hit.IStep { return hit.SetBaseURL(s) }
+func SetBaseURL(s string) hit.IStep {
+	return hit.SetBaseURL(s)
+}
 
 // SetRequest creates a new Hit instance with an existing http request
-func WithRequest(request *http.Request) hit.IStep { return hit.SetRequest(request) }
+func SetRequest(request *http.Request) hit.IStep {
+	return hit.SetRequest(request)
+}
 
 // SetMethod creates a new Hit instance with the specified method and url
-// SetMethod(t, "POST", "http://%s/%s", domain, path)
-func WithMethod(method, url string, a ...interface{}) hit.IStep {
+// Examples:
+//           SetMethod("POST", "http://example.com")
+//           SetMethod("POST", "http://%s/%s", domain, path)
+func SetMethod(method, url string, a ...interface{}) hit.IStep {
 	return hit.SetMethod(method, url, a...)
 }
 
 // Connect creates a new Hit instance with CONNECT as the http method, use the optional arguments to format the url
-// Connect(t, "http://%s/%s", domain, path)
-func Connect(url string, a ...interface{}) hit.IStep { return hit.Connect(url, a...) }
+// Examples:
+//           Connect("http://example.com")
+//           Connect("http://%s/%s", domain, path)
+func Connect(url string, a ...interface{}) hit.IStep {
+	return hit.Connect(url, a...)
+}
 
 // Delete creates a new Hit instance with DELETE as the http method, use the optional arguments to format the url
-// Delete("http://%s/%s", domain, path)
-func Delete(url string, a ...interface{}) hit.IStep { return hit.Delete(url, a...) }
+// Examples:
+//           Delete("http://example.com")
+//           Delete("http://%s/%s", domain, path)
+func Delete(url string, a ...interface{}) hit.IStep {
+	return hit.Delete(url, a...)
+}
 
 // Get creates a new Hit instance with GET as the http method, use the optional arguments to format the url
-// Get("http://%s/%s", domain, path)
-func Get(url string, a ...interface{}) hit.IStep { return hit.Get(url, a...) }
+// Examples:
+//           Get("http://example.com")
+//           Get("http://%s/%s", domain, path)
+func Get(url string, a ...interface{}) hit.IStep {
+	return hit.Get(url, a...)
+}
 
 // Head creates a new Hit instance with HEAD as the http method, use the optional arguments to format the url
-// Head("http://%s/%s", domain, path)
-func Head(url string, a ...interface{}) hit.IStep { return hit.Head(url, a...) }
+// Examples:
+//           Head("http://example.com")
+//           Head("http://%s/%s", domain, path)
+func Head(url string, a ...interface{}) hit.IStep {
+	return hit.Head(url, a...)
+}
 
 // Post creates a new Hit instance with POST as the http method, use the optional arguments to format the url
-// Post("http://%s/%s", domain, path)
-func Post(url string, a ...interface{}) hit.IStep { return hit.Post(url, a...) }
+// Examples:
+//           Post("http://example.com")
+//           Post("http://%s/%s", domain, path)
+func Post(url string, a ...interface{}) hit.IStep {
+	return hit.Post(url, a...)
+}
 
 // Options creates a new Hit instance with OPTIONS as the http method, use the optional arguments to format the url
-// Options("http://%s/%s", domain, path)
-func Options(url string, a ...interface{}) hit.IStep { return hit.Options(url, a...) }
+// Examples:
+//           Options("http://example.com")
+//           Options("http://%s/%s", domain, path)
+func Options(url string, a ...interface{}) hit.IStep {
+	return hit.Options(url, a...)
+}
 
 // Put creates a new Hit instance with PUT as the http method, use the optional arguments to format the url
-// Put("http://%s/%s", domain, path)
-func Put(url string, a ...interface{}) hit.IStep { return hit.Put(url, a...) }
+// Examples:
+//           Put("http://example.com")
+//           Put("http://%s/%s", domain, path)
+func Put(url string, a ...interface{}) hit.IStep {
+	return hit.Put(url, a...)
+}
 
 // Trace creates a new Hit instance with TRACE as the http method, use the optional arguments to format the url
-// Trace("http://%s/%s", domain, path)
-func Trace(url string, a ...interface{}) hit.IStep { return hit.Trace(url, a...) }
-
-// Test runs the specified steps and calls t.Error() if any error occurs during execution
-func Test(t hit.TestingT, steps ...hit.IStep) { hit.Test(t, steps...) }
+// Examples:
+//           Trace("http://example.com")
+//           Trace("http://%s/%s", domain, path)
+func Trace(url string, a ...interface{}) hit.IStep {
+	return hit.Trace(url, a...)
+}
 
 // Do runs the specified steps and returns error if something was wrong
-func Do(steps ...hit.IStep) error { return hit.Do(steps...) }
+func Do(steps ...hit.IStep) error {
+	return hit.Do(steps...)
+}
