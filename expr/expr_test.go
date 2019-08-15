@@ -240,6 +240,15 @@ func TestGetValue(t *testing.T) {
 			nil,
 			"",
 		},
+		{
+			"Nil interface{}",
+			map[string]interface{}{"Foo": nil},
+			"Foo",
+			options{},
+			true,
+			nil,
+			"",
+		},
 	}
 
 	for i := range tests {

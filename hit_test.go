@@ -14,75 +14,76 @@ import (
 	"io/ioutil"
 	"net/url"
 
+	"encoding/json"
+
 	. "github.com/Eun/go-hit"
+	"github.com/Eun/go-hit/expr"
+	"github.com/lunixbochs/vtclean"
 	"github.com/stretchr/testify/require"
 )
 
-//
-// import (
-// 	"bytes"
-// 	"net/http"
-// 	"testing"
-//
-// 	"encoding/json"
-//
-// 	"io/ioutil"
-// 	"strings"
-//
-// 	"net/url"
-//
-// 	"github.com/Eun/go-hit"
-// 	"github.com/Eun/go-hit/expr"
-// 	"github.com/lunixbochs/vtclean"
-// 	"github.com/stretchr/testify/require"
-// )
-//
-// func Test_Debug(t *testing.T) {
-// 	s := EchoServer()
-// 	defer s.Close()
-//
-// 	t.Run("no json decode", func(t *testing.T) {
-// 		buf := bytes.NewBuffer(nil)
-//
-// 		// send garbage so Debugs getBody function cannot parse it as json
-// 		hit.Post(t, s.URL).SetStdout(buf).Send([]byte{0, 1, 2, 3}).Do().Debug()
-//
-// 		var m map[string]interface{}
-// 		require.NoError(t, json.NewDecoder(vtclean.NewReader(buf, false)).Decode(&m))
-//
-// 		require.NotNil(t, expr.MustGetValue(m, "Request"))
-// 		require.Equal(t, "AAECAw==", expr.MustGetValue(m, "Request.Body"))
-// 		require.NotNil(t, expr.MustGetValue(m, "Response"))
-// 	})
-//
-// 	t.Run("json decode", func(t *testing.T) {
-// 		buf := bytes.NewBuffer(nil)
-//
-// 		// send garbage so Debugs getBody function cannot parse it as json
-// 		hit.Post(t, s.URL).SetStdout(buf).Send([]int{1, 2, 3}).Do().Debug()
-//
-// 		var m map[string]interface{}
-// 		require.NoError(t, json.NewDecoder(vtclean.NewReader(buf, false)).Decode(&m))
-//
-// 		require.NotNil(t, expr.MustGetValue(m, "Request"))
-// 		require.Equal(t, []interface{}{1.0, 2.0, 3.0}, expr.MustGetValue(m, "Request.Body"))
-// 		require.NotNil(t, expr.MustGetValue(m, "Response"))
-// 	})
-//
-// 	t.Run("debug without response", func(t *testing.T) {
-// 		buf := bytes.NewBuffer(nil)
-//
-// 		// send garbage so Debugs getBody function cannot parse it as json
-// 		hit.Post(t, s.URL).SetStdout(buf).Send([]int{1, 2, 3}).Debug().Do()
-//
-// 		var m map[string]interface{}
-// 		require.NoError(t, json.NewDecoder(vtclean.NewReader(buf, false)).Decode(&m))
-//
-// 		require.NotNil(t, expr.MustGetValue(m, "Request"))
-// 		require.Nil(t, expr.MustGetValue(m, "Request.Body", expr.IgnoreNotFound, expr.IgnoreError))
-// 		require.Nil(t, expr.MustGetValue(m, "Response", expr.IgnoreNotFound, expr.IgnoreError))
-// 	})
-// }
+func Test_Debug(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("no json decode", func(t *testing.T) {
+		buf := bytes.NewBuffer(nil)
+
+		// send garbage so Debugs getBody function cannot parse it as json
+		Test(t,
+			Post(s.URL),
+			SetStdout(buf),
+			Send("Hello World"),
+			Debug(),
+		)
+
+		var m map[string]interface{}
+		require.NoError(t, json.NewDecoder(vtclean.NewReader(buf, false)).Decode(&m))
+
+		require.NotNil(t, expr.MustGetValue(m, "Request"))
+		require.Equal(t, "Hello World", expr.MustGetValue(m, "Request.Body"))
+		require.NotNil(t, expr.MustGetValue(m, "Response"))
+
+	})
+
+	t.Run("json decode", func(t *testing.T) {
+		buf := bytes.NewBuffer(nil)
+
+		// send garbage so Debugs getBody function cannot parse it as json
+		Test(t,
+			Post(s.URL),
+			SetStdout(buf),
+			Send([]int{1, 2, 3}),
+			Debug(),
+		)
+
+		var m map[string]interface{}
+		require.NoError(t, json.NewDecoder(vtclean.NewReader(buf, false)).Decode(&m))
+
+		require.NotNil(t, expr.MustGetValue(m, "Request"))
+		require.Equal(t, []interface{}{1.0, 2.0, 3.0}, expr.MustGetValue(m, "Request.Body"))
+		require.NotNil(t, expr.MustGetValue(m, "Response"))
+	})
+
+	t.Run("debug without body", func(t *testing.T) {
+		buf := bytes.NewBuffer(nil)
+
+		// send garbage so Debugs getBody function cannot parse it as json
+		Test(t,
+			Post(s.URL),
+			SetStdout(buf),
+			Debug(),
+		)
+
+		var m map[string]interface{}
+		require.NoError(t, json.NewDecoder(vtclean.NewReader(buf, false)).Decode(&m))
+
+		require.NotNil(t, expr.MustGetValue(m, "Request"))
+		require.Nil(t, expr.MustGetValue(m, "Request.Body"))
+		require.NotNil(t, expr.MustGetValue(m, "Response"))
+	})
+}
+
 //
 func Test_Stdout(t *testing.T) {
 	s := EchoServer()

@@ -212,7 +212,11 @@ func (hit *defaultInstance) Debug() {
 				return container
 			}
 		}
-		return body.Bytes()
+		s := body.String()
+		if len(s) == 0 {
+			return nil
+		}
+		return s
 	}
 
 	getHeader := func(header http.Header) map[string]interface{} {

@@ -66,15 +66,16 @@ func getExpr(expr string) *expression {
 
 func getValue(v reflect.Value, expr *expression, opts options) (interface{}, bool, error) {
 	r := internal.GetElem(v)
-	if !r.IsValid() {
-		return nil, false, fmt.Errorf("%s cannot be used with the expression %s", v.Type().String(), expr.String())
-	}
 
 	if expr.End() {
 		if r.IsValid() && r.CanInterface() {
 			return r.Interface(), true, nil
 		}
 		return nil, true, nil
+	}
+
+	if !r.IsValid() {
+		return nil, false, fmt.Errorf("%s cannot be used with the expression %s", v.Type().String(), expr.String())
 	}
 
 	switch r.Kind() {
