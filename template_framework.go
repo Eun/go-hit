@@ -13,7 +13,7 @@ import (
 )
 
 // Custom calls a custom Step on the specified execution time
-func Custom(when hit.StepTime, exec func(hit.Hit)) hit.IStep {
+func Custom(when hit.StepTime, exec hit.Callback) hit.IStep {
 	return hit.Custom(when, exec)
 }
 
@@ -33,9 +33,12 @@ func Expect(data ...interface{}) hit.IExpect {
 	return hit.Expect(data...)
 }
 
-// Debug prints the current Request and Response to hit.Stdout()
-func Debug() hit.IStep {
-	return hit.Debug()
+// Debug prints the current Request and Response to hit.Stdout(), you can filter the output based on expressions
+// Examples:
+//           Debug()
+//           Debug("Request")
+func Debug(expression ...string) hit.IStep {
+	return hit.Debug(expression...)
 }
 
 // SetHTTPClient sets the client for the request
@@ -48,9 +51,12 @@ func SetStdout(w io.Writer) hit.IStep {
 	return hit.SetStdout(w)
 }
 
-// SetBaseURL sets the base url for each Connect, Delete, Get, Head, Post, Options, Put, Trace, SetMethod call
-func SetBaseURL(s string) hit.IStep {
-	return hit.SetBaseURL(s)
+// SetBaseURL sets the base url for each Connect, Delete, Get, Head, Post, Options, Put, Trace, SetMethod method
+// Examples:
+//           SetBaseURL("http://example.com")
+//           SetBaseURL("http://%s/%s", domain, path)
+func SetBaseURL(url string, a ...interface{}) hit.IStep {
+	return hit.SetBaseURL(url, a...)
 }
 
 // SetRequest creates a new Hit instance with an existing http request

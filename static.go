@@ -47,7 +47,10 @@ func Expect(data ...interface{}) IExpect {
 	return newExpect(hit)
 }
 
-// Debug prints the current Request and Response to hit.Stdout()
+// Debug prints the current Request and Response to hit.Stdout(), you can filter the output based on expressions
+// Examples:
+//           Debug()
+//           Debug("Request")
 func Debug(expression ...string) IStep {
 	debug := func(hit Hit) {
 		type M map[string]interface{}

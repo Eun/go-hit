@@ -7,6 +7,8 @@ import (
 	"fmt"
 )
 
+//go:generate go run generate_template_framework.go
+
 type Callback func(hit Hit)
 
 type State uint8
@@ -159,7 +161,10 @@ func (hit *defaultInstance) Expect(data ...interface{}) IExpect {
 	return newExpect(hit)
 }
 
-// Debug prints the current Request and Response to hit.Stdout()
+// Debug prints the current Request and Response to hit.Stdout(), you can filter the output based on expressions
+// Examples:
+//           Debug()
+//           Debug("Request")
 func (hit *defaultInstance) Debug(expression ...string) IStep {
 	return Debug(expression...)
 }
