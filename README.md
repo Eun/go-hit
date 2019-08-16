@@ -10,101 +10,103 @@ So lets get started!
 ```go
 import (
 	"net/http"
-	"github.com/Eun/go-hit"
+	. "github.com/Eun/go-hit"
 )
 
 func TestHttpBin(t *testing.T) {
-	hit.Get(t, "https://httpbin.org/post").
-		Expect().Status(http.StatusMethodNotAllowed).
-		Do()
+    Test(t,
+        Get("https://httpbin.org/post"),
+        Expect().Status(http.StatusMethodNotAllowed),
+    )
 }
 ``` 
 
 ## expect, expect, expect, ....
 ```go
-hit.Get(t, "https://httpbin.org/post").
-	Expect().Status(http.StatusMethodNotAllowed).
-	Expect().Headers().Contains("Content-Type").
-	Expect().Body().Contains("Method Not Allowed").
-	Do()
+Test(t,
+    Get("https://httpbin.org/post"),
+    Expect().Status(http.StatusMethodNotAllowed),
+    Expect().Headers().Contains("Content-Type"),
+    Expect().Body().Contains("Method Not Allowed"),
+)
 }
 ``` 
 
 ## Sending some data
 ```go
-hit.Post(t, "https://httpbin.org/post").
-	Send().Body("Hello HttpBin").
-	Expect().Status(http.StatusOK).
-	Expect().Body().Contains("Hello HttpBin").
-	Do()
+Test(t,
+    Post("https://httpbin.org/post"),
+    Send().Body("Hello HttpBin"),
+    Expect().Status(http.StatusOK),
+    Expect().Body().Contains("Hello HttpBin"), 
+)
 ``` 
 
 ### Sending and expecting JSON
 ```go
-hit.Post(t, "https://httpbin.org/post").
-	Send().Headers().Set("Content-Type", "application/json").
-	Send().Body().JSON(map[string][]string{"Foo": []string{"Bar", "Baz"}}).
-	Expect().Status(http.StatusOK).
-	Expect().Body().JSON().Equal("json.Foo.1", "Baz").
-	Do()
+Test(t,
+    Post("https://httpbin.org/post"),
+    Send().Headers().Set("Content-Type", "application/json"),
+    Send().Body().JSON(map[string][]string{"Foo": []string{"Bar", "Baz"}}),
+    Expect().Status(http.StatusOK),
+    Expect().Body().JSON().Equal("json.Foo.1", "Baz"),
+)
 ``` 
 
 ## Problems? `Debug`!
 ```go
-hit.Post(t, "https://httpbin.org/post").
-	Debug().
-	Do().
-	Debug()
+Test(
+    Post(t, "https://httpbin.org/post"),
+    Debug(),
+)
 ```
 
 ## Twisted!
 Although the following is hard to read it is possible to do!
 ```go
-hit.Post(t, "https://httpbin.org/post").
-	Expect().Status(200).
-	Send("Hello World").
-	Do().
-	Expect().Body().Contains("Hello")
+Test(t,
+    Post("https://httpbin.org/post"),
+    Expect().Status(200),
+    Send("Hello World"),
+    Expect().Body().Contains("Hello"),
+)
 ```
 
 ## Custom Send and Expects
 ```go
-hit.Get(t, "https://httpbin.org/get").
-	Send().Custom(func(hit hit.Hit) {
-		hit.Request().Body().SetStringf("Hello %s", "World")
-	}).
-	Expect().Custom(func(hit hit.Hit) {
-		if len(hit.Response().Body().String()) <= 0 {
-			t.FailNow()
-		}
-	}).
-	Do()
+Test(t,
+    Get("https://httpbin.org/get"),
+    Send().Custom(func(hit Hit) {
+        hit.Request().Body().SetStringf("Hello %s", "World")
+    }),
+    Expect().Custom(func(hit Hit) {
+        if len(hit.Response().Body().String()) <= 0 {
+            t.FailNow()
+        }
+    }),
+    Custom(AfterExpectStep, func(Hit) {
+        fmt.Println("everything done")
+    }),
+)
 ```
 
-## Templates
+## Templates / Multiuse
 ```go
-template := hit.Post(t, "https://httpbin.org/post").
-	Send().Headers().Set("Content-Type", "application/json").
-	Expect().Headers("Content-Type").Equal("application/json")
+template := []IStep{
+    Post("https://httpbin.org/post"),
+    Send().Headers().Set("Content-Type", "application/json"),
+    Expect().Headers("Content-Type").Equal("application/json"),
+}
+Test(t,
+    append(template,
+        Send().Body().JSON("Hello World"),
+    )...,
+)
 
-template.Copy().
-	Send().Body().JSON("Hello World").
-	Do()
-
-template.Copy().
-	Send().Body().JSON("Hello Universe").
-	Do()
+Test(t,
+    append(template,
+        Send().Body().JSON("Hello Universe"),
+    )...,
+)
 ```
-
-## BaseURL Template
-```go
-template := hit.New(t, "https://httpbin.org").
-
-template.Copy().Get("/get").
-	Do()
-
-template.Copy().Post("/post").
-	Do()
-```
-
-More examples in the `example_*.go` files
+More examples can be found in the `exampels directory`

@@ -1,27 +1,37 @@
 package hit
 
-type expectBody struct {
-	Hit
-	expect *defaultExpect
+type IExpectBody interface {
+	IStep
+	JSON(data ...interface{}) IExpectBodyJSON
+	Equal(data interface{}) IStep
+	Contains(data interface{}) IStep
 }
 
-func newExpectBody(expect *defaultExpect) *expectBody {
-	return &expectBody{
-		Hit:    expect.Hit,
-		expect: expect,
-	}
+type expectBody struct {
+	expect IExpect
+}
+
+func newExpectBody(expect IExpect) IExpectBody {
+	return &expectBody{expect}
+}
+
+func (body *expectBody) when() StepTime {
+	return body.expect.when()
+}
+
+func (body *expectBody) exec(hit Hit) error {
+	return body.expect.exec(hit)
 }
 
 // JSON expects the body to be equal the specified value, omit the parameter to get more options
 // Examples:
 //           Expect().Body().JSON([]int{1, 2, 3})
 //           Expect().Body().JSON().Contains(1)
-func (body *expectBody) JSON(data ...interface{}) *expectBodyJSON {
-	jsn := newExpectBodyJSON(body)
-	if arg := getLastArgument(data); arg != nil {
-		jsn.Equal("", arg)
+func (body *expectBody) JSON(data ...interface{}) IExpectBodyJSON {
+	if arg, ok := getLastArgument(data); ok {
+		return finalExpectBodyJSON{newExpectBodyJSON(body.expect).Equal("", arg)}
 	}
-	return jsn
+	return newExpectBodyJSON(body.expect)
 }
 
 // Compare functions
@@ -29,23 +39,37 @@ func (body *expectBody) JSON(data ...interface{}) *expectBodyJSON {
 // Equal expects the body to be equal to the specified value
 // Example:
 //           Expect().Body().Equal("Hello World")
-func (body *expectBody) Equal(data interface{}) Hit {
+func (body *expectBody) Equal(data interface{}) IStep {
 	return body.expect.Custom(func(hit Hit) {
 		if hit.Response().body.equalOnlyNativeTypes(data) {
 			return
 		}
-		body.JSON().Equal("", data)
+		hit.Expect().Body().JSON().Equal("", data)
 	})
 }
 
 // Contains expects the body to contains the specified value
 // Example:
 //           Expect().Body().Contains("Hello World")
-func (body *expectBody) Contains(data interface{}) Hit {
+func (body *expectBody) Contains(data interface{}) IStep {
 	return body.expect.Custom(func(hit Hit) {
 		if hit.Response().body.containsOnlyNativeTypes(data) {
 			return
 		}
-		body.JSON().Contains("", data)
+		hit.Expect().Body().JSON().Contains("", data)
 	})
+}
+
+type finalExpectBody struct {
+	IStep
+}
+
+func (f finalExpectBody) JSON(data ...interface{}) IExpectBodyJSON {
+	panic("only usable with Expect().Body() not with Expect().Body(value)")
+}
+func (f finalExpectBody) Equal(data interface{}) IStep {
+	panic("only usable with Expect().Body() not with Expect().Body(value)")
+}
+func (f finalExpectBody) Contains(data interface{}) IStep {
+	panic("only usable with Expect().Body() not with Expect().Body(value)")
 }

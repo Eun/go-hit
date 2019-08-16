@@ -1,13 +1,12 @@
 package hit_test
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"io"
-
-	"github.com/Eun/go-hit"
+	. "github.com/Eun/go-hit"
 )
 
 func TestSendHeaders_Set(t *testing.T) {
@@ -19,10 +18,11 @@ func TestSendHeaders_Set(t *testing.T) {
 	defer s.Close()
 
 	t.Run("", func(t *testing.T) {
-		hit.Post(t, s.URL).
-			Send().Headers().Set("X-Headers", "World").
-			Expect().Body().Equal("World").
-			Do()
+		Test(t,
+			Post(s.URL),
+			Send().Headers().Set("X-Headers", "World"),
+			Expect().Body().Equal("World"),
+		)
 	})
 }
 
@@ -35,11 +35,12 @@ func TestSendHeaders_Clear(t *testing.T) {
 	defer s.Close()
 
 	t.Run("", func(t *testing.T) {
-		hit.Post(t, s.URL).
-			Send().Headers().Set("X-Headers", "World").
-			Send().Headers().Clear().
-			Expect().Body().Equal("").
-			Do()
+		Test(t,
+			Post(s.URL),
+			Send().Headers().Set("X-Headers", "World"),
+			Send().Headers().Clear(),
+			Expect().Body().Equal(""),
+		)
 	})
 }
 
@@ -52,11 +53,12 @@ func TestSendHeaders_DoubleSet(t *testing.T) {
 	defer s.Close()
 
 	t.Run("", func(t *testing.T) {
-		hit.Post(t, s.URL).
-			Send().Headers().Set("X-Headers", "World").
-			Send().Headers().Set("X-Headers", "Universe").
-			Expect().Body().Equal("Universe").
-			Do()
+		Test(t,
+			Post(s.URL),
+			Send().Headers().Set("X-Headers", "World"),
+			Send().Headers().Set("X-Headers", "Universe"),
+			Expect().Body().Equal("Universe"),
+		)
 	})
 }
 
@@ -69,10 +71,11 @@ func TestSendHeaders_Delete(t *testing.T) {
 	defer s.Close()
 
 	t.Run("", func(t *testing.T) {
-		hit.Post(t, s.URL).
-			Send().Headers().Set("X-Headers", "World").
-			Send().Headers().Delete("X-Headers").
-			Expect().Body().Equal("").
-			Do()
+		Test(t,
+			Post(s.URL),
+			Send().Headers().Set("X-Headers", "World"),
+			Send().Headers().Delete("X-Headers"),
+			Expect().Body().Equal(""),
+		)
 	})
 }

@@ -2,21 +2,31 @@ package hit
 
 import (
 	"github.com/Eun/go-convert"
-	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/expr"
 	"github.com/Eun/go-hit/internal"
+	"github.com/Eun/go-hit/internal/minitest"
 )
 
-type expectBodyJSON struct {
-	Hit
-	body *expectBody
+type IExpectBodyJSON interface {
+	IStep
+	Equal(expression string, data interface{}) IStep
+	Contains(expression string, data interface{}) IStep
 }
 
-func newExpectBodyJSON(body *expectBody) *expectBodyJSON {
-	return &expectBodyJSON{
-		Hit:  body.Hit,
-		body: body,
-	}
+type expectBodyJSON struct {
+	expect IExpect
+}
+
+func newExpectBodyJSON(expect IExpect) IExpectBodyJSON {
+	return &expectBodyJSON{expect}
+}
+
+func (jsn *expectBodyJSON) when() StepTime {
+	return jsn.expect.when()
+}
+
+func (jsn *expectBodyJSON) exec(hit Hit) error {
+	return jsn.expect.exec(hit)
 }
 
 // Compare functions
@@ -26,11 +36,10 @@ func newExpectBodyJSON(body *expectBody) *expectBodyJSON {
 //           Giving following response: { "ID": 10, "Name": Joe }
 //           Expect().Body().JSON().Equal("", map[string]interface{}{"ID": 10, "Name": "Joe"})
 //           Expect().Body().JSON().Equal("ID", 10)
-func (jsn *expectBodyJSON) Equal(expression string, data interface{}) Hit {
-	et := errortrace.Prepare()
-	return jsn.body.expect.Custom(func(hit Hit) {
+func (jsn *expectBodyJSON) Equal(expression string, data interface{}) IStep {
+	return jsn.expect.Custom(func(hit Hit) {
 		v, ok, err := expr.GetValue(hit.Response().body.JSON().Get(), expression, expr.IgnoreCase)
-		et.Panic.NoError(hit.T(), err)
+		minitest.NoError(err)
 		if !ok {
 			v = nil
 		}
@@ -41,12 +50,12 @@ func (jsn *expectBodyJSON) Equal(expression string, data interface{}) Hit {
 
 		if v == nil || data == nil {
 			// will fail
-			et.Panic.Equal(hit.T(), data, v)
+			minitest.Equal(data, v)
 		}
 
 		compareData, err := converter.Convert(v, data, convert.Options.ConvertEmbeddedStructToParentType())
-		et.Panic.NoError(hit.T(), err)
-		et.Panic.Equal(hit.T(), data, compareData)
+		minitest.NoError(err)
+		minitest.Equal(data, compareData)
 	})
 }
 
@@ -55,11 +64,10 @@ func (jsn *expectBodyJSON) Equal(expression string, data interface{}) Hit {
 //           Giving following response: { "ID": 10, "Name": Joe }
 //           Expect().Body().JSON().Contains("", "ID")
 //           Expect().Body().JSON().Contains("Name", "J")
-func (jsn *expectBodyJSON) Contains(expression string, data interface{}) Hit {
-	et := errortrace.Prepare()
-	return jsn.body.expect.Custom(func(hit Hit) {
+func (jsn *expectBodyJSON) Contains(expression string, data interface{}) IStep {
+	return jsn.expect.Custom(func(hit Hit) {
 		v, ok, err := expr.GetValue(hit.Response().body.JSON().Get(), expression, expr.IgnoreCase)
-		et.Panic.NoError(hit.T(), err)
+		minitest.NoError(err)
 		if !ok {
 			v = nil
 		}
@@ -69,7 +77,19 @@ func (jsn *expectBodyJSON) Contains(expression string, data interface{}) Hit {
 		}
 
 		if !internal.Contains(v, data) {
-			et.Panic.Errorf(hit.T(), "%#v does not contain %#v", v, data)
+			minitest.Errorf("%#v does not contain %#v", v, data)
 		}
 	})
+}
+
+type finalExpectBodyJSON struct {
+	IStep
+}
+
+func (finalExpectBodyJSON) Equal(expression string, data interface{}) IStep {
+	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+}
+
+func (finalExpectBodyJSON) Contains(expression string, data interface{}) IStep {
+	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
 }

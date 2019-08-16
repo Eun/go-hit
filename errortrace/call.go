@@ -11,6 +11,8 @@ type Call struct {
 	FunctionName string
 	File         string
 	Line         int
+	PC           uintptr
+	Entry        uintptr
 }
 
 func (c *Call) FullName() string {
@@ -37,8 +39,10 @@ func makeCall(frame runtime.Frame) Call {
 	}
 
 	call := Call{
-		File: frame.File,
-		Line: frame.Line,
+		File:  frame.File,
+		Line:  frame.Line,
+		PC:    frame.PC,
+		Entry: frame.Entry,
 	}
 
 	// the first dot after the slash ends the package name

@@ -13,8 +13,7 @@ import (
 	"strings"
 
 	"github.com/Eun/go-doppelgangerreader"
-	"github.com/Eun/go-hit/errortrace"
-	"github.com/stretchr/testify/require"
+	"github.com/Eun/go-hit/internal/minitest"
 )
 
 type HTTPBody struct {
@@ -147,7 +146,9 @@ func (body *HTTPBody) Bytes() []byte {
 		return nil
 	}
 	buf, err := ioutil.ReadAll(r)
-	errortrace.Panic.NoError(body.hit.T(), err, "failed to read body")
+	if err != nil {
+		minitest.NoError(err, "failed to read body")
+	}
 	r.Close()
 	return buf
 }
@@ -160,91 +161,91 @@ func (body *HTTPBody) String() string {
 // Int returns the body as an int
 func (body *HTTPBody) Int() int {
 	n, err := strconv.ParseInt(body.String(), 0, 0)
-	errortrace.Panic.NoError(body.hit.T(), err)
+	minitest.NoError(err)
 	return int(n)
 }
 
 // Int8 returns the body as an int8
 func (body *HTTPBody) Int8() int8 {
 	n, err := strconv.ParseInt(body.String(), 0, 8)
-	errortrace.Panic.NoError(body.hit.T(), err)
+	minitest.NoError(err)
 	return int8(n)
 }
 
 // Int16 returns the body as an int16
 func (body *HTTPBody) Int16() int16 {
 	n, err := strconv.ParseInt(body.String(), 0, 16)
-	errortrace.Panic.NoError(body.hit.T(), err)
+	minitest.NoError(err)
 	return int16(n)
 }
 
 // Int32 returns the body as an int64
 func (body *HTTPBody) Int32() int32 {
 	n, err := strconv.ParseInt(body.String(), 0, 32)
-	errortrace.Panic.NoError(body.hit.T(), err)
+	minitest.NoError(err)
 	return int32(n)
 }
 
 // Int64 returns the body as an int64
 func (body *HTTPBody) Int64() int64 {
 	n, err := strconv.ParseInt(body.String(), 0, 64)
-	errortrace.Panic.NoError(body.hit.T(), err)
+	minitest.NoError(err)
 	return n
 }
 
 // Uint returns the body as an uint
 func (body *HTTPBody) Uint() uint {
 	n, err := strconv.ParseUint(body.String(), 0, 0)
-	errortrace.Panic.NoError(body.hit.T(), err)
+	minitest.NoError(err)
 	return uint(n)
 }
 
 // Uint8 returns the body as an uint8
 func (body *HTTPBody) Uint8() uint8 {
 	n, err := strconv.ParseUint(body.String(), 0, 8)
-	errortrace.Panic.NoError(body.hit.T(), err)
+	minitest.NoError(err)
 	return uint8(n)
 }
 
 // Uint16 returns the body as an uint16
 func (body *HTTPBody) Uint16() uint16 {
 	n, err := strconv.ParseUint(body.String(), 0, 16)
-	errortrace.Panic.NoError(body.hit.T(), err)
+	minitest.NoError(err)
 	return uint16(n)
 }
 
 // Uint32 returns the body as an uint64
 func (body *HTTPBody) Uint32() uint32 {
 	n, err := strconv.ParseUint(body.String(), 0, 32)
-	errortrace.Panic.NoError(body.hit.T(), err)
+	minitest.NoError(err)
 	return uint32(n)
 }
 
 // Uint64 returns the body as an uint64
 func (body *HTTPBody) Uint64() uint64 {
 	n, err := strconv.ParseUint(body.String(), 0, 64)
-	errortrace.Panic.NoError(body.hit.T(), err)
+	minitest.NoError(err)
 	return n
 }
 
 // Float32 returns the body as an float32
 func (body *HTTPBody) Float32() float32 {
 	n, err := strconv.ParseFloat(body.String(), 32)
-	errortrace.Panic.NoError(body.hit.T(), err)
+	minitest.NoError(err)
 	return float32(n)
 }
 
 // Float64 returns the body as an float64
 func (body *HTTPBody) Float64() float64 {
 	n, err := strconv.ParseFloat(body.String(), 64)
-	errortrace.Panic.NoError(body.hit.T(), err)
+	minitest.NoError(err)
 	return n
 }
 
 // Bool returns the body as an bool
 func (body *HTTPBody) Bool() bool {
 	n, err := strconv.ParseBool(body.String())
-	errortrace.Panic.NoError(body.hit.T(), err)
+	minitest.NoError(err)
 	return n
 }
 
@@ -296,41 +297,41 @@ func (body *HTTPBody) setOnlyNativeTypes(a interface{}) bool {
 func (body *HTTPBody) equalOnlyNativeTypes(a interface{}) bool {
 	switch v := a.(type) {
 	case string:
-		require.Equal(body.hit.T(), v, body.String())
+		minitest.Equal(v, body.String())
 	case []byte:
-		require.Equal(body.hit.T(), v, body.Bytes())
+		minitest.Equal(v, body.Bytes())
 	case io.Reader:
 		buf, err := ioutil.ReadAll(v)
 		if err != nil {
-			require.FailNow(body.hit.T(), fmt.Sprintf("unable to read data from reader: %s", err.Error()))
+			minitest.Errorf("unable to read data from reader: %s", err.Error())
 		}
-		require.Equal(body.hit.T(), buf, body.Bytes())
+		minitest.Equal(buf, body.Bytes())
 	case int:
-		require.Equal(body.hit.T(), v, body.Int())
+		minitest.Equal(v, body.Int())
 	case int8:
-		require.Equal(body.hit.T(), v, body.Int8())
+		minitest.Equal(v, body.Int8())
 	case int16:
-		require.Equal(body.hit.T(), v, body.Int16())
+		minitest.Equal(v, body.Int16())
 	case int32:
-		require.Equal(body.hit.T(), v, body.Int32())
+		minitest.Equal(v, body.Int32())
 	case int64:
-		require.Equal(body.hit.T(), v, body.Int64())
+		minitest.Equal(v, body.Int64())
 	case uint:
-		require.Equal(body.hit.T(), v, body.Uint())
+		minitest.Equal(v, body.Uint())
 	case uint8:
-		require.Equal(body.hit.T(), v, body.Uint8())
+		minitest.Equal(v, body.Uint8())
 	case uint16:
-		require.Equal(body.hit.T(), v, body.Uint16())
+		minitest.Equal(v, body.Uint16())
 	case uint32:
-		require.Equal(body.hit.T(), v, body.Uint32())
+		minitest.Equal(v, body.Uint32())
 	case uint64:
-		require.Equal(body.hit.T(), v, body.Uint64())
+		minitest.Equal(v, body.Uint64())
 	case float32:
-		require.Equal(body.hit.T(), v, body.Float32())
+		minitest.Equal(v, body.Float32())
 	case float64:
-		require.Equal(body.hit.T(), v, body.Float64())
+		minitest.Equal(v, body.Float64())
 	case bool:
-		require.Equal(body.hit.T(), v, body.Bool())
+		minitest.Equal(v, body.Bool())
 	default:
 		// not handled
 		return false
@@ -343,16 +344,16 @@ func (body *HTTPBody) containsOnlyNativeTypes(a interface{}) bool {
 	switch v := a.(type) {
 	case string:
 		if !strings.Contains(body.String(), v) {
-			require.FailNow(body.hit.T(), fmt.Sprintf(`"%s" does not contain "%s"`, body.String(), v))
+			minitest.Errorf(`"%s" does not contain "%s"`, body.String(), v)
 		}
 	case []byte:
 		if !bytes.Contains(body.Bytes(), v) {
-			require.FailNow(body.hit.T(), fmt.Sprintf(`"%v" does not contain "%v"`, body.Bytes(), v))
+			minitest.Errorf(`"%v" does not contain "%v"`, body.Bytes(), v)
 		}
 	case io.Reader:
 		buf, err := ioutil.ReadAll(v)
 		if err != nil {
-			require.FailNow(body.hit.T(), fmt.Sprintf("unable to read data from reader: %s", err.Error()))
+			minitest.Errorf("unable to read data from reader: %s", err.Error())
 		}
 		return body.containsOnlyNativeTypes(buf)
 	default:

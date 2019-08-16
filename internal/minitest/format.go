@@ -1,4 +1,4 @@
-package errortrace
+package minitest
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/gookit/color"
 )
 
-func format(message, data string, colors ...color.Color) string {
+func Format(message, data string, colors ...color.Color) string {
 	lines := strings.FieldsFunc(strings.TrimRightFunc(data, unicode.IsSpace), func(r rune) bool {
 		return r == '\n'
 	})

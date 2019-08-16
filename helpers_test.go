@@ -5,10 +5,12 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
-	"strings"
+	"regexp"
 
+	"github.com/lunixbochs/vtclean"
 	"github.com/stretchr/testify/require"
 )
 
@@ -31,49 +33,23 @@ func PrintJSONServer(jsn interface{}) *httptest.Server {
 	return httptest.NewServer(mux)
 }
 
-type PanicWithMessage struct {
-	T     *testing.T
-	Lines []*string
-}
+var errorRegex = regexp.MustCompile(`(?s)Error:\s*(.*)Error Trace:\s*`)
 
-func NewPanicWithMessage(t *testing.T, lines ...*string) *PanicWithMessage {
-	return &PanicWithMessage{
-		T:     t,
-		Lines: lines,
-	}
-}
+func ExpectError(t *testing.T, err error, equalLines ...*string) {
+	require.NotNil(t, err)
+	matches := errorRegex.FindStringSubmatch(vtclean.Clean(err.Error(), false))
 
-func (p *PanicWithMessage) Errorf(format string, args ...interface{}) {
-	panic("never be called")
-}
+	require.Len(t, matches, 2)
 
-func (p *PanicWithMessage) FailNow() {
-	panic("never be called")
-}
-
-func (p *PanicWithMessage) ErrorMessage(msg, detail string) {
-	var sb strings.Builder
-
-	if msg != "" {
-		sb.WriteString(msg)
-	}
-
-	if detail != "" {
-		if sb.Len() > 0 {
-			sb.WriteRune('\n')
-		}
-		sb.WriteString(detail)
-	}
-
-	lines := strings.FieldsFunc(sb.String(), func(r rune) bool {
+	lines := strings.FieldsFunc(matches[1], func(r rune) bool {
 		return r == '\n'
 	})
 
-	require.Len(p.T, lines, len(p.Lines))
+	require.Len(t, lines, len(equalLines))
 
 	for i := 0; i < len(lines); i++ {
-		if p.Lines[i] != nil {
-			require.Equal(p.T, *p.Lines[i], strings.TrimSpace(lines[i]))
+		if equalLines[i] != nil {
+			require.Equal(t, *equalLines[i], strings.TrimSpace(lines[i]))
 		}
 	}
 }
