@@ -40,7 +40,7 @@ func isIncluded(call *Call) bool {
 	}
 
 	switch call.FunctionName {
-	case "Do", "Custom", "runExpectCalls", "runSendCalls":
+	case "Test", "Do", "Custom", "runSteps", "exec":
 		return false
 	}
 
