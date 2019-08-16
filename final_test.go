@@ -17,30 +17,24 @@ func TestExpectFinal(t *testing.T) {
 		})
 	})
 
-	t.Run("Expect(value).Body(value)", func(t *testing.T) {
-		ExpectError(t, Do(Post(s.URL), Send("Hello"), Expect().Body("Bye")), PtrStr("Not equal"), nil, nil, nil, nil, nil, nil)
-		require.PanicsWithValue(t, "only usable with Expect() not with Expect(value)", func() {
-			Do(Expect("Data").Body("Data"))
+	t.Run("Expect().Body(value).JSON(value)", func(t *testing.T) {
+		ExpectError(t, Do(Post(s.URL), Send(`"Hello"`), Expect().Body().JSON("Bye")), PtrStr("Not equal"), nil, nil, nil, nil, nil, nil)
+		require.PanicsWithValue(t, "only usable with Expect().Body() not with Expect().Body(value)", func() {
+			Do(Expect().Body("Data").JSON("Data"))
 		})
 	})
 
-	t.Run("Expect(value).Body(value)", func(t *testing.T) {
+	t.Run("Expect().Body(value).Equal(value)", func(t *testing.T) {
 		ExpectError(t, Do(Post(s.URL), Send("Hello"), Expect().Body().Equal("Bye")), PtrStr("Not equal"), nil, nil, nil, nil, nil, nil)
-		require.PanicsWithValue(t, "only usable with Expect() not with Expect(value)", func() {
-			Do(Expect("Data").Body("Data").Equal("Data"))
+		require.PanicsWithValue(t, "only usable with Expect().Body() not with Expect().Body(value)", func() {
+			Do(Expect().Body("Data").Equal("Data"))
 		})
 	})
 
-	// t.Run("Expect(value).Interface(value)", func(t *testing.T) {
-	// 	ExpectError(t, Do(Post(s.URL), Send("Hello"), Expect().Interface("Bye")), PtrStr("Not equal"), nil, nil, nil, nil, nil, nil)
-	// 	ExpectError(t, Do(Expect("Data").Interface("Data")), PtrStr("only usable with Expect() not with Expect(value)"))
-	// })
+	t.Run("Expect().Body(value).Contains(value)", func(t *testing.T) {
+		ExpectError(t, Do(Post(s.URL), Send("Hello"), Expect().Body().Contains("Bye")), PtrStr(`"Hello" does not contain "Bye"`))
+		require.PanicsWithValue(t, "only usable with Expect().Body() not with Expect().Body(value)", func() {
+			Do(Expect().Body("Data").Contains("Data"))
+		})
+	})
 }
-
-// Body(data ...interface{}) IExpectBody
-// Interface(interface{}) IStep
-// Custom(f Callback) IStep
-// Headers() *IExpectHeaders
-// Header(name string) *expectSpecificHeader
-// Status(code ...int) *expectStatus
-// Clear() IStep
