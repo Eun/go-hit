@@ -29,7 +29,6 @@ Test(t,
     Expect().Headers().Contains("Content-Type"),
     Expect().Body().Contains("Method Not Allowed"),
 )
-}
 ``` 
 
 ## Sending some data
