@@ -201,7 +201,10 @@ func TestOutOfContext(t *testing.T) {
 	ExpectError(t,
 		Do(
 			Post(s.URL),
-			Send("Hello"),
+			Send("World"),
+			Send().Custom(func(hit Hit) {
+				Send("Hello")
+			}),
 			Expect().Custom(func(hit Hit) {
 				Expect("World")
 			}),
