@@ -1,17 +1,10 @@
 package hit
 
 import (
-	"encoding/json"
+	"io"
 	"net/http"
 
-	"io"
-
 	"fmt"
-
-	"time"
-
-	"github.com/Eun/go-hit/internal/minitest"
-	"github.com/tidwall/pretty"
 )
 
 type Callback func(hit Hit)
@@ -41,7 +34,7 @@ type Hit interface {
 
 	Send(...interface{}) ISend
 	Expect(...interface{}) IExpect
-	Debug()
+	Debug(...string) IStep
 }
 
 type defaultInstance struct {
@@ -167,68 +160,6 @@ func (hit *defaultInstance) Expect(data ...interface{}) IExpect {
 }
 
 // Debug prints the current Request and Response to hit.Stdout()
-func (hit *defaultInstance) Debug() {
-	type M map[string]interface{}
-
-	getBody := func(body *HTTPBody) interface{} {
-		reader := body.JSON().body.Reader()
-		// if there is a json reader
-		if reader != nil {
-			var container interface{}
-			if err := json.NewDecoder(reader).Decode(&container); err == nil {
-				return container
-			}
-		}
-		s := body.String()
-		if len(s) == 0 {
-			return nil
-		}
-		return s
-	}
-
-	getHeader := func(header http.Header) map[string]interface{} {
-		m := make(map[string]interface{})
-		for key := range header {
-			m[key] = header.Get(key)
-		}
-		return m
-	}
-
-	m := M{
-		"Time": time.Now().String(),
-		"Request": M{
-			"Header":           getHeader(hit.Request().Header),
-			"Trailer":          getHeader(hit.Request().Trailer),
-			"Method":           hit.Request().Method,
-			"URL":              hit.Request().URL,
-			"Proto":            hit.Request().Proto,
-			"ProtoMajor":       hit.Request().ProtoMajor,
-			"ProtoMinor":       hit.Request().ProtoMinor,
-			"ContentLength":    hit.Request().ContentLength,
-			"TransferEncoding": hit.Request().TransferEncoding,
-			"Host":             hit.Request().Host,
-			"Form":             hit.Request().Form,
-			"PostForm":         hit.Request().PostForm,
-			"MultipartForm":    hit.Request().MultipartForm,
-			"RemoteAddr":       hit.Request().RemoteAddr,
-			"RequestURI":       hit.Request().RequestURI,
-			"Body":             getBody(hit.Request().Body()),
-		},
-		"Response": M{
-			"Header":           getHeader(hit.Response().Header),
-			"Trailer":          getHeader(hit.Response().Trailer),
-			"Proto":            hit.Response().Proto,
-			"ProtoMajor":       hit.Response().ProtoMajor,
-			"ProtoMinor":       hit.Response().ProtoMinor,
-			"ContentLength":    hit.Response().ContentLength,
-			"TransferEncoding": hit.Response().TransferEncoding,
-			"Body":             getBody(hit.Response().body),
-			"Status":           hit.Response().Status,
-			"StatusCode":       hit.Response().StatusCode,
-		},
-	}
-
-	bytes, err := json.Marshal(m)
-	minitest.NoError(err)
-	_, _ = hit.Stdout().Write(pretty.Color(pretty.Pretty(bytes), nil))
+func (hit *defaultInstance) Debug(expression ...string) IStep {
+	return Debug(expression...)
 }

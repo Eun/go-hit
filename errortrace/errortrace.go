@@ -27,7 +27,7 @@ var defaultErrorTrace ErrorTrace
 func Prepare() *ErrorTrace {
 	var et ErrorTrace
 	et.inheritedTrace = true
-	et.inheritedPC = currentTraceCalls(4)
+	et.inheritedPC = CurrentTraceCalls(4)
 	return &et
 }
 
@@ -58,7 +58,7 @@ func filterTraceCalls(calls []Call) []Call {
 	return filtered
 }
 
-func currentTraceCalls(skip int) []uintptr {
+func CurrentTraceCalls(skip int) []uintptr {
 	var pc [16]uintptr
 	var calls []uintptr
 	for index, n := skip, 0; ; index += n {
@@ -71,7 +71,7 @@ func currentTraceCalls(skip int) []uintptr {
 	return calls
 }
 
-func resolveTraceCalls(pc []uintptr) []Call {
+func ResolveTraceCalls(pc []uintptr) []Call {
 	var calls []Call
 	frames := runtime.CallersFrames(pc)
 	for {
@@ -99,7 +99,7 @@ func (p *ErrorTrace) formatStack(calls []Call) string {
 
 func (p *ErrorTrace) Format(errText string) ErrorTraceError {
 	// collect the current trace
-	traceCalls := resolveTraceCalls(currentTraceCalls(4))
+	traceCalls := ResolveTraceCalls(CurrentTraceCalls(4))
 
 	// if we have a inherited trace resolve the items and filter the current trace
 	if p.inheritedTrace {
@@ -107,7 +107,7 @@ func (p *ErrorTrace) Format(errText string) ErrorTraceError {
 		traceCalls = filterTraceCalls(traceCalls)
 
 		// resolve the inherited calls
-		traceCalls = append(traceCalls, resolveTraceCalls(p.inheritedPC)...)
+		traceCalls = append(traceCalls, ResolveTraceCalls(p.inheritedPC)...)
 	}
 
 	// print

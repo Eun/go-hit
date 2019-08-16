@@ -1,25 +1,38 @@
 package hit
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
 
 	"io"
 
+	"sync"
+
+	"runtime"
+
+	"encoding/json"
+	"time"
+
 	"github.com/Eun/go-hit/errortrace"
+	"github.com/Eun/go-hit/expr"
 	"github.com/Eun/go-hit/internal/minitest"
+	"github.com/tidwall/pretty"
 )
+
+var contexts sync.Map
 
 // Send sends the specified data as the body payload
 // Examples:
 //           Send("Hello World")
 //           Send().Body("Hello World")
 func Send(data ...interface{}) ISend {
+	hit := getContext()
 	if arg, ok := getLastArgument(data); ok {
-		return finalSend{newSend(nil).Interface(arg)}
+		return finalSend{newSend(hit).Interface(arg)}
 	}
-	return newSend(nil)
+	return newSend(hit)
 }
 
 // Expects expects the body to be equal the specified value, omit the parameter to get more options
@@ -27,17 +40,98 @@ func Send(data ...interface{}) ISend {
 //           Expect("Hello World")
 //           Expect().Body().Contains("Hello World")
 func Expect(data ...interface{}) IExpect {
+	hit := getContext()
 	if arg, ok := getLastArgument(data); ok {
-		return finalExpect{newExpect(nil).Interface(arg)}
+		return finalExpect{newExpect(hit).Interface(arg)}
 	}
-	return newExpect(nil)
+	return newExpect(hit)
 }
 
 // Debug prints the current Request and Response to hit.Stdout()
-func Debug() IStep {
-	return Custom(BeforeExpectStep, func(hit Hit) {
-		hit.Debug()
-	})
+func Debug(expression ...string) IStep {
+	debug := func(hit Hit) {
+		type M map[string]interface{}
+
+		getBody := func(body *HTTPBody) interface{} {
+			reader := body.JSON().body.Reader()
+			// if there is a json reader
+			if reader != nil {
+				var container interface{}
+				if err := json.NewDecoder(reader).Decode(&container); err == nil {
+					return container
+				}
+			}
+			s := body.String()
+			if len(s) == 0 {
+				return nil
+			}
+			return s
+		}
+
+		getHeader := func(header http.Header) map[string]interface{} {
+			m := make(map[string]interface{})
+			for key := range header {
+				m[key] = header.Get(key)
+			}
+			return m
+		}
+
+		m := M{
+			"Time": time.Now().String(),
+		}
+
+		if hit.Request() != nil {
+			m["Request"] = M{
+				"Header":           getHeader(hit.Request().Header),
+				"Trailer":          getHeader(hit.Request().Trailer),
+				"Method":           hit.Request().Method,
+				"URL":              hit.Request().URL,
+				"Proto":            hit.Request().Proto,
+				"ProtoMajor":       hit.Request().ProtoMajor,
+				"ProtoMinor":       hit.Request().ProtoMinor,
+				"ContentLength":    hit.Request().ContentLength,
+				"TransferEncoding": hit.Request().TransferEncoding,
+				"Host":             hit.Request().Host,
+				"Form":             hit.Request().Form,
+				"PostForm":         hit.Request().PostForm,
+				"MultipartForm":    hit.Request().MultipartForm,
+				"RemoteAddr":       hit.Request().RemoteAddr,
+				"RequestURI":       hit.Request().RequestURI,
+				"Body":             getBody(hit.Request().Body()),
+			}
+		}
+
+		if hit.Response() != nil {
+			m["Response"] = M{
+				"Header":           getHeader(hit.Response().Header),
+				"Trailer":          getHeader(hit.Response().Trailer),
+				"Proto":            hit.Response().Proto,
+				"ProtoMajor":       hit.Response().ProtoMajor,
+				"ProtoMinor":       hit.Response().ProtoMinor,
+				"ContentLength":    hit.Response().ContentLength,
+				"TransferEncoding": hit.Response().TransferEncoding,
+				"Body":             getBody(hit.Response().body),
+				"Status":           hit.Response().Status,
+				"StatusCode":       hit.Response().StatusCode,
+			}
+		}
+
+		var v interface{} = m
+		if size := len(expression); size > 0 {
+			v = expr.MustGetValue(m, expression[size-1], expr.IgnoreError, expr.IgnoreNotFound)
+		}
+
+		bytes, err := json.Marshal(v)
+		minitest.NoError(err)
+		_, _ = hit.Stdout().Write(pretty.Color(pretty.Pretty(bytes), nil))
+	}
+
+	hit := getContext()
+	if hit != nil {
+		debug(hit)
+		return nil
+	}
+	return Custom(BeforeExpectStep, debug)
 }
 
 // SetHTTPClient sets the client for the request
@@ -166,6 +260,13 @@ func Do(steps ...IStep) error {
 		stdout: os.Stdout,
 		steps:  steps,
 	}
+	id := getContextID()
+	if id == 0 {
+		return errors.New("unable to get context id")
+	}
+	contexts.Store(id, hit)
+	defer contexts.Delete(id)
+
 	if err := hit.runSteps(BeforeSendStep); err != nil {
 		return err
 	}
@@ -198,4 +299,35 @@ func Do(steps ...IStep) error {
 		_ = hit.request.Request.Body.Close()
 	}
 	return nil
+}
+
+func getContextID() uintptr {
+	var pc [16]uintptr
+
+	skip := 0
+	for {
+		n := runtime.Callers(skip, pc[:])
+		frames := runtime.CallersFrames(pc[:n])
+		for {
+			frame, more := frames.Next()
+			if frame.Function == "github.com/Eun/go-hit.Do" {
+				return frame.Entry
+			}
+			if !more {
+				return 0
+			}
+		}
+		skip += n
+	}
+}
+func getContext() Hit {
+	id := getContextID()
+	if id == 0 {
+		return nil
+	}
+	v, ok := contexts.Load(id)
+	if !ok {
+		return nil
+	}
+	return v.(Hit)
 }

@@ -195,11 +195,17 @@ func TestSend_Clear(t *testing.T) {
 	})
 }
 
-func TestErrortrace(t *testing.T) {
+func TestOutOfContext(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
-	Test(t,
-		Post(s.URL),
-		Expect("HELLO"),
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Send("Hello"),
+			Expect().Custom(func(hit Hit) {
+				Expect("World")
+			}),
+		),
+		PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
 	)
 }

@@ -26,7 +26,6 @@ func Test_Debug(t *testing.T) {
 	t.Run("no json decode", func(t *testing.T) {
 		buf := bytes.NewBuffer(nil)
 
-		// send garbage so Debugs getBody function cannot parse it as json
 		Test(t,
 			Post(s.URL),
 			SetStdout(buf),
@@ -45,7 +44,6 @@ func Test_Debug(t *testing.T) {
 	t.Run("json decode", func(t *testing.T) {
 		buf := bytes.NewBuffer(nil)
 
-		// send garbage so Debugs getBody function cannot parse it as json
 		Test(t,
 			Post(s.URL),
 			SetStdout(buf),
@@ -64,7 +62,6 @@ func Test_Debug(t *testing.T) {
 	t.Run("debug without body", func(t *testing.T) {
 		buf := bytes.NewBuffer(nil)
 
-		// send garbage so Debugs getBody function cannot parse it as json
 		Test(t,
 			Post(s.URL),
 			SetStdout(buf),
@@ -77,6 +74,39 @@ func Test_Debug(t *testing.T) {
 		require.NotNil(t, expr.MustGetValue(m, "Request"))
 		require.Nil(t, expr.MustGetValue(m, "Request.Body"))
 		require.NotNil(t, expr.MustGetValue(m, "Response"))
+	})
+
+	t.Run("debug with expression", func(t *testing.T) {
+		buf := bytes.NewBuffer(nil)
+
+		Test(t,
+			Post(s.URL),
+			SetStdout(buf),
+			Send("Hello World"),
+			Debug("Request"),
+		)
+
+		var m map[string]interface{}
+		require.NoError(t, json.NewDecoder(vtclean.NewReader(buf, false)).Decode(&m))
+		require.Equal(t, "Hello World", expr.MustGetValue(m, "Body"))
+	})
+
+	t.Run("debug in custom", func(t *testing.T) {
+		buf := bytes.NewBuffer(nil)
+
+		// send garbage so Debugs getBody function cannot parse it as json
+		Test(t,
+			Post(s.URL),
+			SetStdout(buf),
+			Send("Hello World"),
+			Custom(AfterSendStep, func(hit Hit) {
+				Debug("Request")
+			}),
+		)
+
+		var m map[string]interface{}
+		require.NoError(t, json.NewDecoder(vtclean.NewReader(buf, false)).Decode(&m))
+		require.Equal(t, "Hello World", expr.MustGetValue(m, "Body"))
 	})
 }
 
