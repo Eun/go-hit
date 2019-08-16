@@ -37,6 +37,7 @@ type Hit interface {
 	Send(...interface{}) ISend
 	Expect(...interface{}) IExpect
 	Debug(...string) IStep
+	AddSteps(...IStep)
 }
 
 type defaultInstance struct {
@@ -167,4 +168,11 @@ func (hit *defaultInstance) Expect(data ...interface{}) IExpect {
 //           Debug("Request")
 func (hit *defaultInstance) Debug(expression ...string) IStep {
 	return Debug(expression...)
+}
+
+// AddSteps add the specified steps to the queue
+func (hit *defaultInstance) AddSteps(steps ... IStep) {
+	for i := 0; i < len(steps); i++ {
+		hit.steps = append(hit.steps, steps[i])
+	}
 }

@@ -145,3 +145,8 @@ func Test(t hit.TestingT, steps ...hit.IStep) {
 func Do(steps ...hit.IStep) error {
 	return hit.Do(steps...)
 }
+
+// CombineSteps combines multiple steps to one
+func CombineSteps(steps ...hit.IStep) hit.IStep {
+	return hit.CombineSteps(steps...)
+}

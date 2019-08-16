@@ -304,6 +304,13 @@ func Do(steps ...IStep) error {
 	return nil
 }
 
+// CombineSteps combines multiple steps to one
+func CombineSteps(steps ...IStep) IStep {
+	return Custom(BeforeSendStep, func(hit Hit) {
+		hit.AddSteps(steps...)
+	})
+}
+
 func getContextID() uintptr {
 	var pc [16]uintptr
 

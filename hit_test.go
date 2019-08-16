@@ -345,3 +345,21 @@ func TestSetHTTPClient(t *testing.T) {
 		}),
 	)
 }
+
+func TestCombineSteps(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			CombineSteps(
+				Post(s.URL),
+				Send("Hello"),
+				Expect("Hello"),
+			),
+			Expect().Clear(),
+			Expect("World"),
+		),
+		PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+	)
+}
