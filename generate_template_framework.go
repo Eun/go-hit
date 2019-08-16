@@ -51,7 +51,11 @@ func main() {
 		if !fn.Name.IsExported() {
 			continue
 		}
-		if strings.HasPrefix(fn.Name.Name, "Test") || strings.HasPrefix(fn.Name.Name, "Benchmark") {
+		if strings.HasPrefix(fn.Name.Name, "Test") && len(fn.Name.Name) > 4 {
+			continue
+		}
+
+		if strings.HasPrefix(fn.Name.Name, "Benchmark") && len(fn.Name.Name) > 9 {
 			continue
 		}
 

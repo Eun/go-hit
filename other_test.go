@@ -2,26 +2,6 @@ package hit
 
 import "testing"
 
-//
-// func TestOther(t *testing.T) {
-// 	client := &http.Client{}
-// 	call := Connect(t, "http://127.0.0.1")
-// 	call.SetHTTPClient(client)
-// 	require.Equal(t, client, call.HTTPClient())
-// }
-//
-// func TestPanicT_Errorf(t *testing.T) {
-// 	require.Panics(t, func() {
-// 		PanicT{}.Errorf("")
-// 	})
-// }
-//
-// func TestPanicT_FailNow(t *testing.T) {
-// 	require.Panics(t, func() {
-// 		PanicT{}.FailNow()
-// 	})
-// }
-
 func TestMakeURL(t *testing.T) {
 	tests := []struct {
 		Base     string

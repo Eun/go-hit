@@ -136,6 +136,11 @@ func Trace(url string, a ...interface{}) hit.IStep {
 	return hit.Trace(url, a...)
 }
 
+// Test runs the specified steps and calls t.Error() if any error occurs during execution
+func Test(t hit.TestingT, steps ...hit.IStep) {
+	hit.Test(t, steps...)
+}
+
 // Do runs the specified steps and returns error if something was wrong
 func Do(steps ...hit.IStep) error {
 	return hit.Do(steps...)
