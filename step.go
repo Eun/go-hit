@@ -1,5 +1,11 @@
 package hit
 
+import (
+	"fmt"
+
+	"github.com/Eun/go-hit/errortrace"
+)
+
 type StepTime uint8
 
 const (
@@ -13,27 +19,39 @@ const (
 )
 
 type IStep interface {
-	exec(Hit)
+	exec(Hit) error
 	when() StepTime
 }
 
 type hitStep struct {
-	e func(Hit)
-	w StepTime
+	call Callback
+	et   *errortrace.ErrorTrace
+	w    StepTime
 }
 
-func (c hitStep) exec(h Hit) {
-	c.e(h)
+func (step hitStep) exec(h Hit) (err error) {
+	if step.call == nil {
+		return nil
+	}
+	defer func() {
+		r := recover()
+		if r != nil {
+			err = step.et.Format(fmt.Sprint(r))
+		}
+	}()
+	step.call(h)
+	return err
 }
 
-func (c hitStep) when() StepTime {
-	return c.w
+func (step hitStep) when() StepTime {
+	return step.w
 }
 
 // Custom calls a custom Step on the specified execution time
-func Custom(when StepTime, exec func(Hit)) IStep {
+func Custom(when StepTime, exec Callback) IStep {
 	return hitStep{
-		w: when,
-		e: exec,
+		et:   errortrace.Prepare(),
+		w:    when,
+		call: exec,
 	}
 }

@@ -15,12 +15,12 @@ func newExpectBody(expect IExpect) IExpectBody {
 	return &expectBody{expect}
 }
 
-func (exp *expectBody) when() StepTime {
-	return exp.expect.when()
+func (body *expectBody) when() StepTime {
+	return body.expect.when()
 }
 
-func (exp *expectBody) exec(hit Hit) {
-	exp.expect.exec(hit)
+func (body *expectBody) exec(hit Hit) error {
+	return body.expect.exec(hit)
 }
 
 // JSON expects the body to be equal the specified value, omit the parameter to get more options
@@ -44,7 +44,7 @@ func (body *expectBody) Equal(data interface{}) IStep {
 		if hit.Response().body.equalOnlyNativeTypes(data) {
 			return
 		}
-		body.JSON().Equal("", data).exec(hit)
+		hit.Expect().Body().JSON().Equal("", data)
 	})
 }
 
@@ -56,7 +56,7 @@ func (body *expectBody) Contains(data interface{}) IStep {
 		if hit.Response().body.containsOnlyNativeTypes(data) {
 			return
 		}
-		body.JSON().Contains("", data).exec(hit)
+		hit.Expect().Body().JSON().Contains("", data)
 	})
 }
 

@@ -18,24 +18,24 @@ func newSendSpecificHeader(send ISend, header string) ISendSpecificHeader {
 	}
 }
 
-func (snd *sendSpecificHeader) when() StepTime {
-	return snd.send.when()
+func (hdr *sendSpecificHeader) when() StepTime {
+	return hdr.send.when()
 }
 
-func (snd *sendSpecificHeader) exec(hit Hit) {
-	snd.send.exec(hit)
+func (hdr *sendSpecificHeader) exec(hit Hit) error {
+	return hdr.send.exec(hit)
 }
 
 // Set sets the header to the specified value
-func (snd *sendSpecificHeader) Set(value string) IStep {
-	return snd.send.Custom(func(hit Hit) {
-		hit.Request().Header.Set(snd.header, value)
+func (hdr *sendSpecificHeader) Set(value string) IStep {
+	return hdr.send.Custom(func(hit Hit) {
+		hit.Request().Header.Set(hdr.header, value)
 	})
 }
 
 // Delete deletes the header
-func (snd *sendSpecificHeader) Delete() IStep {
-	return snd.send.Custom(func(hit Hit) {
-		hit.Request().Header.Del(snd.header)
+func (hdr *sendSpecificHeader) Delete() IStep {
+	return hdr.send.Custom(func(hit Hit) {
+		hit.Request().Header.Del(hdr.header)
 	})
 }

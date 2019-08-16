@@ -10,7 +10,7 @@ import (
 
 	"time"
 
-	"github.com/Eun/go-hit/errortrace"
+	"github.com/Eun/go-hit/internal/minitest"
 	"github.com/tidwall/pretty"
 )
 
@@ -38,9 +38,6 @@ type Hit interface {
 
 	BaseURL() string
 	SetBaseURL(string, ...interface{})
-
-	AddSteps(...IStep)
-	RemoveSteps(...IStep)
 
 	Send(...interface{}) ISend
 	Expect(...interface{}) IExpect
@@ -102,30 +99,6 @@ func (hit *defaultInstance) SetBaseURL(url string, a ...interface{}) {
 	hit.baseURL = fmt.Sprintf(url, a...)
 }
 
-// AddSteps adds the specified steps to the queue
-func (hit *defaultInstance) AddSteps(steps ...IStep) {
-	if len(steps) <= 0 {
-		return
-	}
-	hit.steps = append(hit.steps, steps...)
-}
-
-// RemoveSteps removes the specified steps to the queue
-func (hit *defaultInstance) RemoveSteps(steps ...IStep) {
-	size := len(steps)
-	if size <= 0 {
-		return
-	}
-	for i := 0; i < size; i++ {
-		for j := len(hit.steps) - 1; j >= 0; j++ {
-			if hit.steps[j] == steps[i] {
-				hit.steps = append(hit.steps[:j], hit.steps[j+1:]...)
-				break
-			}
-		}
-	}
-}
-
 func (hit *defaultInstance) collectSteps(state StepTime, offset int) []IStep {
 	var steps []IStep
 	for i := offset; i < len(hit.steps); i++ {
@@ -141,19 +114,7 @@ func (hit *defaultInstance) collectSteps(state StepTime, offset int) []IStep {
 	return steps
 }
 
-func (hit *defaultInstance) runSteps(state StepTime) (err error) {
-	defer func() {
-		r := recover()
-		if r != nil {
-			if _, ok := r.(errortrace.ErrorTraceError); !ok {
-				err = errortrace.FormatError(fmt.Sprintf("%v", r))
-				fmt.Println(err)
-				return
-			}
-			err = fmt.Errorf("%v", r)
-		}
-	}()
-
+func (hit *defaultInstance) runSteps(state StepTime) error {
 	totalSteps := len(hit.steps)
 	// find all steps we want to run
 	stepsToRun := hit.collectSteps(state, 0)
@@ -163,7 +124,9 @@ func (hit *defaultInstance) runSteps(state StepTime) (err error) {
 		if i >= size {
 			return nil
 		}
-		stepsToRun[i].exec(hit)
+		if err := stepsToRun[i].exec(hit); err != nil {
+			return err
+		}
 
 		// maybe there is a new step added
 		newTotalSteps := len(hit.steps)
@@ -178,6 +141,7 @@ func (hit *defaultInstance) runSteps(state StepTime) (err error) {
 		}
 		i++
 	}
+	return nil
 }
 
 // Send sends the specified data as the body payload
@@ -185,9 +149,10 @@ func (hit *defaultInstance) runSteps(state StepTime) (err error) {
 //           Send("Hello World")
 //           Send().Body("Hello World")
 func (hit *defaultInstance) Send(data ...interface{}) ISend {
-	step := Send(data...)
-	hit.AddSteps(step)
-	return step
+	if arg, ok := getLastArgument(data); ok {
+		return finalSend{newSend(hit).Interface(arg)}
+	}
+	return newSend(hit)
 }
 
 // Expects expects the body to be equal the specified value, omit the parameter to get more options
@@ -195,9 +160,10 @@ func (hit *defaultInstance) Send(data ...interface{}) ISend {
 //           Expect("Hello World")
 //           Expect().Body().Contains("Hello World")
 func (hit *defaultInstance) Expect(data ...interface{}) IExpect {
-	step := Expect(data...)
-	hit.AddSteps(step)
-	return step
+	if arg, ok := getLastArgument(data); ok {
+		return finalExpect{newExpect(hit).Interface(arg)}
+	}
+	return newExpect(hit)
 }
 
 // Debug prints the current Request and Response to hit.Stdout()
@@ -263,6 +229,6 @@ func (hit *defaultInstance) Debug() {
 	}
 
 	bytes, err := json.Marshal(m)
-	errortrace.NoError(err)
+	minitest.NoError(err)
 	_, _ = hit.Stdout().Write(pretty.Color(pretty.Pretty(bytes), nil))
 }

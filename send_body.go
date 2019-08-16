@@ -14,22 +14,22 @@ func newSendBody(send ISend) ISendBody {
 	return &sendBody{send}
 }
 
-func (snd *sendBody) when() StepTime {
-	return snd.send.when()
+func (body *sendBody) when() StepTime {
+	return body.send.when()
 }
 
-func (snd *sendBody) exec(hit Hit) {
-	snd.send.exec(hit)
+func (body *sendBody) exec(hit Hit) error {
+	return body.send.exec(hit)
 }
 
-func (snd *sendBody) JSON(data interface{}) IStep {
-	return snd.send.Custom(func(hit Hit) {
+func (body *sendBody) JSON(data interface{}) IStep {
+	return body.send.Custom(func(hit Hit) {
 		hit.Request().Body().JSON().Set(data)
 	})
 }
 
-func (snd *sendBody) Interface(data interface{}) IStep {
-	return snd.send.Custom(func(hit Hit) {
+func (body *sendBody) Interface(data interface{}) IStep {
+	return body.send.Custom(func(hit Hit) {
 		hit.Request().Body().Set(data)
 	})
 }

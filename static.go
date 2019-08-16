@@ -8,6 +8,7 @@ import (
 	"io"
 
 	"github.com/Eun/go-hit/errortrace"
+	"github.com/Eun/go-hit/internal/minitest"
 )
 
 // Send sends the specified data as the body payload
@@ -16,9 +17,9 @@ import (
 //           Send().Body("Hello World")
 func Send(data ...interface{}) ISend {
 	if arg, ok := getLastArgument(data); ok {
-		return finalSend{newSend().Interface(arg)}
+		return finalSend{newSend(nil).Interface(arg)}
 	}
-	return newSend()
+	return newSend(nil)
 }
 
 // Expects expects the body to be equal the specified value, omit the parameter to get more options
@@ -27,9 +28,9 @@ func Send(data ...interface{}) ISend {
 //           Expect().Body().Contains("Hello World")
 func Expect(data ...interface{}) IExpect {
 	if arg, ok := getLastArgument(data); ok {
-		return finalExpect{newExpect().Interface(arg)}
+		return finalExpect{newExpect(nil).Interface(arg)}
 	}
-	return newExpect()
+	return newExpect(nil)
 }
 
 // Debug prints the current Request and Response to hit.Stdout()
@@ -75,10 +76,9 @@ func SetRequest(request *http.Request) IStep {
 //           SetMethod("POST", "http://example.com")
 //           SetMethod("POST", "http://%s/%s", domain, path)
 func SetMethod(method, url string, a ...interface{}) IStep {
-	et := errortrace.Prepare()
 	return Custom(BeforeSendStep, func(hit Hit) {
 		request, err := http.NewRequest(method, makeURL(hit.BaseURL(), url, a...), nil)
-		et.NoError(err, "unable to create request")
+		minitest.NoError(err, "unable to create request")
 		hit.SetRequest(request)
 	})
 }
@@ -150,7 +150,12 @@ func Trace(url string, a ...interface{}) IStep {
 // Test runs the specified steps and calls t.Error() if any error occurs during execution
 func Test(t TestingT, steps ...IStep) {
 	if err := Do(steps...); err != nil {
-		t.Error(err.Error())
+		if _, ok := err.(errortrace.ErrorTraceError); !ok {
+			os.Stderr.WriteString(errortrace.Format(err.Error()).Error())
+			t.FailNow()
+		}
+		os.Stderr.WriteString(err.Error())
+		t.FailNow()
 	}
 }
 

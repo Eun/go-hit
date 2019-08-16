@@ -17,31 +17,31 @@ func newSendHeaders(send ISend) ISendHeaders {
 	}
 }
 
-func (snd *sendHeaders) when() StepTime {
-	return snd.send.when()
+func (hdr *sendHeaders) when() StepTime {
+	return hdr.send.when()
 }
 
-func (snd *sendHeaders) exec(hit Hit) {
-	snd.send.exec(hit)
+func (hdr *sendHeaders) exec(hit Hit) error {
+	return hdr.send.exec(hit)
 }
 
 // Set sets a header to the specified value
-func (snd *sendHeaders) Set(name, value string) IStep {
-	return snd.send.Custom(func(hit Hit) {
+func (hdr *sendHeaders) Set(name, value string) IStep {
+	return hdr.send.Custom(func(hit Hit) {
 		hit.Request().Header.Set(name, value)
 	})
 }
 
 // Delete deletes a header
-func (snd *sendHeaders) Delete(name string) IStep {
-	return snd.send.Custom(func(hit Hit) {
+func (hdr *sendHeaders) Delete(name string) IStep {
+	return hdr.send.Custom(func(hit Hit) {
 		hit.Request().Header.Del(name)
 	})
 }
 
 // Clear removes all headers
-func (snd *sendHeaders) Clear() IStep {
-	return snd.send.Custom(func(hit Hit) {
+func (hdr *sendHeaders) Clear() IStep {
+	return hdr.send.Custom(func(hit Hit) {
 		var names []string
 		for name := range hit.Request().Header {
 			names = append(names, name)

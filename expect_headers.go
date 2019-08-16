@@ -2,7 +2,7 @@ package hit
 
 import (
 	"github.com/Eun/go-convert"
-	"github.com/Eun/go-hit/errortrace"
+	"github.com/Eun/go-hit/internal/minitest"
 )
 
 type IExpectHeaders interface {
@@ -22,21 +22,20 @@ func newExpectHeaders(expect IExpect) IExpectHeaders {
 	return &expectHeaders{expect}
 }
 
-func (exp *expectHeaders) when() StepTime {
-	return exp.expect.when()
+func (hdr *expectHeaders) when() StepTime {
+	return hdr.expect.when()
 }
 
-func (exp *expectHeaders) exec(hit Hit) {
-	exp.expect.exec(hit)
+func (hdr *expectHeaders) exec(hit Hit) error {
+	return hdr.expect.exec(hit)
 }
 
 // Contains checks if the specified header is present
 // Example:
 //           Expect().Headers().Contains("Content-Type")
 func (hdr *expectHeaders) Contains(v string) IStep {
-	et := errortrace.Prepare()
 	return hdr.expect.Custom(func(hit Hit) {
-		et.Contains(hit.Response().Header, v)
+		minitest.Contains(hit.Response().Header, v)
 	})
 }
 
@@ -44,9 +43,8 @@ func (hdr *expectHeaders) Contains(v string) IStep {
 // Example:
 //           Expect().Headers().Empty()
 func (hdr *expectHeaders) Empty() IStep {
-	et := errortrace.Prepare()
 	return hdr.expect.Custom(func(hit Hit) {
-		et.Empty(hit.Response().Header)
+		minitest.Empty(hit.Response().Header)
 	})
 }
 
@@ -54,9 +52,8 @@ func (hdr *expectHeaders) Empty() IStep {
 // Example:
 //           Expect().Headers().Len(0)
 func (hdr *expectHeaders) Len(size int) IStep {
-	et := errortrace.Prepare()
 	return hdr.expect.Custom(func(hit Hit) {
-		et.Len(hit.Response().Header, size)
+		minitest.Len(hit.Response().Header, size)
 	})
 }
 
@@ -64,11 +61,10 @@ func (hdr *expectHeaders) Len(size int) IStep {
 // Example:
 //           Expect().Headers().Equal(map[string]string{"Content-Type": "application/json"})
 func (hdr *expectHeaders) Equal(v interface{}) IStep {
-	et := errortrace.Prepare()
 	return hdr.expect.Custom(func(hit Hit) {
 		compareData, err := converter.Convert(hit.Response().Header, v, convert.Options.ConvertEmbeddedStructToParentType())
-		et.NoError(err)
-		et.Equal(v, compareData)
+		minitest.NoError(err)
+		minitest.Equal(v, compareData)
 	})
 }
 

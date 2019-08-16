@@ -1,6 +1,9 @@
 package hit
 
 import (
+	"fmt"
+
+	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
 )
 
@@ -21,24 +24,36 @@ type ISend interface {
 }
 
 type send struct {
-	body ISendBody
-	call Callback
+	executeNowContext Hit
+	body              ISendBody
+	call              Callback
+	et                *errortrace.ErrorTrace
 }
 
-func newSend() ISend {
-	snd := &send{}
+func newSend(hit Hit) ISend {
+	snd := &send{
+		executeNowContext: hit,
+	}
 	snd.body = newSendBody(snd)
 	return snd
 }
 
-func (exp *send) when() StepTime {
+func (snd *send) when() StepTime {
 	return SendStep
 }
 
-func (exp *send) exec(hit Hit) {
-	if exp.call != nil {
-		exp.call(hit)
+func (snd *send) exec(hit Hit) (err error) {
+	if snd.call == nil {
+		return nil
 	}
+	defer func() {
+		r := recover()
+		if r != nil {
+			err = snd.et.Format(fmt.Sprint(r))
+		}
+	}()
+	snd.call(hit)
+	return err
 }
 
 func (snd *send) Body(data ...interface{}) ISendBody {
@@ -50,6 +65,11 @@ func (snd *send) Body(data ...interface{}) ISendBody {
 
 // Custom can be used to send a custom behaviour
 func (snd *send) Custom(f Callback) IStep {
+	if snd.executeNowContext != nil {
+		f(snd.executeNowContext)
+		return nil
+	}
+	snd.et = errortrace.Prepare()
 	snd.call = f
 	return snd
 }

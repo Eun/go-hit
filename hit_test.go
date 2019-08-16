@@ -4,10 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"fmt"
 	"strings"
-
-	"errors"
 
 	"bytes"
 
@@ -302,31 +299,6 @@ func TestFormatURL(t *testing.T) {
 		Get("%s", s.URL),
 		Expect().Status(http.StatusOK),
 	)
-}
-
-type DummyTestingT struct {
-	Args []interface{}
-}
-
-func (d *DummyTestingT) Error(args ...interface{}) {
-	d.Args = args
-}
-
-func TestTestError(t *testing.T) {
-	s := EchoServer()
-	defer s.Close()
-	d := &DummyTestingT{}
-	Test(d,
-		Get(s.URL),
-		Expect().Status(http.StatusNotFound),
-	)
-
-	var sb strings.Builder
-	for i := 0; i < len(d.Args); i++ {
-		fmt.Fprintln(&sb, d.Args[i])
-	}
-
-	ExpectError(t, errors.New(sb.String()), PtrStr("Expected status code to be 404 but was 200 instead"))
 }
 
 func TestSetHTTPClient(t *testing.T) {

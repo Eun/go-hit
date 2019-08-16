@@ -2,7 +2,7 @@ package hit
 
 import (
 	"github.com/Eun/go-convert"
-	"github.com/Eun/go-hit/errortrace"
+	"github.com/Eun/go-hit/internal/minitest"
 )
 
 type IExpectSpecificHeader interface {
@@ -25,21 +25,20 @@ func newExpectSpecificHeader(expect IExpect, header string) IExpectSpecificHeade
 	}
 }
 
-func (exp *expectSpecificHeader) when() StepTime {
-	return exp.expect.when()
+func (hdr *expectSpecificHeader) when() StepTime {
+	return hdr.expect.when()
 }
 
-func (exp *expectSpecificHeader) exec(hit Hit) {
-	exp.expect.exec(hit)
+func (hdr *expectSpecificHeader) exec(hit Hit) error {
+	return hdr.expect.exec(hit)
 }
 
 // Contains checks if the header value contains the specified value
 // Example:
 //           Expect().Header("Content-Type").Contains("application")
 func (hdr *expectSpecificHeader) Contains(v string) IStep {
-	et := errortrace.Prepare()
 	return hdr.expect.Custom(func(hit Hit) {
-		et.Contains(hit.Response().Header.Get(hdr.header), v)
+		minitest.Contains(hit.Response().Header.Get(hdr.header), v)
 	})
 }
 
@@ -47,9 +46,8 @@ func (hdr *expectSpecificHeader) Contains(v string) IStep {
 // Example:
 //           Expect().Header("Content-Type").OneOf("application/json", "text/x-json")
 func (hdr *expectSpecificHeader) OneOf(values ...interface{}) IStep {
-	et := errortrace.Prepare()
 	return hdr.expect.Custom(func(hit Hit) {
-		et.Contains(values, hit.Response().Header.Get(hdr.header))
+		minitest.Contains(values, hit.Response().Header.Get(hdr.header))
 	})
 }
 
@@ -57,9 +55,8 @@ func (hdr *expectSpecificHeader) OneOf(values ...interface{}) IStep {
 // Example:
 //           Expect().Headers("Content-Type").Empty()
 func (hdr *expectSpecificHeader) Empty() IStep {
-	et := errortrace.Prepare()
 	return hdr.expect.Custom(func(hit Hit) {
-		et.Empty(hit.Response().Header.Get(hdr.header))
+		minitest.Empty(hit.Response().Header.Get(hdr.header))
 	})
 }
 
@@ -67,9 +64,8 @@ func (hdr *expectSpecificHeader) Empty() IStep {
 // Example:
 //           Expect().Header("Content-Type").Len(16)
 func (hdr *expectSpecificHeader) Len(size int) IStep {
-	et := errortrace.Prepare()
 	return hdr.expect.Custom(func(hit Hit) {
-		et.Len(hit.Response().Header.Get(hdr.header), size)
+		minitest.Len(hit.Response().Header.Get(hdr.header), size)
 	})
 }
 
@@ -77,10 +73,9 @@ func (hdr *expectSpecificHeader) Len(size int) IStep {
 // Example:
 //           Expect().Headers("Content-Type").Equal("application/json")
 func (hdr *expectSpecificHeader) Equal(v interface{}) IStep {
-	et := errortrace.Prepare()
 	return hdr.expect.Custom(func(hit Hit) {
 		compareData, err := converter.Convert(hit.Response().Header.Get(hdr.header), v, convert.Options.ConvertEmbeddedStructToParentType())
-		et.NoError(err)
-		et.Equal(v, compareData)
+		minitest.NoError(err)
+		minitest.Equal(v, compareData)
 	})
 }

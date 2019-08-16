@@ -1,6 +1,11 @@
 package hit
 
-import "github.com/Eun/go-hit/internal"
+import (
+	"fmt"
+
+	"github.com/Eun/go-hit/errortrace"
+	"github.com/Eun/go-hit/internal"
+)
 
 type IExpect interface {
 	IStep
@@ -50,21 +55,33 @@ type IExpect interface {
 }
 
 type expect struct {
-	call Callback
+	executeNowContext Hit
+	et                *errortrace.ErrorTrace
+	call              Callback
 }
 
-func newExpect() IExpect {
-	return &expect{}
+func newExpect(executeNowContext Hit) IExpect {
+	return &expect{
+		executeNowContext: executeNowContext,
+	}
 }
 
 func (exp *expect) when() StepTime {
 	return ExpectStep
 }
 
-func (exp *expect) exec(hit Hit) {
-	if exp.call != nil {
-		exp.call(hit)
+func (exp *expect) exec(hit Hit) (err error) {
+	if exp.call == nil {
+		return nil
 	}
+	defer func() {
+		r := recover()
+		if r != nil {
+			err = exp.et.Format(fmt.Sprint(r))
+		}
+	}()
+	exp.call(hit)
+	return err
 }
 
 // Body expects the body to be equal the specified value, omit the parameter to get more options
@@ -86,6 +103,11 @@ func (exp *expect) Body(data ...interface{}) IExpectBody {
 //               }
 //           })
 func (exp *expect) Custom(f Callback) IStep {
+	if exp.executeNowContext != nil {
+		f(exp.executeNowContext)
+		return nil
+	}
+	exp.et = errortrace.Prepare()
 	exp.call = f
 	return exp
 }

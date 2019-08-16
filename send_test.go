@@ -194,3 +194,12 @@ func TestSend_Clear(t *testing.T) {
 		require.False(t, calledFunc)
 	})
 }
+
+func TestErrortrace(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	Test(t,
+		Post(s.URL),
+		Expect("HELLO"),
+	)
+}

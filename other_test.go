@@ -5,9 +5,9 @@ import "testing"
 //
 // func TestOther(t *testing.T) {
 // 	client := &http.Client{}
-// 	e := Connect(t, "http://127.0.0.1")
-// 	e.SetHTTPClient(client)
-// 	require.Equal(t, client, e.HTTPClient())
+// 	call := Connect(t, "http://127.0.0.1")
+// 	call.SetHTTPClient(client)
+// 	require.Equal(t, client, call.HTTPClient())
 // }
 //
 // func TestPanicT_Errorf(t *testing.T) {
