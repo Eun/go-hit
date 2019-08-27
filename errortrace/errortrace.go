@@ -35,7 +35,7 @@ func isIncluded(call *Call) bool {
 	if call.FunctionName == "" {
 		return false
 	}
-	if call.PackageName != "github.com/Eun/go-hit" {
+	if !strings.HasSuffix(call.PackageName, "github.com/Eun/go-hit") {
 		return false
 	}
 

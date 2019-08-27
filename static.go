@@ -15,6 +15,8 @@ import (
 	"encoding/json"
 	"time"
 
+	"strings"
+
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/expr"
 	"github.com/Eun/go-hit/internal/minitest"
@@ -320,7 +322,7 @@ func getContextID() uintptr {
 		frames := runtime.CallersFrames(pc[:n])
 		for {
 			frame, more := frames.Next()
-			if frame.Function == "github.com/Eun/go-hit.Do" {
+			if strings.HasSuffix(frame.Function, "github.com/Eun/go-hit.Do") {
 				return frame.Entry
 			}
 			if !more {
