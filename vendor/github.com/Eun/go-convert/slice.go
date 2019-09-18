@@ -11,7 +11,8 @@ func (conv *Converter) convertToSlice(src, dst *convertValue) (reflect.Value, er
 		zeroValue := reflect.Zero(valueType)
 		sl := reflect.MakeSlice(reflect.SliceOf(valueType), src.Base.Len(), src.Base.Cap())
 		for i := src.Base.Len() - 1; i >= 0; i-- {
-			v, err := conv.newNestedConverter().convert(src.Base.Index(i), zeroValue)
+			zv := conv.zeroSliceValue(dst, i, valueType, zeroValue)
+			v, err := conv.newNestedConverter().convert(src.Base.Index(i), zv)
 			if err != nil {
 				return reflect.Value{}, err
 			}
@@ -46,4 +47,21 @@ func (conv *Converter) convertStringToSlice(src, dst *convertValue) (reflect.Val
 	}
 
 	return reflect.Value{}, nil
+}
+
+// zeroSliceValue returns the zero value for the specific map value
+func (conv *Converter) zeroSliceValue(dst *convertValue, index int, valueType reflect.Type, fallbackValue reflect.Value) reflect.Value {
+	if valueType.Kind() != reflect.Interface {
+		return fallbackValue
+	}
+
+	if index >= dst.Base.Len() {
+		return fallbackValue
+	}
+
+	dstType := dst.Base.Index(index)
+	if !dstType.IsValid() {
+		return fallbackValue
+	}
+	return dstType
 }

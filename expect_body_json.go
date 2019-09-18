@@ -1,7 +1,6 @@
 package hit
 
 import (
-	"github.com/Eun/go-convert"
 	"github.com/Eun/go-hit/expr"
 	"github.com/Eun/go-hit/internal"
 	"github.com/Eun/go-hit/internal/minitest"
@@ -53,7 +52,7 @@ func (jsn *expectBodyJSON) Equal(expression string, data interface{}) IStep {
 			minitest.Equal(data, v)
 		}
 
-		compareData, err := converter.Convert(v, data, convert.Options.ConvertEmbeddedStructToParentType())
+		compareData, err := converter.Convert(v, data)
 		minitest.NoError(err)
 		minitest.Equal(data, compareData)
 	})

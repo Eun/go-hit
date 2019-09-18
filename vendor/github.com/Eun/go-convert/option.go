@@ -8,10 +8,6 @@ type Option interface {
 	private()
 }
 
-type convertEmbeddedStructToParentTypeOption struct{}
-
-func (convertEmbeddedStructToParentTypeOption) private() {}
-
 type skipUnknownFieldsOption struct{}
 
 func (skipUnknownFieldsOption) private() {}
@@ -70,14 +66,10 @@ func customConverter(converterFunc interface{}) Option {
 }
 
 var Options = struct {
-	ConvertEmbeddedStructToParentType func() Option
-	SkipUnknownFields                 func() Option
-	SkipPointers                      func() Option
-	CustomConverter                   func(interface{}) Option
+	SkipUnknownFields func() Option
+	SkipPointers      func() Option
+	CustomConverter   func(interface{}) Option
 }{
-	ConvertEmbeddedStructToParentType: func() Option {
-		return convertEmbeddedStructToParentTypeOption{}
-	},
 	SkipUnknownFields: func() Option {
 		return skipUnknownFieldsOption{}
 	},

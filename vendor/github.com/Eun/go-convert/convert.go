@@ -66,12 +66,6 @@ func (conv *Converter) convert(src, dstTyp reflect.Value) (reflect.Value, error)
 		return reflect.Value{}, err
 	}
 
-	// if the source is a struct and the destination is an interface
-	// and we set the option to convert the embedded struct to the parent type
-	if conv.parent != nil && conv.source.Base.Kind() == reflect.Struct && conv.destination.Base.Kind() == reflect.Interface && conv.hasOption(Options.ConvertEmbeddedStructToParentType()) {
-		conv.destination = conv.parent.destination
-	}
-
 	n, err := conv.convertToType(conv.source, conv.destination)
 	if err != nil {
 		return reflect.Value{}, &Error{src: conv.source, dst: conv.destination, underlayingError: err}
@@ -89,7 +83,7 @@ func (conv *Converter) convert(src, dstTyp reflect.Value) (reflect.Value, error)
 }
 
 func (conv *Converter) convertToType(src, dst *convertValue) (reflect.Value, error) {
-	debug("converting %s %#v to %s\n", src.getHumanName(), src.Base.Interface(), dst.getHumanName())
+	debug("converting %s to %s\n", src.getHumanName(), dst.getHumanName())
 	ok, value, err := conv.callCustomConverter(src, dst)
 	if err != nil {
 		return reflect.Value{}, err

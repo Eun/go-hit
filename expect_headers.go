@@ -1,7 +1,6 @@
 package hit
 
 import (
-	"github.com/Eun/go-convert"
 	"github.com/Eun/go-hit/internal/minitest"
 )
 
@@ -62,7 +61,7 @@ func (hdr *expectHeaders) Len(size int) IStep {
 //           Expect().Headers().Equal(map[string]string{"Content-Type": "application/json"})
 func (hdr *expectHeaders) Equal(v interface{}) IStep {
 	return hdr.expect.Custom(func(hit Hit) {
-		compareData, err := converter.Convert(hit.Response().Header, v, convert.Options.ConvertEmbeddedStructToParentType())
+		compareData, err := converter.Convert(hit.Response().Header, v)
 		minitest.NoError(err)
 		minitest.Equal(v, compareData)
 	})

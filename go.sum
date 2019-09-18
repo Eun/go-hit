@@ -1,5 +1,7 @@
 github.com/Eun/go-convert v0.0.0-20190613114603-577b1e9e7a7d h1:BtpdVtLpSa0QSj2NtD0Wq4ErnfGhzq+1Xm9JaoosNzQ=
 github.com/Eun/go-convert v0.0.0-20190613114603-577b1e9e7a7d/go.mod h1:BATFXE/fdhm31JeLxojMr3PNIv3dQXxeo7yDGNbEdH0=
+github.com/Eun/go-convert v0.0.0-20190917144344-f85b3b5c4f23 h1:EywRGF9lRpsivuuwvhx3qVn2C30HDXtOetGvelwxyw8=
+github.com/Eun/go-convert v0.0.0-20190917144344-f85b3b5c4f23/go.mod h1:BATFXE/fdhm31JeLxojMr3PNIv3dQXxeo7yDGNbEdH0=
 github.com/Eun/go-doppelgangerreader v0.0.0-20190529162319-bd15a2597e7f h1:q4VccfWDWbuRGqVSD6pMr4oaH118zm9Mxknv7j3o84E=
 github.com/Eun/go-doppelgangerreader v0.0.0-20190529162319-bd15a2597e7f/go.mod h1:+o+i8cYK1XYOQo4ocUKNV4R9D5Y7MIAPJk2l5SEh93M=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=

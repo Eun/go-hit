@@ -117,7 +117,7 @@ func TestExpectBodyJSON_Equal(t *testing.T) {
 }
 
 func TestExpectBodyJSON_EqualExpression(t *testing.T) {
-	s := PrintJSONServer(map[string]interface{}{
+	payload := map[string]interface{}{
 		"Name":   "Joe",
 		"UserID": 10,
 		"Roles":  []string{"Admin", "User"},
@@ -132,7 +132,8 @@ func TestExpectBodyJSON_EqualExpression(t *testing.T) {
 			1,
 			"Wood Inc",
 		},
-	})
+	}
+	s := PrintJSONServer(payload)
 	defer s.Close()
 
 	t.Run("string", func(t *testing.T) {
@@ -179,6 +180,13 @@ func TestExpectBodyJSON_EqualExpression(t *testing.T) {
 				1,
 				"Wood Inc",
 			}),
+		)
+	})
+
+	t.Run("full payload", func(t *testing.T) {
+		Test(t,
+			Post(s.URL),
+			Expect().Body().JSON().Equal("", payload),
 		)
 	})
 
