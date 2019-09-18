@@ -26,7 +26,7 @@ func (conv *Converter) convertMapToMap(src, dst *convertValue) (reflect.Value, e
 			return reflect.Value{}, err
 		}
 
-		zv := conv.zeroMapValue(dst, key, valueType, zeroValue)
+		zv := conv.zeroMapValue(dst, key, keyType, valueType, zeroValue)
 
 		newValue, err := conv.newNestedConverter().convert(src.Base.MapIndex(key), zv)
 		if err != nil {
@@ -47,7 +47,7 @@ func (conv *Converter) convertStructToMap(src, dst *convertValue) (reflect.Value
 
 	for i := src.Base.NumField() - 1; i >= 0; i-- {
 		field := reflect.ValueOf(src.Base.Type().Field(i).Name)
-		zv := conv.zeroMapValue(dst, field, valueType, zeroValue)
+		zv := conv.zeroMapValue(dst, field, keyType, valueType, zeroValue)
 
 		newValue, err := conv.newNestedConverter().convert(src.Base.Field(i), zv)
 		if err != nil {
@@ -61,12 +61,22 @@ func (conv *Converter) convertStructToMap(src, dst *convertValue) (reflect.Value
 }
 
 // zeroMapValue returns the zero value for the specific map value
-func (conv *Converter) zeroMapValue(dst *convertValue, key reflect.Value, valueType reflect.Type, fallbackValue reflect.Value) reflect.Value {
+func (conv *Converter) zeroMapValue(dst *convertValue, wantedKey reflect.Value, keyType, valueType reflect.Type, fallbackValue reflect.Value) reflect.Value {
 	if valueType.Kind() != reflect.Interface {
 		return fallbackValue
 	}
 
-	dstType := dst.Base.MapIndex(key)
+	// if the wantedKey type is not the wantedKey type that we expect
+	// try to convert it, if it fails, return fallback
+	if keyType != wantedKey.Type() {
+		var err error
+		wantedKey, err = conv.convert(wantedKey, reflect.Zero(keyType))
+		if err != nil {
+			return fallbackValue
+		}
+	}
+
+	dstType := dst.Base.MapIndex(wantedKey)
 	if !dstType.IsValid() {
 		return fallbackValue
 	}
