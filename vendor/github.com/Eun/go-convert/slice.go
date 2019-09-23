@@ -51,10 +51,6 @@ func (conv *Converter) convertStringToSlice(src, dst *convertValue) (reflect.Val
 
 // zeroSliceValue returns the zero value for the specific map value
 func (conv *Converter) zeroSliceValue(dst *convertValue, index int, valueType reflect.Type, fallbackValue reflect.Value) reflect.Value {
-	if valueType.Kind() != reflect.Interface {
-		return fallbackValue
-	}
-
 	if index >= dst.Base.Len() {
 		return fallbackValue
 	}
