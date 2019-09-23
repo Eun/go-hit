@@ -1,11 +1,15 @@
 package convert
 
 import (
+	"errors"
 	"reflect"
 	"strconv"
 )
 
 func (conv *Converter) convertToUint8(src, _ *convertValue) (reflect.Value, error) {
+	if src.IsNil() {
+		return reflect.Value{}, errors.New("source cannot be nil")
+	}
 	switch src.Base.Kind() {
 	case reflect.Uint8:
 		return src.Base, nil

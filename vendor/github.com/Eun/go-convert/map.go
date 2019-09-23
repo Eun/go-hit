@@ -5,6 +5,9 @@ import (
 )
 
 func (conv *Converter) convertToMap(src, dst *convertValue) (reflect.Value, error) {
+	if src.IsNil() {
+		return reflect.MakeMapWithSize(reflect.MapOf(dst.Base.Type().Key(), dst.Base.Type().Elem()), 0), nil
+	}
 	switch src.Base.Kind() {
 	case reflect.Map:
 		return conv.convertMapToMap(src, dst)
@@ -23,7 +26,7 @@ func (conv *Converter) convertMapToMap(src, dst *convertValue) (reflect.Value, e
 	m := reflect.MakeMapWithSize(reflect.MapOf(keyType, valueType), src.Base.Len())
 
 	for _, key := range src.Base.MapKeys() {
-		haveKey, err := conv.newNestedConverter().convert(key, zeroKey)
+		haveKey, err := conv.newNestedConverter().ConvertReflectValue(key, zeroKey)
 		if err != nil {
 			return reflect.Value{}, err
 		}
@@ -35,8 +38,7 @@ func (conv *Converter) convertMapToMap(src, dst *convertValue) (reflect.Value, e
 		}
 
 		haveValue := src.Base.MapIndex(key)
-
-		newValue, err := conv.newNestedConverter().convert(haveValue, zv)
+		newValue, err := conv.newNestedConverter().ConvertReflectValue(haveValue, zv)
 		if err != nil {
 			return reflect.Value{}, err
 		}
@@ -64,7 +66,7 @@ func (conv *Converter) convertStructToMap(src, dst *convertValue) (reflect.Value
 			zv = zeroValue
 		}
 
-		newValue, err := conv.newNestedConverter().convert(haveValue, zv)
+		newValue, err := conv.newNestedConverter().ConvertReflectValue(haveValue, zv)
 		if err != nil {
 			return reflect.Value{}, err
 		}

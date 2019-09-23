@@ -1,12 +1,16 @@
 package convert
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
 )
 
 func (conv *Converter) convertToStruct(src, dst *convertValue) (reflect.Value, error) {
+	if src.IsNil() {
+		return reflect.Value{}, errors.New("source cannot be nil")
+	}
 	switch src.Base.Kind() {
 	case reflect.Map:
 		return conv.convertMapToStruct(src, dst)
@@ -21,7 +25,7 @@ func (conv *Converter) convertMapToStruct(src, dst *convertValue) (reflect.Value
 	zeroString := reflect.ValueOf("")
 	for _, key := range src.Base.MapKeys() {
 		// convert key
-		fieldNameValue, err := conv.newNestedConverter().convert(key, zeroString)
+		fieldNameValue, err := conv.newNestedConverter().ConvertReflectValue(key, zeroString)
 		if err != nil {
 			return reflect.Value{}, err
 		}
@@ -38,7 +42,7 @@ func (conv *Converter) convertMapToStruct(src, dst *convertValue) (reflect.Value
 			return reflect.Value{}, fmt.Errorf("unable to find %s in %s", fieldName, dst.getHumanName())
 		}
 
-		newValue, err := conv.newNestedConverter().convert(src.Base.MapIndex(key), reflect.Zero(field.Type()))
+		newValue, err := conv.newNestedConverter().ConvertReflectValue(src.Base.MapIndex(key), reflect.Zero(field.Type()))
 		if err != nil {
 			return reflect.Value{}, err
 		}
@@ -66,7 +70,7 @@ func (conv *Converter) convertStructToStruct(src, dst *convertValue) (reflect.Va
 			return reflect.Value{}, fmt.Errorf("unable to find %s in %s", fieldName, dst.getHumanName())
 		}
 
-		newValue, err := conv.newNestedConverter().convert(src.Base.Field(i), field)
+		newValue, err := conv.newNestedConverter().ConvertReflectValue(src.Base.Field(i), field)
 		if err != nil {
 			return reflect.Value{}, err
 		}

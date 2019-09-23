@@ -53,6 +53,9 @@ func constructValue(v reflect.Value, value *convertValue) (reflect.Value, error)
 }
 
 func (v *convertValue) getFriendlyKindName(typ reflect.Type) string {
+	if v.IsNil() {
+		return "nil"
+	}
 	if typ.Kind() == reflect.Interface {
 		return "interface{}"
 	}
@@ -60,6 +63,9 @@ func (v *convertValue) getFriendlyKindName(typ reflect.Type) string {
 }
 
 func (v *convertValue) getHumanName() string {
+	if v.IsNil() {
+		return "nil"
+	}
 	var sb strings.Builder
 	for i := 0; i < len(v.Parents); i++ {
 		switch v.Parents[i].Kind() {
@@ -86,4 +92,12 @@ func (v *convertValue) getHumanName() string {
 	}
 
 	return sb.String()
+}
+
+func (v *convertValue) IsNil() bool {
+	switch v.Base.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Map, reflect.Ptr, reflect.UnsafePointer, reflect.Interface, reflect.Slice:
+		return v.Base.IsNil()
+	}
+	return false
 }

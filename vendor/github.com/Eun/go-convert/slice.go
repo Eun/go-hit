@@ -5,14 +5,20 @@ import (
 )
 
 func (conv *Converter) convertToSlice(src, dst *convertValue) (reflect.Value, error) {
+	if src.IsNil() {
+		return reflect.MakeSlice(reflect.SliceOf(dst.Base.Type().Elem()), 0, 0), nil
+	}
 	switch src.Base.Kind() {
 	case reflect.Slice, reflect.Array:
 		valueType := dst.Base.Type().Elem()
 		zeroValue := reflect.Zero(valueType)
-		sl := reflect.MakeSlice(reflect.SliceOf(valueType), src.Base.Len(), src.Base.Cap())
-		for i := src.Base.Len() - 1; i >= 0; i-- {
+
+		length := src.Base.Len()
+
+		sl := reflect.MakeSlice(reflect.SliceOf(valueType), length, src.Base.Cap())
+		for i := length - 1; i >= 0; i-- {
 			zv := conv.zeroSliceValue(dst, i, valueType, zeroValue)
-			v, err := conv.newNestedConverter().convert(src.Base.Index(i), zv)
+			v, err := conv.newNestedConverter().ConvertReflectValue(src.Base.Index(i), zv)
 			if err != nil {
 				return reflect.Value{}, err
 			}

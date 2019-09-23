@@ -3,7 +3,7 @@ module github.com/Eun/go-hit
 go 1.12
 
 require (
-	github.com/Eun/go-convert v0.0.0-20190923095629-06ca89fd5d25
+	github.com/Eun/go-convert v0.0.0-20190923145001-27e81fbc5b02
 	github.com/Eun/go-doppelgangerreader v0.0.0-20190529162319-bd15a2597e7f
 	github.com/google/go-cmp v0.3.0
 	github.com/gookit/color v1.1.7

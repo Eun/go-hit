@@ -1,12 +1,16 @@
 package convert
 
 import (
+	"errors"
 	"reflect"
 	"strconv"
 	"strings"
 )
 
 func (conv *Converter) convertToString(src, dst *convertValue) (reflect.Value, error) {
+	if src.IsNil() {
+		return reflect.Value{}, errors.New("source cannot be nil")
+	}
 	switch src.Base.Kind() {
 	case reflect.String:
 		return src.Base, nil

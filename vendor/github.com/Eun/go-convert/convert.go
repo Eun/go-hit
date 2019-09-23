@@ -25,16 +25,29 @@ var defaultConverter = Converter{}
 //     }
 //     fmt.Printf("%s\n", str.(string))
 func (conv Converter) Convert(src, dstTyp interface{}, options ...Option) (interface{}, error) {
-	if src == nil {
-		return nil, errors.New("source cannot be nil")
-	}
 	if dstTyp == nil {
 		return nil, errors.New("destination type cannot be nil")
 	}
 
 	conv.Options = append(conv.Options, options...)
 
-	n, err := conv.convert(reflect.ValueOf(src), reflect.ValueOf(dstTyp))
+	var err error
+
+	if src == nil {
+		var nilValue *struct{}
+		src = nilValue
+	}
+
+	conv.source, err = newConvertValue(reflect.ValueOf(src))
+	if err != nil {
+		return reflect.Value{}, err
+	}
+	conv.destination, err = newConvertValue(reflect.ValueOf(dstTyp))
+	if err != nil {
+		return reflect.Value{}, err
+	}
+
+	n, err := conv.convert()
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +68,23 @@ func (conv Converter) MustConvert(src, dstTyp interface{}, options ...Option) in
 	return v
 }
 
-func (conv *Converter) convert(src, dstTyp reflect.Value) (reflect.Value, error) {
+func (conv Converter) MustConvertReflectValue(src, dstTyp reflect.Value, options ...Option) reflect.Value {
+	v, err := conv.ConvertReflectValue(src, dstTyp, options...)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+func (conv Converter) ConvertReflectValue(src, dstTyp reflect.Value, options ...Option) (reflect.Value, error) {
+	if !src.IsValid() {
+		return reflect.Value{}, errors.New("source is invalid")
+	}
+	if !dstTyp.IsValid() {
+		return reflect.Value{}, errors.New("destination is invalid")
+	}
+
+	conv.Options = append(conv.Options, options...)
+
 	var err error
 	conv.source, err = newConvertValue(src)
 	if err != nil {
@@ -66,6 +95,10 @@ func (conv *Converter) convert(src, dstTyp reflect.Value) (reflect.Value, error)
 		return reflect.Value{}, err
 	}
 
+	return conv.convert()
+}
+
+func (conv *Converter) convert() (reflect.Value, error) {
 	n, err := conv.convertToType(conv.source, conv.destination)
 	if err != nil {
 		return reflect.Value{}, &Error{src: conv.source, dst: conv.destination, underlayingError: err}
@@ -161,6 +194,15 @@ func Convert(src, dstTyp interface{}, options ...Option) (interface{}, error) {
 // MustConvert calls Convert() but panics if there is an error
 func MustConvert(src, dstTyp interface{}, options ...Option) interface{} {
 	return defaultConverter.MustConvert(src, dstTyp, options...)
+}
+
+func ConvertReflectValue(src, dstTyp reflect.Value, options ...Option) (reflect.Value, error) {
+	return defaultConverter.ConvertReflectValue(src, dstTyp, options...)
+}
+
+// MustConvertReflectValue calls MustConvertReflectValue() but panics if there is an error
+func MustConvertReflectValue(src, dstTyp reflect.Value, options ...Option) reflect.Value {
+	return defaultConverter.MustConvertReflectValue(src, dstTyp, options...)
 }
 
 // GetHumanName returns a friendly human readable name for an type

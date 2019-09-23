@@ -6,6 +6,8 @@ github.com/Eun/go-convert v0.0.0-20190918124258-c69d3e2c2d66 h1:RlBC/VlHSo2ivg5o
 github.com/Eun/go-convert v0.0.0-20190918124258-c69d3e2c2d66/go.mod h1:BATFXE/fdhm31JeLxojMr3PNIv3dQXxeo7yDGNbEdH0=
 github.com/Eun/go-convert v0.0.0-20190923095629-06ca89fd5d25 h1:yRpXfK2Czue+0Ua6xGABygIsV8nuwj9AwtuXVeg+VfU=
 github.com/Eun/go-convert v0.0.0-20190923095629-06ca89fd5d25/go.mod h1:BATFXE/fdhm31JeLxojMr3PNIv3dQXxeo7yDGNbEdH0=
+github.com/Eun/go-convert v0.0.0-20190923145001-27e81fbc5b02 h1:fgeQRLvZkaqu6bmVAemNSBsNLhVXa0FETfTpNI2CjA8=
+github.com/Eun/go-convert v0.0.0-20190923145001-27e81fbc5b02/go.mod h1:BATFXE/fdhm31JeLxojMr3PNIv3dQXxeo7yDGNbEdH0=
 github.com/Eun/go-doppelgangerreader v0.0.0-20190529162319-bd15a2597e7f h1:q4VccfWDWbuRGqVSD6pMr4oaH118zm9Mxknv7j3o84E=
 github.com/Eun/go-doppelgangerreader v0.0.0-20190529162319-bd15a2597e7f/go.mod h1:+o+i8cYK1XYOQo4ocUKNV4R9D5Y7MIAPJk2l5SEh93M=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
