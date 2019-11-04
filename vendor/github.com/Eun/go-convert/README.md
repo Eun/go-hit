@@ -8,39 +8,44 @@ go get -u github.com/Eun/go-convert
 ## Usage
 ```go
 // convert a int to a string
-fmt.Printf("%v\n", convert.MustConvert(1, ""))
-
+var s string
+convert.MustConvert(1, &s)
+fmt.Printf("%s\n", s)
 
 // convert a map into a struct
 type User struct {
-	ID int
+	ID   int
 	Name string
 }
-fmt.Printf("%#v\n", convert.MustConvert(
-	map[string]string{
-	    "Name": "Joe",
-	    "ID": "10",
-	},
-	User{}))
+var u User
+convert.MustConvert(map[string]string{
+	"Name": "Joe",
+	"ID":   "10",
+}, &u)
+fmt.Printf("%#v\n", u)
 
+// convert Id to int and Groups to []int and keep the rest
+m := map[string]interface{}{
+	"Id":     0,
+	"Groups": []int{},
+}
 // convert a map into well defined map
-fmt.Printf("%v\n", MustConvert(
+convert.MustConvert(
 	map[string]interface{}{
-		"Id":        "1",
-		"Name":      "Joe",
-		"Groups":    []string{"3", "6"},
-		"Country":   "US",
- 	},
-    // convert Id to int and Groups to []int and keep the rest
-	map[string]interface{}{
-        "Id":      0,
-		"Groups":  []int{},
- 	}, 
-))
+		"Id":      "1",
+		"Name":    "Joe",
+		"Groups":  []string{"3", "6"},
+		"Country": "US",
+	},
+	&m,
+)
+fmt.Printf("%v\n", m)
 
 // convert a interface slice into well defined interface slice
 // making the first one an integer, the second a string and the third an float
-fmt.Printf("%v\n", MustConvert([]string{"1", "2", "3"}, []interface{}{0, "", 0.0}))
+sl := []interface{}{0, "", 0.0}
+convert.MustConvert([]string{"1", "2", "3"}, &sl)
+fmt.Printf("%v\n", sl)
 ```
 
 

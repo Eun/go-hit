@@ -2,68 +2,60 @@ package convert
 
 import (
 	"reflect"
+
+	"errors"
 )
 
-func (conv *Converter) convertToSlice(src, dst *convertValue) (reflect.Value, error) {
-	if src.IsNil() {
-		return reflect.MakeSlice(reflect.SliceOf(dst.Base.Type().Elem()), 0, 0), nil
-	}
-	switch src.Base.Kind() {
-	case reflect.Slice, reflect.Array:
-		valueType := dst.Base.Type().Elem()
-		zeroValue := reflect.Zero(valueType)
-
-		length := src.Base.Len()
-
-		sl := reflect.MakeSlice(reflect.SliceOf(valueType), length, src.Base.Cap())
-		for i := length - 1; i >= 0; i-- {
-			zv := conv.zeroSliceValue(dst, i, valueType, zeroValue)
-			v, err := conv.newNestedConverter().ConvertReflectValue(src.Base.Index(i), zv)
-			if err != nil {
-				return reflect.Value{}, err
-			}
-			sl.Index(i).Set(v)
-		}
-		return sl, nil
-	case reflect.String:
-		return conv.convertStringToSlice(src, dst)
-	}
-
-	return reflect.Value{}, nil
-}
-
-func (conv *Converter) convertStringToSlice(src, dst *convertValue) (reflect.Value, error) {
-	switch dst.Base.Type().Elem().Kind() {
+func (stdRecipes) stringToSlice(c Converter, in, out reflect.Value) error {
+	valueType := out.Type().Elem().Elem()
+	switch valueType.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		valueType := dst.Base.Type().Elem()
-		str := src.Base.String()
+		str := in.String()
 		sl := reflect.MakeSlice(reflect.SliceOf(valueType), len(str), len(str))
-		for i := src.Base.Len() - 1; i >= 0; i-- {
+		for i := in.Len() - 1; i >= 0; i-- {
 			sl.Index(i).SetInt(int64(str[i]))
 		}
-		return sl, nil
+		out.Elem().Set(sl)
+		return nil
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		valueType := dst.Base.Type().Elem()
-		str := src.Base.String()
+		str := in.String()
 		sl := reflect.MakeSlice(reflect.SliceOf(valueType), len(str), len(str))
-		for i := src.Base.Len() - 1; i >= 0; i-- {
+		for i := in.Len() - 1; i >= 0; i-- {
 			sl.Index(i).SetUint(uint64(str[i]))
 		}
-		return sl, nil
+		out.Elem().Set(sl)
+		return nil
 	}
-
-	return reflect.Value{}, nil
+	return errors.New("no recipe")
 }
 
-// zeroSliceValue returns the zero value for the specific map value
-func (conv *Converter) zeroSliceValue(dst *convertValue, index int, valueType reflect.Type, fallbackValue reflect.Value) reflect.Value {
-	if index >= dst.Base.Len() {
-		return fallbackValue
-	}
+func (stdRecipes) sliceToSlice(c Converter, in, out reflect.Value) error {
+	out = out.Elem()
+	valueType := out.Type().Elem()
 
-	dstType := dst.Base.Index(index)
-	if !dstType.IsValid() {
-		return fallbackValue
+	length := in.Len()
+
+	sl := reflect.MakeSlice(reflect.SliceOf(valueType), length, in.Cap())
+	for i := length - 1; i >= 0; i-- {
+		value := reflect.New(valueType)
+		// lookup the original
+		if i < out.Len() {
+			orig := out.Index(i)
+			if orig.IsValid() {
+				value.Elem().Set(orig)
+			}
+		}
+
+		if err := c.ConvertReflectValue(in.Index(i), value); err != nil {
+			return err
+		}
+		sl.Index(i).Set(value.Elem())
 	}
-	return dstType
+	out.Set(sl)
+	return nil
+}
+
+func (stdRecipes) nilToSlice(c Converter, _, out reflect.Value) error {
+	out.Elem().Set(reflect.MakeSlice(reflect.SliceOf(out.Type().Elem().Elem()), 0, 0))
+	return nil
 }

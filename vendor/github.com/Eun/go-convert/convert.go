@@ -7,14 +7,16 @@ import (
 )
 
 // Converter is the instance that will be used to convert values
-type Converter struct {
-	Options     []Option
-	source      *convertValue
-	destination *convertValue
-	parent      *Converter
+type defaultConverter struct {
+	options Options
 }
 
-var defaultConverter = Converter{}
+var defaultConverterInstance = defaultConverter{
+	options: Options{
+		SkipUnknownFields: false,
+		Recipes:           getStdRecipes(),
+	},
+}
 
 // Convert converts the specified value to the specified type and returns it.
 // The behavior can be influenced by using the options
@@ -24,159 +26,155 @@ var defaultConverter = Converter{}
 //         panic(err)
 //     }
 //     fmt.Printf("%s\n", str.(string))
-func (conv Converter) Convert(src, dstTyp interface{}, options ...Option) (interface{}, error) {
-	if dstTyp == nil {
-		return nil, errors.New("destination type cannot be nil")
+func (conv defaultConverter) Convert(src, dst interface{}, options ...Options) error {
+	if dst == nil {
+		return errors.New("destination type cannot be nil")
 	}
-
-	conv.Options = append(conv.Options, options...)
-
-	var err error
 
 	if src == nil {
-		var nilValue *struct{}
-		src = nilValue
+		src = NilValue{}
 	}
 
-	conv.source, err = newConvertValue(reflect.ValueOf(src))
-	if err != nil {
-		return reflect.Value{}, err
-	}
-	conv.destination, err = newConvertValue(reflect.ValueOf(dstTyp))
-	if err != nil {
-		return reflect.Value{}, err
-	}
-
-	n, err := conv.convert()
-	if err != nil {
-		return nil, err
-	}
-
-	if !n.CanInterface() {
-		return nil, fmt.Errorf("cannot create interface for %s", n.Kind().String())
-	}
-
-	return n.Interface(), nil
+	return conv.ConvertReflectValue(reflect.ValueOf(src), reflect.ValueOf(dst), options...)
 }
 
 // MustConvert calls Convert() but panics if there is an error
-func (conv Converter) MustConvert(src, dstTyp interface{}, options ...Option) interface{} {
-	v, err := conv.Convert(src, dstTyp, options...)
-	if err != nil {
+func (conv defaultConverter) MustConvert(src, dstTyp interface{}, options ...Options) {
+	if err := conv.Convert(src, dstTyp, options...); err != nil {
 		panic(err)
 	}
-	return v
 }
 
-func (conv Converter) MustConvertReflectValue(src, dstTyp reflect.Value, options ...Option) reflect.Value {
-	v, err := conv.ConvertReflectValue(src, dstTyp, options...)
-	if err != nil {
+func (conv defaultConverter) MustConvertReflectValue(src, dstTyp reflect.Value, options ...Options) {
+	if err := conv.ConvertReflectValue(src, dstTyp, options...); err != nil {
 		panic(err)
 	}
-	return v
 }
-func (conv Converter) ConvertReflectValue(src, dstTyp reflect.Value, options ...Option) (reflect.Value, error) {
+func (conv defaultConverter) ConvertReflectValue(src, dst reflect.Value, options ...Options) error {
 	if !src.IsValid() {
-		return reflect.Value{}, errors.New("source is invalid")
+		return errors.New("source is invalid")
 	}
-	if !dstTyp.IsValid() {
-		return reflect.Value{}, errors.New("destination is invalid")
-	}
-
-	conv.Options = append(conv.Options, options...)
-
-	var err error
-	conv.source, err = newConvertValue(src)
-	if err != nil {
-		return reflect.Value{}, err
-	}
-	conv.destination, err = newConvertValue(dstTyp)
-	if err != nil {
-		return reflect.Value{}, err
+	if !dst.IsValid() {
+		return errors.New("destination is invalid")
 	}
 
-	return conv.convert()
+	// unpackInterface src
+	src = unpackInterface(src)
+
+	if dst.Kind() != reflect.Ptr {
+		return errors.New("destination must be a pointer")
+	}
+
+	if !src.IsValid() {
+		// src was an interface to nothing
+		return nil
+	}
+
+	// interface(string) -> string
+	out := unpackInterface(dst.Elem())
+
+	if !out.IsValid() {
+		// dst was an interface to nothing
+		dst.Elem().Set(src)
+		return nil
+	}
+
+	// create a new temporary variable (this variable is the real type that we want to convert to)
+	tmp := reflect.New(out.Type())
+	tmp.Elem().Set(out)
+	out = tmp
+
+	debug("converting %s `%v' to %s\n",
+		src.Type().String(),
+		printValue(src),
+		out.Elem().Type().String())
+
+	if len(options) > 0 {
+		conv.options.SkipUnknownFields = options[0].SkipUnknownFields
+		conv.options.Recipes = append(options[0].Recipes, conv.options.Recipes...)
+	}
+
+	genericFrom := conv.getGenericType(src.Type())
+	genericTo := conv.getGenericType(out.Elem().Type())
+
+	if genericFrom != nil {
+		debug2(">> generic from: %s\n", genericFrom.String())
+	}
+
+	if genericTo != nil {
+		debug2(">> generic to:   %s\n", genericTo.String())
+	}
+
+	for _, recipe := range conv.options.Recipes {
+		if recipe.From != src.Type() && recipe.From != genericFrom {
+			debug2(">> skipping %v because src %s != %s\n", recipe.Func, recipe.From.String(), src.Type().String())
+			continue
+		}
+		if recipe.To != out.Type() && recipe.To != genericTo {
+			debug2(">> skipping %v because dst %s != %s\n", recipe.Func, recipe.To.String(), out.Type().String())
+			continue
+		}
+		// debug2("entering %s | %s==%s==%s %s==%s==%s", recipe.Func, recipe.From.String(), src.Type().String(), genericFrom.String(), recipe.To.String(), dst.Type().String(), genericTo.String())
+		if err := recipe.Func(&conv, src, out); err != nil {
+			return fmt.Errorf("unable to convert %s to %s: %s", src.Type().String(), out.Elem().Type().String(), err)
+		}
+		debug(">> successful (1) %s `%v' to %s `%v'\n", src.Type().String(), printValue(src), out.Elem().Type().String(), printValue(out.Elem()))
+		// everything was good, set the dst to the copy
+		dst.Elem().Set(out.Elem())
+		return nil
+	}
+
+	if src.Kind() == reflect.Ptr && src.Elem().IsValid() {
+		debug(">> following src because no recipe for %s to %s was found\n", src.Type().String(), dst.Type().String())
+		return conv.ConvertReflectValue(src.Elem(), dst, options...)
+	}
+
+	if out.Elem().Kind() == reflect.Ptr {
+		if out.Elem().Elem().IsValid() {
+			debug(">> following dst because no recipe for %s to %s was found\n", src.Type().String(), out.Elem().Type().String())
+			return conv.ConvertReflectValue(src, out.Elem(), options...)
+		}
+		debug(">> Creating new %s\n", out.Type().Elem().Elem().String())
+		out = reflect.New(out.Type().Elem().Elem())
+		err := conv.ConvertReflectValue(src, out, options...)
+		if err != nil {
+			return err
+		}
+		dst.Elem().Set(out)
+		debug(">> successful (2) %s `%v' to %s `%v'\n", src.Type().String(), printValue(src), out.Elem().Type().String(), printValue(out.Elem()))
+		return nil
+	}
+
+	return fmt.Errorf("unable to convert %s to %s: no recipe", src.Type().String(), out.Elem().Type().String())
 }
 
-func (conv *Converter) convert() (reflect.Value, error) {
-	n, err := conv.convertToType(conv.source, conv.destination)
-	if err != nil {
-		return reflect.Value{}, &Error{src: conv.source, dst: conv.destination, underlayingError: err}
+func (conv *defaultConverter) getGenericType(p reflect.Type) reflect.Type {
+	if p == NilType {
+		return NilType
 	}
-
-	if !n.IsValid() {
-		return reflect.Value{}, &Error{src: conv.source, dst: conv.destination}
-	}
-
-	if conv.hasOption(Options.SkipPointers()) {
-		return n, nil
-	}
-
-	return constructValue(n, conv.destination)
-}
-
-func (conv *Converter) convertToType(src, dst *convertValue) (reflect.Value, error) {
-	debug("converting %s to %s\n", src.getHumanName(), dst.getHumanName())
-	ok, value, err := conv.callCustomConverter(src, dst)
-	if err != nil {
-		return reflect.Value{}, err
-	}
-	if ok {
-		return value, nil
-	}
-	switch dst.Base.Kind() {
-	case reflect.Bool:
-		return conv.convertToBool(src, dst)
-	case reflect.Int:
-		return conv.convertToInt(src, dst)
-	case reflect.Int8:
-		return conv.convertToInt8(src, dst)
-	case reflect.Int16:
-		return conv.convertToInt16(src, dst)
-	case reflect.Int32:
-		return conv.convertToInt32(src, dst)
-	case reflect.Int64:
-		return conv.convertToInt64(src, dst)
-	case reflect.Uint:
-		return conv.convertToUint(src, dst)
-	case reflect.Uint8:
-		return conv.convertToUint8(src, dst)
-	case reflect.Uint16:
-		return conv.convertToUint16(src, dst)
-	case reflect.Uint32:
-		return conv.convertToUint32(src, dst)
-	case reflect.Uint64:
-		return conv.convertToUint64(src, dst)
-	case reflect.Float32:
-		return conv.convertToFloat32(src, dst)
-	case reflect.Float64:
-		return conv.convertToFloat64(src, dst)
-	case reflect.Map:
-		return conv.convertToMap(src, dst)
-	case reflect.Slice, reflect.Array:
-		return conv.convertToSlice(src, dst)
-	case reflect.String:
-		return conv.convertToString(src, dst)
+	switch p.Kind() {
 	case reflect.Struct:
-		return conv.convertToStruct(src, dst)
-	case reflect.Interface:
-		return conv.convertToInterface(src, dst)
+		return StructType
+	case reflect.Map:
+		return MapType
+	case reflect.Slice, reflect.Array:
+		return SliceType
 	}
-	return reflect.Value{}, nil
+	return nil
 }
 
-func (conv *Converter) newNestedConverter() *Converter {
-	return &Converter{
-		parent:  conv,
-		Options: conv.Options,
-	}
+func (conv *defaultConverter) Options() *Options {
+	return &conv.options
 }
 
 // New creates a new converter that can be used multiple times
-func New(options ...Option) *Converter {
-	return &Converter{
-		Options: options,
+func New(options ...Options) Converter {
+	conv := defaultConverterInstance
+	if len(options) > 0 {
+		conv.options.SkipUnknownFields = options[0].SkipUnknownFields
+		conv.options.Recipes = append(options[0].Recipes, conv.options.Recipes...)
 	}
+	return &conv
 }
 
 // Convert converts the specified value to the specified type and returns it.
@@ -187,35 +185,44 @@ func New(options ...Option) *Converter {
 //         panic(err)
 //     }
 //     fmt.Printf("%s\n", str.(string))
-func Convert(src, dstTyp interface{}, options ...Option) (interface{}, error) {
-	return defaultConverter.Convert(src, dstTyp, options...)
+func Convert(src, dst interface{}, options ...Options) error {
+	return defaultConverterInstance.Convert(src, dst, options...)
 }
 
 // MustConvert calls Convert() but panics if there is an error
-func MustConvert(src, dstTyp interface{}, options ...Option) interface{} {
-	return defaultConverter.MustConvert(src, dstTyp, options...)
+func MustConvert(src, dst interface{}, options ...Options) {
+	defaultConverterInstance.MustConvert(src, dst, options...)
 }
 
-func ConvertReflectValue(src, dstTyp reflect.Value, options ...Option) (reflect.Value, error) {
-	return defaultConverter.ConvertReflectValue(src, dstTyp, options...)
+func ConvertReflectValue(src, dstTyp reflect.Value, options ...Options) error {
+	return defaultConverterInstance.ConvertReflectValue(src, dstTyp, options...)
 }
 
 // MustConvertReflectValue calls MustConvertReflectValue() but panics if there is an error
-func MustConvertReflectValue(src, dstTyp reflect.Value, options ...Option) reflect.Value {
-	return defaultConverter.MustConvertReflectValue(src, dstTyp, options...)
+func MustConvertReflectValue(src, dstTyp reflect.Value, options ...Options) {
+	defaultConverterInstance.MustConvertReflectValue(src, dstTyp, options...)
 }
 
-// GetHumanName returns a friendly human readable name for an type
-// Example:
-//     fmt.Println(GetHumanName(&time.Time{}))
-//     prints *time.Time
-func GetHumanName(v interface{}) string {
-	if v == nil {
-		return "nil"
+func unpackInterface(value reflect.Value) reflect.Value {
+	for value.Kind() == reflect.Interface {
+		value = value.Elem()
 	}
-	s, err := newConvertValue(reflect.ValueOf(v))
-	if err != nil {
-		panic(err.Error())
+	return value
+}
+
+func printValue(value reflect.Value) string {
+	v := value
+	for v.IsValid() {
+		switch v.Kind() {
+		case reflect.Ptr, reflect.Interface:
+			v = v.Elem()
+		default:
+			if v.CanInterface() {
+				return fmt.Sprintf("%v", v.Interface())
+			}
+			return "unknown"
+		}
 	}
-	return s.getHumanName()
+
+	return ""
 }

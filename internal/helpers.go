@@ -44,18 +44,18 @@ func Contains(heystack interface{}, needle interface{}) bool {
 }
 
 func stringContains(s string, needle interface{}) bool {
-	needleStr, err := convert.Convert(needle, "")
-	if err != nil {
+	var needleStr string
+	if err := convert.Convert(needle, &needleStr); err != nil {
 		return false
 	}
-	return strings.Contains(s, needleStr.(string))
+	return strings.Contains(s, needleStr)
 }
 
 func sliceContains(s reflect.Value, needle interface{}) bool {
 	for i := s.Len() - 1; i >= 0; i-- {
 		v := s.Index(i).Interface()
-		needleValue, err := convert.Convert(needle, v)
-		if err != nil {
+		needleValue := v
+		if err := convert.Convert(needle, &needleValue); err != nil {
 			continue
 		}
 		if v == needleValue {
@@ -68,8 +68,8 @@ func sliceContains(s reflect.Value, needle interface{}) bool {
 func mapContains(m reflect.Value, needle interface{}) bool {
 	for _, key := range m.MapKeys() {
 		v := key.Interface()
-		needleValue, err := convert.Convert(needle, v)
-		if err != nil {
+		needleValue := v
+		if err := convert.Convert(needle, &needleValue); err != nil {
 			continue
 		}
 		if v == needleValue {
@@ -82,8 +82,8 @@ func mapContains(m reflect.Value, needle interface{}) bool {
 func structContains(st reflect.Value, needle interface{}) bool {
 	for i := st.NumField() - 1; i >= 0; i-- {
 		v := st.Type().Field(i).Name
-		needleValue, err := convert.Convert(needle, v)
-		if err != nil {
+		needleValue := v
+		if err := convert.Convert(needle, &needleValue); err != nil {
 			continue
 		}
 		if v == needleValue {

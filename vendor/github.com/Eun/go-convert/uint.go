@@ -1,35 +1,72 @@
 package convert
 
 import (
-	"errors"
-	"reflect"
 	"strconv"
 )
 
-func (conv *Converter) convertToUint(src, _ *convertValue) (reflect.Value, error) {
-	if src.IsNil() {
-		return reflect.Value{}, errors.New("source cannot be nil")
+func (stdRecipes) intToUint(c Converter, in int, out *uint) error {
+	*out = uint(in)
+	return nil
+}
+func (stdRecipes) int8ToUint(c Converter, in int8, out *uint) error {
+	*out = uint(in)
+	return nil
+}
+func (stdRecipes) int16ToUint(c Converter, in int16, out *uint) error {
+	*out = uint(in)
+	return nil
+}
+func (stdRecipes) int32ToUint(c Converter, in int32, out *uint) error {
+	*out = uint(in)
+	return nil
+}
+func (stdRecipes) int64ToUint(c Converter, in int64, out *uint) error {
+	*out = uint(in)
+	return nil
+}
+func (stdRecipes) uintToUint(c Converter, in uint, out *uint) error {
+	*out = in
+	return nil
+}
+func (stdRecipes) uint8ToUint(c Converter, in uint8, out *uint) error {
+	*out = uint(in)
+	return nil
+}
+func (stdRecipes) uint16ToUint(c Converter, in uint16, out *uint) error {
+	*out = uint(in)
+	return nil
+}
+func (stdRecipes) uint32ToUint(c Converter, in uint32, out *uint) error {
+	*out = uint(in)
+	return nil
+}
+func (stdRecipes) uint64ToUint(c Converter, in uint64, out *uint) error {
+	*out = uint(in)
+	return nil
+}
+func (stdRecipes) boolToUint(c Converter, in bool, out *uint) error {
+	switch in {
+	case true:
+		*out = 1
+	default:
+		*out = 0
 	}
-	switch src.Base.Kind() {
-	case reflect.Uint:
-		return src.Base, nil
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return reflect.ValueOf(uint(src.Base.Int())), nil
-	case reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return reflect.ValueOf(uint(src.Base.Uint())), nil
-	case reflect.Float32, reflect.Float64:
-		return reflect.ValueOf(uint(src.Base.Float())), nil
-	case reflect.Bool:
-		if src.Base.Bool() {
-			return reflect.ValueOf(uint(1)), nil
-		}
-		return reflect.ValueOf(uint(0)), nil
-	case reflect.String:
-		n, err := strconv.ParseUint(src.Base.String(), 0, strconv.IntSize)
-		if err != nil {
-			return reflect.Value{}, err
-		}
-		return reflect.ValueOf(uint(n)), nil
+	return nil
+}
+
+func (stdRecipes) float32ToUint(c Converter, in float32, out *uint) error {
+	*out = uint(in)
+	return nil
+}
+func (stdRecipes) float64ToUint(c Converter, in float64, out *uint) error {
+	*out = uint(in)
+	return nil
+}
+func (stdRecipes) stringToUint(c Converter, in string, out *uint) error {
+	i, err := strconv.ParseUint(in, 0, 32)
+	if err != nil {
+		return err
 	}
-	return reflect.Value{}, nil
+	*out = uint(i)
+	return nil
 }

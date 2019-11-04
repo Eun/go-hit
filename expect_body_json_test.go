@@ -113,6 +113,51 @@ func TestExpectBodyJSON_Equal(t *testing.T) {
 				Expect().Body().JSON(&puser),
 			)
 		})
+
+		t.Run("ptr in struct field", func(t *testing.T) {
+			type Company struct {
+				ID      int
+				Name    string
+				Address *string
+			}
+			expect := []Company{
+				{
+					ID:      1,
+					Name:    "Wood Works",
+					Address: nil,
+				},
+				{
+					ID:      10,
+					Name:    "Steel Mechanix",
+					Address: PtrStr("Steel Road 1"),
+				},
+			}
+			Test(t,
+				Post(s.URL),
+				Send().Body(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 1"}]`),
+				Expect().Body().JSON(expect),
+			)
+
+			Test(t,
+				Post(s.URL),
+				Send().Body(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 1"}]`),
+				Expect().Body().JSON(&expect),
+			)
+
+			// test for modification
+			require.Equal(t, expect, []Company{
+				{
+					ID:      1,
+					Name:    "Wood Works",
+					Address: nil,
+				},
+				{
+					ID:      10,
+					Name:    "Steel Mechanix",
+					Address: PtrStr("Steel Road 1"),
+				},
+			})
+		})
 	})
 }
 

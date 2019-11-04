@@ -18,7 +18,7 @@ import (
 
 type HTTPBody struct {
 	hit     Hit
-	factory *doppelgangerreader.DoppelgangerFactory
+	factory doppelgangerreader.DoppelgangerFactory
 }
 
 func newHTTPBody(hit Hit, body io.Reader) *HTTPBody {

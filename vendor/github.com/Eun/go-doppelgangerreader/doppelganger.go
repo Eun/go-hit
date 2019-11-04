@@ -9,7 +9,27 @@ import (
 
 // DoppelgangerFactory is a reader that mimics the behaviour of an other reader
 // it can be used to read readers multiple times
-type DoppelgangerFactory struct {
+type DoppelgangerFactory interface {
+	NewDoppelganger() io.ReadCloser
+	RemoveDoppelganger(r io.ReadCloser) error
+	Close() error
+}
+
+// NewFactory creates a new DoppelgangerFactory with the original reader specified
+// if the reader is already a Doppelganger it will return the original factory
+func NewFactory(readerToMimic io.Reader) DoppelgangerFactory {
+	factory := GetFactory(readerToMimic)
+	if factory != nil {
+		return &nestedDoppelgangerFactory{
+			parent: factory,
+		}
+	}
+	return &doppelgangerFactory{
+		source: readerToMimic,
+	}
+}
+
+type doppelgangerFactory struct {
 	source   io.Reader
 	readers  []*readerInstance
 	buffer   bytes.Buffer
@@ -17,16 +37,8 @@ type DoppelgangerFactory struct {
 	closedOn *int
 }
 
-// NewFactory creates a new DoppelgangerFactory with the original reader specified
-func NewFactory(readerToMimic io.Reader) *DoppelgangerFactory {
-	reader := &DoppelgangerFactory{
-		source: readerToMimic,
-	}
-	return reader
-}
-
 // NewDoppelganger creates a new reader that acts like the original reader
-func (factory *DoppelgangerFactory) NewDoppelganger() io.ReadCloser {
+func (factory *doppelgangerFactory) NewDoppelganger() io.ReadCloser {
 	factory.mu.Lock()
 	reader := &readerInstance{
 		DoppelBase: factory,
@@ -42,7 +54,7 @@ func (factory *DoppelgangerFactory) NewDoppelganger() io.ReadCloser {
 }
 
 // RemoveDoppelganger a created reader from receiving new data
-func (factory *DoppelgangerFactory) RemoveDoppelganger(r io.ReadCloser) error {
+func (factory *doppelgangerFactory) RemoveDoppelganger(r io.ReadCloser) error {
 	instance, ok := r.(*readerInstance)
 	if !ok {
 		return errors.New("not a reader instance")
@@ -62,7 +74,17 @@ func (factory *DoppelgangerFactory) RemoveDoppelganger(r io.ReadCloser) error {
 
 // Close the DoppelgangerFactory and stops all created Doppelgangers from receiving data
 // (does not close the underlying reader)
-func (factory *DoppelgangerFactory) Close() error {
+func (factory *doppelgangerFactory) Close() error {
+	// this is a public function so make sure we lock
+	factory.mu.Lock()
+	err := factory.close()
+	factory.mu.Unlock()
+	return err
+}
+
+// close the DoppelgangerFactory and stops all created Doppelgangers from receiving data
+// (does not close the underlying reader)
+func (factory *doppelgangerFactory) close() error {
 	// we already closed
 	if factory.closedOn != nil {
 		return nil
@@ -72,13 +94,15 @@ func (factory *DoppelgangerFactory) Close() error {
 
 	// remove all readers because everything has been consumed
 	factory.readers = nil
-
 	return nil
 }
 
-func (factory *DoppelgangerFactory) read(caller *readerInstance, p []byte) (int, error) {
+func (factory *doppelgangerFactory) read(caller *readerInstance, p []byte) (int, error) {
 	if factory.closedOn != nil {
 		return 0, io.EOF
+	}
+	if factory.source == nil {
+		return 0, NilReaderError{}
 	}
 	n, err := factory.source.Read(p)
 
@@ -100,7 +124,7 @@ func (factory *DoppelgangerFactory) read(caller *readerInstance, p []byte) (int,
 }
 
 type readerInstance struct {
-	DoppelBase *DoppelgangerFactory
+	DoppelBase *doppelgangerFactory
 	Buffer     *bytes.Buffer
 }
 
@@ -114,7 +138,7 @@ func (r *readerInstance) Read(p []byte) (n int, err error) {
 	} else {
 		n, err = r.DoppelBase.read(r, p)
 		if err != nil {
-			r.DoppelBase.Close()
+			r.DoppelBase.close()
 		}
 	}
 	r.DoppelBase.mu.Unlock()
@@ -127,5 +151,52 @@ func (r *readerInstance) Close() error {
 	if r.DoppelBase.closedOn == nil {
 		return r.DoppelBase.RemoveDoppelganger(r)
 	}
+	return nil
+}
+
+// NilReaderError will be reported if the provided reader is nil
+type NilReaderError struct{}
+
+// Error returns the error message
+func (NilReaderError) Error() string {
+	return "Reader to mimic is nil"
+}
+
+// IsNilReaderError returns true if the specified error is a NilReaderError
+func IsNilReaderError(e error) bool {
+	_, ok := e.(NilReaderError)
+	return ok
+}
+
+// GetFactory returns the DoppelgangerFactory if the reader is a Doppelganger
+func GetFactory(reader io.Reader) DoppelgangerFactory {
+	if v, ok := reader.(*readerInstance); ok {
+		return v.DoppelBase
+	}
+	return nil
+}
+
+type nestedDoppelgangerFactory struct {
+	parent  DoppelgangerFactory
+	readers []io.ReadCloser
+}
+
+func (factory *nestedDoppelgangerFactory) NewDoppelganger() io.ReadCloser {
+	r := factory.parent.NewDoppelganger()
+	factory.readers = append(factory.readers, r)
+	return r
+}
+
+func (factory *nestedDoppelgangerFactory) RemoveDoppelganger(r io.ReadCloser) error {
+	return factory.parent.RemoveDoppelganger(r)
+}
+
+func (factory *nestedDoppelgangerFactory) Close() error {
+	for i := len(factory.readers) - 1; i >= 0; i-- {
+		if err := factory.RemoveDoppelganger(factory.readers[i]); err != nil {
+			return err
+		}
+	}
+	factory.readers = nil
 	return nil
 }

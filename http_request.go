@@ -78,7 +78,7 @@ func newHTTPRequest(hit Hit, req *http.Request) *HTTPRequest {
 		newRequest.TransferEncoding[i] = v
 	}
 
-	var factory *doppelgangerreader.DoppelgangerFactory
+	var factory doppelgangerreader.DoppelgangerFactory
 	if req.Body != nil {
 		factory = doppelgangerreader.NewFactory(req.Body)
 		req.Body = factory.NewDoppelganger()

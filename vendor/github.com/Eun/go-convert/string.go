@@ -2,48 +2,209 @@ package convert
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
 )
 
-func (conv *Converter) convertToString(src, dst *convertValue) (reflect.Value, error) {
-	if src.IsNil() {
-		return reflect.Value{}, errors.New("source cannot be nil")
-	}
-	switch src.Base.Kind() {
-	case reflect.String:
-		return src.Base, nil
-	case reflect.Bool:
-		return reflect.ValueOf(strconv.FormatBool(src.Base.Bool())), nil
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return reflect.ValueOf(strconv.FormatInt(src.Base.Int(), 10)), nil
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return reflect.ValueOf(strconv.FormatUint(src.Base.Uint(), 10)), nil
-	case reflect.Float32:
-		return reflect.ValueOf(strconv.FormatFloat(src.Base.Float(), 'f', 6, 32)), nil
-	case reflect.Float64:
-		return reflect.ValueOf(strconv.FormatFloat(src.Base.Float(), 'f', 6, 64)), nil
-	case reflect.Array, reflect.Slice:
-		return convertSliceToString(src, dst)
-	}
-	return reflect.Value{}, nil
+func (stdRecipes) intToString(c Converter, in int, out *string) error {
+	*out = strconv.FormatInt(int64(in), 10)
+	return nil
 }
 
-func convertSliceToString(src, _ *convertValue) (reflect.Value, error) {
-	switch src.Base.Type().Elem().Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		var sb strings.Builder
-		for i := 0; i < src.Base.Len(); i++ {
-			sb.WriteRune(rune(src.Base.Index(i).Int()))
-		}
-		return reflect.ValueOf(sb.String()), nil
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		var sb strings.Builder
-		for i := 0; i < src.Base.Len(); i++ {
-			sb.WriteRune(rune(src.Base.Index(i).Uint()))
-		}
-		return reflect.ValueOf(sb.String()), nil
+func (stdRecipes) int8ToString(c Converter, in int8, out *string) error {
+	*out = strconv.FormatInt(int64(in), 10)
+	return nil
+}
+
+func (stdRecipes) int16ToString(c Converter, in int16, out *string) error {
+	*out = strconv.FormatInt(int64(in), 10)
+	return nil
+}
+
+func (stdRecipes) int32ToString(c Converter, in int32, out *string) error {
+	*out = strconv.FormatInt(int64(in), 10)
+	return nil
+}
+
+func (stdRecipes) int64ToString(_ Converter, in int64, out *string) error {
+	*out = strconv.FormatInt(in, 10)
+	return nil
+}
+
+func (stdRecipes) uintToString(c Converter, in uint, out *string) error {
+	*out = strconv.FormatUint(uint64(in), 10)
+	return nil
+}
+
+func (stdRecipes) uint8ToString(c Converter, in uint8, out *string) error {
+	*out = strconv.FormatUint(uint64(in), 10)
+	return nil
+}
+
+func (stdRecipes) uint16ToString(c Converter, in uint16, out *string) error {
+	*out = strconv.FormatUint(uint64(in), 10)
+	return nil
+}
+
+func (stdRecipes) uint32ToString(c Converter, in uint32, out *string) error {
+	*out = strconv.FormatUint(uint64(in), 10)
+	return nil
+}
+
+func (stdRecipes) uint64ToString(_ Converter, in uint64, out *string) error {
+	*out = strconv.FormatUint(in, 10)
+	return nil
+}
+
+func (stdRecipes) boolToString(c Converter, in bool, out *string) error {
+	*out = strconv.FormatBool(in)
+	return nil
+}
+
+func (stdRecipes) float32ToString(_ Converter, in float32, out *string) error {
+	if out != nil && len(*out) > 0 {
+		*out = fmt.Sprintf(*out, in)
+		return nil
 	}
-	return reflect.Value{}, nil
+	*out = strconv.FormatFloat(float64(in), 'f', 6, 32)
+	return nil
+}
+
+func (stdRecipes) float64ToString(_ Converter, in float64, out *string) error {
+	if out != nil && len(*out) > 0 {
+		*out = fmt.Sprintf(*out, in)
+		return nil
+	}
+	*out = strconv.FormatFloat(in, 'f', 6, 64)
+	return nil
+}
+
+func (stdRecipes) stringToString(_ Converter, in string, out *string) error {
+	*out = in
+	return nil
+}
+
+func (stdRecipes) intSliceToString(_ Converter, in []int, out *string) error {
+	var sb strings.Builder
+	for _, i := range in {
+		sb.WriteRune(rune(i))
+	}
+	*out = sb.String()
+	return nil
+}
+
+func (stdRecipes) int8SliceToString(c Converter, in []int8, out *string) error {
+	var sb strings.Builder
+	for _, i := range in {
+		sb.WriteRune(rune(i))
+	}
+	*out = sb.String()
+	return nil
+}
+
+func (stdRecipes) int16SliceToString(c Converter, in []int16, out *string) error {
+	var sb strings.Builder
+	for _, i := range in {
+		sb.WriteRune(rune(i))
+	}
+	*out = sb.String()
+	return nil
+}
+
+func (stdRecipes) int32SliceToString(c Converter, in []int32, out *string) error {
+	var sb strings.Builder
+	for _, i := range in {
+		sb.WriteRune(rune(i))
+	}
+	*out = sb.String()
+	return nil
+}
+
+func (stdRecipes) int64SliceToString(c Converter, in []int64, out *string) error {
+	var sb strings.Builder
+	for _, i := range in {
+		sb.WriteRune(rune(i))
+	}
+	*out = sb.String()
+	return nil
+}
+
+func (stdRecipes) uintSliceToString(c Converter, in []uint, out *string) error {
+	var sb strings.Builder
+	for _, i := range in {
+		sb.WriteRune(rune(i))
+	}
+	*out = sb.String()
+	return nil
+}
+
+func (stdRecipes) uint8SliceToString(c Converter, in []uint8, out *string) error {
+	var sb strings.Builder
+	for _, i := range in {
+		sb.WriteRune(rune(i))
+	}
+	*out = sb.String()
+	return nil
+}
+
+func (stdRecipes) uint16SliceToString(c Converter, in []uint16, out *string) error {
+	var sb strings.Builder
+	for _, i := range in {
+		sb.WriteRune(rune(i))
+	}
+	*out = sb.String()
+	return nil
+}
+
+func (stdRecipes) uint32SliceToString(c Converter, in []uint32, out *string) error {
+	var sb strings.Builder
+	for _, i := range in {
+		sb.WriteRune(rune(i))
+	}
+	*out = sb.String()
+	return nil
+}
+
+func (stdRecipes) uint64SliceToString(c Converter, in []uint64, out *string) error {
+	var sb strings.Builder
+	for _, i := range in {
+		sb.WriteRune(rune(i))
+	}
+	*out = sb.String()
+	return nil
+}
+
+func (s stdRecipes) structToString(c Converter, in reflect.Value, out reflect.Value) error {
+	err := s.baseStructToString(c, in, out)
+	if err == nil {
+		return err
+	}
+
+	// test for *struct.String()
+	v := reflect.New(in.Type())
+	v.Elem().Set(in)
+	if s.baseStructToString(c, v, out) == nil {
+		return nil
+	}
+	return err
+}
+
+func (s stdRecipes) baseStructToString(c Converter, in reflect.Value, out reflect.Value) error {
+	if !in.CanInterface() {
+		return errors.New("unable to make interface")
+	}
+	type toString interface {
+		String() string
+	}
+
+	// check for struct.String()
+	i, ok := in.Interface().(toString)
+	if ok {
+		out.Elem().SetString(i.String())
+		return nil
+	}
+
+	return fmt.Errorf("%s has no String() function", in.Type().String())
 }

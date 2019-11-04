@@ -4,75 +4,65 @@ import (
 	"reflect"
 )
 
-func (conv *Converter) convertToMap(src, dst *convertValue) (reflect.Value, error) {
-	if src.IsNil() {
-		return reflect.MakeMapWithSize(reflect.MapOf(dst.Base.Type().Key(), dst.Base.Type().Elem()), 0), nil
+func (stdRecipes) mapToMap(c Converter, in reflect.Value, out reflect.Value) error {
+	keyType := out.Elem().Type().Key()
+	valueType := out.Elem().Type().Elem()
+
+	m := reflect.MakeMapWithSize(reflect.MapOf(keyType, valueType), in.Len())
+
+	for _, key := range in.MapKeys() {
+		keyValue := reflect.New(keyType)
+		if err := c.ConvertReflectValue(key, keyValue); err != nil {
+			return err
+		}
+
+		var valueValue reflect.Value
+		// lookup key in dst
+		existingValue := out.Elem().MapIndex(keyValue.Elem())
+		if existingValue.IsValid() {
+			valueValue = reflect.New(existingValue.Type())
+			valueValue.Elem().Set(existingValue)
+		} else {
+			valueValue = reflect.New(valueType)
+		}
+
+		if err := c.ConvertReflectValue(in.MapIndex(key), valueValue); err != nil {
+			return err
+		}
+
+		m.SetMapIndex(keyValue.Elem(), valueValue.Elem())
 	}
-	switch src.Base.Kind() {
-	case reflect.Map:
-		return conv.convertMapToMap(src, dst)
-	case reflect.Struct:
-		return conv.convertStructToMap(src, dst)
-	}
-	return reflect.Value{}, nil
+	out.Elem().Set(m)
+
+	return nil
 }
 
-func (conv *Converter) convertMapToMap(src, dst *convertValue) (reflect.Value, error) {
-	keyType := dst.Base.Type().Key()
-	valueType := dst.Base.Type().Elem()
-	zeroKey := reflect.Zero(keyType)
-	zeroValue := reflect.Zero(valueType)
+func (stdRecipes) structToMap(c Converter, in reflect.Value, out reflect.Value) error {
+	keyType := out.Elem().Type().Key()
+	valueType := out.Elem().Type().Elem()
 
-	m := reflect.MakeMapWithSize(reflect.MapOf(keyType, valueType), src.Base.Len())
+	m := reflect.MakeMapWithSize(reflect.MapOf(keyType, valueType), in.NumField())
 
-	for _, key := range src.Base.MapKeys() {
-		haveKey, err := conv.newNestedConverter().ConvertReflectValue(key, zeroKey)
-		if err != nil {
-			return reflect.Value{}, err
-		}
+	for i := in.NumField() - 1; i >= 0; i-- {
+		field := reflect.ValueOf(in.Type().Field(i).Name)
 
+		var valueValue reflect.Value
 		// lookup key in dst
-		zv := dst.Base.MapIndex(haveKey)
-		if !zv.IsValid() {
-			zv = zeroValue
+		existingValue := out.Elem().MapIndex(field)
+		if existingValue.IsValid() {
+			valueValue = reflect.New(existingValue.Type())
+			valueValue.Elem().Set(existingValue)
+		} else {
+			valueValue = reflect.New(valueType)
 		}
 
-		haveValue := src.Base.MapIndex(key)
-		newValue, err := conv.newNestedConverter().ConvertReflectValue(haveValue, zv)
-		if err != nil {
-			return reflect.Value{}, err
+		if err := c.ConvertReflectValue(in.Field(i), valueValue); err != nil {
+			return err
 		}
 
-		m.SetMapIndex(haveKey, newValue)
+		m.SetMapIndex(field, valueValue.Elem())
 	}
+	out.Elem().Set(m)
 
-	return m, nil
-}
-
-func (conv *Converter) convertStructToMap(src, dst *convertValue) (reflect.Value, error) {
-	keyType := dst.Base.Type().Key()
-	valueType := dst.Base.Type().Elem()
-	zeroValue := reflect.Zero(valueType)
-
-	m := reflect.MakeMapWithSize(reflect.MapOf(keyType, valueType), src.Base.NumField())
-
-	for i := src.Base.NumField() - 1; i >= 0; i-- {
-		field := reflect.ValueOf(src.Base.Type().Field(i).Name)
-		haveValue := src.Base.Field(i)
-
-		// lookup key in dst
-		zv := dst.Base.MapIndex(field)
-		if !zv.IsValid() {
-			zv = zeroValue
-		}
-
-		newValue, err := conv.newNestedConverter().ConvertReflectValue(haveValue, zv)
-		if err != nil {
-			return reflect.Value{}, err
-		}
-
-		m.SetMapIndex(field, newValue)
-	}
-
-	return m, nil
+	return nil
 }

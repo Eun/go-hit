@@ -73,7 +73,8 @@ func (hdr *expectSpecificHeader) Len(size int) IStep {
 //           Expect().Headers("Content-Type").Equal("application/json")
 func (hdr *expectSpecificHeader) Equal(v interface{}) IStep {
 	return hdr.expect.Custom(func(hit Hit) {
-		compareData, err := converter.Convert(hit.Response().Header.Get(hdr.header), v)
+		compareData := v
+		err := converter.Convert(hit.Response().Header.Get(hdr.header), &compareData)
 		minitest.NoError(err)
 		minitest.Equal(v, compareData)
 	})

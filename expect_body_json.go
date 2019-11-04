@@ -52,7 +52,8 @@ func (jsn *expectBodyJSON) Equal(expression string, data interface{}) IStep {
 			minitest.Equal(data, v)
 		}
 
-		compareData, err := converter.Convert(v, data)
+		compareData := data
+		err = converter.Convert(v, &compareData)
 		minitest.NoError(err)
 		minitest.Equal(data, compareData)
 	})

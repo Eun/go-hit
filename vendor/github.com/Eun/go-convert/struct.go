@@ -1,82 +1,68 @@
 package convert
 
 import (
-	"errors"
-	"fmt"
 	"reflect"
+
+	"fmt"
 	"strings"
 )
 
-func (conv *Converter) convertToStruct(src, dst *convertValue) (reflect.Value, error) {
-	if src.IsNil() {
-		return reflect.Value{}, errors.New("source cannot be nil")
-	}
-	switch src.Base.Kind() {
-	case reflect.Map:
-		return conv.convertMapToStruct(src, dst)
-	case reflect.Struct:
-		return conv.convertStructToStruct(src, dst)
-	}
-	return reflect.Value{}, nil
-}
-
-func (conv *Converter) convertMapToStruct(src, dst *convertValue) (reflect.Value, error) {
-	st := reflect.New(dst.Base.Type())
-	zeroString := reflect.ValueOf("")
-	for _, key := range src.Base.MapKeys() {
+func (stdRecipes) mapToStruct(c Converter, in reflect.Value, out reflect.Value) error {
+	fieldNameValue := reflect.New(reflect.TypeOf(""))
+	for _, key := range in.MapKeys() {
 		// convert key
-		fieldNameValue, err := conv.newNestedConverter().ConvertReflectValue(key, zeroString)
-		if err != nil {
-			return reflect.Value{}, err
+		if err := c.ConvertReflectValue(key, fieldNameValue); err != nil {
+			return err
 		}
-		fieldName := fieldNameValue.String()
+		fieldName := fieldNameValue.Elem().String()
 
 		// find the destination field with the converted value
-		field := st.Elem().FieldByNameFunc(func(s string) bool {
+		field := out.Elem().FieldByNameFunc(func(s string) bool {
 			return strings.EqualFold(fieldName, s)
 		})
 		if !field.IsValid() || !field.CanSet() {
-			if conv.hasOption(Options.SkipUnknownFields()) {
+			if c.Options().SkipUnknownFields {
 				continue
 			}
-			return reflect.Value{}, fmt.Errorf("unable to find %s in %s", fieldName, dst.getHumanName())
+			return fmt.Errorf("unable to find %s in %s", fieldName, out.Elem().Type().String())
 		}
 
-		newValue, err := conv.newNestedConverter().ConvertReflectValue(src.Base.MapIndex(key), reflect.Zero(field.Type()))
-		if err != nil {
-			return reflect.Value{}, err
+		// convert value
+		value := reflect.New(field.Type())
+		if err := c.ConvertReflectValue(in.MapIndex(key), value); err != nil {
+			return err
 		}
 
-		field.Set(newValue)
+		field.Set(value.Elem())
 	}
-	return st.Elem(), nil
+	return nil
 }
 
-func (conv *Converter) convertStructToStruct(src, dst *convertValue) (reflect.Value, error) {
-	st := reflect.New(dst.Base.Type())
-
-	for i := src.Base.NumField() - 1; i >= 0; i-- {
-		fieldName := src.Base.Type().Field(i).Name
+func (stdRecipes) structToStruct(c Converter, in reflect.Value, out reflect.Value) error {
+	for i := in.NumField() - 1; i >= 0; i-- {
+		fieldName := in.Type().Field(i).Name
 		// find the destination field
 
 		// find the destination field with the converted value
-		field := st.Elem().FieldByNameFunc(func(s string) bool {
+		field := out.Elem().FieldByNameFunc(func(s string) bool {
 			return strings.EqualFold(fieldName, s)
 		})
 		if !field.IsValid() || !field.CanSet() {
-			if conv.hasOption(Options.SkipUnknownFields()) {
+			if c.Options().SkipUnknownFields {
 				continue
 			}
-			return reflect.Value{}, fmt.Errorf("unable to find %s in %s", fieldName, dst.getHumanName())
+			return fmt.Errorf("unable to find %s in %s", fieldName, out.Elem().Type().String())
 		}
 
-		newValue, err := conv.newNestedConverter().ConvertReflectValue(src.Base.Field(i), field)
+		// convert value
+		value := reflect.New(field.Type())
+		err := c.ConvertReflectValue(in.Field(i), value)
 		if err != nil {
-			return reflect.Value{}, err
+			return err
 		}
 
-		field.Set(newValue)
+		field.Set(value.Elem())
 	}
 
-	return st.Elem(), nil
+	return nil
 }

@@ -1,6 +1,7 @@
 package color
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -65,6 +66,44 @@ func IsSupport256Color() bool {
 // 	return runtime.GOOS == "windows"
 // }
 
+func doPrint(code string, colors []Color, str string) {
+	if isLikeInCmd {
+		winPrint(str, colors...)
+	} else {
+		_, _ = fmt.Fprint(output, RenderString(code, str))
+	}
+}
+
+func doPrintln(code string, colors []Color, args []interface{}) {
+	str := formatArgsForPrintln(args)
+	if isLikeInCmd {
+		winPrintln(str, colors...)
+	} else {
+		_, _ = fmt.Fprintln(output, RenderString(code, str))
+	}
+}
+
+func doPrintV2(code, str string) {
+	if isLikeInCmd {
+		renderColorCodeOnCmd(func() {
+			_, _ = fmt.Fprint(output, RenderString(code, str))
+		})
+	} else {
+		_, _ = fmt.Fprint(output, RenderString(code, str))
+	}
+}
+
+func doPrintlnV2(code string, args []interface{}) {
+	str := formatArgsForPrintln(args)
+	if isLikeInCmd {
+		renderColorCodeOnCmd(func() {
+			_, _ = fmt.Fprintln(output, RenderString(code, str))
+		})
+	} else {
+		_, _ = fmt.Fprintln(output, RenderString(code, str))
+	}
+}
+
 func stringToArr(str, sep string) (arr []string) {
 	str = strings.TrimSpace(str)
 	if str == "" {
@@ -78,5 +117,19 @@ func stringToArr(str, sep string) (arr []string) {
 		}
 	}
 
+	return
+}
+
+// if use Println, will add spaces for each arg
+func formatArgsForPrintln(args []interface{}) (message string) {
+	if ln := len(args); ln == 0 {
+		message = ""
+	} else if ln == 1 {
+		message = fmt.Sprint(args[0])
+	} else {
+		message = fmt.Sprintln(args...)
+		// clear last "\n"
+		message = message[:len(message)-1]
+	}
 	return
 }
