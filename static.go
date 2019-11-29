@@ -37,7 +37,7 @@ func Send(data ...interface{}) ISend {
 	return newSend(hit)
 }
 
-// Expects expects the body to be equal the specified value, omit the parameter to get more options
+// Expect expects the body to be equal the specified value, omit the parameter to get more options
 // Examples:
 //           Expect("Hello World")
 //           Expect().Body().Contains("Hello World")
@@ -250,7 +250,7 @@ func Trace(url string, a ...interface{}) IStep {
 func Test(t TestingT, steps ...IStep) {
 	if err := Do(steps...); err != nil {
 		if _, ok := err.(errortrace.ErrorTraceError); !ok {
-			os.Stderr.WriteString(errortrace.Format(err.Error()).Error())
+			os.Stderr.WriteString(errortrace.Format("", err.Error()).Error())
 			t.FailNow()
 		}
 		os.Stderr.WriteString(err.Error())
@@ -342,4 +342,12 @@ func getContext() Hit {
 		return nil
 	}
 	return v.(Hit)
+}
+
+// Description sets a custom description for this test.
+// The description will be printed in an error case
+func Description(description string) IStep {
+	return Custom(BeforeSendStep, func(hit Hit) {
+		hit.SetDescription(description)
+	})
 }

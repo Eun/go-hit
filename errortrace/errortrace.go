@@ -97,7 +97,7 @@ func (p *ErrorTrace) formatStack(calls []Call) string {
 	return sb.String()
 }
 
-func (p *ErrorTrace) Format(errText string) ErrorTraceError {
+func (p *ErrorTrace) Format(description, errText string) ErrorTraceError {
 	// collect the current trace
 	traceCalls := ResolveTraceCalls(CurrentTraceCalls(4))
 
@@ -112,12 +112,15 @@ func (p *ErrorTrace) Format(errText string) ErrorTraceError {
 
 	// print
 	var sb strings.Builder
+	if description != "" {
+		sb.WriteString(minitest.Format("Description:", description, color.FgBlue))
+	}
 	sb.WriteString(minitest.Format("Error:      ", errText, color.FgRed))
 	sb.WriteString(minitest.Format("Error Trace:", p.formatStack(traceCalls)))
 	return ErrorTraceError(sb.String())
 }
 
-func Format(errText string) ErrorTraceError {
+func Format(description, errText string) ErrorTraceError {
 	var et ErrorTrace
-	return et.Format(errText)
+	return et.Format(description, errText)
 }

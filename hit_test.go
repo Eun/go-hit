@@ -363,3 +363,30 @@ func TestCombineSteps(t *testing.T) {
 		PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
 	)
 }
+
+func TestDescription(t *testing.T) {
+	// s := EchoServer()
+	// defer s.Close()
+	//
+	// Test(t,
+	// 	Description("Test #1"),
+	// 	Post(s.URL),
+	// 	Send("Hello"),
+	// 	Expect("World"),
+	// )
+}
+
+func TestCustomError(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Send().Custom(func(hit Hit) {
+				panic("some error")
+			}),
+		),
+		PtrStr("some error"),
+	)
+}

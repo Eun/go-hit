@@ -38,16 +38,20 @@ type Hit interface {
 	Expect(...interface{}) IExpect
 	Debug(...string) IStep
 	AddSteps(...IStep)
+
+	Description() string
+	SetDescription(string)
 }
 
 type defaultInstance struct {
-	steps    []IStep
-	request  *HTTPRequest
-	response *HTTPResponse
-	client   *http.Client
-	state    State
-	stdout   io.Writer
-	baseURL  string
+	steps       []IStep
+	request     *HTTPRequest
+	response    *HTTPResponse
+	client      *http.Client
+	state       State
+	stdout      io.Writer
+	baseURL     string
+	description string
 }
 
 // Request returns the current request
@@ -151,7 +155,7 @@ func (hit *defaultInstance) Send(data ...interface{}) ISend {
 	return newSend(hit)
 }
 
-// Expects expects the body to be equal the specified value, omit the parameter to get more options
+// Expect expects the body to be equal the specified value, omit the parameter to get more options
 // Examples:
 //           Expect("Hello World")
 //           Expect().Body().Contains("Hello World")
@@ -171,8 +175,19 @@ func (hit *defaultInstance) Debug(expression ...string) IStep {
 }
 
 // AddSteps add the specified steps to the queue
-func (hit *defaultInstance) AddSteps(steps ... IStep) {
+func (hit *defaultInstance) AddSteps(steps ...IStep) {
 	for i := 0; i < len(steps); i++ {
 		hit.steps = append(hit.steps, steps[i])
 	}
+}
+
+// Description gets the current description that will be printed in an error case
+func (hit *defaultInstance) Description() string {
+	return hit.description
+}
+
+// SetDescription sets a custom description for this test.
+// The description will be printed in an error case
+func (hit *defaultInstance) SetDescription(description string) {
+	hit.description = description
 }

@@ -36,7 +36,7 @@ func (step hitStep) exec(h Hit) (err error) {
 	defer func() {
 		r := recover()
 		if r != nil {
-			err = step.et.Format(fmt.Sprint(r))
+			err = step.et.Format(h.Description(), fmt.Sprint(r))
 		}
 	}()
 	step.call(h)

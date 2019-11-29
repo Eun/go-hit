@@ -49,7 +49,7 @@ func (snd *send) exec(hit Hit) (err error) {
 	defer func() {
 		r := recover()
 		if r != nil {
-			err = snd.et.Format(fmt.Sprint(r))
+			err = snd.et.Format(hit.Description(), fmt.Sprint(r))
 		}
 	}()
 	snd.call(hit)

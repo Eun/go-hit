@@ -77,7 +77,7 @@ func (exp *expect) exec(hit Hit) (err error) {
 	defer func() {
 		r := recover()
 		if r != nil {
-			err = exp.et.Format(fmt.Sprint(r))
+			err = exp.et.Format(hit.Description(), fmt.Sprint(r))
 		}
 	}()
 	exp.call(hit)
