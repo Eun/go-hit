@@ -15,6 +15,7 @@ import (
 
 func TestHttpBin(t *testing.T) {
     Test(t,
+        Description("Post to httpbin.org"),
         Get("https://httpbin.org/post"),
         Expect().Status(http.StatusMethodNotAllowed),
     )

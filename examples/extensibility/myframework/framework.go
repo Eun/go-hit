@@ -100,35 +100,35 @@ func Debug(expression ...string) hit.IStep {
 	return hit.Debug(expression...)
 }
 
-// SetHTTPClient sets the client for the request
-func SetHTTPClient(client *http.Client) hit.IStep {
-	return hit.SetHTTPClient(client)
+// HTTPClient sets the client for the request
+func HTTPClient(client *http.Client) hit.IStep {
+	return hit.HTTPClient(client)
 }
 
-// SetStdout sets the output to the specified writer
-func SetStdout(w io.Writer) hit.IStep {
-	return hit.SetStdout(w)
+// Stdout sets the output to the specified writer
+func Stdout(w io.Writer) hit.IStep {
+	return hit.Stdout(w)
 }
 
-// SetBaseURL sets the base url for each Connect, Delete, Get, Head, Post, Options, Put, Trace, SetMethod method
+// BaseURL sets the base url for each Connect, Delete, Get, Head, Post, Options, Put, Trace, SetMethod method
 // Examples:
-//           SetBaseURL("http://example.com")
-//           SetBaseURL("http://%s/%s", domain, path)
-func SetBaseURL(url string, a ...interface{}) hit.IStep {
-	return hit.SetBaseURL(url, a...)
+//           BaseURL("http://example.com")
+//           BaseURL("http://%s/%s", domain, path)
+func BaseURL(url string, a ...interface{}) hit.IStep {
+	return hit.BaseURL(url, a...)
 }
 
-// SetRequest creates a new Hit instance with an existing http request
-func SetRequest(request *http.Request) hit.IStep {
-	return hit.SetRequest(request)
+// Request creates a new Hit instance with an existing http request
+func Request(request *http.Request) hit.IStep {
+	return hit.Request(request)
 }
 
-// SetMethod creates a new Hit instance with the specified method and url
+// Method creates a new Hit instance with the specified method and url
 // Examples:
-//           SetMethod("POST", "http://example.com")
-//           SetMethod("POST", "http://%s/%s", domain, path)
-func SetMethod(method, url string, a ...interface{}) hit.IStep {
-	return hit.SetMethod(method, url, a...)
+//           Method("POST", "http://example.com")
+//           Method("POST", "http://%s/%s", domain, path)
+func Method(method, url string, a ...interface{}) hit.IStep {
+	return hit.Method(method, url, a...)
 }
 
 // Connect creates a new Hit instance with CONNECT as the http method, use the optional arguments to format the url
@@ -208,4 +208,10 @@ func Do(steps ...hit.IStep) error {
 // CombineSteps combines multiple steps to one
 func CombineSteps(steps ...hit.IStep) hit.IStep {
 	return hit.CombineSteps(steps...)
+}
+
+// Description sets a custom description for this test.
+// The description will be printed in an error case
+func Description(description string) hit.IStep {
+	return hit.Description(description)
 }

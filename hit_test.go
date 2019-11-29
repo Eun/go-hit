@@ -28,7 +28,7 @@ func Test_Debug(t *testing.T) {
 
 		Test(t,
 			Post(s.URL),
-			SetStdout(buf),
+			Stdout(buf),
 			Send("Hello World"),
 			Debug(),
 		)
@@ -46,7 +46,7 @@ func Test_Debug(t *testing.T) {
 
 		Test(t,
 			Post(s.URL),
-			SetStdout(buf),
+			Stdout(buf),
 			Send([]int{1, 2, 3}),
 			Debug(),
 		)
@@ -64,7 +64,7 @@ func Test_Debug(t *testing.T) {
 
 		Test(t,
 			Post(s.URL),
-			SetStdout(buf),
+			Stdout(buf),
 			Debug(),
 		)
 
@@ -81,7 +81,7 @@ func Test_Debug(t *testing.T) {
 
 		Test(t,
 			Post(s.URL),
-			SetStdout(buf),
+			Stdout(buf),
 			Send("Hello World"),
 			Debug("Request"),
 		)
@@ -97,7 +97,7 @@ func Test_Debug(t *testing.T) {
 		// send garbage so Debugs getBody function cannot parse it as json
 		Test(t,
 			Post(s.URL),
-			SetStdout(buf),
+			Stdout(buf),
 			Send("Hello World"),
 			Custom(AfterSendStep, func(hit Hit) {
 				Debug("Request")
@@ -119,21 +119,21 @@ func Test_Stdout(t *testing.T) {
 
 	Test(t,
 		Post(s.URL),
-		SetStdout(buf),
+		Stdout(buf),
 		Custom(BeforeSendStep, func(hit Hit) {
 			require.Equal(t, buf, hit.Stdout())
 		}),
 	)
 }
 
-func TestSetRequest(t *testing.T) {
+func TestRequest(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
 	req, err := http.NewRequest("POST", s.URL, bytes.NewReader([]byte("Hello World")))
 	require.NoError(t, err)
 	Test(t,
-		SetRequest(req),
+		Request(req),
 		Expect().Body("Hello World"),
 	)
 }
@@ -147,12 +147,12 @@ func TestMultiUse(t *testing.T) {
 		require.NoError(t, err)
 
 		Test(t,
-			SetRequest(req),
+			Request(req),
 			Expect().Body("Hello World"),
 		)
 
 		Test(t,
-			SetRequest(req),
+			Request(req),
 			Expect().Body("Hello World"),
 		)
 	})
@@ -163,7 +163,7 @@ func TestMultiUse(t *testing.T) {
 		req.Trailer = map[string][]string{"X-Trailer": {"Bar"}}
 
 		Test(t,
-			SetRequest(req),
+			Request(req),
 			Custom(AfterSendStep, func(hit Hit) {
 				require.Equal(t, []string{"Foo"}, hit.Request().Header["X-Header"])
 				require.Equal(t, []string{"Bar"}, hit.Request().Trailer["X-Trailer"])
@@ -171,7 +171,7 @@ func TestMultiUse(t *testing.T) {
 		)
 
 		Test(t,
-			SetRequest(req),
+			Request(req),
 			Custom(AfterSendStep, func(hit Hit) {
 				require.Equal(t, []string{"Foo"}, hit.Request().Header["X-Header"])
 				require.Equal(t, []string{"Bar"}, hit.Request().Trailer["X-Trailer"])
@@ -197,7 +197,7 @@ func TestMultiUse(t *testing.T) {
 		require.Equal(t, []string{"1", "2", "banana"}, req.PostForm["a"])
 
 		Test(t,
-			SetRequest(req),
+			Request(req),
 			Custom(AfterSendStep, func(hit Hit) {
 				require.Equal(t, []string{"1", "2", "banana"}, hit.Request().Form["a"])
 				require.Equal(t, []string{"1", "2", "banana"}, hit.Request().PostForm["a"])
@@ -205,7 +205,7 @@ func TestMultiUse(t *testing.T) {
 		)
 
 		Test(t,
-			SetRequest(req),
+			Request(req),
 			Custom(AfterSendStep, func(hit Hit) {
 				require.Equal(t, []string{"1", "2", "banana"}, hit.Request().Form["a"])
 				require.Equal(t, []string{"1", "2", "banana"}, hit.Request().PostForm["a"])
@@ -230,7 +230,7 @@ func TestMultiUse(t *testing.T) {
 		require.Equal(t, []string{"bar"}, req.MultipartForm.Value["foo"])
 
 		Test(t,
-			SetRequest(req),
+			Request(req),
 			Custom(AfterSendStep, func(hit Hit) {
 				require.Equal(t, []string{"bar"}, hit.Request().MultipartForm.Value["foo"])
 			}),
@@ -239,7 +239,7 @@ func TestMultiUse(t *testing.T) {
 		require.Len(t, req.MultipartForm.File["file1"], 1)
 
 		Test(t,
-			SetRequest(req),
+			Request(req),
 			Custom(AfterSendStep, func(hit Hit) {
 				require.Equal(t, "file1", hit.Request().MultipartForm.File["file1"][0].Filename)
 			}),
@@ -253,7 +253,7 @@ func TestMultiUse(t *testing.T) {
 		require.Equal(t, "baz", string(buf))
 
 		Test(t,
-			SetRequest(req),
+			Request(req),
 			Custom(AfterSendStep, func(hit Hit) {
 				require.Len(t, hit.Request().MultipartForm.File["file1"], 1)
 				require.Equal(t, "file1", hit.Request().MultipartForm.File["file1"][0].Filename)
@@ -280,7 +280,7 @@ func TestMultiUse(t *testing.T) {
 		require.Equal(t, []string{"a", "b"}, req.TransferEncoding)
 
 		Test(t,
-			SetRequest(req),
+			Request(req),
 			Custom(AfterSendStep, func(hit Hit) {
 				require.Equal(t, []string{"a", "b"}, hit.Request().TransferEncoding)
 			}),
@@ -316,7 +316,7 @@ func TestBaseURL(t *testing.T) {
 	defer s.Close()
 
 	Test(t,
-		SetBaseURL(s.URL),
+		BaseURL(s.URL),
 		Get("/"),
 		Expect().Status(http.StatusOK),
 	)
@@ -331,7 +331,7 @@ func TestFormatURL(t *testing.T) {
 	)
 }
 
-func TestSetHTTPClient(t *testing.T) {
+func TestHTTPClient(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
@@ -339,7 +339,7 @@ func TestSetHTTPClient(t *testing.T) {
 
 	Test(t,
 		Post(s.URL),
-		SetHTTPClient(client),
+		HTTPClient(client),
 		Custom(AfterSendStep, func(hit Hit) {
 			require.Equal(t, client, hit.HTTPClient())
 		}),
@@ -365,15 +365,22 @@ func TestCombineSteps(t *testing.T) {
 }
 
 func TestDescription(t *testing.T) {
-	// s := EchoServer()
-	// defer s.Close()
-	//
-	// Test(t,
-	// 	Description("Test #1"),
-	// 	Post(s.URL),
-	// 	Send("Hello"),
-	// 	Expect("World"),
-	// )
+	s := EchoServer()
+	defer s.Close()
+
+	err := Do(
+		Description("Test #1"),
+		Custom(BeforeSendStep, func(hit Hit) {
+			require.Equal(t, "Test #1", hit.Description())
+			hit.SetDescription("Test #A")
+			require.Equal(t, "Test #A", hit.Description())
+		}),
+		Post(s.URL),
+		Send("Hello"),
+		Expect("World"),
+	)
+	require.NotNil(t, err)
+	require.True(t, strings.HasPrefix(vtclean.Clean(err.Error(), false), "Description:\tTest #A"))
 }
 
 func TestCustomError(t *testing.T) {
