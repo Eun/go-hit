@@ -20,6 +20,7 @@ import (
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/expr"
 	"github.com/Eun/go-hit/internal/minitest"
+	"github.com/gookit/color"
 	"github.com/tidwall/pretty"
 )
 
@@ -128,7 +129,11 @@ func Debug(expression ...string) IStep {
 
 		bytes, err := json.Marshal(v)
 		minitest.NoError(err)
-		_, _ = hit.Stdout().Write(pretty.Color(pretty.Pretty(bytes), nil))
+		bytes = pretty.Pretty(bytes)
+		if color.IsSupportColor() {
+			bytes = pretty.Color(bytes, nil)
+		}
+		_, _ = hit.Stdout().Write(bytes)
 	}
 
 	hit := getContext()
