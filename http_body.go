@@ -294,44 +294,48 @@ func (body *HTTPBody) setOnlyNativeTypes(a interface{}) bool {
 	return true
 }
 
-func (body *HTTPBody) equalOnlyNativeTypes(a interface{}) bool {
+func (body *HTTPBody) equalOnlyNativeTypes(a interface{}, equal bool) bool {
+	equalFunc := minitest.Equal
+	if !equal {
+		equalFunc = minitest.NotEqual
+	}
 	switch v := a.(type) {
 	case string:
-		minitest.Equal(v, body.String())
+		equalFunc(v, body.String())
 	case []byte:
-		minitest.Equal(v, body.Bytes())
+		equalFunc(v, body.Bytes())
 	case io.Reader:
 		buf, err := ioutil.ReadAll(v)
 		if err != nil {
 			minitest.Errorf("unable to read data from reader: %s", err.Error())
 		}
-		minitest.Equal(buf, body.Bytes())
+		equalFunc(buf, body.Bytes())
 	case int:
-		minitest.Equal(v, body.Int())
+		equalFunc(v, body.Int())
 	case int8:
-		minitest.Equal(v, body.Int8())
+		equalFunc(v, body.Int8())
 	case int16:
-		minitest.Equal(v, body.Int16())
+		equalFunc(v, body.Int16())
 	case int32:
-		minitest.Equal(v, body.Int32())
+		equalFunc(v, body.Int32())
 	case int64:
-		minitest.Equal(v, body.Int64())
+		equalFunc(v, body.Int64())
 	case uint:
-		minitest.Equal(v, body.Uint())
+		equalFunc(v, body.Uint())
 	case uint8:
-		minitest.Equal(v, body.Uint8())
+		equalFunc(v, body.Uint8())
 	case uint16:
-		minitest.Equal(v, body.Uint16())
+		equalFunc(v, body.Uint16())
 	case uint32:
-		minitest.Equal(v, body.Uint32())
+		equalFunc(v, body.Uint32())
 	case uint64:
-		minitest.Equal(v, body.Uint64())
+		equalFunc(v, body.Uint64())
 	case float32:
-		minitest.Equal(v, body.Float32())
+		equalFunc(v, body.Float32())
 	case float64:
-		minitest.Equal(v, body.Float64())
+		equalFunc(v, body.Float64())
 	case bool:
-		minitest.Equal(v, body.Bool())
+		equalFunc(v, body.Bool())
 	default:
 		// not handled
 		return false
@@ -340,22 +344,38 @@ func (body *HTTPBody) equalOnlyNativeTypes(a interface{}) bool {
 	return true
 }
 
-func (body *HTTPBody) containsOnlyNativeTypes(a interface{}) bool {
+func (body *HTTPBody) containsOnlyNativeTypes(a interface{}, equal bool) bool {
 	switch v := a.(type) {
 	case string:
-		if !strings.Contains(body.String(), v) {
-			minitest.Errorf(`"%s" does not contain "%s"`, body.String(), v)
+		switch equal {
+		case true:
+			if !strings.Contains(body.String(), v) {
+				minitest.Errorf(`"%s" does not contain "%s"`, body.String(), v)
+			}
+		default:
+			if strings.Contains(body.String(), v) {
+				minitest.Errorf(`"%s" does contain "%s"`, body.String(), v)
+			}
 		}
+
 	case []byte:
-		if !bytes.Contains(body.Bytes(), v) {
-			minitest.Errorf(`"%v" does not contain "%v"`, body.Bytes(), v)
+		switch equal {
+		case true:
+			if !bytes.Contains(body.Bytes(), v) {
+				minitest.Errorf(`"%v" does not contain "%v"`, body.Bytes(), v)
+			}
+		default:
+			if bytes.Contains(body.Bytes(), v) {
+				minitest.Errorf(`"%v" does contain "%v"`, body.Bytes(), v)
+			}
 		}
+
 	case io.Reader:
 		buf, err := ioutil.ReadAll(v)
 		if err != nil {
 			minitest.Errorf("unable to read data from reader: %s", err.Error())
 		}
-		return body.containsOnlyNativeTypes(buf)
+		return body.containsOnlyNativeTypes(buf, equal)
 	default:
 		// not handled
 		return false

@@ -7,11 +7,6 @@ import (
 	"github.com/Eun/go-hit/internal"
 )
 
-// import (
-// 	"github.com/Eun/go-hit/errortrace"
-// 	"github.com/Eun/go-hit/internal"
-// )
-//
 type ISend interface {
 	IStep
 	Body(data ...interface{}) ISendBody

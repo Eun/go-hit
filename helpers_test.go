@@ -10,6 +10,7 @@ import (
 
 	"regexp"
 
+	"github.com/Eun/go-hit/internal/minitest"
 	"github.com/lunixbochs/vtclean"
 	"github.com/stretchr/testify/require"
 )
@@ -45,7 +46,7 @@ func ExpectError(t *testing.T, err error, equalLines ...*string) {
 		return r == '\n'
 	})
 
-	require.Len(t, lines, len(equalLines))
+	require.Equal(t, len(equalLines), len(lines), "expected: %s\nactual:   %s\n", minitest.PrintValue(equalLines), minitest.PrintValue(lines))
 
 	for i := 0; i < len(lines); i++ {
 		if equalLines[i] != nil {

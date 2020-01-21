@@ -3,6 +3,8 @@ package hit
 import (
 	"encoding/json"
 
+	"github.com/Eun/go-convert"
+	"github.com/Eun/go-hit/expr"
 	"github.com/Eun/go-hit/internal/minitest"
 )
 
@@ -19,14 +21,28 @@ func newHTTPJson(body *HTTPBody) *HTTPJson {
 }
 
 // Get returns the body as an interface type based on the underlying data
-func (jsn *HTTPJson) Get() (container interface{}) {
+func (jsn *HTTPJson) Get(expression string) interface{} {
+	var container interface{}
 	minitest.NoError(json.NewDecoder(jsn.body.Reader()).Decode(&container))
-	return container
+	v, ok, err := expr.GetValue(container, expression, expr.IgnoreCase)
+	minitest.NoError(err)
+	if !ok {
+		v = nil
+	}
+	return v
 }
 
 // GetAs returns the body as the specified interface type
-func (jsn *HTTPJson) GetAs(container interface{}) interface{} {
-	minitest.NoError(json.NewDecoder(jsn.body.Reader()).Decode(container))
+func (jsn *HTTPJson) GetAs(expression string, container interface{}) interface{} {
+	var v interface{}
+	minitest.NoError(json.NewDecoder(jsn.body.Reader()).Decode(&v))
+	v, ok, err := expr.GetValue(v, expression, expr.IgnoreCase)
+	minitest.NoError(err)
+	if !ok {
+		v = nil
+	}
+	minitest.NoError(convert.Convert(v, container))
+
 	return container
 }
 

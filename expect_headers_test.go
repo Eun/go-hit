@@ -17,12 +17,39 @@ func TestExpectHeader_Equal(t *testing.T) {
 	s := httptest.NewServer(mux)
 	defer s.Close()
 
-	t.Run("", func(t *testing.T) {
-		Test(t,
+	Test(t,
+		Post(s.URL),
+		Expect().Headers().Equal(map[string]string{"X-Header": "Hello", "Content-Length": "0"}),
+	)
+	ExpectError(t,
+		Do(
 			Post(s.URL),
-			Expect().Headers().Equal(map[string]string{"X-Header": "Hello", "Content-Length": "0"}),
-		)
+			Expect().Headers().Equal(map[string]string{"X-Header": "World", "Content-Length": "0"}),
+		),
+		PtrStr("Not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+	)
+}
+
+func TestExpectHeader_NotEqual(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header()["Date"] = nil
+		writer.Header().Set("X-Header", "Hello")
 	})
+	s := httptest.NewServer(mux)
+	defer s.Close()
+
+	Test(t,
+		Post(s.URL),
+		Expect().Headers().NotEqual(map[string]string{"X-Header": "World", "Content-Length": "0"}),
+	)
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers().NotEqual(map[string]string{"X-Header": "Hello", "Content-Length": "0"}),
+		),
+		PtrStr("should not be map[string]string{"), nil, nil, nil,
+	)
 }
 
 func TestExpectHeaders_Contains(t *testing.T) {
@@ -34,22 +61,41 @@ func TestExpectHeaders_Contains(t *testing.T) {
 	s := httptest.NewServer(mux)
 	defer s.Close()
 
-	t.Run("", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Expect().Headers().Contains("X-Header"),
-		)
-	})
+	Test(t,
+		Post(s.URL),
+		Expect().Headers().Contains("X-Header"),
+	)
 
-	t.Run("", func(t *testing.T) {
-		ExpectError(t,
-			Do(
-				Post(s.URL),
-				Expect().Headers().Contains("X-Header2"),
-			),
-			PtrStr("http.Header{"), nil, nil, nil, nil, nil, nil, PtrStr(`} does not contain "X-Header2"`),
-		)
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers().Contains("X-Header2"),
+		),
+		PtrStr("http.Header{"), nil, nil, nil, nil, nil, nil, PtrStr(`} does not contain "X-Header2"`),
+	)
+}
+
+func TestExpectHeaders_NotContains(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Set("X-Header", "Hello")
+		writer.Header()["Date"] = nil
 	})
+	s := httptest.NewServer(mux)
+	defer s.Close()
+
+	Test(t,
+		Post(s.URL),
+		Expect().Headers().NotContains("X-Header2"),
+	)
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers().NotContains("X-Header"),
+		),
+		PtrStr("http.Header{"), nil, nil, nil, nil, nil, nil, PtrStr(`} should not contain "X-Header"`),
+	)
 }
 
 func TestExpectHeaders_Get(t *testing.T) {

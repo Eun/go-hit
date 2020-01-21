@@ -17,13 +17,11 @@ func TestSendHeaders_Set(t *testing.T) {
 	s := httptest.NewServer(mux)
 	defer s.Close()
 
-	t.Run("", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Send().Headers().Set("X-Headers", "World"),
-			Expect().Body().Equal("World"),
-		)
-	})
+	Test(t,
+		Post(s.URL),
+		Send().Headers().Set("X-Headers", "World"),
+		Expect().Body().Equal("World"),
+	)
 }
 
 func TestSendHeaders_Clear(t *testing.T) {
@@ -34,14 +32,12 @@ func TestSendHeaders_Clear(t *testing.T) {
 	s := httptest.NewServer(mux)
 	defer s.Close()
 
-	t.Run("", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Send().Headers().Set("X-Headers", "World"),
-			Send().Headers().Clear(),
-			Expect().Body().Equal(""),
-		)
-	})
+	Test(t,
+		Post(s.URL),
+		Send().Headers().Set("X-Headers", "World"),
+		Send().Headers().Clear(),
+		Expect().Body().Equal(""),
+	)
 }
 
 func TestSendHeaders_DoubleSet(t *testing.T) {
@@ -52,14 +48,12 @@ func TestSendHeaders_DoubleSet(t *testing.T) {
 	s := httptest.NewServer(mux)
 	defer s.Close()
 
-	t.Run("", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Send().Headers().Set("X-Headers", "World"),
-			Send().Headers().Set("X-Headers", "Universe"),
-			Expect().Body().Equal("Universe"),
-		)
-	})
+	Test(t,
+		Post(s.URL),
+		Send().Headers().Set("X-Headers", "World"),
+		Send().Headers().Set("X-Headers", "Universe"),
+		Expect().Body().Equal("Universe"),
+	)
 }
 
 func TestSendHeaders_Delete(t *testing.T) {
@@ -70,12 +64,10 @@ func TestSendHeaders_Delete(t *testing.T) {
 	s := httptest.NewServer(mux)
 	defer s.Close()
 
-	t.Run("", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Send().Headers().Set("X-Headers", "World"),
-			Send().Headers().Delete("X-Headers"),
-			Expect().Body().Equal(""),
-		)
-	})
+	Test(t,
+		Post(s.URL),
+		Send().Headers().Set("X-Headers", "World"),
+		Send().Headers().Delete("X-Headers"),
+		Expect().Body().Equal(""),
+	)
 }

@@ -43,8 +43,8 @@ func formatMessage(customMessageAndArgs []interface{}) string {
 
 func actualExpectedDiff(actual, expected interface{}) string {
 	var sb strings.Builder
-	fmt.Fprintf(&sb, "expected:\t%+v\n", expected)
-	fmt.Fprintf(&sb, "actual:  \t%+v\n", actual)
+	fmt.Fprintf(&sb, "expected:\t%s\n", PrintValue(expected))
+	fmt.Fprintf(&sb, "actual:  \t%s\n", PrintValue(actual))
 	if diff := cmp.Diff(expected, actual); diff != "" {
 		fmt.Fprintf(&sb, Format("diff:    ", trimLeftSpaces(diff)))
 	}
@@ -74,9 +74,21 @@ func Equal(expected, actual interface{}, customMessageAndArgs ...interface{}) {
 	}
 }
 
+func NotEqual(expected, actual interface{}, customMessageAndArgs ...interface{}) {
+	if cmp.Equal(expected, actual) {
+		panicNow(stringJoin("\n", fmt.Sprintf("should not be %#s", PrintValue(actual))), customMessageAndArgs...)
+	}
+}
+
 func Contains(object interface{}, contains interface{}, customMessageAndArgs ...interface{}) {
 	if !internal.Contains(object, contains) {
-		panicNow(fmt.Sprintf(`%s does not contain %s`, vtclean.Clean(pp.Sprint(object), false), vtclean.Clean(pp.Sprint(contains), false)), customMessageAndArgs...)
+		panicNow(fmt.Sprintf(`%s does not contain %s`, PrintValue(object), PrintValue(contains)), customMessageAndArgs...)
+	}
+}
+
+func NotContains(object interface{}, contains interface{}, customMessageAndArgs ...interface{}) {
+	if internal.Contains(object, contains) {
+		panicNow(fmt.Sprintf(`%s should not contain %s`, PrintValue(object), PrintValue(contains)), customMessageAndArgs...)
 	}
 }
 
@@ -86,10 +98,10 @@ func Empty(object interface{}, customMessageAndArgs ...interface{}) {
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:
 		l := v.Len()
 		if l != 0 {
-			panicNow(fmt.Sprintf(`%s should be empty, but has %d item(s)`, vtclean.Clean(pp.Sprint(object), false), l), customMessageAndArgs...)
+			panicNow(fmt.Sprintf(`%s should be empty, but has %d item(s)`, PrintValue(object), l), customMessageAndArgs...)
 		}
 	default:
-		panicNow(fmt.Sprintf("called Len() on %s", vtclean.Clean(pp.Sprint(object), false)))
+		panicNow(fmt.Sprintf("called Len() on %s", PrintValue(object)))
 	}
 }
 
@@ -99,10 +111,10 @@ func Len(object interface{}, length int, customMessageAndArgs ...interface{}) {
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:
 		l := v.Len()
 		if l != length {
-			panicNow(fmt.Sprintf(`%s should have %d item(s), but has %d`, vtclean.Clean(pp.Sprint(object), false), length, l), customMessageAndArgs...)
+			panicNow(fmt.Sprintf(`%s should have %d item(s), but has %d`, PrintValue(object), length, l), customMessageAndArgs...)
 		}
 	default:
-		panicNow(fmt.Sprintf("called Len() on %s", vtclean.Clean(pp.Sprint(object), false)))
+		panicNow(fmt.Sprintf("called Len() on %s", PrintValue(object)))
 	}
 }
 
@@ -116,4 +128,8 @@ func False(value bool, customMessageAndArgs ...interface{}) {
 	if value {
 		panicNow(`Expected bool to be false but is true`, customMessageAndArgs...)
 	}
+}
+
+func PrintValue(v interface{}) string {
+	return vtclean.Clean(pp.Sprint(v), false)
 }

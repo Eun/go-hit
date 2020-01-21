@@ -13,13 +13,11 @@ func TestSendBody_JSON(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
-	t.Run("", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Send().Body().JSON([]string{"A", "B"}),
-			Expect().Body().Equal(`["A","B"]`),
-		)
-	})
+	Test(t,
+		Post(s.URL),
+		Send().Body().JSON([]string{"A", "B"}),
+		Expect().Body().Equal(`["A","B"]`),
+	)
 }
 
 func TestSendBody(t *testing.T) {
@@ -71,28 +69,24 @@ func TestSendBody_ModifyPreviousBody(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
-	t.Run("", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Send().Body("Hello"),
-			Send().Body(func(hit Hit) {
-				hit.Request().Body().SetString(fmt.Sprintf("%s World", hit.Request().Body().String()))
-			}),
-			Expect().Body().Equal(`Hello World`),
-		)
-	})
+	Test(t,
+		Post(s.URL),
+		Send().Body("Hello"),
+		Send().Body(func(hit Hit) {
+			hit.Request().Body().SetString(fmt.Sprintf("%s World", hit.Request().Body().String()))
+		}),
+		Expect().Body().Equal(`Hello World`),
+	)
 }
 
 func TestSendBody_EmptyBody(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
-	t.Run("", func(t *testing.T) {
-		Test(t,
-			Get(s.URL),
-			Send().Body(func(hit Hit) {
-				require.Empty(t, hit.Request().Body().String())
-			}),
-		)
-	})
+	Test(t,
+		Get(s.URL),
+		Send().Body(func(hit Hit) {
+			require.Empty(t, hit.Request().Body().String())
+		}),
+	)
 }

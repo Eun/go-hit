@@ -7,10 +7,13 @@ import (
 type IExpectSpecificHeader interface {
 	IStep
 	Contains(v string) IStep
+	NotContains(v string) IStep
 	OneOf(values ...interface{}) IStep
+	NotOneOf(values ...interface{}) IStep
 	Empty() IStep
 	Len(size int) IStep
 	Equal(v interface{}) IStep
+	NotEqual(v interface{}) IStep
 }
 type expectSpecificHeader struct {
 	header string
@@ -41,12 +44,30 @@ func (hdr *expectSpecificHeader) Contains(v string) IStep {
 	})
 }
 
+// NotContains checks if the header value contains the specified value
+// Example:
+//           Expect().Header("Content-Type").NotContains("application")
+func (hdr *expectSpecificHeader) NotContains(v string) IStep {
+	return hdr.expect.Custom(func(hit Hit) {
+		minitest.NotContains(hit.Response().Header.Get(hdr.header), v)
+	})
+}
+
 // OneOf checks if the header value is one of the specified values
 // Example:
 //           Expect().Header("Content-Type").OneOf("application/json", "text/x-json")
 func (hdr *expectSpecificHeader) OneOf(values ...interface{}) IStep {
 	return hdr.expect.Custom(func(hit Hit) {
 		minitest.Contains(values, hit.Response().Header.Get(hdr.header))
+	})
+}
+
+// NotOneOf checks if the header value is one of the specified values
+// Example:
+//           Expect().Header("Content-Type").NotOneOf("application/json", "text/x-json")
+func (hdr *expectSpecificHeader) NotOneOf(values ...interface{}) IStep {
+	return hdr.expect.Custom(func(hit Hit) {
+		minitest.NotContains(values, hit.Response().Header.Get(hdr.header))
 	})
 }
 
@@ -73,9 +94,19 @@ func (hdr *expectSpecificHeader) Len(size int) IStep {
 //           Expect().Headers("Content-Type").Equal("application/json")
 func (hdr *expectSpecificHeader) Equal(v interface{}) IStep {
 	return hdr.expect.Custom(func(hit Hit) {
-		compareData := v
-		err := converter.Convert(hit.Response().Header.Get(hdr.header), &compareData)
+		compareData, err := makeCompareable(hit.Response().Header.Get(hdr.header), v)
 		minitest.NoError(err)
 		minitest.Equal(v, compareData)
+	})
+}
+
+// NotEqual checks if the header value is equal to the specified value
+// Example:
+//           Expect().Headers("Content-Type").NotEqual("application/json")
+func (hdr *expectSpecificHeader) NotEqual(v interface{}) IStep {
+	return hdr.expect.Custom(func(hit Hit) {
+		compareData, err := makeCompareable(hit.Response().Header.Get(hdr.header), v)
+		minitest.NoError(err)
+		minitest.NotEqual(v, compareData)
 	})
 }

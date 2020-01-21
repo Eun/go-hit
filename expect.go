@@ -5,6 +5,7 @@ import (
 
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
+	"github.com/mohae/deepcopy"
 )
 
 type IExpect interface {
@@ -194,4 +195,14 @@ func (f finalExpect) Status(code ...int) IExpectStatus {
 
 func (f finalExpect) Clear() IStep {
 	panic("only usable with Expect() not with Expect(value)")
+}
+
+func makeCompareable(in, data interface{}) (interface{}, error) {
+	compareData := deepcopy.Copy(data)
+	err := converter.Convert(in, &compareData)
+	if err != nil {
+		return nil, err
+	}
+
+	return compareData, nil
 }

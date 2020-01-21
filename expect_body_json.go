@@ -1,7 +1,6 @@
 package hit
 
 import (
-	"github.com/Eun/go-hit/expr"
 	"github.com/Eun/go-hit/internal"
 	"github.com/Eun/go-hit/internal/minitest"
 )
@@ -9,7 +8,9 @@ import (
 type IExpectBodyJSON interface {
 	IStep
 	Equal(expression string, data interface{}) IStep
+	NotEqual(expression string, data interface{}) IStep
 	Contains(expression string, data interface{}) IStep
+	NotContains(expression string, data interface{}) IStep
 }
 
 type expectBodyJSON struct {
@@ -32,17 +33,15 @@ func (jsn *expectBodyJSON) exec(hit Hit) error {
 
 // Equal expects the json body to be equal the specified value, the first parameter can be used to narrow down the search path
 // Example:
-//           Giving following response: { "ID": 10, "Name": Joe }
+//           Giving following response: { "ID": 10, "Name": "Joe" }
 //           Expect().Body().JSON().Equal("", map[string]interface{}{"ID": 10, "Name": "Joe"})
 //           Expect().Body().JSON().Equal("ID", 10)
+
+//           Giving following response: { "ID": 10, "Name": "12", "Names": ["12"] }
+//           Expect().Body().JSON().Equal("Names", []string{"12"})
 func (jsn *expectBodyJSON) Equal(expression string, data interface{}) IStep {
 	return jsn.expect.Custom(func(hit Hit) {
-		v, ok, err := expr.GetValue(hit.Response().body.JSON().Get(), expression, expr.IgnoreCase)
-		minitest.NoError(err)
-		if !ok {
-			v = nil
-		}
-
+		v := hit.Response().body.JSON().Get(expression)
 		if v == nil && data == nil {
 			return
 		}
@@ -52,10 +51,31 @@ func (jsn *expectBodyJSON) Equal(expression string, data interface{}) IStep {
 			minitest.Equal(data, v)
 		}
 
-		compareData := data
-		err = converter.Convert(v, &compareData)
+		compareData, err := makeCompareable(v, data)
 		minitest.NoError(err)
 		minitest.Equal(data, compareData)
+	})
+}
+
+// NotEqual expects the json body to be not equal the specified value, the first parameter can be used to narrow down the search path
+// Example:
+//           Giving following response: { "ID": 10, "Name": Joe }
+//           Expect().Body().JSON().NotEqual("", map[string]interface{}{"ID": 10, "Name": "Joe"})
+//           Expect().Body().JSON().NotEqual("ID", 10)
+func (jsn *expectBodyJSON) NotEqual(expression string, data interface{}) IStep {
+	return jsn.expect.Custom(func(hit Hit) {
+		v := hit.Response().body.JSON().Get(expression)
+		if v == nil && data == nil {
+			minitest.Errorf("should not be %s", minitest.PrintValue(v))
+		}
+
+		if v == nil || data == nil {
+			minitest.NotEqual(data, v)
+		}
+
+		compareData, err := makeCompareable(v, data)
+		minitest.NoError(err)
+		minitest.NotEqual(data, compareData)
 	})
 }
 
@@ -66,18 +86,31 @@ func (jsn *expectBodyJSON) Equal(expression string, data interface{}) IStep {
 //           Expect().Body().JSON().Contains("Name", "J")
 func (jsn *expectBodyJSON) Contains(expression string, data interface{}) IStep {
 	return jsn.expect.Custom(func(hit Hit) {
-		v, ok, err := expr.GetValue(hit.Response().body.JSON().Get(), expression, expr.IgnoreCase)
-		minitest.NoError(err)
-		if !ok {
-			v = nil
-		}
-
+		v := hit.Response().body.JSON().Get(expression)
 		if v == nil && data == nil {
 			return
 		}
 
 		if !internal.Contains(v, data) {
-			minitest.Errorf("%#v does not contain %#v", v, data)
+			minitest.Errorf("%s does not contain %s", minitest.PrintValue(v), minitest.PrintValue(data))
+		}
+	})
+}
+
+// NotContains expects the json body to not contain the specified value, the first parameter can be used to narrow down the search path
+// Example:
+//           Giving following response: { "ID": 10, "Name": Joe }
+//           Expect().Body().JSON().NotContains("", "ID")
+//           Expect().Body().JSON().NotContains("Name", "J")
+func (jsn *expectBodyJSON) NotContains(expression string, data interface{}) IStep {
+	return jsn.expect.Custom(func(hit Hit) {
+		v := hit.Response().body.JSON().Get(expression)
+		if v == nil && data == nil {
+			minitest.Errorf("%s does contain %s", minitest.PrintValue(v), minitest.PrintValue(data))
+		}
+
+		if internal.Contains(v, data) {
+			minitest.Errorf("%s does contain %s", minitest.PrintValue(v), minitest.PrintValue(data))
 		}
 	})
 }
@@ -90,6 +123,14 @@ func (finalExpectBodyJSON) Equal(expression string, data interface{}) IStep {
 	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
 }
 
+func (finalExpectBodyJSON) NotEqual(expression string, data interface{}) IStep {
+	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+}
+
 func (finalExpectBodyJSON) Contains(expression string, data interface{}) IStep {
+	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+}
+
+func (finalExpectBodyJSON) NotContains(expression string, data interface{}) IStep {
 	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
 }

@@ -31,10 +31,24 @@ func TestExpectFinal(t *testing.T) {
 		})
 	})
 
+	t.Run("Expect().Body(value).NotEqual(value)", func(t *testing.T) {
+		ExpectError(t, Do(Post(s.URL), Send("Hello"), Expect().Body().NotEqual("Hello")), PtrStr(`should not be "Hello"`))
+		require.PanicsWithValue(t, "only usable with Expect().Body() not with Expect().Body(value)", func() {
+			Do(Expect().Body("Data").NotEqual("Data"))
+		})
+	})
+
 	t.Run("Expect().Body(value).Contains(value)", func(t *testing.T) {
 		ExpectError(t, Do(Post(s.URL), Send("Hello"), Expect().Body().Contains("Bye")), PtrStr(`"Hello" does not contain "Bye"`))
 		require.PanicsWithValue(t, "only usable with Expect().Body() not with Expect().Body(value)", func() {
 			Do(Expect().Body("Data").Contains("Data"))
+		})
+	})
+
+	t.Run("Expect().Body(value).NotContains(value)", func(t *testing.T) {
+		ExpectError(t, Do(Post(s.URL), Send("Hello"), Expect().Body().NotContains("Hello")), PtrStr(`"Hello" does contain "Hello"`))
+		require.PanicsWithValue(t, "only usable with Expect().Body() not with Expect().Body(value)", func() {
+			Do(Expect().Body("Data").NotContains("Data"))
 		})
 	})
 }

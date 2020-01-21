@@ -4,7 +4,9 @@ type IExpectBody interface {
 	IStep
 	JSON(data ...interface{}) IExpectBodyJSON
 	Equal(data interface{}) IStep
+	NotEqual(data interface{}) IStep
 	Contains(data interface{}) IStep
+	NotContains(data interface{}) IStep
 }
 
 type expectBody struct {
@@ -41,10 +43,22 @@ func (body *expectBody) JSON(data ...interface{}) IExpectBodyJSON {
 //           Expect().Body().Equal("Hello World")
 func (body *expectBody) Equal(data interface{}) IStep {
 	return body.expect.Custom(func(hit Hit) {
-		if hit.Response().body.equalOnlyNativeTypes(data) {
+		if hit.Response().body.equalOnlyNativeTypes(data, true) {
 			return
 		}
 		hit.Expect().Body().JSON().Equal("", data)
+	})
+}
+
+// NotEqual expects the body to be not equal to the specified value
+// Example:
+//           Expect().Body().NotEqual("Hello World")
+func (body *expectBody) NotEqual(data interface{}) IStep {
+	return body.expect.Custom(func(hit Hit) {
+		if hit.Response().body.equalOnlyNativeTypes(data, false) {
+			return
+		}
+		hit.Expect().Body().JSON().NotEqual("", data)
 	})
 }
 
@@ -53,10 +67,22 @@ func (body *expectBody) Equal(data interface{}) IStep {
 //           Expect().Body().Contains("Hello World")
 func (body *expectBody) Contains(data interface{}) IStep {
 	return body.expect.Custom(func(hit Hit) {
-		if hit.Response().body.containsOnlyNativeTypes(data) {
+		if hit.Response().body.containsOnlyNativeTypes(data, true) {
 			return
 		}
 		hit.Expect().Body().JSON().Contains("", data)
+	})
+}
+
+// NotContains expects the body to not contain the specified value
+// Example:
+//           Expect().Body().NotContains("Hello World")
+func (body *expectBody) NotContains(data interface{}) IStep {
+	return body.expect.Custom(func(hit Hit) {
+		if hit.Response().body.containsOnlyNativeTypes(data, false) {
+			return
+		}
+		hit.Expect().Body().JSON().NotContains("", data)
 	})
 }
 
@@ -70,6 +96,12 @@ func (f finalExpectBody) JSON(data ...interface{}) IExpectBodyJSON {
 func (f finalExpectBody) Equal(data interface{}) IStep {
 	panic("only usable with Expect().Body() not with Expect().Body(value)")
 }
+func (f finalExpectBody) NotEqual(data interface{}) IStep {
+	panic("only usable with Expect().Body() not with Expect().Body(value)")
+}
 func (f finalExpectBody) Contains(data interface{}) IStep {
+	panic("only usable with Expect().Body() not with Expect().Body(value)")
+}
+func (f finalExpectBody) NotContains(data interface{}) IStep {
 	panic("only usable with Expect().Body() not with Expect().Body(value)")
 }

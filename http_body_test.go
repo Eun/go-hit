@@ -147,25 +147,21 @@ func TestHTTPBody_SetGet(t *testing.T) {
 
 	t.Run("Generic", func(t *testing.T) {
 		t.Run("Reader", func(t *testing.T) {
-			t.Run("", func(t *testing.T) {
-				Test(t, prepare(func(hit Hit) {
-					buf, err := ioutil.ReadAll(hit.Request().Body().Reader())
-					require.NoError(t, err)
-					require.Equal(t, []byte("Some Old Data"), buf)
-					hit.Request().Body().Set(bytes.NewReader([]byte("Hello World")))
-				}, "Some Old Data", bytes.NewReader([]byte("Hello World")))...)
-			})
+			Test(t, prepare(func(hit Hit) {
+				buf, err := ioutil.ReadAll(hit.Request().Body().Reader())
+				require.NoError(t, err)
+				require.Equal(t, []byte("Some Old Data"), buf)
+				hit.Request().Body().Set(bytes.NewReader([]byte("Hello World")))
+			}, "Some Old Data", bytes.NewReader([]byte("Hello World")))...)
 
-			t.Run("", func(t *testing.T) {
-				ExpectError(t,
-					Do(
-						Post(s.URL),
-						Send().Body("Hello World"),
-						Expect().Body().Equal(instantErrorReader{io.ErrUnexpectedEOF}),
-					),
-					PtrStr(`unable to read data from reader: unexpected EOF`),
-				)
-			})
+			ExpectError(t,
+				Do(
+					Post(s.URL),
+					Send().Body("Hello World"),
+					Expect().Body().Equal(instantErrorReader{io.ErrUnexpectedEOF}),
+				),
+				PtrStr(`unable to read data from reader: unexpected EOF`),
+			)
 		})
 
 		t.Run("Bytes", func(t *testing.T) {
@@ -280,72 +276,58 @@ func TestHTTPBody_Contains(t *testing.T) {
 	defer s.Close()
 
 	t.Run("Reader", func(t *testing.T) {
-		t.Run("", func(t *testing.T) {
-			Test(t,
+		Test(t,
+			Post(s.URL),
+			Send().Body("Hello World"),
+			Expect().Body().Contains(bytes.NewReader([]byte("Hello"))),
+		)
+		ExpectError(t,
+			Do(
 				Post(s.URL),
 				Send().Body("Hello World"),
-				Expect().Body().Contains(bytes.NewReader([]byte("Hello"))),
-			)
-		})
-		t.Run("", func(t *testing.T) {
-			ExpectError(t,
-				Do(
-					Post(s.URL),
-					Send().Body("Hello World"),
-					Expect().Body().Contains(bytes.NewReader([]byte("Bye"))),
-				),
-				PtrStr(`"[72 101 108 108 111 32 87 111 114 108 100]" does not contain "[66 121 101]"`),
-			)
-		})
-		t.Run("", func(t *testing.T) {
-			ExpectError(t,
-				Do(
-					Post(s.URL),
-					Send().Body("Hello World"),
-					Expect().Body().Contains(instantErrorReader{io.ErrUnexpectedEOF}),
-				),
-				PtrStr(`unable to read data from reader: unexpected EOF`),
-			)
-		})
+				Expect().Body().Contains(bytes.NewReader([]byte("Bye"))),
+			),
+			PtrStr(`"[72 101 108 108 111 32 87 111 114 108 100]" does not contain "[66 121 101]"`),
+		)
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Body("Hello World"),
+				Expect().Body().Contains(instantErrorReader{io.ErrUnexpectedEOF}),
+			),
+			PtrStr(`unable to read data from reader: unexpected EOF`),
+		)
 	})
 
 	t.Run("Bytes", func(t *testing.T) {
-		t.Run("", func(t *testing.T) {
-			Test(t,
+		Test(t,
+			Post(s.URL),
+			Send().Body("Hello World"),
+			Expect().Body().Contains([]byte("Hello")),
+		)
+		ExpectError(t,
+			Do(
 				Post(s.URL),
 				Send().Body("Hello World"),
-				Expect().Body().Contains([]byte("Hello")),
-			)
-		})
-		t.Run("", func(t *testing.T) {
-			ExpectError(t,
-				Do(
-					Post(s.URL),
-					Send().Body("Hello World"),
-					Expect().Body().Contains([]byte("Bye")),
-				),
-				PtrStr(`"[72 101 108 108 111 32 87 111 114 108 100]" does not contain "[66 121 101]"`),
-			)
-		})
+				Expect().Body().Contains([]byte("Bye")),
+			),
+			PtrStr(`"[72 101 108 108 111 32 87 111 114 108 100]" does not contain "[66 121 101]"`),
+		)
 	})
 
 	t.Run("String", func(t *testing.T) {
-		t.Run("", func(t *testing.T) {
-			Test(t,
+		Test(t,
+			Post(s.URL),
+			Send().Body("Hello World"),
+			Expect().Body().Contains("Hello"),
+		)
+		ExpectError(t,
+			Do(
 				Post(s.URL),
 				Send().Body("Hello World"),
-				Expect().Body().Contains("Hello"),
-			)
-		})
-		t.Run("", func(t *testing.T) {
-			ExpectError(t,
-				Do(
-					Post(s.URL),
-					Send().Body("Hello World"),
-					Expect().Body().Contains("Bye"),
-				),
-				PtrStr(`"Hello World" does not contain "Bye"`),
-			)
-		})
+				Expect().Body().Contains("Bye"),
+			),
+			PtrStr(`"Hello World" does not contain "Bye"`),
+		)
 	})
 }
