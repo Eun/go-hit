@@ -69,6 +69,10 @@ func (stdRecipes) float64ToBool(_ Converter, in float64, out *bool) error {
 	return nil
 }
 func (stdRecipes) stringToBool(_ Converter, in string, out *bool) error {
+	if in == "" {
+		*out = false
+		return nil
+	}
 	var err error
 	*out, err = strconv.ParseBool(in)
 	return err

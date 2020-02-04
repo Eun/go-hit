@@ -63,6 +63,10 @@ func (stdRecipes) float64ToInt8(c Converter, in float64, out *int8) error {
 	return nil
 }
 func (stdRecipes) stringToInt8(c Converter, in string, out *int8) error {
+	if in == "" {
+		*out = 0
+		return nil
+	}
 	i, err := strconv.ParseInt(in, 0, 8)
 	if err != nil {
 		return err

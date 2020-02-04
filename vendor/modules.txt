@@ -1,10 +1,10 @@
-# github.com/Eun/go-convert v0.0.0-20191104172149-bcae3f297866
+# github.com/Eun/go-convert v0.0.0-20200204085721-73c60a5fb88b
 github.com/Eun/go-convert
 # github.com/Eun/go-doppelgangerreader v0.0.0-20190911075941-30f1527f16b2
 github.com/Eun/go-doppelgangerreader
 # github.com/araddon/dateparse v0.0.0-20190622164848-0fb0a474d195
 github.com/araddon/dateparse
-# github.com/davecgh/go-spew v1.1.0
+# github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/google/go-cmp v0.3.1
 github.com/google/go-cmp/cmp
@@ -33,5 +33,5 @@ github.com/stretchr/testify/assert
 github.com/tidwall/pretty
 # golang.org/x/sys v0.0.0-20190222072716-a9d3bda3a223
 golang.org/x/sys/unix
-# gopkg.in/yaml.v2 v2.2.2
+# gopkg.in/yaml.v2 v2.2.8
 gopkg.in/yaml.v2

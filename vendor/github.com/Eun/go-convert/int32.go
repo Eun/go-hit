@@ -63,6 +63,10 @@ func (stdRecipes) float64ToInt32(c Converter, in float64, out *int32) error {
 	return nil
 }
 func (stdRecipes) stringToInt32(c Converter, in string, out *int32) error {
+	if in == "" {
+		*out = 0
+		return nil
+	}
 	i, err := strconv.ParseInt(in, 0, 32)
 	if err != nil {
 		return err

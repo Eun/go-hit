@@ -63,6 +63,10 @@ func (stdRecipes) float64ToUint(c Converter, in float64, out *uint) error {
 	return nil
 }
 func (stdRecipes) stringToUint(c Converter, in string, out *uint) error {
+	if in == "" {
+		*out = 0
+		return nil
+	}
 	i, err := strconv.ParseUint(in, 0, 32)
 	if err != nil {
 		return err

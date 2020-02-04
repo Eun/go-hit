@@ -124,9 +124,16 @@ func (conv defaultConverter) ConvertReflectValue(src, dst reflect.Value, options
 		return nil
 	}
 
-	if src.Kind() == reflect.Ptr && src.Elem().IsValid() {
-		debug(">> following src because no recipe for %s to %s was found\n", src.Type().String(), dst.Type().String())
-		return conv.ConvertReflectValue(src.Elem(), dst, options...)
+	if src.Kind() == reflect.Ptr {
+		if src.Elem().IsValid() {
+			debug(">> following src because no recipe for %s to %s was found\n", src.Type().String(), dst.Type().String())
+			return conv.ConvertReflectValue(src.Elem(), dst, options...)
+		}
+		if src.IsNil() {
+			debug(">> src is nil\n")
+			// make a new instance if src is nil
+			return conv.ConvertReflectValue(reflect.Zero(src.Type().Elem()), dst, options...)
+		}
 	}
 
 	if out.Elem().Kind() == reflect.Ptr {
@@ -180,11 +187,11 @@ func New(options ...Options) Converter {
 // Convert converts the specified value to the specified type and returns it.
 // The behavior can be influenced by using the options
 // Example:
-//     str, err := Convert(8, "")
-//     if err != nil {
+//     var str string
+//     if err := Convert(8, &str); err != nil {
 //         panic(err)
 //     }
-//     fmt.Printf("%s\n", str.(string))
+//     fmt.Printf("%s\n", str)
 func Convert(src, dst interface{}, options ...Options) error {
 	return defaultConverterInstance.Convert(src, dst, options...)
 }

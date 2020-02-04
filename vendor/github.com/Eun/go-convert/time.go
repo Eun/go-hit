@@ -66,6 +66,10 @@ func (stdRecipes) float64ToTime(_ Converter, in float64, out *time.Time) error {
 	return nil
 }
 func (stdRecipes) stringToTime(_ Converter, in string, out *time.Time) error {
+	if in == "" {
+		*out = time.Time{}
+		return nil
+	}
 	var err error
 	*out, err = dateparse.ParseAny(in)
 	return err
