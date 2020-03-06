@@ -1,12 +1,8 @@
 package hit
 
-import (
-	"github.com/Eun/go-hit/internal"
-)
-
 type IClear interface {
 	// Send() IClearSend
-	Expect() IClearExpect
+	Expect(...interface{}) IClearExpect
 }
 
 type clear struct {
@@ -23,26 +19,28 @@ func newClear(hit Hit) IClear {
 // 	return nil
 // }
 
-func (clr *clear) Expect() IClearExpect {
-	return newClearExpect(clr, clr.hit, NewCleanPath("Expect"))
+func (clr *clear) Expect(data ...interface{}) IClearExpect {
+	return newClearExpect(clr, NewCleanPath("Expect", data), data)
 }
 
-func removeSteps(hit Hit, path []string) {
+func removeSteps(hit Hit, path CleanPath) {
 	var stepsToRemove []IStep
 
 	for _, step := range hit.Steps() {
-		if internal.StringSliceHasPrefixSlice(step.CleanPath(), path) {
+		// if internal.StringSliceHasPrefixSlice(step.CleanPath(), path) {
+		// 	stepsToRemove = append(stepsToRemove, step)
+		// }
+		if step.CleanPath().Contains(path) {
 			stepsToRemove = append(stepsToRemove, step)
 		}
 	}
 	hit.RemoveSteps(stepsToRemove...)
 }
 
-func removeStep(hit Hit, cleanPath []string) IStep {
+func removeStep(cleanPath CleanPath) IStep {
 	return custom(Step{
 		When:      CleanStep,
 		CleanPath: nil, // not clearable
-		Instance:  hit,
 		Exec: func(hit Hit) {
 			removeSteps(hit, cleanPath)
 		},

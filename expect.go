@@ -16,7 +16,7 @@ type IExpect interface {
 	Body(data ...interface{}) IExpectBody
 
 	// Interface expects the specified interface
-	Interface(interface{}) IStep
+	Interface(data interface{}) IStep
 
 	// custom can be used to expect a custom behaviour
 	// Example:
@@ -46,30 +46,30 @@ type IExpect interface {
 }
 
 type expect struct {
-	hit       Hit
 	cleanPath CleanPath
-	params    []interface{}
 }
 
-func newExpect(hit Hit, cleanPath CleanPath, param []interface{}) IExpect {
-	return &expect{
-		hit:       hit,
+func newExpect(cleanPath CleanPath, params []interface{}) IExpect {
+	exp := &expect{
 		cleanPath: cleanPath,
-		params:    param,
 	}
+
+	if param, ok := internal.GetLastArgument(params); ok {
+		// default action is Interface()
+		return finalExpect{wrap(wrapStep{
+			IStep:     exp.Interface(param),
+			CleanPath: cleanPath,
+		})}
+	}
+	return exp
+}
+
+func (*expect) Exec(hit Hit) error {
+	return errors.New("unsupported")
 }
 
 func (*expect) When() StepTime {
 	return ExpectStep
-}
-
-// Exec contains the logic for Expect(...)
-func (exp *expect) Exec(hit Hit) error {
-	param, ok := internal.GetLastArgument(exp.params)
-	if !ok {
-		return errors.New("invalid argument")
-	}
-	return exp.Interface(param).Exec(hit)
 }
 
 func (exp *expect) CleanPath() CleanPath {
@@ -81,7 +81,7 @@ func (exp *expect) CleanPath() CleanPath {
 //           Expect().Body("Hello World")
 //           Expect().Body().Contains("Hello World")
 func (exp *expect) Body(data ...interface{}) IExpectBody {
-	return newExpectBody(exp, exp.hit, exp.cleanPath.Push("Body", data), data)
+	return newExpectBody(exp, exp.cleanPath.Push("Body", data), data)
 }
 
 // custom can be used to expect a custom behaviour
@@ -94,8 +94,7 @@ func (exp *expect) Body(data ...interface{}) IExpectBody {
 func (exp *expect) Custom(f Callback) IStep {
 	return custom(Step{
 		When:      ExpectStep,
-		CleanPath: exp.cleanPath.Push("custom"),
-		Instance:  exp.hit,
+		CleanPath: exp.cleanPath.Push("Custom", []interface{}{f}),
 		Exec:      f,
 	})
 }
@@ -105,14 +104,14 @@ func (exp *expect) Custom(f Callback) IStep {
 //           Expect().Headers().Contains("Content-Type")
 //           Expect().Headers().Get("Content-Type").Contains("json")
 func (exp *expect) Headers() IExpectHeaders {
-	return newExpectHeaders(exp, exp.hit, exp.cleanPath.Push("Headers"))
+	return newExpectHeaders(exp, exp.cleanPath.Push("Headers", nil))
 }
 
 // Header gets the specified header
 // Example:
 //           Expect().Header("Content-Type").Equal("application/json")
 func (exp *expect) Header(name string) IExpectSpecificHeader {
-	return newExpectSpecificHeader(exp, exp.hit, exp.cleanPath.Push("Header"), name)
+	return newExpectSpecificHeader(exp, exp.cleanPath.Push("Header", []interface{}{name}), name)
 }
 
 // Status expects the status to be the specified code, omit the code to get more options
@@ -120,7 +119,11 @@ func (exp *expect) Header(name string) IExpectSpecificHeader {
 //           Expect().Status(200)
 //           Expect().Status().Equal(200)
 func (exp *expect) Status(code ...int) IExpectStatus {
-	return newExpectStatus(exp, exp.hit, exp.cleanPath.Push("Status"), code)
+	args := make([]interface{}, len(code))
+	for i := range code {
+		args[i] = code[i]
+	}
+	return newExpectStatus(exp, exp.cleanPath.Push("Status", args), code)
 }
 
 // Interface expects the specified interface
@@ -129,30 +132,52 @@ func (exp *expect) Interface(data interface{}) IStep {
 	case func(e Hit):
 		return custom(Step{
 			When:      ExpectStep,
-			CleanPath: exp.cleanPath.Push("Interface"),
-			Instance:  exp.hit,
+			CleanPath: exp.cleanPath.Push("Interface", []interface{}{data}),
 			Exec:      x,
 		})
 	default:
 		if f := internal.GetGenericFunc(data); f.IsValid() {
 			return custom(Step{
 				When:      ExpectStep,
-				CleanPath: exp.cleanPath.Push("Interface"),
-				Instance:  exp.hit,
+				CleanPath: exp.cleanPath.Push("Interface", []interface{}{data}),
 				Exec: func(hit Hit) {
 					internal.CallGenericFunc(f)
 				},
 			})
 		}
-		return custom(Step{
-			When:      ExpectStep,
-			CleanPath: exp.cleanPath.Push("Body"),
-			Instance:  exp.hit,
-			Exec: func(hit Hit) {
-				hit.Expect().Body(data)
-			},
+		return wrap(wrapStep{
+			IStep:     exp.Body(data),
+			CleanPath: exp.cleanPath.Push("Interface", []interface{}{data}),
 		})
 	}
+}
+
+type finalExpect struct {
+	IStep
+}
+
+func (f finalExpect) Body(...interface{}) IExpectBody {
+	panic("only usable with Expect() not with Expect(value)")
+}
+
+func (f finalExpect) Interface(interface{}) IStep {
+	panic("only usable with Expect() not with Expect(value)")
+}
+
+func (f finalExpect) Custom(Callback) IStep {
+	panic("only usable with Expect() not with Expect(value)")
+}
+
+func (f finalExpect) Headers() IExpectHeaders {
+	panic("only usable with Expect() not with Expect(value)")
+}
+
+func (f finalExpect) Header(string) IExpectSpecificHeader {
+	panic("only usable with Expect() not with Expect(value)")
+}
+
+func (f finalExpect) Status(...int) IExpectStatus {
+	panic("only usable with Expect() not with Expect(value)")
 }
 
 func makeCompareable(in, data interface{}) (interface{}, error) {

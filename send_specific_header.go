@@ -6,16 +6,12 @@ type ISendSpecificHeader interface {
 }
 
 type sendSpecificHeader struct {
-	send      ISend
-	hit       Hit
 	cleanPath CleanPath
 	header    string
 }
 
-func newSendSpecificHeader(send ISend, hit Hit, cleanPath CleanPath, header string) ISendSpecificHeader {
+func newSendSpecificHeader(cleanPath CleanPath, header string) ISendSpecificHeader {
 	return &sendSpecificHeader{
-		send:      send,
-		hit:       hit,
 		cleanPath: cleanPath,
 		header:    header,
 	}
@@ -25,8 +21,7 @@ func newSendSpecificHeader(send ISend, hit Hit, cleanPath CleanPath, header stri
 func (hdr *sendSpecificHeader) Set(value string) IStep {
 	return custom(Step{
 		When:      SendStep,
-		CleanPath: hdr.cleanPath.Push("Set"),
-		Instance:  hdr.hit,
+		CleanPath: hdr.cleanPath.Push("Set", []interface{}{value}),
 		Exec: func(hit Hit) {
 			hit.Request().Header.Set(hdr.header, value)
 		},
@@ -37,8 +32,7 @@ func (hdr *sendSpecificHeader) Set(value string) IStep {
 func (hdr *sendSpecificHeader) Delete() IStep {
 	return custom(Step{
 		When:      SendStep,
-		CleanPath: hdr.cleanPath.Push("Delete"),
-		Instance:  hdr.hit,
+		CleanPath: hdr.cleanPath.Push("Delete", nil),
 		Exec: func(hit Hit) {
 			hit.Request().Header.Del(hdr.header)
 		},

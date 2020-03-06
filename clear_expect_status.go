@@ -7,7 +7,7 @@ import (
 	"github.com/Eun/go-hit/internal/minitest"
 )
 
-type IExpectStatus interface {
+type IClearExpectStatus interface {
 	IStep
 	Equal(statusCode int) IStep
 	NotEqual(statusCode int) IStep
@@ -21,43 +21,40 @@ type IExpectStatus interface {
 	NotBetween(min, max int) IStep
 }
 
-type expectStatus struct {
-	expect    IExpect
+type clearExpectStatus struct {
+	expect    IClearExpect
 	cleanPath CleanPath
 }
 
-func newExpectStatus(expect IExpect, cleanPath CleanPath, params []int) IExpectStatus {
-	status := &expectStatus{
+func newClearExpectStatus(expect IClearExpect, cleanPath CleanPath, params []int) IClearExpectStatus {
+	status := &clearExpectStatus{
 		expect:    expect,
 		cleanPath: cleanPath,
 	}
 
 	if param, ok := internal.GetLastIntArgument(params); ok {
-		return finalExpectStatus{wrap(wrapStep{
-			IStep:     status.Equal(param),
-			CleanPath: cleanPath,
-		})}
+		return finalClearExpectStatus{status.Equal(param)}
 	}
 
 	return status
 }
 
-func (*expectStatus) Exec(Hit) error {
+func (*clearExpectStatus) Exec(Hit) error {
 	return errors.New("unsupported")
 }
 
-func (*expectStatus) When() StepTime {
-	return ExpectStep
+func (*clearExpectStatus) When() StepTime {
+	return CleanStep
 }
 
-func (status *expectStatus) CleanPath() CleanPath {
+func (status *clearExpectStatus) CleanPath() CleanPath {
 	return status.cleanPath
 }
 
 // Equal checks if the status is equal to the specified value
 // Examples:
 //           Expect().Status().Equal(200)
-func (status *expectStatus) Equal(statusCode int) IStep {
+func (status *clearExpectStatus) Equal(statusCode int) IStep {
 	return custom(Step{
 		When:      ExpectStep,
 		CleanPath: status.CleanPath().Push("Equal", []interface{}{statusCode}),
@@ -72,7 +69,7 @@ func (status *expectStatus) Equal(statusCode int) IStep {
 // NotEqual checks if the status is equal to the specified value
 // Examples:
 //           Expect().Status().NotEqual(200)
-func (status *expectStatus) NotEqual(statusCode int) IStep {
+func (status *clearExpectStatus) NotEqual(statusCode int) IStep {
 	return custom(Step{
 		When:      ExpectStep,
 		CleanPath: status.CleanPath().Push("NotEqual", []interface{}{statusCode}),
@@ -87,7 +84,7 @@ func (status *expectStatus) NotEqual(statusCode int) IStep {
 // OneOf checks if the status is one of the specified values
 // Examples:
 //           Expect().Status().OneOf(200, 201)
-func (status *expectStatus) OneOf(statusCodes ...int) IStep {
+func (status *clearExpectStatus) OneOf(statusCodes ...int) IStep {
 	args := make([]interface{}, len(statusCodes))
 	for i := range statusCodes {
 		args[i] = statusCodes[i]
@@ -104,7 +101,7 @@ func (status *expectStatus) OneOf(statusCodes ...int) IStep {
 // NotOneOf checks if the status is none of the specified values
 // Examples:
 //           Expect().Status().NotOneOf(200, 201)
-func (status *expectStatus) NotOneOf(statusCodes ...int) IStep {
+func (status *clearExpectStatus) NotOneOf(statusCodes ...int) IStep {
 	args := make([]interface{}, len(statusCodes))
 	for i := range statusCodes {
 		args[i] = statusCodes[i]
@@ -121,7 +118,7 @@ func (status *expectStatus) NotOneOf(statusCodes ...int) IStep {
 // GreaterThan checks if the status is greater than the specified value
 // Examples:
 //           Expect().Status().GreaterThan(400)
-func (status *expectStatus) GreaterThan(statusCode int) IStep {
+func (status *clearExpectStatus) GreaterThan(statusCode int) IStep {
 	return custom(Step{
 		When:      ExpectStep,
 		CleanPath: status.CleanPath().Push("GreaterThan", []interface{}{statusCode}),
@@ -136,7 +133,7 @@ func (status *expectStatus) GreaterThan(statusCode int) IStep {
 // LessThan checks if the status is less than the specified value
 // Examples:
 //           Expect().Status().LessThan(400)
-func (status *expectStatus) LessThan(statusCode int) IStep {
+func (status *clearExpectStatus) LessThan(statusCode int) IStep {
 	return custom(Step{
 		When:      ExpectStep,
 		CleanPath: status.CleanPath().Push("LessThan", []interface{}{statusCode}),
@@ -151,7 +148,7 @@ func (status *expectStatus) LessThan(statusCode int) IStep {
 // GreaterOrEqualThan checks if the status is greater or equal than the specified value
 // Examples:
 //           Expect().Status().GreaterOrEqualThan(200)
-func (status *expectStatus) GreaterOrEqualThan(statusCode int) IStep {
+func (status *clearExpectStatus) GreaterOrEqualThan(statusCode int) IStep {
 	return custom(Step{
 		When:      ExpectStep,
 		CleanPath: status.CleanPath().Push("GreaterOrEqualThan", []interface{}{statusCode}),
@@ -166,7 +163,7 @@ func (status *expectStatus) GreaterOrEqualThan(statusCode int) IStep {
 // LessOrEqualThan checks if the status is less or equal than the specified value
 // Examples:
 //           Expect().Status().LessOrEqualThan(200)
-func (status *expectStatus) LessOrEqualThan(statusCode int) IStep {
+func (status *clearExpectStatus) LessOrEqualThan(statusCode int) IStep {
 	return custom(Step{
 		When:      ExpectStep,
 		CleanPath: status.CleanPath().Push("LessOrEqualThan", []interface{}{statusCode}),
@@ -181,7 +178,7 @@ func (status *expectStatus) LessOrEqualThan(statusCode int) IStep {
 // Between checks if the status is between the specified value (inclusive)
 // Examples:
 //           Expect().Status().Between(200, 400)
-func (status *expectStatus) Between(min, max int) IStep {
+func (status *clearExpectStatus) Between(min, max int) IStep {
 	return custom(Step{
 		When:      ExpectStep,
 		CleanPath: status.CleanPath().Push("Between", []interface{}{min, max}),
@@ -196,7 +193,7 @@ func (status *expectStatus) Between(min, max int) IStep {
 // NotBetween checks if the status is not between the specified value (inclusive)
 // Examples:
 //           Expect().Status().NotBetween(200, 400)
-func (status *expectStatus) NotBetween(min, max int) IStep {
+func (status *clearExpectStatus) NotBetween(min, max int) IStep {
 	return custom(Step{
 		When:      ExpectStep,
 		CleanPath: status.CleanPath().Push("NotBetween", []interface{}{min, max}),
@@ -208,37 +205,37 @@ func (status *expectStatus) NotBetween(min, max int) IStep {
 	})
 }
 
-type finalExpectStatus struct {
+type finalClearExpectStatus struct {
 	IStep
 }
 
-func (f finalExpectStatus) Equal(statusCode int) IStep {
+func (f finalClearExpectStatus) Equal(statusCode int) IStep {
 	panic("only usable with Expect().Status() not with Expect().Status(value)")
 }
-func (f finalExpectStatus) NotEqual(statusCode int) IStep {
+func (f finalClearExpectStatus) NotEqual(statusCode int) IStep {
 	panic("only usable with Expect().Status() not with Expect().Status(value)")
 }
-func (f finalExpectStatus) OneOf(statusCodes ...int) IStep {
+func (f finalClearExpectStatus) OneOf(statusCodes ...int) IStep {
 	panic("only usable with Expect().Status() not with Expect().Status(value)")
 }
-func (f finalExpectStatus) NotOneOf(statusCodes ...int) IStep {
+func (f finalClearExpectStatus) NotOneOf(statusCodes ...int) IStep {
 	panic("only usable with Expect().Status() not with Expect().Status(value)")
 }
-func (f finalExpectStatus) GreaterThan(statusCode int) IStep {
+func (f finalClearExpectStatus) GreaterThan(statusCode int) IStep {
 	panic("only usable with Expect().Status() not with Expect().Status(value)")
 }
-func (f finalExpectStatus) LessThan(statusCode int) IStep {
+func (f finalClearExpectStatus) LessThan(statusCode int) IStep {
 	panic("only usable with Expect().Status() not with Expect().Status(value)")
 }
-func (f finalExpectStatus) GreaterOrEqualThan(statusCode int) IStep {
+func (f finalClearExpectStatus) GreaterOrEqualThan(statusCode int) IStep {
 	panic("only usable with Expect().Status() not with Expect().Status(value)")
 }
-func (f finalExpectStatus) LessOrEqualThan(statusCode int) IStep {
+func (f finalClearExpectStatus) LessOrEqualThan(statusCode int) IStep {
 	panic("only usable with Expect().Status() not with Expect().Status(value)")
 }
-func (f finalExpectStatus) Between(min, max int) IStep {
+func (f finalClearExpectStatus) Between(min, max int) IStep {
 	panic("only usable with Expect().Status() not with Expect().Status(value)")
 }
-func (f finalExpectStatus) NotBetween(min, max int) IStep {
+func (f finalClearExpectStatus) NotBetween(min, max int) IStep {
 	panic("only usable with Expect().Status() not with Expect().Status(value)")
 }

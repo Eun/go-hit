@@ -3,7 +3,6 @@ package hit
 import (
 	"errors"
 
-	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
 )
 
@@ -22,33 +21,32 @@ type ISend interface {
 }
 
 type send struct {
-	hit       Hit
 	body      ISendBody
-	call      Callback
-	et        *errortrace.ErrorTrace
-	param     []interface{}
 	cleanPath CleanPath
 }
 
-func newSend(hit Hit, cleanPath CleanPath, param []interface{}) ISend {
-	return &send{
-		hit:       hit,
+func newSend(cleanPath CleanPath, params []interface{}) ISend {
+	snd := &send{
 		cleanPath: cleanPath,
-		param:     param,
 	}
+
+	if param, ok := internal.GetLastArgument(params); ok {
+		// default action is Interface()
+		return finalSend{wrap(wrapStep{
+			IStep:     snd.Interface(param),
+			CleanPath: cleanPath,
+		})}
+	}
+	return snd
 }
 
-func (snd *send) When() StepTime {
+func (*send) When() StepTime {
 	return SendStep
 }
 
 // Exec contains the logic for Send(...)
-func (snd *send) Exec(hit Hit) error {
-	param, ok := internal.GetLastArgument(snd.param)
-	if !ok {
-		return errors.New("invalid argument")
-	}
-	return snd.Interface(param).Exec(hit)
+func (*send) Exec(hit Hit) error {
+	return errors.New("unsupported")
 }
 
 func (snd *send) CleanPath() CleanPath {
@@ -57,7 +55,7 @@ func (snd *send) CleanPath() CleanPath {
 
 func (snd *send) Body(data ...interface{}) ISendBody {
 	if snd.body == nil {
-		snd.body = newSendBody(snd, snd.hit, snd.cleanPath.Push("Body", data), data)
+		snd.body = newSendBody(snd.cleanPath.Push("Body", data), data)
 	}
 	return snd.body
 }
@@ -66,8 +64,7 @@ func (snd *send) Body(data ...interface{}) ISendBody {
 func (snd *send) Custom(f Callback) IStep {
 	return custom(Step{
 		When:      SendStep,
-		CleanPath: snd.cleanPath.Push("custom"),
-		Instance:  snd.hit,
+		CleanPath: snd.cleanPath.Push("Custon", []interface{}{f}),
 		Exec:      f,
 	})
 }
@@ -76,10 +73,10 @@ func (snd *send) Custom(f Callback) IStep {
 func (snd *send) JSON(data interface{}) IStep {
 	return custom(Step{
 		When:      SendStep,
-		CleanPath: snd.cleanPath.Push("JSON"),
-		Instance:  snd.hit,
+		CleanPath: snd.cleanPath.Push("JSON", []interface{}{data}),
 		Exec: func(hit Hit) {
-			hit.Send().Body().JSON(data)
+			panic("TODO")
+			// hit.Send().Body().JSON(data)
 		},
 	})
 }
@@ -89,7 +86,7 @@ func (snd *send) JSON(data interface{}) IStep {
 //           Send().Headers().Set("Content-Type", "application/json")
 //           Send().Headers().Delete("Content-Type")
 func (snd *send) Headers() ISendHeaders {
-	return newSendHeaders(snd, snd.hit, snd.cleanPath.Push("Headers"))
+	return newSendHeaders(snd.cleanPath.Push("Headers", nil))
 }
 
 // Header sets the specified header
@@ -97,7 +94,7 @@ func (snd *send) Headers() ISendHeaders {
 //           Send().Header("Content-Type").Set("application/json")
 //           Send().Header("Content-Type").Delete()
 func (snd *send) Header(name string) ISendSpecificHeader {
-	return newSendSpecificHeader(snd, snd.hit, snd.cleanPath.Push("Header", name), name)
+	return newSendSpecificHeader(snd.cleanPath.Push("Header", []interface{}{name}), name)
 }
 
 func (snd *send) Interface(data interface{}) IStep {
@@ -105,28 +102,54 @@ func (snd *send) Interface(data interface{}) IStep {
 	case func(e Hit):
 		return custom(Step{
 			When:      SendStep,
-			CleanPath: snd.cleanPath.Push("Interface"),
-			Instance:  snd.hit,
+			CleanPath: snd.cleanPath.Push("Interface", []interface{}{data}),
 			Exec:      x,
 		})
 	default:
 		if f := internal.GetGenericFunc(data); f.IsValid() {
 			return custom(Step{
 				When:      SendStep,
-				CleanPath: snd.cleanPath.Push("Interface"),
-				Instance:  snd.hit,
+				CleanPath: snd.cleanPath.Push("Interface", []interface{}{data}),
 				Exec: func(hit Hit) {
 					internal.CallGenericFunc(f)
 				},
 			})
 		}
-		return custom(Step{
-			When:      SendStep,
-			CleanPath: snd.cleanPath.Push("Body").Push("Interface"),
-			Instance:  snd.hit,
-			Exec: func(hit Hit) {
-				hit.Send().Body().Interface(x)
-			},
+		return wrap(wrapStep{
+			IStep:     snd.Body(data),
+			CleanPath: snd.cleanPath.Push("Interface", []interface{}{data}),
 		})
 	}
+}
+
+type finalSend struct {
+	IStep
+}
+
+func (d finalSend) Body(...interface{}) ISendBody {
+	panic("only usable with Send() not with Send(value)")
+}
+
+func (d finalSend) Custom(Callback) IStep {
+	panic("only usable with Send() not with Send(value)")
+}
+
+func (d finalSend) JSON(interface{}) IStep {
+	panic("only usable with Send() not with Send(value)")
+}
+
+func (d finalSend) Headers() ISendHeaders {
+	panic("only usable with Send() not with Send(value)")
+}
+
+func (d finalSend) Header(string) ISendSpecificHeader {
+	panic("only usable with Send() not with Send(value)")
+}
+
+func (d finalSend) Clear() IStep {
+	panic("only usable with Send() not with Send(value)")
+}
+
+func (d finalSend) Interface(interface{}) IStep {
+	panic("only usable with Send() not with Send(value)")
 }

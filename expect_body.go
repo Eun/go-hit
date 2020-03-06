@@ -17,31 +17,32 @@ type IExpectBody interface {
 
 type expectBody struct {
 	expect    IExpect
-	hit       Hit
 	cleanPath CleanPath
-	params    []interface{}
 }
 
-func newExpectBody(expect IExpect, hit Hit, path CleanPath, params []interface{}) IExpectBody {
-	return &expectBody{
+func newExpectBody(expect IExpect, cleanPath CleanPath, params []interface{}) IExpectBody {
+	body := &expectBody{
 		expect:    expect,
-		hit:       hit,
-		cleanPath: path,
-		params:    params,
+		cleanPath: cleanPath,
 	}
+
+	if param, ok := internal.GetLastArgument(params); ok {
+		// default action is Equal()
+		return finalExpectBody{wrap(wrapStep{
+			IStep:     body.Equal(param),
+			CleanPath: cleanPath,
+		})}
+	}
+
+	return body
+}
+
+func (*expectBody) Exec(Hit) error {
+	return errors.New("unsupported")
 }
 
 func (*expectBody) When() StepTime {
 	return ExpectStep
-}
-
-// Exec contains the logic for Expect().Body(...)
-func (exp *expectBody) Exec(hit Hit) error {
-	param, ok := internal.GetLastArgument(exp.params)
-	if !ok {
-		return errors.New("invalid argument")
-	}
-	return exp.Equal(param).Exec(hit)
 }
 
 func (body *expectBody) CleanPath() CleanPath {
@@ -53,7 +54,7 @@ func (body *expectBody) CleanPath() CleanPath {
 //           Expect().Body().JSON([]int{1, 2, 3})
 //           Expect().Body().JSON().Contains(1)
 func (body *expectBody) JSON(data ...interface{}) IExpectBodyJSON {
-	return newExpectBodyJSON(body, body.hit, body.cleanPath.Push("JSON", data), data)
+	return newExpectBodyJSON(body, body.cleanPath.Push("JSON", data), data)
 }
 
 // Compare functions
@@ -64,13 +65,12 @@ func (body *expectBody) JSON(data ...interface{}) IExpectBodyJSON {
 func (body *expectBody) Equal(data interface{}) IStep {
 	return custom(Step{
 		When:      ExpectStep,
-		CleanPath: body.cleanPath.Push("Equal"),
-		Instance:  body.hit,
+		CleanPath: body.cleanPath.Push("Equal", []interface{}{data}),
 		Exec: func(hit Hit) {
 			if hit.Response().body.equalOnlyNativeTypes(data, true) {
 				return
 			}
-			hit.Expect().Body().JSON().Equal("", data)
+			hit.RunSteps(Expect().Body().JSON().Equal("", data))
 		},
 	})
 }
@@ -81,13 +81,13 @@ func (body *expectBody) Equal(data interface{}) IStep {
 func (body *expectBody) NotEqual(data interface{}) IStep {
 	return custom(Step{
 		When:      ExpectStep,
-		CleanPath: body.cleanPath.Push("NotEqual"),
-		Instance:  body.hit,
+		CleanPath: body.cleanPath.Push("NotEqual", []interface{}{data}),
 		Exec: func(hit Hit) {
 			if hit.Response().body.equalOnlyNativeTypes(data, false) {
 				return
 			}
-			hit.Expect().Body().JSON().NotEqual("", data)
+			panic("TODO")
+			//hit.Expect().Body().JSON().NotEqual("", data)
 		},
 	})
 }
@@ -98,13 +98,13 @@ func (body *expectBody) NotEqual(data interface{}) IStep {
 func (body *expectBody) Contains(data interface{}) IStep {
 	return custom(Step{
 		When:      ExpectStep,
-		CleanPath: body.cleanPath.Push("Contains"),
-		Instance:  body.hit,
+		CleanPath: body.cleanPath.Push("Contains", []interface{}{data}),
 		Exec: func(hit Hit) {
 			if hit.Response().body.containsOnlyNativeTypes(data, true) {
 				return
 			}
-			hit.Expect().Body().JSON().Contains("", data)
+			panic("TODO")
+			//hit.Expect().Body().JSON().Contains("", data)
 		},
 	})
 }
@@ -115,13 +115,33 @@ func (body *expectBody) Contains(data interface{}) IStep {
 func (body *expectBody) NotContains(data interface{}) IStep {
 	return custom(Step{
 		When:      ExpectStep,
-		CleanPath: body.cleanPath.Push("NotContains"),
-		Instance:  body.hit,
+		CleanPath: body.cleanPath.Push("NotContains", []interface{}{data}),
 		Exec: func(hit Hit) {
 			if hit.Response().body.containsOnlyNativeTypes(data, false) {
 				return
 			}
-			hit.Expect().Body().JSON().NotContains("", data)
+			panic("TODO")
+			//hit.Expect().Body().JSON().NotContains("", data)
 		},
 	})
+}
+
+type finalExpectBody struct {
+	IStep
+}
+
+func (f finalExpectBody) JSON(data ...interface{}) IExpectBodyJSON {
+	panic("only usable with Expect().Body() not with Expect().Body(value)")
+}
+func (f finalExpectBody) Equal(data interface{}) IStep {
+	panic("only usable with Expect().Body() not with Expect().Body(value)")
+}
+func (f finalExpectBody) NotEqual(data interface{}) IStep {
+	panic("only usable with Expect().Body() not with Expect().Body(value)")
+}
+func (f finalExpectBody) Contains(data interface{}) IStep {
+	panic("only usable with Expect().Body() not with Expect().Body(value)")
+}
+func (f finalExpectBody) NotContains(data interface{}) IStep {
+	panic("only usable with Expect().Body() not with Expect().Body(value)")
 }

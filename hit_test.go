@@ -100,7 +100,7 @@ func Test_Debug(t *testing.T) {
 			Stdout(buf),
 			Send("Hello World"),
 			Custom(AfterSendStep, func(hit Hit) {
-				Debug("Request")
+				hit.RunSteps(Debug("Request"))
 			}),
 		)
 
@@ -455,14 +455,25 @@ func TestPath(t *testing.T) {
 	)
 }
 
-func TestA(t *testing.T) {
+func TestRunSteps(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
-	Test(t,
-		Post(s.URL),
-		Send().Body().JSON(map[string]interface{}{"Name": "joe", "id": 10}),
-		Expect().Body().JSON().Equal("id", 11),
-		Clear().Expect().Body().JSON().Equal("id"),
-	)
+	t.Run("Stop Execution", func(t *testing.T) {
+		shouldNotRun := false
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send("Hello World"),
+				Custom(ExpectStep, func(hit Hit) {
+					hit.RunSteps(
+						Expect("Hello Universe"),
+					)
+					shouldNotRun = true
+				}),
+			),
+			PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+		)
+		require.False(t, shouldNotRun)
+	})
 }

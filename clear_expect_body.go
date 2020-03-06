@@ -19,14 +19,12 @@ type IClearExpectBody interface {
 
 type clearExpectBody struct {
 	clearExpect IClearExpect
-	hit         Hit
 	cleanPath   CleanPath
 }
 
-func newClearExpectBody(exp IClearExpect, hit Hit, cleanPath CleanPath) IClearExpectBody {
+func newClearExpectBody(exp IClearExpect, cleanPath CleanPath) IClearExpectBody {
 	return &clearExpectBody{
 		clearExpect: exp,
-		hit:         hit,
 		cleanPath:   cleanPath,
 	}
 }
@@ -52,25 +50,25 @@ func (body *clearExpectBody) CleanPath() CleanPath {
 //           Clear().Expect().Body().JSON()
 //           Clear().Expect().Body().JSON().Equal()
 func (body *clearExpectBody) JSON() IClearExpectBodyJSON {
-	return newClearExpectBodyJSON(body, body.hit, body.cleanPath.Push("JSON"))
+	return newClearExpectBodyJSON(body, body.cleanPath.Push("JSON", nil))
 }
 
 // Equal removes all Expect().Body().Equal() steps
 func (body *clearExpectBody) Equal() IStep {
-	return removeStep(body.hit, body.cleanPath.Push("Equal"))
+	return removeStep(body.cleanPath.Push("Equal", nil))
 }
 
 // NotEqual removes all Expect().Body().NotEqual() steps
 func (body *clearExpectBody) NotEqual() IStep {
-	return removeStep(body.hit, body.cleanPath.Push("NotEqual"))
+	return removeStep(body.cleanPath.Push("NotEqual", nil))
 }
 
 // Contains removes all Expect().Body().Contains() steps
 func (body *clearExpectBody) Contains() IStep {
-	return removeStep(body.hit, body.cleanPath.Push("Contains"))
+	return removeStep(body.cleanPath.Push("Contains", nil))
 }
 
 // NotContains removes all Expect().Body().NotContains() steps
 func (body *clearExpectBody) NotContains() IStep {
-	return removeStep(body.hit, body.cleanPath.Push("NotContains"))
+	return removeStep(body.cleanPath.Push("NotContains", nil))
 }

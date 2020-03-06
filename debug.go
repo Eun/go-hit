@@ -12,13 +12,11 @@ import (
 )
 
 type debug struct {
-	hit        Hit
 	expression []string
 }
 
-func newDebug(hit Hit, expression []string) IStep {
+func newDebug(expression []string) IStep {
 	return &debug{
-		hit:        hit,
 		expression: expression,
 	}
 }

@@ -34,11 +34,9 @@ type Hit interface {
 	BaseURL() string
 	SetBaseURL(string, ...interface{})
 
-	Send(...interface{}) ISend
-	Expect(...interface{}) IExpect
-	Debug(...string) IStep
 	Steps() []IStep
 	AddSteps(...IStep)
+	RunSteps(...IStep)
 	RemoveSteps(...IStep)
 
 	Description() string
@@ -105,11 +103,7 @@ func (hit *defaultInstance) collectSteps(state StepTime, offset int) []IStep {
 	var steps []IStep
 	for i := offset; i < len(hit.steps); i++ {
 		w := hit.steps[i].When()
-		if w&^CleanStep == state { // remove CleanStep flag
-			if w&CleanStep == CleanStep { // if CleanStep is set
-				steps = nil
-				continue
-			}
+		if w == state {
 			steps = append(steps, hit.steps[i])
 		}
 	}
@@ -146,30 +140,6 @@ func (hit *defaultInstance) runSteps(state StepTime) error {
 	return nil
 }
 
-// Send sends the specified data as the body payload
-// Examples:
-//           Send("Hello World")
-//           Send().Body("Hello World")
-func (hit *defaultInstance) Send(data ...interface{}) ISend {
-	return newSend(hit, NewCleanPath("Send", data), data)
-}
-
-// Expect expects the body to be equal the specified value, omit the parameter to get more options
-// Examples:
-//           Expect("Hello World")
-//           Expect().Body().Contains("Hello World")
-func (hit *defaultInstance) Expect(data ...interface{}) IExpect {
-	return newExpect(hit, NewCleanPath("Expect", data), data)
-}
-
-// Debug prints the current Request and Response to hit.Stdout(), you can filter the output based on expressions
-// Examples:
-//           Debug()
-//           Debug("Request")
-func (hit *defaultInstance) Debug(expression ...string) IStep {
-	return Debug(expression...)
-}
-
 func (hit *defaultInstance) Steps() []IStep {
 	return hit.steps
 }
@@ -178,6 +148,15 @@ func (hit *defaultInstance) Steps() []IStep {
 func (hit *defaultInstance) AddSteps(steps ...IStep) {
 	for i := 0; i < len(steps); i++ {
 		hit.steps = append(hit.steps, steps[i])
+	}
+}
+
+// RunSteps add the specified steps to the queue
+func (hit *defaultInstance) RunSteps(steps ...IStep) {
+	for i := 0; i < len(steps); i++ {
+		if err := steps[i].Exec(hit); err != nil {
+			panic(err)
+		}
 	}
 }
 

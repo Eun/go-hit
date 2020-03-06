@@ -33,14 +33,12 @@ type IClearExpectBodyJSON interface {
 
 type clearExpectBodyJSON struct {
 	clearExpectBody IClearExpectBody
-	hit             Hit
 	cleanPath       CleanPath
 }
 
-func newClearExpectBodyJSON(body IClearExpectBody, hit Hit, cleanPath CleanPath) IClearExpectBodyJSON {
+func newClearExpectBodyJSON(body IClearExpectBody, cleanPath CleanPath) IClearExpectBodyJSON {
 	return &clearExpectBodyJSON{
 		clearExpectBody: body,
-		hit:             hit,
 		cleanPath:       cleanPath,
 	}
 }
@@ -67,7 +65,11 @@ func (jsn *clearExpectBodyJSON) CleanPath() CleanPath {
 //           Expect().Body().JSON().Equal()            // will remove all Equal() steps
 //           Expect().Body().JSON().Equal("data")      // will only remove Equal("data", ...) steps
 func (jsn *clearExpectBodyJSON) Equal(expression ...string) IStep {
-	return removeStep(jsn.hit, jsn.cleanPath.Push("Equal", expression))
+	args := make([]interface{}, len(expression))
+	for i := range expression {
+		args[i] = expression[i]
+	}
+	return removeStep(jsn.cleanPath.Push("Equal", args))
 }
 
 // NotEqual removes all Expect().Body().JSON().NotEqual() steps, if you specify the expression it will only remove
@@ -76,7 +78,11 @@ func (jsn *clearExpectBodyJSON) Equal(expression ...string) IStep {
 //           Expect().Body().JSON().NotEqual()            // will remove all NotEqual() steps
 //           Expect().Body().JSON().NotEqual("data")      // will only remove NotEqual("data", ...) steps
 func (jsn *clearExpectBodyJSON) NotEqual(expression ...string) IStep {
-	return removeStep(jsn.hit, jsn.cleanPath.Push("NotEqual", expression))
+	args := make([]interface{}, len(expression))
+	for i := range expression {
+		args[i] = expression[i]
+	}
+	return removeStep(jsn.cleanPath.Push("NotEqual", args))
 }
 
 // Contains removes all Expect().Body().JSON().Contains() steps, if you specify the expression it will only remove
@@ -85,7 +91,11 @@ func (jsn *clearExpectBodyJSON) NotEqual(expression ...string) IStep {
 //           Expect().Body().JSON().Contains()            // will remove all Contains() steps
 //           Expect().Body().JSON().Contains("data")      // will only remove Contains("data", ...) steps
 func (jsn *clearExpectBodyJSON) Contains(expression ...string) IStep {
-	return removeStep(jsn.hit, jsn.cleanPath.Push("Contains", expression))
+	args := make([]interface{}, len(expression))
+	for i := range expression {
+		args[i] = expression[i]
+	}
+	return removeStep(jsn.cleanPath.Push("Contains", args))
 }
 
 // NotContains removes all Expect().Body().JSON().NotContains() steps, if you specify the expression it will only remove
@@ -94,5 +104,9 @@ func (jsn *clearExpectBodyJSON) Contains(expression ...string) IStep {
 //           Expect().Body().JSON().NotContains()            // will remove all NotContains() steps
 //           Expect().Body().JSON().NotContains("data")      // will only remove NotContains("data", ...) steps
 func (jsn *clearExpectBodyJSON) NotContains(expression ...string) IStep {
-	return removeStep(jsn.hit, jsn.cleanPath.Push("NotContains", expression))
+	args := make([]interface{}, len(expression))
+	for i := range expression {
+		args[i] = expression[i]
+	}
+	return removeStep(jsn.cleanPath.Push("NotContains", args))
 }

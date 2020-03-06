@@ -35,6 +35,7 @@ func PrintJSONServer(jsn interface{}) *httptest.Server {
 }
 
 var errorRegex = regexp.MustCompile(`(?s)Error:\s*(.*)Error Trace:\s*`)
+var whiteSpaceRegex = regexp.MustCompile(`\s+`)
 
 func ExpectError(t *testing.T, err error, equalLines ...*string) {
 	require.NotNil(t, err)
@@ -50,7 +51,9 @@ func ExpectError(t *testing.T, err error, equalLines ...*string) {
 
 	for i := 0; i < len(lines); i++ {
 		if equalLines[i] != nil {
-			require.Equal(t, *equalLines[i], strings.TrimSpace(lines[i]))
+			require.Equal(t,
+				strings.TrimSpace(whiteSpaceRegex.ReplaceAllString(*equalLines[i], " ")),
+				strings.TrimSpace(whiteSpaceRegex.ReplaceAllString(lines[i], " ")))
 		}
 	}
 }

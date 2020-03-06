@@ -7,15 +7,11 @@ type ISendHeaders interface {
 }
 
 type sendHeaders struct {
-	send      ISend
-	hit       Hit
 	cleanPath CleanPath
 }
 
-func newSendHeaders(send ISend, hit Hit, path CleanPath) ISendHeaders {
+func newSendHeaders(path CleanPath) ISendHeaders {
 	return &sendHeaders{
-		send:      send,
-		hit:       hit,
 		cleanPath: path,
 	}
 }
@@ -24,8 +20,7 @@ func newSendHeaders(send ISend, hit Hit, path CleanPath) ISendHeaders {
 func (hdr *sendHeaders) Set(name, value string) IStep {
 	return custom(Step{
 		When:      SendStep,
-		CleanPath: hdr.cleanPath.Push("Set"),
-		Instance:  hdr.hit,
+		CleanPath: hdr.cleanPath.Push("Set", []interface{}{name, value}),
 		Exec: func(hit Hit) {
 			hit.Request().Header.Set(name, value)
 		},
@@ -36,8 +31,7 @@ func (hdr *sendHeaders) Set(name, value string) IStep {
 func (hdr *sendHeaders) Delete(name string) IStep {
 	return custom(Step{
 		When:      SendStep,
-		CleanPath: hdr.cleanPath.Push("Delete"),
-		Instance:  hdr.hit,
+		CleanPath: hdr.cleanPath.Push("Delete", []interface{}{name}),
 		Exec: func(hit Hit) {
 			hit.Request().Header.Del(name)
 		},
@@ -48,8 +42,7 @@ func (hdr *sendHeaders) Delete(name string) IStep {
 func (hdr *sendHeaders) Clear() IStep {
 	return custom(Step{
 		When:      SendStep,
-		CleanPath: hdr.cleanPath.Push("Clear"),
-		Instance:  hdr.hit,
+		CleanPath: hdr.cleanPath.Push("Clear", nil),
 		Exec: func(hit Hit) {
 			var names []string
 			for name := range hit.Request().Header {

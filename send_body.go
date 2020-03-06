@@ -13,32 +13,31 @@ type ISendBody interface {
 }
 
 type sendBody struct {
-	send      ISend
-	hit       Hit
 	cleanPath CleanPath
-	params    []interface{}
 }
 
-func newSendBody(send ISend, hit Hit, cleanPath CleanPath, params []interface{}) ISendBody {
-	return &sendBody{
-		send:      send,
-		hit:       hit,
+func newSendBody(cleanPath CleanPath, params []interface{}) ISendBody {
+	snd := &sendBody{
 		cleanPath: cleanPath,
-		params:    params,
 	}
+
+	if param, ok := internal.GetLastArgument(params); ok {
+		return finalSendBody{wrap(wrapStep{
+			IStep:     snd.Interface(param),
+			CleanPath: cleanPath,
+		})}
+	}
+
+	return snd
 }
 
-func (body *sendBody) When() StepTime {
-	return body.send.When()
+func (*sendBody) When() StepTime {
+	return SendStep
 }
 
 // Exec contains the logic for Send().Body(...)
-func (body *sendBody) Exec(hit Hit) error {
-	param, ok := internal.GetLastArgument(body.params)
-	if !ok {
-		return errors.New("invalid argument")
-	}
-	return body.Interface(param).Exec(hit)
+func (*sendBody) Exec(Hit) error {
+	return errors.New("unsupported")
 }
 
 func (body *sendBody) CleanPath() CleanPath {
@@ -48,8 +47,7 @@ func (body *sendBody) CleanPath() CleanPath {
 func (body *sendBody) JSON(data interface{}) IStep {
 	return custom(Step{
 		When:      SendStep,
-		CleanPath: body.cleanPath.Push("JSON"),
-		Instance:  body.hit,
+		CleanPath: body.cleanPath.Push("JSON", []interface{}{data}),
 		Exec: func(hit Hit) {
 			hit.Request().Body().JSON().Set(data)
 		},
@@ -59,10 +57,21 @@ func (body *sendBody) JSON(data interface{}) IStep {
 func (body *sendBody) Interface(data interface{}) IStep {
 	return custom(Step{
 		When:      SendStep,
-		CleanPath: body.cleanPath.Push("Interface"),
-		Instance:  body.hit,
+		CleanPath: body.cleanPath.Push("Interface", []interface{}{data}),
 		Exec: func(hit Hit) {
 			hit.Request().Body().Set(data)
 		},
 	})
+}
+
+type finalSendBody struct {
+	IStep
+}
+
+func (d finalSendBody) JSON(interface{}) IStep {
+	panic("only usable with Send().Body() not with Send().Body(value)")
+}
+
+func (d finalSendBody) Interface(interface{}) IStep {
+	panic("only usable with Send().Body() not with Send().Body(value)")
 }

@@ -1,6 +1,8 @@
 package hit
 
 import (
+	"errors"
+
 	"github.com/Eun/go-hit/internal"
 	"github.com/Eun/go-hit/internal/minitest"
 )
@@ -15,29 +17,27 @@ type IExpectBodyJSON interface {
 
 type expectBodyJSON struct {
 	expectBody IExpectBody
-	hit        Hit
 	cleanPath  CleanPath
 }
 
-func newExpectBodyJSON(expectBody IExpectBody, hit Hit, path CleanPath, params []interface{}) IExpectBodyJSON {
+func newExpectBodyJSON(expectBody IExpectBody, path CleanPath, params []interface{}) IExpectBodyJSON {
 	jsn := &expectBodyJSON{
 		expectBody: expectBody,
-		hit:        hit,
 		cleanPath:  path,
 	}
-	param, ok := internal.GetLastArgument(params)
-	if ok {
-		return jsn.Equal("", param)
+
+	if param, ok := internal.GetLastArgument(params); ok {
+		return finalExpectBodyJSON{jsn.Equal("", param)}
 	}
 	return jsn
 }
 
-func (*expectBodyJSON) When() StepTime {
-	return ExpectStep
+func (*expectBodyJSON) Exec(Hit) error {
+	return errors.New("unsupported")
 }
 
-// Exec contains the logic for Expect().Body().JSON(...)
-func (jsn *expectBodyJSON) Exec(hit Hit) error {
+func (*expectBodyJSON) When() StepTime {
+	return ExpectStep
 }
 
 func (jsn *expectBodyJSON) CleanPath() CleanPath {
@@ -57,8 +57,7 @@ func (jsn *expectBodyJSON) CleanPath() CleanPath {
 func (jsn *expectBodyJSON) Equal(expression string, data interface{}) IStep {
 	return custom(Step{
 		When:      ExpectStep,
-		CleanPath: jsn.cleanPath.Push("Equal", expression),
-		Instance:  jsn.hit,
+		CleanPath: jsn.cleanPath.Push("Equal", []interface{}{expression, data}),
 		Exec: func(hit Hit) {
 			v := hit.Response().body.JSON().Get(expression)
 			if v == nil && data == nil {
@@ -85,8 +84,7 @@ func (jsn *expectBodyJSON) Equal(expression string, data interface{}) IStep {
 func (jsn *expectBodyJSON) NotEqual(expression string, data interface{}) IStep {
 	return custom(Step{
 		When:      ExpectStep,
-		CleanPath: jsn.cleanPath.Push("NotEqual", expression),
-		Instance:  jsn.hit,
+		CleanPath: jsn.cleanPath.Push("NotEqual", []interface{}{expression, data}),
 		Exec: func(hit Hit) {
 			v := hit.Response().body.JSON().Get(expression)
 			if v == nil && data == nil {
@@ -112,8 +110,7 @@ func (jsn *expectBodyJSON) NotEqual(expression string, data interface{}) IStep {
 func (jsn *expectBodyJSON) Contains(expression string, data interface{}) IStep {
 	return custom(Step{
 		When:      ExpectStep,
-		CleanPath: jsn.cleanPath.Push("Contains", expression),
-		Instance:  jsn.hit,
+		CleanPath: jsn.cleanPath.Push("Contains", []interface{}{expression, data}),
 		Exec: func(hit Hit) {
 			v := hit.Response().body.JSON().Get(expression)
 			if v == nil && data == nil {
@@ -135,8 +132,7 @@ func (jsn *expectBodyJSON) Contains(expression string, data interface{}) IStep {
 func (jsn *expectBodyJSON) NotContains(expression string, data interface{}) IStep {
 	return custom(Step{
 		When:      ExpectStep,
-		CleanPath: jsn.cleanPath.Push("NotContains", expression),
-		Instance:  jsn.hit,
+		CleanPath: jsn.cleanPath.Push("NotContains", []interface{}{expression, data}),
 		Exec: func(hit Hit) {
 			v := hit.Response().body.JSON().Get(expression)
 			if v == nil && data == nil {
@@ -148,4 +144,24 @@ func (jsn *expectBodyJSON) NotContains(expression string, data interface{}) ISte
 			}
 		},
 	})
+}
+
+type finalExpectBodyJSON struct {
+	IStep
+}
+
+func (finalExpectBodyJSON) Equal(expression string, data interface{}) IStep {
+	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+}
+
+func (finalExpectBodyJSON) NotEqual(expression string, data interface{}) IStep {
+	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+}
+
+func (finalExpectBodyJSON) Contains(expression string, data interface{}) IStep {
+	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+}
+
+func (finalExpectBodyJSON) NotContains(expression string, data interface{}) IStep {
+	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
 }

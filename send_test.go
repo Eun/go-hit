@@ -114,7 +114,7 @@ func TestSend(t *testing.T) {
 				Post(s.URL),
 				Send(func(e Hit) {
 					calledFunc = true
-					e.Send(`Hello World`)
+					e.RunSteps(Send(`Hello World`))
 				}),
 				Expect().Body().Equal(`Hello World`),
 			)

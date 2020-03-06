@@ -16,14 +16,12 @@ type IExpectHeaders interface {
 
 type expectHeaders struct {
 	expect    IExpect
-	hit       Hit
 	cleanPath CleanPath
 }
 
-func newExpectHeaders(expect IExpect, hit Hit, cleanPath CleanPath) IExpectHeaders {
+func newExpectHeaders(expect IExpect, cleanPath CleanPath) IExpectHeaders {
 	return &expectHeaders{
 		expect:    expect,
-		hit:       hit,
 		cleanPath: cleanPath,
 	}
 }
@@ -34,8 +32,7 @@ func newExpectHeaders(expect IExpect, hit Hit, cleanPath CleanPath) IExpectHeade
 func (hdr *expectHeaders) Contains(v string) IStep {
 	return custom(Step{
 		When:      ExpectStep,
-		CleanPath: hdr.cleanPath.Push("Contains"),
-		Instance:  hdr.hit,
+		CleanPath: hdr.cleanPath.Push("Contains", []interface{}{v}),
 		Exec: func(hit Hit) {
 			minitest.Contains(hit.Response().Header, v)
 		},
@@ -48,8 +45,7 @@ func (hdr *expectHeaders) Contains(v string) IStep {
 func (hdr *expectHeaders) NotContains(v string) IStep {
 	return custom(Step{
 		When:      ExpectStep,
-		CleanPath: append(hdr.cleanPath, "NotContains"),
-		Instance:  hdr.hit,
+		CleanPath: hdr.cleanPath.Push("NotContains", []interface{}{v}),
 		Exec: func(hit Hit) {
 			minitest.NotContains(hit.Response().Header, v)
 		},
@@ -62,8 +58,7 @@ func (hdr *expectHeaders) NotContains(v string) IStep {
 func (hdr *expectHeaders) Empty() IStep {
 	return custom(Step{
 		When:      ExpectStep,
-		CleanPath: append(hdr.cleanPath, "Empty"),
-		Instance:  hdr.hit,
+		CleanPath: hdr.cleanPath.Push("Empty", nil),
 		Exec: func(hit Hit) {
 			minitest.Empty(hit.Response().Header)
 		},
@@ -76,8 +71,7 @@ func (hdr *expectHeaders) Empty() IStep {
 func (hdr *expectHeaders) Len(size int) IStep {
 	return custom(Step{
 		When:      ExpectStep,
-		CleanPath: append(hdr.cleanPath, "Len"),
-		Instance:  hdr.hit,
+		CleanPath: hdr.cleanPath.Push("Len", []interface{}{size}),
 		Exec: func(hit Hit) {
 			minitest.Len(hit.Response().Header, size)
 		},
@@ -90,8 +84,7 @@ func (hdr *expectHeaders) Len(size int) IStep {
 func (hdr *expectHeaders) Equal(v interface{}) IStep {
 	return custom(Step{
 		When:      ExpectStep,
-		CleanPath: append(hdr.cleanPath, "Equal"),
-		Instance:  hdr.hit,
+		CleanPath: hdr.cleanPath.Push("Equal", []interface{}{v}),
 		Exec: func(hit Hit) {
 			compareData, err := makeCompareable(hit.Response().Header, v)
 			minitest.NoError(err)
@@ -106,8 +99,7 @@ func (hdr *expectHeaders) Equal(v interface{}) IStep {
 func (hdr *expectHeaders) NotEqual(v interface{}) IStep {
 	return custom(Step{
 		When:      ExpectStep,
-		CleanPath: append(hdr.cleanPath, "NotEqual"),
-		Instance:  hdr.hit,
+		CleanPath: hdr.cleanPath.Push("NotEqual", []interface{}{v}),
 		Exec: func(hit Hit) {
 			compareData, err := makeCompareable(hit.Response().Header, v)
 			minitest.NoError(err)
@@ -121,5 +113,5 @@ func (hdr *expectHeaders) NotEqual(v interface{}) IStep {
 //           Expect().Headers().Get("Content-Type").Equal("application/json")
 //           Expect().Headers().Get("Content-Type").Contains("json")
 func (hdr *expectHeaders) Get(header string) IExpectSpecificHeader {
-	return newExpectSpecificHeader(hdr.expect, hdr.hit, hdr.cleanPath.Push("Get"), header)
+	return newExpectSpecificHeader(hdr.expect, hdr.cleanPath.Push("Get", []interface{}{header}), header)
 }

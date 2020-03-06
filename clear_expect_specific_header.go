@@ -28,14 +28,12 @@ type IClearExpectSpecificHeader interface {
 }
 type clearExpectSpecificHeader struct {
 	expect    IClearExpect
-	hit       Hit
 	cleanPath CleanPath
 }
 
-func newClearExpectSpecificHeader(expect IClearExpect, hit Hit, cleanPath CleanPath) IClearExpectSpecificHeader {
+func newClearExpectSpecificHeader(expect IClearExpect, cleanPath CleanPath) IClearExpectSpecificHeader {
 	return &clearExpectSpecificHeader{
 		expect:    expect,
-		hit:       hit,
 		cleanPath: cleanPath,
 	}
 }
@@ -59,40 +57,40 @@ func (hdr *clearExpectSpecificHeader) CleanPath() CleanPath {
 
 // Contains removes all Expect().Header(..).Contains() steps
 func (hdr *clearExpectSpecificHeader) Contains() IStep {
-	return removeStep(hdr.hit, hdr.cleanPath.Push("Contains"))
+	return removeStep(hdr.cleanPath.Push("Contains", nil))
 }
 
 // NotContains removes all Expect().Header(..).NotContains() steps
 func (hdr *clearExpectSpecificHeader) NotContains() IStep {
-	return removeStep(hdr.hit, hdr.cleanPath.Push("NotContains"))
+	return removeStep(hdr.cleanPath.Push("NotContains", nil))
 }
 
 // OneOf removes all Expect().Header(..).OneOf() steps
 func (hdr *clearExpectSpecificHeader) OneOf() IStep {
-	return removeStep(hdr.hit, hdr.cleanPath.Push("OneOf"))
+	return removeStep(hdr.cleanPath.Push("OneOf", nil))
 }
 
 // NotOneOf removes all Expect().Header(..).NotOneOf() steps
 func (hdr *clearExpectSpecificHeader) NotOneOf() IStep {
-	return removeStep(hdr.hit, hdr.cleanPath.Push("NotOneOf"))
+	return removeStep(hdr.cleanPath.Push("NotOneOf", nil))
 }
 
 // Empty removes all Expect().Header(..).Empty() steps
 func (hdr *clearExpectSpecificHeader) Empty() IStep {
-	return removeStep(hdr.hit, hdr.cleanPath.Push("Empty"))
+	return removeStep(hdr.cleanPath.Push("Empty", nil))
 }
 
 // Len removes all Expect().Header(..).Len() steps
 func (hdr *clearExpectSpecificHeader) Len() IStep {
-	return removeStep(hdr.hit, hdr.cleanPath.Push("Len"))
+	return removeStep(hdr.cleanPath.Push("Len", nil))
 }
 
 // Equal removes all Expect().Header(..).Equal() steps
 func (hdr *clearExpectSpecificHeader) Equal() IStep {
-	return removeStep(hdr.hit, hdr.cleanPath.Push("Equal"))
+	return removeStep(hdr.cleanPath.Push("Equal", nil))
 }
 
 // NotEqual removes all Expect().Header(..).NotEqual() steps
 func (hdr *clearExpectSpecificHeader) NotEqual() IStep {
-	return removeStep(hdr.hit, hdr.cleanPath.Push("NotEqual"))
+	return removeStep(hdr.cleanPath.Push("NotEqual", nil))
 }

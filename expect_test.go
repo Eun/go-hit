@@ -32,19 +32,6 @@ func TestExpect_Double(t *testing.T) {
 	)
 }
 
-// func TestExpect_Clear(t *testing.T) {
-// 	s := EchoServer()
-// 	defer s.Close()
-//
-// 	Test(t,
-// 		Post(s.URL),
-// 		Send().Body("Hello World"),
-// 		Expect().Body().Equal(`Hello Universe`),
-// 		Expect().Clear(),
-// 		Expect().Body().Equal(`Hello World`),
-// 	)
-// }
-
 func TestExpect(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
@@ -70,7 +57,7 @@ func TestExpect(t *testing.T) {
 					Post(s.URL),
 					Send().Body("Hello World"),
 					Expect(func(hit Hit) {
-						hit.Expect("Hello Universe")
+						hit.RunSteps(Expect("Hello Universe"))
 					})),
 				PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
 			)
@@ -108,12 +95,12 @@ func TestExpect_DeepFunc(t *testing.T) {
 			Post(s.URL),
 			Send().Body("Hello World"),
 			Expect(func(h1 Hit) {
-				h1.Expect(func(h2 Hit) {
-					h2.Expect(func(h3 Hit) {
+				h1.RunSteps(Expect(func(h2 Hit) {
+					h2.RunSteps(Expect(func(h3 Hit) {
 						calledFunc = true
-						h3.Expect().Body().Equal("Hello Universe")
-					})
-				})
+						h3.RunSteps(Expect().Body().Equal("Hello Universe"))
+					}))
+				}))
 			}),
 		),
 		PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,

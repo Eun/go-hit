@@ -26,7 +26,7 @@ var contexts sync.Map
 //           Send("Hello World")
 //           Send().Body("Hello World")
 func Send(data ...interface{}) ISend {
-	return newSend(getContext(), NewCleanPath("Send", data), data)
+	return newSend(NewCleanPath("Send", data), data)
 }
 
 // Expect expects the body to be equal the specified value, omit the parameter to get more options
@@ -34,7 +34,7 @@ func Send(data ...interface{}) ISend {
 //           Expect("Hello World")
 //           Expect().Body().Contains("Hello World")
 func Expect(data ...interface{}) IExpect {
-	return newExpect(getContext(), NewCleanPath("Expect", data), data)
+	return newExpect(NewCleanPath("Expect", data), data)
 }
 
 // Debug prints the current Request and Response to hit.Stdout(), you can filter the output based on expressions
@@ -42,7 +42,7 @@ func Expect(data ...interface{}) IExpect {
 //           Debug()
 //           Debug("Request")
 func Debug(expression ...string) IStep {
-	return newDebug(getContext(), expression)
+	return newDebug(expression)
 }
 
 // HTTPClient sets the client for the request
@@ -50,7 +50,6 @@ func HTTPClient(client *http.Client) IStep {
 	return custom(Step{
 		When:      BeforeSendStep,
 		CleanPath: nil, // not clearable
-		Instance:  getContext(),
 		Exec: func(hit Hit) {
 			hit.SetHTTPClient(client)
 		},
@@ -62,7 +61,6 @@ func Stdout(w io.Writer) IStep {
 	return custom(Step{
 		When:      BeforeSendStep,
 		CleanPath: nil, // not clearable
-		Instance:  getContext(),
 		Exec: func(hit Hit) {
 			hit.SetStdout(w)
 		},
@@ -77,7 +75,6 @@ func BaseURL(url string, a ...interface{}) IStep {
 	return custom(Step{
 		When:      BeforeSendStep,
 		CleanPath: nil, // not clearable
-		Instance:  getContext(),
 		Exec: func(hit Hit) {
 			hit.SetBaseURL(url, a...)
 		},
@@ -89,7 +86,6 @@ func Request(request *http.Request) IStep {
 	return custom(Step{
 		When:      BeforeSendStep,
 		CleanPath: nil, // not clearable
-		Instance:  getContext(),
 		Exec: func(hit Hit) {
 			hit.SetRequest(request)
 		},
@@ -108,7 +104,6 @@ func makeMethodStep(method, url string, a ...interface{}) IStep {
 	return custom(Step{
 		When:      BeforeSendStep,
 		CleanPath: nil, // not clearable
-		Instance:  getContext(),
 		Exec: func(hit Hit) {
 			request, err := http.NewRequest(method, internal.MakeURL(hit.BaseURL(), url, a...), nil)
 			minitest.NoError(err, "unable to create request")
@@ -207,6 +202,10 @@ func Do(steps ...IStep) error {
 	contexts.Store(id, hit)
 	defer contexts.Delete(id)
 
+	if err := hit.runSteps(CleanStep); err != nil {
+		return err
+	}
+
 	if err := hit.runSteps(BeforeSendStep); err != nil {
 		return err
 	}
@@ -241,12 +240,17 @@ func Do(steps ...IStep) error {
 	return nil
 }
 
+func MustDo(steps ...IStep) {
+	if err := Do(steps...); err != nil {
+		panic(err)
+	}
+}
+
 // CombineSteps combines multiple steps to one
 func CombineSteps(steps ...IStep) IStep {
 	return custom(Step{
 		When:      BeforeSendStep,
 		CleanPath: nil, // not clearable
-		Instance:  getContext(),
 		Exec: func(hit Hit) {
 			hit.AddSteps(steps...)
 		},
@@ -289,7 +293,7 @@ func getContext() Hit {
 func Description(description string) IStep {
 	return custom(Step{
 		When:      BeforeExpectStep,
-		CleanPath: []string{"Description"},
+		CleanPath: nil, // not clearable
 		Exec: func(hit Hit) {
 			hit.SetDescription(description)
 		},
