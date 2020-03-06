@@ -20,14 +20,17 @@ type expectBodyJSON struct {
 	cleanPath  CleanPath
 }
 
-func newExpectBodyJSON(expectBody IExpectBody, path CleanPath, params []interface{}) IExpectBodyJSON {
+func newExpectBodyJSON(expectBody IExpectBody, cleanPath CleanPath, params []interface{}) IExpectBodyJSON {
 	jsn := &expectBodyJSON{
 		expectBody: expectBody,
-		cleanPath:  path,
+		cleanPath:  cleanPath,
 	}
 
 	if param, ok := internal.GetLastArgument(params); ok {
-		return finalExpectBodyJSON{jsn.Equal("", param)}
+		return finalExpectBodyJSON{wrap(wrapStep{
+			IStep:     jsn.Equal("", param),
+			CleanPath: cleanPath,
+		})}
 	}
 	return jsn
 }

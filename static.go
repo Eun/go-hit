@@ -266,6 +266,10 @@ func getContextID() uintptr {
 		frames := runtime.CallersFrames(pc[:n])
 		for {
 			frame, more := frames.Next()
+			fmt.Println(frame.Function)
+			// if strings.HasSuffix(frame.Function, "github.com/Eun/go-hit.(*defaultInstance).RunSteps") {
+			// 	return 0
+			// }
 			if strings.HasSuffix(frame.Function, "github.com/Eun/go-hit.Do") {
 				return frame.Entry
 			}
