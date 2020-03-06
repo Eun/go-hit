@@ -1,5 +1,11 @@
 package hit
 
+import (
+	"errors"
+
+	"github.com/Eun/go-hit/internal"
+)
+
 type ISendBody interface {
 	IStep
 	JSON(data interface{}) IStep
@@ -7,41 +13,57 @@ type ISendBody interface {
 }
 
 type sendBody struct {
-	send ISend
+	send      ISend
+	hit       Hit
+	cleanPath CleanPath
+	params    []interface{}
 }
 
-func newSendBody(send ISend) ISendBody {
-	return &sendBody{send}
+func newSendBody(send ISend, hit Hit, cleanPath CleanPath, params []interface{}) ISendBody {
+	return &sendBody{
+		send:      send,
+		hit:       hit,
+		cleanPath: cleanPath,
+		params:    params,
+	}
 }
 
-func (body *sendBody) when() StepTime {
-	return body.send.when()
+func (body *sendBody) When() StepTime {
+	return body.send.When()
 }
 
-func (body *sendBody) exec(hit Hit) error {
-	return body.send.exec(hit)
+// Exec contains the logic for Send().Body(...)
+func (body *sendBody) Exec(hit Hit) error {
+	param, ok := internal.GetLastArgument(body.params)
+	if !ok {
+		return errors.New("invalid argument")
+	}
+	body.Interface(param)
+	return nil
+}
+
+func (body *sendBody) CleanPath() CleanPath {
+	return body.cleanPath
 }
 
 func (body *sendBody) JSON(data interface{}) IStep {
-	return body.send.Custom(func(hit Hit) {
-		hit.Request().Body().JSON().Set(data)
+	return custom(Step{
+		When:      SendStep,
+		CleanPath: body.cleanPath.Push("JSON"),
+		Instance:  body.hit,
+		Exec: func(hit Hit) {
+			hit.Request().Body().JSON().Set(data)
+		},
 	})
 }
 
 func (body *sendBody) Interface(data interface{}) IStep {
-	return body.send.Custom(func(hit Hit) {
-		hit.Request().Body().Set(data)
+	return custom(Step{
+		When:      SendStep,
+		CleanPath: body.cleanPath.Push("Interface"),
+		Instance:  body.hit,
+		Exec: func(hit Hit) {
+			hit.Request().Body().Set(data)
+		},
 	})
-}
-
-type finalSendBody struct {
-	IStep
-}
-
-func (d finalSendBody) JSON(data interface{}) IStep {
-	panic("only usable with Send().Body() not with Send().Body(value)")
-}
-
-func (d finalSendBody) Interface(data interface{}) IStep {
-	panic("only usable with Send().Body() not with Send().Body(value)")
 }

@@ -174,24 +174,24 @@ func TestSend(t *testing.T) {
 	})
 }
 
-func TestSend_Clear(t *testing.T) {
-	s := EchoServer()
-	defer s.Close()
-
-	calledFunc := false
-
-	Test(t,
-		Post(s.URL),
-		Send([]byte("Hello Go")),
-		Send(func(Hit) {
-			calledFunc = true
-		}),
-		Send().Clear(),
-		Send([]byte("Hello World")),
-		Expect().Body().Equal(`Hello World`),
-	)
-	require.False(t, calledFunc)
-}
+// func TestSend_Clear(t *testing.T) {
+// 	s := EchoServer()
+// 	defer s.Close()
+//
+// 	calledFunc := false
+//
+// 	Test(t,
+// 		Post(s.URL),
+// 		Send([]byte("Hello Go")),
+// 		Send(func(Hit) {
+// 			calledFunc = true
+// 		}),
+// 		Send().Clear(),
+// 		Send([]byte("Hello World")),
+// 		Expect().Body().Equal(`Hello World`),
+// 	)
+// 	require.False(t, calledFunc)
+// }
 
 func TestOutOfContext(t *testing.T) {
 	s := EchoServer()

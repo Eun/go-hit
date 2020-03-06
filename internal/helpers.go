@@ -92,3 +92,20 @@ func structContains(st reflect.Value, needle interface{}) bool {
 	}
 	return false
 }
+
+// StringSliceHasPrefixStringSlice returns true if haystack starts with needle
+func StringSliceHasPrefixSlice(haystack, needle []string) bool {
+	haySize := len(haystack)
+	needleSize := len(needle)
+	if needleSize > haySize {
+		return false
+	}
+	haySize = needleSize
+
+	for i := 0; i < haySize; i++ {
+		if haystack[i] != needle[i] {
+			return false
+		}
+	}
+	return true
+}

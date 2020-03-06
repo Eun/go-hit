@@ -1,53 +1,63 @@
 package hit
 
 type ISendHeaders interface {
-	IStep
 	Set(name, value string) IStep
 	Delete(name string) IStep
 	Clear() IStep
 }
 
 type sendHeaders struct {
-	send ISend
+	send      ISend
+	hit       Hit
+	cleanPath CleanPath
 }
 
-func newSendHeaders(send ISend) ISendHeaders {
+func newSendHeaders(send ISend, hit Hit, path CleanPath) ISendHeaders {
 	return &sendHeaders{
-		send: send,
+		send:      send,
+		hit:       hit,
+		cleanPath: path,
 	}
-}
-
-func (hdr *sendHeaders) when() StepTime {
-	return hdr.send.when()
-}
-
-func (hdr *sendHeaders) exec(hit Hit) error {
-	return hdr.send.exec(hit)
 }
 
 // Set sets a header to the specified value
 func (hdr *sendHeaders) Set(name, value string) IStep {
-	return hdr.send.Custom(func(hit Hit) {
-		hit.Request().Header.Set(name, value)
+	return custom(Step{
+		When:      SendStep,
+		CleanPath: hdr.cleanPath.Push("Set"),
+		Instance:  hdr.hit,
+		Exec: func(hit Hit) {
+			hit.Request().Header.Set(name, value)
+		},
 	})
 }
 
 // Delete deletes a header
 func (hdr *sendHeaders) Delete(name string) IStep {
-	return hdr.send.Custom(func(hit Hit) {
-		hit.Request().Header.Del(name)
+	return custom(Step{
+		When:      SendStep,
+		CleanPath: hdr.cleanPath.Push("Delete"),
+		Instance:  hdr.hit,
+		Exec: func(hit Hit) {
+			hit.Request().Header.Del(name)
+		},
 	})
 }
 
 // Clear removes all headers
 func (hdr *sendHeaders) Clear() IStep {
-	return hdr.send.Custom(func(hit Hit) {
-		var names []string
-		for name := range hit.Request().Header {
-			names = append(names, name)
-		}
-		for _, name := range names {
-			hit.Request().Header.Del(name)
-		}
+	return custom(Step{
+		When:      SendStep,
+		CleanPath: hdr.cleanPath.Push("Clear"),
+		Instance:  hdr.hit,
+		Exec: func(hit Hit) {
+			var names []string
+			for name := range hit.Request().Header {
+				names = append(names, name)
+			}
+			for _, name := range names {
+				hit.Request().Header.Del(name)
+			}
+		},
 	})
 }

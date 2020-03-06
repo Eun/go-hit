@@ -37,7 +37,9 @@ type Hit interface {
 	Send(...interface{}) ISend
 	Expect(...interface{}) IExpect
 	Debug(...string) IStep
+	Steps() []IStep
 	AddSteps(...IStep)
+	RemoveSteps(...IStep)
 
 	Description() string
 	SetDescription(string)
@@ -102,7 +104,7 @@ func (hit *defaultInstance) SetBaseURL(url string, a ...interface{}) {
 func (hit *defaultInstance) collectSteps(state StepTime, offset int) []IStep {
 	var steps []IStep
 	for i := offset; i < len(hit.steps); i++ {
-		w := hit.steps[i].when()
+		w := hit.steps[i].When()
 		if w&^CleanStep == state { // remove CleanStep flag
 			if w&CleanStep == CleanStep { // if CleanStep is set
 				steps = nil
@@ -124,7 +126,7 @@ func (hit *defaultInstance) runSteps(state StepTime) error {
 		if i >= size {
 			return nil
 		}
-		if err := stepsToRun[i].exec(hit); err != nil {
+		if err := stepsToRun[i].Exec(hit); err != nil {
 			return err
 		}
 
@@ -149,10 +151,7 @@ func (hit *defaultInstance) runSteps(state StepTime) error {
 //           Send("Hello World")
 //           Send().Body("Hello World")
 func (hit *defaultInstance) Send(data ...interface{}) ISend {
-	if arg, ok := getLastArgument(data); ok {
-		return finalSend{newSend(hit).Interface(arg)}
-	}
-	return newSend(hit)
+	return newSend(hit, NewCleanPath("Send", data), data)
 }
 
 // Expect expects the body to be equal the specified value, omit the parameter to get more options
@@ -160,10 +159,7 @@ func (hit *defaultInstance) Send(data ...interface{}) ISend {
 //           Expect("Hello World")
 //           Expect().Body().Contains("Hello World")
 func (hit *defaultInstance) Expect(data ...interface{}) IExpect {
-	if arg, ok := getLastArgument(data); ok {
-		return finalExpect{newExpect(hit).Interface(arg)}
-	}
-	return newExpect(hit)
+	return newExpect(hit, NewCleanPath("Expect", data), data)
 }
 
 // Debug prints the current Request and Response to hit.Stdout(), you can filter the output based on expressions
@@ -174,10 +170,28 @@ func (hit *defaultInstance) Debug(expression ...string) IStep {
 	return Debug(expression...)
 }
 
+func (hit *defaultInstance) Steps() []IStep {
+	return hit.steps
+}
+
 // AddSteps add the specified steps to the queue
 func (hit *defaultInstance) AddSteps(steps ...IStep) {
 	for i := 0; i < len(steps); i++ {
 		hit.steps = append(hit.steps, steps[i])
+	}
+}
+
+func (hit *defaultInstance) RemoveSteps(steps ...IStep) {
+removeStep:
+	for j := len(steps) - 1; j >= 0; j-- {
+		for i := len(hit.steps) - 1; i >= 0; i-- {
+			if hit.steps[i] == steps[j] {
+				// remove the step from steps and hit.steps
+				steps = append(steps[:j], steps[j+1:]...)
+				hit.steps = append(hit.steps[:i], hit.steps[i+1:]...)
+				continue removeStep
+			}
+		}
 	}
 }
 

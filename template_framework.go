@@ -12,9 +12,9 @@ import (
 	"github.com/Eun/go-hit"
 )
 
-// Custom calls a custom Step on the specified execution time
+// custom calls a custom Step on the specified execution time
 func Custom(when hit.StepTime, exec hit.Callback) hit.IStep {
-	return hit.Custom(when, exec)
+	return hit.custom(when, exec)
 }
 
 // Send sends the specified data as the body payload

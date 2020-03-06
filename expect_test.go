@@ -32,18 +32,18 @@ func TestExpect_Double(t *testing.T) {
 	)
 }
 
-func TestExpect_Clear(t *testing.T) {
-	s := EchoServer()
-	defer s.Close()
-
-	Test(t,
-		Post(s.URL),
-		Send().Body("Hello World"),
-		Expect().Body().Equal(`Hello Universe`),
-		Expect().Clear(),
-		Expect().Body().Equal(`Hello World`),
-	)
-}
+// func TestExpect_Clear(t *testing.T) {
+// 	s := EchoServer()
+// 	defer s.Close()
+//
+// 	Test(t,
+// 		Post(s.URL),
+// 		Send().Body("Hello World"),
+// 		Expect().Body().Equal(`Hello Universe`),
+// 		Expect().Clear(),
+// 		Expect().Body().Equal(`Hello World`),
+// 	)
+// }
 
 func TestExpect(t *testing.T) {
 	s := EchoServer()

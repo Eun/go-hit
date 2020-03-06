@@ -346,23 +346,69 @@ func TestHTTPClient(t *testing.T) {
 	)
 }
 
-func TestCombineSteps(t *testing.T) {
-	s := EchoServer()
-	defer s.Close()
+// func TestCombineSteps(t *testing.T) {
+// 	s := EchoServer()
+// 	defer s.Close()
+//
+// 	ExpectError(t,
+// 		Do(
+// 			CombineSteps(
+// 				Post(s.URL),
+// 				Send("Hello"),
+// 				Expect("Hello"),
+// 			),
+// 			Expect().Clear(),
+// 			Expect("World"),
+// 		),
+// 		PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+// 	)
+// }
 
-	ExpectError(t,
-		Do(
-			CombineSteps(
-				Post(s.URL),
-				Send("Hello"),
-				Expect("Hello"),
-			),
-			Expect().Clear(),
-			Expect("World"),
-		),
-		PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
-	)
-}
+//
+// func TestCombineSteps_DoubleExecution(t *testing.T) {
+// 	s := EchoServer()
+// 	defer s.Close()
+//
+// 	t.Run("send", func(t *testing.T) {
+// 		calls := 0
+// 		Test(
+// 			t,
+// 			Post(s.URL),
+// 			CombineSteps(
+// 				Send().Custom(func(hit Hit) {
+// 					calls++
+// 				}),
+// 			),
+// 		)
+// 		require.Equal(t, 1, calls)
+// 	})
+// 	t.Run("expect", func(t *testing.T) {
+// 		calls := 0
+// 		Test(
+// 			t,
+// 			Post(s.URL),
+// 			CombineSteps(
+// 				Expect().Custom(func(hit Hit) {
+// 					calls++
+// 				}),
+// 			),
+// 		)
+// 		require.Equal(t, 1, calls)
+// 	})
+// 	t.Run("other", func(t *testing.T) {
+// 		calls := 0
+// 		Test(
+// 			t,
+// 			Post(s.URL),
+// 			CombineSteps(
+// 				Custom(BeforeSendStep, func(hit Hit) {
+// 					calls++
+// 				}),
+// 			),
+// 		)
+// 		require.Equal(t, 1, calls)
+// 	})
+// }
 
 func TestDescription(t *testing.T) {
 	s := EchoServer()
@@ -395,5 +441,28 @@ func TestCustomError(t *testing.T) {
 			}),
 		),
 		PtrStr("some error"),
+	)
+}
+
+func TestPath(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	Do(
+		Post(s.URL),
+		Send().Body().JSON(""),
+		// Clear(),
+	)
+}
+
+func TestA(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	Test(t,
+		Post(s.URL),
+		Send().Body().JSON(map[string]interface{}{"Name": "joe", "id": 10}),
+		Expect().Body().JSON().Equal("id", 11),
+		Clear().Expect().Body().JSON().Equal("id"),
 	)
 }

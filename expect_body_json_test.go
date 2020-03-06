@@ -11,6 +11,18 @@ func TestExpectBodyJSON_Equal(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Send().Body(`"Hello Universe"`),
+			Expect().Body().JSON("Hello World"),
+			Expect().Body().JSON("Hello Bob"),
+		),
+		PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+	)
+
+	return
+
 	t.Run("string", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),

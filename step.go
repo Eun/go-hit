@@ -19,17 +19,26 @@ const (
 )
 
 type IStep interface {
-	exec(Hit) error
-	when() StepTime
+	Exec(Hit) error
+	When() StepTime
+	CleanPath() CleanPath
+}
+
+type Step struct {
+	When      StepTime
+	CleanPath CleanPath
+	Instance  Hit
+	Exec      Callback
 }
 
 type hitStep struct {
-	call Callback
 	et   *errortrace.ErrorTrace
+	call Callback
 	w    StepTime
+	path CleanPath
 }
 
-func (step hitStep) exec(h Hit) (err error) {
+func (step *hitStep) Exec(h Hit) (err error) {
 	if step.call == nil {
 		return nil
 	}
@@ -43,15 +52,37 @@ func (step hitStep) exec(h Hit) (err error) {
 	return err
 }
 
-func (step hitStep) when() StepTime {
+func (step *hitStep) When() StepTime {
 	return step.w
 }
 
-// Custom calls a custom Step on the specified execution time
+func (step *hitStep) CleanPath() CleanPath {
+	return step.path
+}
+
 func Custom(when StepTime, exec Callback) IStep {
-	return hitStep{
+	return custom(Step{
+		When:      when,
+		CleanPath: NewCleanPath("Custom"),
+		Instance:  nil,
+		Exec:      exec,
+	})
+}
+
+func custom(step Step) IStep {
+	s := &hitStep{
 		et:   errortrace.Prepare(),
-		w:    when,
-		call: exec,
+		w:    step.When,
+		path: step.CleanPath,
+		call: step.Exec,
 	}
+	hit := step.Instance
+	if hit == nil {
+		hit = getContext()
+	}
+	if hit != nil {
+		s.Exec(hit)
+		return nil
+	}
+	return s
 }
