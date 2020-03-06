@@ -38,8 +38,7 @@ func (body *sendBody) Exec(hit Hit) error {
 	if !ok {
 		return errors.New("invalid argument")
 	}
-	body.Interface(param)
-	return nil
+	return body.Interface(param).Exec(hit)
 }
 
 func (body *sendBody) CleanPath() CleanPath {

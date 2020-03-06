@@ -15,14 +15,13 @@ func TestExpectBodyJSON_Equal(t *testing.T) {
 		Do(
 			Post(s.URL),
 			Send().Body(`"Hello Universe"`),
-			Expect().Body().JSON("Hello World"),
-			Expect().Body().JSON("Hello Bob"),
+			Expect().Custom(func(hit Hit) {
+				hit.Expect().Body().JSON("Hello World")
+			}),
 		),
 		PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
 	)
-
 	return
-
 	t.Run("string", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),

@@ -48,8 +48,7 @@ func (snd *send) Exec(hit Hit) error {
 	if !ok {
 		return errors.New("invalid argument")
 	}
-	snd.Interface(param)
-	return nil
+	return snd.Interface(param).Exec(hit)
 }
 
 func (snd *send) CleanPath() CleanPath {

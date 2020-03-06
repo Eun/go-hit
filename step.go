@@ -76,13 +76,20 @@ func custom(step Step) IStep {
 		path: step.CleanPath,
 		call: step.Exec,
 	}
+
 	hit := step.Instance
+
 	if hit == nil {
 		hit = getContext()
 	}
-	if hit != nil {
-		s.Exec(hit)
-		return nil
+
+	// if we found no instance we are running as a Main Step, e.g. Do(SomeStep)
+	// this means we do not execute anything, we just append to the chain
+	if hit == nil {
+		return s
 	}
+
+	// we have an instance, this means we are running inside a function, e.g.Do(Custom(func(Hit){SomeStep}))
+	_ = s.Exec(hit)
 	return s
 }

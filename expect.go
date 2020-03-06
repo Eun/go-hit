@@ -64,13 +64,12 @@ func (*expect) When() StepTime {
 }
 
 // Exec contains the logic for Expect(...)
-func (exp *expect) Exec(Hit) error {
+func (exp *expect) Exec(hit Hit) error {
 	param, ok := internal.GetLastArgument(exp.params)
 	if !ok {
 		return errors.New("invalid argument")
 	}
-	exp.Interface(param)
-	return nil
+	return exp.Interface(param).Exec(hit)
 }
 
 func (exp *expect) CleanPath() CleanPath {

@@ -1,8 +1,6 @@
 package hit
 
 import (
-	"errors"
-
 	"github.com/Eun/go-hit/internal"
 	"github.com/Eun/go-hit/internal/minitest"
 )
@@ -19,16 +17,19 @@ type expectBodyJSON struct {
 	expectBody IExpectBody
 	hit        Hit
 	cleanPath  CleanPath
-	params     []interface{}
 }
 
 func newExpectBodyJSON(expectBody IExpectBody, hit Hit, path CleanPath, params []interface{}) IExpectBodyJSON {
-	return &expectBodyJSON{
+	jsn := &expectBodyJSON{
 		expectBody: expectBody,
 		hit:        hit,
 		cleanPath:  path,
-		params:     params,
 	}
+	param, ok := internal.GetLastArgument(params)
+	if ok {
+		return jsn.Equal("", param)
+	}
+	return jsn
 }
 
 func (*expectBodyJSON) When() StepTime {
@@ -37,12 +38,6 @@ func (*expectBodyJSON) When() StepTime {
 
 // Exec contains the logic for Expect().Body().JSON(...)
 func (jsn *expectBodyJSON) Exec(hit Hit) error {
-	param, ok := internal.GetLastArgument(jsn.params)
-	if !ok {
-		return errors.New("invalid argument")
-	}
-	jsn.Equal("", param)
-	return nil
 }
 
 func (jsn *expectBodyJSON) CleanPath() CleanPath {

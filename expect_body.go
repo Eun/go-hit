@@ -41,8 +41,7 @@ func (exp *expectBody) Exec(hit Hit) error {
 	if !ok {
 		return errors.New("invalid argument")
 	}
-	exp.Equal(param)
-	return nil
+	return exp.Equal(param).Exec(hit)
 }
 
 func (body *expectBody) CleanPath() CleanPath {

@@ -47,8 +47,7 @@ func (status *expectStatus) Exec(hit Hit) error {
 	if !ok {
 		return errors.New("invalid argument")
 	}
-	status.Equal(param)
-	return nil
+	return status.Equal(param).Exec(hit)
 }
 
 func (status *expectStatus) CleanPath() CleanPath {
