@@ -1,8 +1,7 @@
 package hit
 
 import (
-	"reflect"
-	"runtime"
+	"fmt"
 
 	"github.com/google/go-cmp/cmp"
 )
@@ -31,7 +30,8 @@ func NewCleanPath(name string, arguments []interface{}) CleanPath {
 }
 
 func funcComparer(x, y func(Hit)) bool {
-	return runtime.FuncForPC(reflect.ValueOf(x).Pointer()).Name() == runtime.FuncForPC(reflect.ValueOf(y).Pointer()).Name()
+	// return runtime.FuncForPC(reflect.ValueOf(x).Pointer()).Name() == runtime.FuncForPC(reflect.ValueOf(y).Pointer()).Name()
+	return fmt.Sprintf("%p", x) == fmt.Sprintf("%p", y)
 }
 
 func (haystack CleanPath) Contains(needle CleanPath) bool {
