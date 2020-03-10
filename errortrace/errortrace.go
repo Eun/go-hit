@@ -76,6 +76,10 @@ func (t *ErrorTraceTemplate) Prepare() *ErrorTrace {
 	return &et
 }
 
+func (t *ErrorTraceTemplate) Format(description, errText string) ErrorTraceError {
+	return t.Prepare().Format(description, errText)
+}
+
 func (et *ErrorTrace) isIncluded(call *Call) bool {
 	if call.FunctionName == "" {
 		return false
@@ -173,9 +177,4 @@ func (et *ErrorTrace) Format(description, errText string) ErrorTraceError {
 	sb.WriteString(minitest.Format("Error:      ", errText, color.FgRed))
 	sb.WriteString(minitest.Format("Error Trace:", et.formatStack(traceCalls)))
 	return ErrorTraceError(sb.String())
-}
-
-func Format(description, errText string) ErrorTraceError {
-	var et ErrorTrace
-	return et.Format(description, errText)
 }

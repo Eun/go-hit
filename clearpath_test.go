@@ -2,7 +2,7 @@ package hit
 
 import "testing"
 
-func TestCleanPath_Contains(t *testing.T) {
+func TestClearPath_Contains(t *testing.T) {
 	tests := []struct {
 		haystack clearPath
 		needle   clearPath

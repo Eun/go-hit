@@ -140,9 +140,14 @@ func (hit *defaultInstance) SetBaseURL(url string, a ...interface{}) {
 
 func (hit *defaultInstance) collectSteps(state StepTime, offset int) []IStep {
 	var collectedSteps []IStep
-	for i := offset; i < len(hit.steps); i++ {
+	for i := 0; i < len(hit.steps); i++ {
 		w := hit.steps[i].when()
 		if w == state {
+			// skip the offset
+			if offset > 0 {
+				offset--
+				continue
+			}
 			collectedSteps = append(collectedSteps, hit.steps[i])
 		}
 	}
@@ -169,7 +174,7 @@ func (hit *defaultInstance) runSteps(state StepTime) error {
 		if totalSteps != newTotalSteps {
 			// yes they have been modified
 			// find all new steps after the last scan
-			stepsToRun = append(stepsToRun[:i], hit.collectSteps(state, totalSteps-1)...)
+			stepsToRun = append(stepsToRun[:i], hit.collectSteps(state, i+1)...)
 			size = len(stepsToRun)
 			i = 0
 			totalSteps = newTotalSteps

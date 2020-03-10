@@ -202,7 +202,7 @@ func Trace(url string, a ...interface{}) IStep {
 func Test(t TestingT, steps ...IStep) {
 	if err := Do(steps...); err != nil {
 		if _, ok := err.(errortrace.ErrorTraceError); !ok {
-			os.Stderr.WriteString(errortrace.Format("", err.Error()).Error())
+			os.Stderr.WriteString(ett.Format("", err.Error()).Error())
 			t.FailNow()
 		}
 		os.Stderr.WriteString(err.Error())

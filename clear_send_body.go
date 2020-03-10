@@ -59,9 +59,9 @@ type finalClearSendBody struct {
 }
 
 func (finalClearSendBody) JSON(...interface{}) IStep {
-	panic("only usable with Send().Body() not with Send().Body(value)")
+	panic("only usable with Clear().Send().Body() not with Clear().Send().Body(value)")
 }
 
 func (finalClearSendBody) Interface(...interface{}) IStep {
-	panic("only usable with Send().Body() not with Send().Body(value)")
+	panic("only usable with Clear().Send().Body() not with Clear().Send().Body(value)")
 }

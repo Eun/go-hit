@@ -13,6 +13,8 @@ import (
 
 	"encoding/json"
 
+	"net/http/httptest"
+
 	. "github.com/Eun/go-hit"
 	"github.com/Eun/go-hit/expr"
 	"github.com/lunixbochs/vtclean"
@@ -312,22 +314,31 @@ func TestMultiUse(t *testing.T) {
 }
 
 func TestBaseURL(t *testing.T) {
-	s := EchoServer()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/foo", func(writer http.ResponseWriter, request *http.Request) {
+		writer.WriteHeader(http.StatusNoContent)
+	})
+	s := httptest.NewServer(mux)
 	defer s.Close()
 
 	Test(t,
-		BaseURL(s.URL),
+		BaseURL("%s/foo", s.URL),
 		Get("/"),
-		Expect().Status(http.StatusOK),
+		Expect().Status(http.StatusNoContent),
 	)
 }
 
 func TestFormatURL(t *testing.T) {
-	s := EchoServer()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/foo", func(writer http.ResponseWriter, request *http.Request) {
+		writer.WriteHeader(http.StatusNoContent)
+	})
+	s := httptest.NewServer(mux)
 	defer s.Close()
+
 	Test(t,
-		Get("%s", s.URL),
-		Expect().Status(http.StatusOK),
+		Get("%s/foo", s.URL),
+		Expect().Status(http.StatusNoContent),
 	)
 }
 
@@ -360,7 +371,7 @@ func TestCombineSteps(t *testing.T) {
 			Clear().Expect(),
 			Expect("World"),
 		),
-		PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+		PtrStr("Not equal"), PtrStr(`expected: "World"`), nil, nil, nil, nil, nil,
 	)
 }
 
@@ -440,17 +451,6 @@ func TestCustomError(t *testing.T) {
 			}),
 		),
 		PtrStr("some error"),
-	)
-}
-
-func TestPath(t *testing.T) {
-	s := EchoServer()
-	defer s.Close()
-
-	Do(
-		Post(s.URL),
-		Send().Body().JSON(""),
-		// Clear(),
 	)
 }
 

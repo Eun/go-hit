@@ -52,7 +52,6 @@ type hitStep struct {
 	When      StepTime
 	ClearPath clearPath
 	Exec      func(hit Hit) error
-	executed  bool
 }
 
 func (step *hitStep) exec(h Hit) (err error) {
