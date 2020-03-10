@@ -12,12 +12,16 @@ func TestClearExpect(t *testing.T) {
 	defer s.Close()
 
 	t.Run("all", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Send().Body("Hello World"),
-			Expect("Hello Universe"),
-			Expect("Hello Earth"),
-			Clear().Expect(),
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Body("Hello World"),
+				Expect("Hello Universe"),
+				Expect("Hello Earth"),
+				Clear().Expect(),
+				Expect("Hello Nature"),
+			),
+			PtrStr("Not equal"), PtrStr(`expected: "Hello Nature"`), nil, nil, nil, nil, nil,
 		)
 	})
 
@@ -40,16 +44,22 @@ func TestClearExpect_Custom(t *testing.T) {
 	defer s.Close()
 
 	t.Run("all", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Send().Body("Hello World"),
-			Expect().Custom(func(hit Hit) {
-				require.Equal(t, "Hello Universe", hit.Response().Body().String())
-			}),
-			Expect().Custom(func(hit Hit) {
-				require.Equal(t, "Hello Earth", hit.Response().Body().String())
-			}),
-			Clear().Expect().Custom(),
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Body("Hello World"),
+				Expect().Custom(func(hit Hit) {
+					hit.MustDo(Expect("Hello Universe"))
+				}),
+				Expect().Custom(func(hit Hit) {
+					hit.MustDo(Expect("Hello Earth"))
+				}),
+				Clear().Expect().Custom(),
+				Expect().Custom(func(hit Hit) {
+					hit.MustDo(Expect("Hello Nature"))
+				}),
+			),
+			PtrStr("Not equal"), PtrStr(`expected: "Hello Nature"`), nil, nil, nil, nil, nil,
 		)
 	})
 

@@ -1,9 +1,8 @@
 package hit
 
 import (
-	"errors"
-
 	"github.com/Eun/go-hit/internal"
+	"golang.org/x/xerrors"
 )
 
 type ISend interface {
@@ -11,45 +10,46 @@ type ISend interface {
 	Body(data ...interface{}) ISendBody
 	Custom(f Callback) IStep
 	JSON(data interface{}) IStep
-	Headers() ISendHeaders
 	// Header sets the specified header
 	// Examples:
 	//           Send().Header("Content-Type").Set("application/json")
 	//           Send().Header("Content-Type").Delete()
-	Header(name string) ISendSpecificHeader
+	Header(name, value string) IStep
 	Interface(data interface{}) IStep
 }
 
 type send struct {
 	body      ISendBody
-	cleanPath CleanPath
+	cleanPath clearPath
 }
 
-func newSend(cleanPath CleanPath, params []interface{}) ISend {
+func newSend(clearPath clearPath, params []interface{}) ISend {
 	snd := &send{
-		cleanPath: cleanPath,
+		cleanPath: clearPath,
 	}
 
 	if param, ok := internal.GetLastArgument(params); ok {
 		// default action is Interface()
-		return finalSend{wrap(wrapStep{
-			IStep:     snd.Interface(param),
-			CleanPath: cleanPath,
-		})}
+		return finalSend{&hitStep{
+			Trace:     ett.Prepare(),
+			When:      SendStep,
+			ClearPath: clearPath,
+			Exec:      snd.Interface(param).exec,
+		}}
 	}
 	return snd
 }
 
-func (*send) When() StepTime {
+func (*send) when() StepTime {
 	return SendStep
 }
 
-// Exec contains the logic for Send(...)
-func (*send) Exec(hit Hit) error {
-	return errors.New("unsupported")
+// exec contains the logic for Send(...)
+func (*send) exec(hit Hit) error {
+	return xerrors.New("unsupported")
 }
 
-func (snd *send) CleanPath() CleanPath {
+func (snd *send) clearPath() clearPath {
 	return snd.cleanPath
 }
 
@@ -62,63 +62,48 @@ func (snd *send) Body(data ...interface{}) ISendBody {
 
 // custom can be used to send a custom behaviour
 func (snd *send) Custom(f Callback) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      SendStep,
-		CleanPath: snd.cleanPath.Push("Custon", []interface{}{f}),
-		Exec:      f,
-	})
+		ClearPath: snd.cleanPath.Push("Custom", []interface{}{f}),
+		Exec: func(hit Hit) error {
+			f(hit)
+			return nil
+		},
+	}
 }
 
 // JSON sets the body to the specific data (shortcut for Body().JSON()
 func (snd *send) JSON(data interface{}) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      SendStep,
-		CleanPath: snd.cleanPath.Push("JSON", []interface{}{data}),
-		Exec: func(hit Hit) {
-			panic("TODO")
-			// hit.Send().Body().JSON(data)
-		},
-	})
-}
-
-// Headers sets the specified header, omit the parameter to get all headers
-// Examples:
-//           Send().Headers().Set("Content-Type", "application/json")
-//           Send().Headers().Delete("Content-Type")
-func (snd *send) Headers() ISendHeaders {
-	return newSendHeaders(snd.cleanPath.Push("Headers", nil))
+		ClearPath: snd.cleanPath.Push("JSON", []interface{}{data}),
+		Exec:      snd.Body().JSON(data).exec,
+	}
 }
 
 // Header sets the specified header
 // Examples:
-//           Send().Header("Content-Type").Set("application/json")
-//           Send().Header("Content-Type").Delete()
-func (snd *send) Header(name string) ISendSpecificHeader {
-	return newSendSpecificHeader(snd.cleanPath.Push("Header", []interface{}{name}), name)
+//           Send().Header("Content-Type", "application/json")
+func (snd *send) Header(name, value string) IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      SendStep,
+		ClearPath: snd.cleanPath.Push("Header", []interface{}{name, value}),
+		Exec: func(hit Hit) error {
+			hit.Request().Header.Set(name, value)
+			return nil
+		},
+	}
 }
 
 func (snd *send) Interface(data interface{}) IStep {
-	switch x := data.(type) {
-	case func(e Hit):
-		return custom(Step{
-			When:      SendStep,
-			CleanPath: snd.cleanPath.Push("Interface", []interface{}{data}),
-			Exec:      x,
-		})
-	default:
-		if f := internal.GetGenericFunc(data); f.IsValid() {
-			return custom(Step{
-				When:      SendStep,
-				CleanPath: snd.cleanPath.Push("Interface", []interface{}{data}),
-				Exec: func(hit Hit) {
-					internal.CallGenericFunc(f)
-				},
-			})
-		}
-		return wrap(wrapStep{
-			IStep:     snd.Body(data),
-			CleanPath: snd.cleanPath.Push("Interface", []interface{}{data}),
-		})
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      SendStep,
+		ClearPath: snd.cleanPath.Push("Interface", []interface{}{data}),
+		Exec:      snd.Body(data).exec,
 	}
 }
 
@@ -138,15 +123,7 @@ func (d finalSend) JSON(interface{}) IStep {
 	panic("only usable with Send() not with Send(value)")
 }
 
-func (d finalSend) Headers() ISendHeaders {
-	panic("only usable with Send() not with Send(value)")
-}
-
-func (d finalSend) Header(string) ISendSpecificHeader {
-	panic("only usable with Send() not with Send(value)")
-}
-
-func (d finalSend) Clear() IStep {
+func (d finalSend) Header(string, string) IStep {
 	panic("only usable with Send() not with Send(value)")
 }
 

@@ -5,13 +5,21 @@ import (
 	"runtime"
 	"strings"
 
+	"reflect"
+
 	"github.com/Eun/go-hit/internal/minitest"
 	"github.com/gookit/color"
+	"golang.org/x/xerrors"
 )
+
+type ErrorTraceTemplate struct {
+	ignore []string
+}
 
 type ErrorTrace struct {
 	inheritedTrace bool
 	inheritedPC    []uintptr
+	template       *ErrorTraceTemplate
 }
 
 type ErrorTraceError string
@@ -20,45 +28,90 @@ func (e ErrorTraceError) Error() string {
 	return string(e)
 }
 
-var defaultErrorTrace ErrorTrace
+func New(ignore ...string) *ErrorTraceTemplate {
+	return &ErrorTraceTemplate{
+		ignore: ignore,
+	}
+}
+
+func IgnoreFunc(fn interface{}) string {
+	v := reflect.ValueOf(fn)
+	if !v.IsValid() {
+		panic(xerrors.New("function is is not valid"))
+	}
+	return strings.TrimSuffix(runtime.FuncForPC(v.Pointer()).Name(), "-fm")
+}
+
+func IgnorePackage(fn interface{}) string {
+	return makeCall(runtime.Frame{
+		PC:       0,
+		Func:     nil,
+		Function: IgnoreFunc(fn),
+		File:     "",
+		Line:     0,
+		Entry:    0,
+	}).PackageName
+}
+
+func IgnoreStruct(fn interface{}) string {
+	c := makeCall(runtime.Frame{
+		PC:       0,
+		Func:     nil,
+		Function: IgnoreFunc(fn),
+		File:     "",
+		Line:     0,
+		Entry:    0,
+	})
+	return strings.Join([]string{c.PackageName, c.FunctionPath}, ".")
+}
 
 // Prepare collects the current trace, if later a Panic will be called the collected trace will be included
 // in the error trace
-func Prepare() *ErrorTrace {
+func (t *ErrorTraceTemplate) Prepare() *ErrorTrace {
 	var et ErrorTrace
 	et.inheritedTrace = true
-	et.inheritedPC = CurrentTraceCalls(4)
+	// skip  runtime.Callers(), errortrace.currentTraceCalls(...), errortrace.(*ErrorTrace).Prepare(...), Call to this Function
+	et.inheritedPC = currentTraceCalls(4)
+	et.template = t
 	return &et
 }
 
-func isIncluded(call *Call) bool {
+func (et *ErrorTrace) isIncluded(call *Call) bool {
 	if call.FunctionName == "" {
 		return false
 	}
-	if !strings.HasSuffix(call.PackageName, "github.com/Eun/go-hit") {
-		return false
-	}
 
-	switch call.FunctionName {
-	case "Test", "Do", "Custom", "runSteps", "exec":
-		return false
+	for _, f := range et.template.ignore {
+		if strings.HasPrefix(call.FullName, f) {
+			return false
+		}
 	}
 
 	return true
 }
 
-func filterTraceCalls(calls []Call) []Call {
+func (et *ErrorTrace) filterTraceCalls(calls []Call) []Call {
 	var filtered []Call
 
 	for i := 0; i < len(calls); i++ {
-		if isIncluded(&calls[i]) {
-			filtered = append(filtered, calls[i])
+		if et.isIncluded(&calls[i]) {
+			exits := false
+			for _, call := range filtered {
+				if call.FullName == calls[i].FullName {
+					exits = true
+					break
+				}
+			}
+			if !exits {
+				filtered = append(filtered, calls[i])
+			}
 		}
 	}
+
 	return filtered
 }
 
-func CurrentTraceCalls(skip int) []uintptr {
+func currentTraceCalls(skip int) []uintptr {
 	var pc [16]uintptr
 	var calls []uintptr
 	for index, n := skip, 0; ; index += n {
@@ -71,7 +124,7 @@ func CurrentTraceCalls(skip int) []uintptr {
 	return calls
 }
 
-func ResolveTraceCalls(pc []uintptr) []Call {
+func resolveTraceCalls(pc []uintptr) []Call {
 	var calls []Call
 	frames := runtime.CallersFrames(pc)
 	for {
@@ -83,13 +136,13 @@ func ResolveTraceCalls(pc []uintptr) []Call {
 	}
 }
 
-func (p *ErrorTrace) formatStack(calls []Call) string {
+func (et *ErrorTrace) formatStack(calls []Call) string {
 	var sb strings.Builder
 
 	if n := len(calls); n > 0 {
 		cl := color.New(color.FgBlue, color.OpUnderscore)
 		for i := 0; i < n; i++ {
-			fmt.Fprintf(&sb, "%s(...)\n\t", calls[i].FullName())
+			fmt.Fprintf(&sb, "%s(...)\n\t", calls[i].FullName)
 			sb.WriteString(cl.Sprintf("%s:%d", calls[i].File, calls[i].Line))
 			fmt.Fprintln(&sb)
 		}
@@ -97,18 +150,20 @@ func (p *ErrorTrace) formatStack(calls []Call) string {
 	return sb.String()
 }
 
-func (p *ErrorTrace) Format(description, errText string) ErrorTraceError {
+func (et *ErrorTrace) Format(description, errText string) ErrorTraceError {
 	// collect the current trace
-	traceCalls := ResolveTraceCalls(CurrentTraceCalls(4))
+	// skip  runtime.Callers(), errortrace.currentTraceCalls(...), errortrace.(*ErrorTrace).Format(...), call to this function
+	traceCalls := resolveTraceCalls(currentTraceCalls(4))
 
 	// if we have a inherited trace resolve the items and filter the current trace
-	if p.inheritedTrace {
-		// filter
-		traceCalls = filterTraceCalls(traceCalls)
-
+	if et.inheritedTrace {
 		// resolve the inherited calls
-		traceCalls = append(traceCalls, ResolveTraceCalls(p.inheritedPC)...)
+
+		traceCalls = append(traceCalls, resolveTraceCalls(et.inheritedPC)...)
 	}
+
+	// filter
+	traceCalls = et.filterTraceCalls(traceCalls)
 
 	// print
 	var sb strings.Builder
@@ -116,7 +171,7 @@ func (p *ErrorTrace) Format(description, errText string) ErrorTraceError {
 		sb.WriteString(minitest.Format("Description:", description, color.FgBlue))
 	}
 	sb.WriteString(minitest.Format("Error:      ", errText, color.FgRed))
-	sb.WriteString(minitest.Format("Error Trace:", p.formatStack(traceCalls)))
+	sb.WriteString(minitest.Format("Error Trace:", et.formatStack(traceCalls)))
 	return ErrorTraceError(sb.String())
 }
 

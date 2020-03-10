@@ -9,36 +9,54 @@ import (
 type StepTime uint8
 
 const (
-	BeforeSendStep StepTime = iota + 1
+	CombineStep StepTime = iota + 1
+	CleanStep
+	BeforeSendStep
 	SendStep
 	AfterSendStep
 	BeforeExpectStep
 	ExpectStep
 	AfterExpectStep
-	CleanStep
 )
 
-type IStep interface {
-	When() StepTime
-	CleanPath() CleanPath
-	Exec(Hit) error
+func (s StepTime) String() string {
+	switch s {
+	case CleanStep:
+		return "CleanStep"
+	case CombineStep:
+		return "CombineStep"
+	case BeforeSendStep:
+		return "BeforeSendStep"
+	case SendStep:
+		return "SendStep"
+	case AfterSendStep:
+		return "AfterSendStep"
+	case BeforeExpectStep:
+		return "BeforeExpectStep"
+	case ExpectStep:
+		return "ExpectStep"
+	case AfterExpectStep:
+		return "AfterExpectStep"
+	}
+	return ""
 }
 
-type Step struct {
-	When      StepTime
-	CleanPath CleanPath
-	Exec      Callback
+type IStep interface {
+	when() StepTime
+	clearPath() clearPath
+	exec(Hit) error
 }
 
 type hitStep struct {
-	et        *errortrace.ErrorTrace
-	call      Callback
-	w         StepTime
-	cleanPath CleanPath
+	Trace     *errortrace.ErrorTrace
+	When      StepTime
+	ClearPath clearPath
+	Exec      func(hit Hit) error
+	executed  bool
 }
 
-func (step *hitStep) Exec(h Hit) (err error) {
-	if step.call == nil {
+func (step *hitStep) exec(h Hit) (err error) {
+	if step.Exec == nil {
 		return nil
 	}
 	defer func() {
@@ -47,63 +65,30 @@ func (step *hitStep) Exec(h Hit) (err error) {
 			var ok bool
 			err, ok = r.(errortrace.ErrorTraceError)
 			if !ok {
-				err = step.et.Format(h.Description(), fmt.Sprint(r))
+				err = step.Trace.Format(h.Description(), fmt.Sprint(r))
 			}
 		}
 	}()
-	step.call(h)
+	err = step.Exec(h)
 	return err
 }
 
-func (step *hitStep) When() StepTime {
-	return step.w
+func (step *hitStep) when() StepTime {
+	return step.When
 }
 
-func (step *hitStep) CleanPath() CleanPath {
-	return step.cleanPath
+func (step *hitStep) clearPath() clearPath {
+	return step.ClearPath
 }
 
 func Custom(when StepTime, exec Callback) IStep {
-	return custom(Step{
-		When:      when,
-		CleanPath: NewCleanPath("Custom", []interface{}{when, exec}),
-		Exec:      exec,
-	})
-}
-
-func custom(step Step) IStep {
-	s := &hitStep{
-		et:        errortrace.Prepare(),
-		w:         step.When,
-		cleanPath: step.CleanPath,
-		call:      step.Exec,
-	}
-
-	// if we found no instance we are running as a Main Step, e.g. Do(SomeStep)
-	// this means we do not execute anything, we just append to the chain
-	if getContext() == nil {
-		return s
-	}
-
-	// we have an instance, this means we are running inside a function, e.g.Do(Custom(func(Hit){SomeStep}))
-	panic("This is unsupported, use RunSteps()")
-	return s
-}
-
-type wrapStep struct {
-	IStep
-	CleanPath CleanPath
-}
-
-func wrap(step wrapStep) IStep {
 	return &hitStep{
-		et:        errortrace.Prepare(),
-		w:         step.When(),
-		cleanPath: step.CleanPath,
-		call: func(hit Hit) {
-			if err := step.Exec(hit); err != nil {
-				panic(err)
-			}
+		Trace:     ett.Prepare(),
+		When:      when,
+		ClearPath: newClearPath("Custom", []interface{}{when, exec}),
+		Exec: func(hit Hit) error {
+			exec(hit)
+			return nil
 		},
 	}
 }

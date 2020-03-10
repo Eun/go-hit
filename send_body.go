@@ -1,9 +1,8 @@
 package hit
 
 import (
-	"errors"
-
 	"github.com/Eun/go-hit/internal"
+	"golang.org/x/xerrors"
 )
 
 type ISendBody interface {
@@ -13,55 +12,92 @@ type ISendBody interface {
 }
 
 type sendBody struct {
-	cleanPath CleanPath
+	cleanPath clearPath
 }
 
-func newSendBody(cleanPath CleanPath, params []interface{}) ISendBody {
+func newSendBody(clearPath clearPath, params []interface{}) ISendBody {
 	snd := &sendBody{
-		cleanPath: cleanPath,
+		cleanPath: clearPath,
 	}
 
 	if param, ok := internal.GetLastArgument(params); ok {
-		return finalSendBody{wrap(wrapStep{
-			IStep:     snd.Interface(param),
-			CleanPath: cleanPath,
-		})}
+		return finalSendBody{&hitStep{
+			Trace:     ett.Prepare(),
+			When:      SendStep,
+			ClearPath: clearPath,
+			Exec:      snd.Interface(param).exec,
+		}}
 	}
 
 	return snd
 }
 
-func (*sendBody) When() StepTime {
+func (*sendBody) when() StepTime {
 	return SendStep
 }
 
-// Exec contains the logic for Send().Body(...)
-func (*sendBody) Exec(Hit) error {
-	return errors.New("unsupported")
+// exec contains the logic for Send().Body(...)
+func (*sendBody) exec(Hit) error {
+	return xerrors.New("unsupported")
 }
 
-func (body *sendBody) CleanPath() CleanPath {
+func (body *sendBody) clearPath() clearPath {
 	return body.cleanPath
 }
 
 func (body *sendBody) JSON(data interface{}) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      SendStep,
-		CleanPath: body.cleanPath.Push("JSON", []interface{}{data}),
-		Exec: func(hit Hit) {
+		ClearPath: body.cleanPath.Push("JSON", []interface{}{data}),
+		Exec: func(hit Hit) error {
 			hit.Request().Body().JSON().Set(data)
+			return nil
 		},
-	})
+	}
 }
 
 func (body *sendBody) Interface(data interface{}) IStep {
-	return custom(Step{
-		When:      SendStep,
-		CleanPath: body.cleanPath.Push("Interface", []interface{}{data}),
-		Exec: func(hit Hit) {
-			hit.Request().Body().Set(data)
-		},
-	})
+	switch x := data.(type) {
+	case func(e Hit):
+		return &hitStep{
+			Trace:     ett.Prepare(),
+			When:      SendStep,
+			ClearPath: body.cleanPath.Push("Interface", []interface{}{data}),
+			Exec: func(hit Hit) error {
+				x(hit)
+				return nil
+			},
+		}
+	case func(e Hit) error:
+		return &hitStep{
+			Trace:     ett.Prepare(),
+			When:      SendStep,
+			ClearPath: body.cleanPath.Push("Interface", []interface{}{data}),
+			Exec:      x,
+		}
+	default:
+		if f := internal.GetGenericFunc(data); f.IsValid() {
+			return &hitStep{
+				Trace:     ett.Prepare(),
+				When:      SendStep,
+				ClearPath: body.cleanPath.Push("Interface", []interface{}{data}),
+				Exec: func(hit Hit) error {
+					internal.CallGenericFunc(f)
+					return nil
+				},
+			}
+		}
+		return &hitStep{
+			Trace:     ett.Prepare(),
+			When:      SendStep,
+			ClearPath: body.cleanPath.Push("Interface", []interface{}{data}),
+			Exec: func(hit Hit) error {
+				hit.Request().Body().Set(data)
+				return nil
+			},
+		}
+	}
 }
 
 type finalSendBody struct {

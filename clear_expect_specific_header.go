@@ -28,10 +28,10 @@ type IClearExpectSpecificHeader interface {
 }
 type clearExpectSpecificHeader struct {
 	expect    IClearExpect
-	cleanPath CleanPath
+	cleanPath clearPath
 }
 
-func newClearExpectSpecificHeader(expect IClearExpect, cleanPath CleanPath) IClearExpectSpecificHeader {
+func newClearExpectSpecificHeader(expect IClearExpect, cleanPath clearPath) IClearExpectSpecificHeader {
 	return &clearExpectSpecificHeader{
 		expect:    expect,
 		cleanPath: cleanPath,
@@ -40,18 +40,18 @@ func newClearExpectSpecificHeader(expect IClearExpect, cleanPath CleanPath) ICle
 
 // implement IStep interface to make sure we can call just Expect().Header()
 
-func (hdr *clearExpectSpecificHeader) When() StepTime {
+func (hdr *clearExpectSpecificHeader) when() StepTime {
 	return CleanStep
 }
 
-// Exec contains the logic for Clear().Expect().Header() and/or Clear().Expect().Headers(...).Get(...),
+// exec contains the logic for Clear().Expect().Header() and/or Clear().Expect().Headers(...).Get(...),
 // it will remove all Expect().Header(), Expect().Header().* and/or Expect().Header(...).Get(...), Expect().Header(...).Get(...).* Steps
-func (hdr *clearExpectSpecificHeader) Exec(hit Hit) error {
+func (hdr *clearExpectSpecificHeader) exec(hit Hit) error {
 	removeSteps(hit, hdr.cleanPath)
 	return nil
 }
 
-func (hdr *clearExpectSpecificHeader) CleanPath() CleanPath {
+func (hdr *clearExpectSpecificHeader) clearPath() clearPath {
 	return hdr.cleanPath
 }
 

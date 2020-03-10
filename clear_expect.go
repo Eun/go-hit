@@ -10,15 +10,15 @@ type IClearExpect interface {
 	// Examples:
 	//           Clear().Expect().Body()
 	//           Clear().Expect().Body().JSON()
-	Body(data ...interface{}) IClearExpectBody
+	Body(...interface{}) IClearExpectBody
 
 	// Interface removes all Expect().Interface() steps
-	Interface(data ...interface{}) IStep
+	Interface(...interface{}) IStep
 
 	// custom removes all Expect().custom() steps
 	// Example:
 	//           Clear().Expect().custom()
-	Custom(f ...Callback) IStep
+	Custom(...Callback) IStep
 
 	// Headers removes all Expect().Headers() steps and all steps chained to Expect().Headers(), e.g. Expect().Headers().Contains()
 	// Examples:
@@ -30,50 +30,50 @@ type IClearExpect interface {
 	// Examples:
 	//           Clear().Expect().Header()
 	//           Clear().Expect().Header().Equal()
-	Header(header ...string) IClearExpectSpecificHeader
+	Header(...string) IClearExpectSpecificHeader
 
 	// Status removes all Expect().Status() steps and all steps chained to Expect().Status(), e.g. Expect().Status().Equal()
 	// Examples:
 	//           Clear(),Expect().Status()
 	//           Clear().Expect().Status().Equal()
-	Status(code ...int) IClearExpectStatus
+	Status(...int) IClearExpectStatus
 }
 
 type clearExpect struct {
-	clear     IClear
-	cleanPath CleanPath
+	cleanPath clearPath
 	params    []interface{}
 }
 
-func newClearExpect(clear IClear, cleanPath CleanPath, params []interface{}) IClearExpect {
+func newClearExpect(cleanPath clearPath, params []interface{}) IClearExpect {
 	if _, ok := internal.GetLastArgument(params); ok {
 		// default action is Interface()
-		return finalClearExpect{custom(Step{
+		return finalClearExpect{&hitStep{
+			Trace:     ett.Prepare(),
 			When:      CleanStep,
-			CleanPath: nil,
-			Exec: func(hit Hit) {
+			ClearPath: nil,
+			Exec: func(hit Hit) error {
 				removeSteps(hit, cleanPath)
+				return nil
 			},
-		})}
+		}}
 	}
 	return &clearExpect{
-		clear:     clear,
 		cleanPath: cleanPath,
 	}
 }
 
 // implement IStep interface to make sure we can call just Expect()
 
-func (exp *clearExpect) When() StepTime {
+func (exp *clearExpect) when() StepTime {
 	return CleanStep
 }
 
-func (exp *clearExpect) Exec(hit Hit) error {
+func (exp *clearExpect) exec(hit Hit) error {
 	removeSteps(hit, exp.cleanPath)
 	return nil
 }
 
-func (exp *clearExpect) CleanPath() CleanPath {
+func (exp *clearExpect) clearPath() clearPath {
 	return exp.cleanPath
 }
 
@@ -82,7 +82,7 @@ func (exp *clearExpect) CleanPath() CleanPath {
 //           Clear().Expect().Body()
 //           Clear().Expect().Body().JSON()
 func (exp *clearExpect) Body(data ...interface{}) IClearExpectBody {
-	return newClearExpectBody(exp, exp.cleanPath.Push("Body", data))
+	return newClearExpectBody(exp, exp.cleanPath.Push("Body", data), data)
 }
 
 // Interface removes all Expect().Interface() steps

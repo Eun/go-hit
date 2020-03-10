@@ -1,54 +1,93 @@
 package hit
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 
-	"fmt"
+	"golang.org/x/xerrors"
 )
 
 //go:generate go run generate_template_framework.go
 
 type Callback func(hit Hit)
 
-type State uint8
-
-const (
-	Ready State = iota
-	Working
-	Done
-)
-
 type Hit interface {
+	// Request returns the current request
 	Request() *HTTPRequest
+
+	// SetRequest sets the request for the current instance
 	SetRequest(*http.Request)
 
+	// Response returns the current Response
 	Response() *HTTPResponse
 
+	// HTTPClient gets the current http.Client
 	HTTPClient() *http.Client
+
+	// SetHTTPClient sets the client for the request
 	SetHTTPClient(*http.Client)
 
+	// Stdout gets the current output
 	Stdout() io.Writer
+
+	// SetStdout sets the output to the specified writer
 	SetStdout(io.Writer)
 
+	// BaseURL returns the current base url
 	BaseURL() string
+
+	// SetBaseURL sets the base url
 	SetBaseURL(string, ...interface{})
 
+	// CurrentStep returns the current working step
+	CurrentStep() IStep
+
+	// Steps returns the current step list
 	Steps() []IStep
+
+	// AddSteps adds the specified steps to the step list
 	AddSteps(...IStep)
-	RunSteps(...IStep)
+
+	// RemoveSteps remove the specified steps from the step list
 	RemoveSteps(...IStep)
 
+	// Do runs the specified steps in in this context
+	// Example:
+	//           Expect().Custom(func(hit Hit) {
+	//               err := Do(
+	//                   Expect().Status(200),
+	//               )
+	//               if err != nil {
+	//                   panic(err)
+	//               }
+	//           })
+	Do(...IStep) error
+
+	// MustDo runs the specified steps in in this context and panics on failure
+	// Example:
+	//           Expect().Custom(func(hit Hit) {
+	//               MustDo(
+	//                   Expect().Status(200),
+	//               )
+	//           })
+	MustDo(...IStep)
+
+	// Description gets the current description that will be printed in an error case
 	Description() string
+
+	// SetDescription sets a custom description for this test.
+	// The description will be printed in an error case
 	SetDescription(string)
 }
 
 type defaultInstance struct {
 	steps       []IStep
+	currentStep IStep
 	request     *HTTPRequest
 	response    *HTTPResponse
 	client      *http.Client
-	state       State
+	state       StepTime
 	stdout      io.Writer
 	baseURL     string
 	description string
@@ -100,14 +139,14 @@ func (hit *defaultInstance) SetBaseURL(url string, a ...interface{}) {
 }
 
 func (hit *defaultInstance) collectSteps(state StepTime, offset int) []IStep {
-	var steps []IStep
+	var collectedSteps []IStep
 	for i := offset; i < len(hit.steps); i++ {
-		w := hit.steps[i].When()
+		w := hit.steps[i].when()
 		if w == state {
-			steps = append(steps, hit.steps[i])
+			collectedSteps = append(collectedSteps, hit.steps[i])
 		}
 	}
-	return steps
+	return collectedSteps
 }
 
 func (hit *defaultInstance) runSteps(state StepTime) error {
@@ -120,7 +159,8 @@ func (hit *defaultInstance) runSteps(state StepTime) error {
 		if i >= size {
 			return nil
 		}
-		if err := stepsToRun[i].Exec(hit); err != nil {
+		hit.currentStep = stepsToRun[i]
+		if err := stepsToRun[i].exec(hit); err != nil {
 			return err
 		}
 
@@ -140,26 +180,24 @@ func (hit *defaultInstance) runSteps(state StepTime) error {
 	return nil
 }
 
+// CurrentStep returns the current working step
+func (hit *defaultInstance) CurrentStep() IStep {
+	return hit.currentStep
+}
+
+// Steps returns the current step list
 func (hit *defaultInstance) Steps() []IStep {
 	return hit.steps
 }
 
-// AddSteps add the specified steps to the queue
+// AddSteps adds the specified steps to the step list
 func (hit *defaultInstance) AddSteps(steps ...IStep) {
 	for i := 0; i < len(steps); i++ {
 		hit.steps = append(hit.steps, steps[i])
 	}
 }
 
-// RunSteps add the specified steps to the queue
-func (hit *defaultInstance) RunSteps(steps ...IStep) {
-	for i := 0; i < len(steps); i++ {
-		if err := steps[i].Exec(hit); err != nil {
-			panic(err)
-		}
-	}
-}
-
+// RemoveSteps remove the specified steps from the step list
 func (hit *defaultInstance) RemoveSteps(steps ...IStep) {
 removeStep:
 	for j := len(steps) - 1; j >= 0; j-- {
@@ -171,6 +209,41 @@ removeStep:
 				continue removeStep
 			}
 		}
+	}
+}
+
+// Do runs the specified steps in in this context
+// Example:
+//           Expect().Custom(func(hit Hit) {
+//               err := Do(
+//                   Expect().Status(200),
+//               )
+//               if err != nil {
+//                   panic(err)
+//               }
+//           })
+func (hit *defaultInstance) Do(steps ...IStep) error {
+	for _, step := range steps {
+		if step.when() != hit.state && step.when() != CleanStep {
+			return xerrors.Errorf("unable to execute `%s' during %s, can only be run during %s", step.clearPath().String(), hit.state.String(), step.when().String())
+		}
+		if err := step.exec(hit); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// MustDo runs the specified steps in in this context and panics on failure
+// Example:
+//           Expect().Custom(func(hit Hit) {
+//               MustDo(
+//                   Expect().Status(200),
+//               )
+//           })
+func (hit *defaultInstance) MustDo(steps ...IStep) {
+	if err := hit.Do(steps...); err != nil {
+		panic(err)
 	}
 }
 

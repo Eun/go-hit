@@ -3,6 +3,8 @@ package hit
 import (
 	"fmt"
 
+	"strings"
+
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -11,16 +13,16 @@ type pathPart struct {
 	Arguments []interface{}
 }
 
-type CleanPath []pathPart
+type clearPath []pathPart
 
-func (p CleanPath) Push(name string, arguments []interface{}) CleanPath {
-	return append(p, pathPart{
+func (cleanPath clearPath) Push(name string, arguments []interface{}) clearPath {
+	return append(cleanPath, pathPart{
 		Func:      name,
 		Arguments: arguments,
 	})
 }
 
-func NewCleanPath(name string, arguments []interface{}) CleanPath {
+func newClearPath(name string, arguments []interface{}) clearPath {
 	return []pathPart{
 		{
 			Func:      name,
@@ -34,8 +36,8 @@ func funcComparer(x, y func(Hit)) bool {
 	return fmt.Sprintf("%p", x) == fmt.Sprintf("%p", y)
 }
 
-func (haystack CleanPath) Contains(needle CleanPath) bool {
-	haySize := len(haystack)
+func (cleanPath clearPath) Contains(needle clearPath) bool {
+	haySize := len(cleanPath)
 	needleSize := len(needle)
 	if needleSize > haySize {
 		return false
@@ -43,15 +45,23 @@ func (haystack CleanPath) Contains(needle CleanPath) bool {
 	haySize = needleSize
 
 	for i := 0; i < haySize; i++ {
-		if haystack[i].Func != needle[i].Func {
+		if cleanPath[i].Func != needle[i].Func {
 			return false
 		}
 
 		if len(needle[i].Arguments) > 0 {
-			if !cmp.Equal(haystack[i].Arguments, needle[i].Arguments, cmp.Comparer(funcComparer)) {
+			if !cmp.Equal(cleanPath[i].Arguments, needle[i].Arguments, cmp.Comparer(funcComparer)) {
 				return false
 			}
 		}
 	}
 	return true
+}
+
+func (cleanPath clearPath) String() string {
+	parts := make([]string, len(cleanPath))
+	for i := range cleanPath {
+		parts[i] = cleanPath[i].Func
+	}
+	return strings.Join(parts, ".")
 }

@@ -16,10 +16,10 @@ type IExpectHeaders interface {
 
 type expectHeaders struct {
 	expect    IExpect
-	cleanPath CleanPath
+	cleanPath clearPath
 }
 
-func newExpectHeaders(expect IExpect, cleanPath CleanPath) IExpectHeaders {
+func newExpectHeaders(expect IExpect, cleanPath clearPath) IExpectHeaders {
 	return &expectHeaders{
 		expect:    expect,
 		cleanPath: cleanPath,
@@ -30,82 +30,98 @@ func newExpectHeaders(expect IExpect, cleanPath CleanPath) IExpectHeaders {
 // Example:
 //           Expect().Headers().Contains("Content-Type")
 func (hdr *expectHeaders) Contains(v string) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: hdr.cleanPath.Push("Contains", []interface{}{v}),
-		Exec: func(hit Hit) {
+		ClearPath: hdr.cleanPath.Push("Contains", []interface{}{v}),
+		Exec: func(hit Hit) error {
 			minitest.Contains(hit.Response().Header, v)
+			return nil
 		},
-	})
+	}
 }
 
 // NotContains checks if the specified header is not present
 // Example:
 //           Expect().Headers().NotContains("Content-Type")
 func (hdr *expectHeaders) NotContains(v string) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: hdr.cleanPath.Push("NotContains", []interface{}{v}),
-		Exec: func(hit Hit) {
+		ClearPath: hdr.cleanPath.Push("NotContains", []interface{}{v}),
+		Exec: func(hit Hit) error {
 			minitest.NotContains(hit.Response().Header, v)
+			return nil
 		},
-	})
+	}
 }
 
 // Empty checks if the headers are empty
 // Example:
 //           Expect().Headers().Empty()
 func (hdr *expectHeaders) Empty() IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: hdr.cleanPath.Push("Empty", nil),
-		Exec: func(hit Hit) {
+		ClearPath: hdr.cleanPath.Push("Empty", nil),
+		Exec: func(hit Hit) error {
 			minitest.Empty(hit.Response().Header)
+			return nil
 		},
-	})
+	}
 }
 
 // Len checks if the amount of headers are equal to the specified size
 // Example:
 //           Expect().Headers().Len(0)
 func (hdr *expectHeaders) Len(size int) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: hdr.cleanPath.Push("Len", []interface{}{size}),
-		Exec: func(hit Hit) {
+		ClearPath: hdr.cleanPath.Push("Len", []interface{}{size}),
+		Exec: func(hit Hit) error {
 			minitest.Len(hit.Response().Header, size)
+			return nil
 		},
-	})
+	}
 }
 
 // Equal checks if the headers are equal to the specified one
 // Example:
 //           Expect().Headers().Equal(map[string]string{"Content-Type": "application/json"})
 func (hdr *expectHeaders) Equal(v interface{}) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: hdr.cleanPath.Push("Equal", []interface{}{v}),
-		Exec: func(hit Hit) {
+		ClearPath: hdr.cleanPath.Push("Equal", []interface{}{v}),
+		Exec: func(hit Hit) error {
 			compareData, err := makeCompareable(hit.Response().Header, v)
-			minitest.NoError(err)
+			if err != nil {
+				return err
+			}
 			minitest.Equal(v, compareData)
+			return nil
 		},
-	})
+	}
 }
 
 // NotEqual checks if the headers are equal to the specified one
 // Example:
 //           Expect().Headers().NotEqual(map[string]string{"Content-Type": "application/json"})
 func (hdr *expectHeaders) NotEqual(v interface{}) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: hdr.cleanPath.Push("NotEqual", []interface{}{v}),
-		Exec: func(hit Hit) {
+		ClearPath: hdr.cleanPath.Push("NotEqual", []interface{}{v}),
+		Exec: func(hit Hit) error {
 			compareData, err := makeCompareable(hit.Response().Header, v)
-			minitest.NoError(err)
+			if err != nil {
+				return err
+			}
 			minitest.NotEqual(v, compareData)
+			return nil
 		},
-	})
+	}
 }
 
 // Get a specific header

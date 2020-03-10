@@ -57,7 +57,7 @@ func TestExpect(t *testing.T) {
 					Post(s.URL),
 					Send().Body("Hello World"),
 					Expect(func(hit Hit) {
-						hit.RunSteps(Expect("Hello Universe"))
+						hit.MustDo(Expect("Hello Universe"))
 					})),
 				PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
 			)
@@ -95,10 +95,10 @@ func TestExpect_DeepFunc(t *testing.T) {
 			Post(s.URL),
 			Send().Body("Hello World"),
 			Expect(func(h1 Hit) {
-				h1.RunSteps(Expect(func(h2 Hit) {
-					h2.RunSteps(Expect(func(h3 Hit) {
+				h1.MustDo(Expect(func(h2 Hit) {
+					h2.MustDo(Expect(func(h3 Hit) {
 						calledFunc = true
-						h3.RunSteps(Expect().Body().Equal("Hello Universe"))
+						h3.MustDo(Expect().Body().Equal("Hello Universe"))
 					}))
 				}))
 			}),

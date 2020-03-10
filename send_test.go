@@ -3,11 +3,98 @@ package hit_test
 import (
 	"testing"
 
+	"io"
+	"net/http"
+	"net/http/httptest"
+
 	"bytes"
 
 	. "github.com/Eun/go-hit"
 	"github.com/stretchr/testify/require"
 )
+
+func TestSend(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("func", func(t *testing.T) {
+		t.Run("with correct parameter (using Request)", func(t *testing.T) {
+			calledFunc := false
+			Test(t,
+				Post(s.URL),
+				Send(func(e Hit) {
+					calledFunc = true
+					e.Request().Body().SetString("Hello World")
+				}),
+				Expect().Body().Equal(`Hello World`),
+			)
+			require.True(t, calledFunc)
+		})
+		t.Run("with correct parameter (using Hit)", func(t *testing.T) {
+			calledFunc := false
+			Test(t,
+				Post(s.URL),
+				Send(func(e Hit) {
+					calledFunc = true
+					e.MustDo(Send(`Hello World`))
+				}),
+				Expect().Body().Equal(`Hello World`),
+			)
+			require.True(t, calledFunc)
+		})
+		t.Run("with invalid parameter", func(t *testing.T) {
+			calledFunc := false
+			Test(t,
+				Post(s.URL),
+				Send(func() {
+					calledFunc = true
+				}),
+				Expect().Body().Equal(``),
+			)
+			require.True(t, calledFunc)
+		})
+	})
+
+	t.Run("bytes", func(t *testing.T) {
+		Test(t,
+			Post(s.URL),
+			Send([]byte("Hello World")),
+			Expect().Body().Equal(`Hello World`),
+		)
+	})
+
+	t.Run("string", func(t *testing.T) {
+		Test(t,
+			Post(s.URL),
+			Send("Hello World"),
+			Expect().Body().Equal(`Hello World`),
+		)
+	})
+
+	t.Run("reader", func(t *testing.T) {
+		Test(t,
+			Post(s.URL),
+			Send(bytes.NewBufferString("Hello World")),
+			Expect().Body().Equal(`Hello World`),
+		)
+	})
+
+	t.Run("slice", func(t *testing.T) {
+		Test(t,
+			Post(s.URL),
+			Send([]string{"A", "B"}),
+			Expect().Body().Equal(`["A","B"]`),
+		)
+	})
+
+	t.Run("int", func(t *testing.T) {
+		Test(t,
+			Post(s.URL),
+			Send(8),
+			Expect().Body().Equal(`8`),
+		)
+	})
+}
 
 func TestSend_Custom(t *testing.T) {
 	s := EchoServer()
@@ -91,122 +178,33 @@ func TestSend_JSON(t *testing.T) {
 	})
 }
 
-func TestSend(t *testing.T) {
-	s := EchoServer()
+func TestSendHeader(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		_, _ = io.WriteString(writer, request.Header.Get("X-Headers"))
+	})
+	s := httptest.NewServer(mux)
 	defer s.Close()
 
-	t.Run("func", func(t *testing.T) {
-		t.Run("with correct parameter (using Request)", func(t *testing.T) {
-			calledFunc := false
-			Test(t,
-				Post(s.URL),
-				Send(func(e Hit) {
-					calledFunc = true
-					e.Request().Body().SetString("Hello World")
-				}),
-				Expect().Body().Equal(`Hello World`),
-			)
-			require.True(t, calledFunc)
-		})
-		t.Run("with correct parameter (using Hit)", func(t *testing.T) {
-			calledFunc := false
-			Test(t,
-				Post(s.URL),
-				Send(func(e Hit) {
-					calledFunc = true
-					e.RunSteps(Send(`Hello World`))
-				}),
-				Expect().Body().Equal(`Hello World`),
-			)
-			require.True(t, calledFunc)
-		})
-		t.Run("with invalid parameter", func(t *testing.T) {
-			calledFunc := false
-			Test(t,
-				Post(s.URL),
-				Send(func() {
-					calledFunc = true
-				}),
-				Expect().Body().Equal(``),
-			)
-			require.True(t, calledFunc)
-		})
-	})
-
-	t.Run("bytes", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Send([]byte("Hello World")),
-			Expect().Body().Equal(`Hello World`),
-		)
-	})
-
-	t.Run("string", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Send("Hello World"),
-			Expect().Body().Equal(`Hello World`),
-		)
-	})
-
-	t.Run("reader", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Send(bytes.NewBufferString("Hello World")),
-			Expect().Body().Equal(`Hello World`),
-		)
-	})
-
-	t.Run("slice", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Send([]string{"A", "B"}),
-			Expect().Body().Equal(`["A","B"]`),
-		)
-	})
-
-	t.Run("int", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Send(8),
-			Expect().Body().Equal(`8`),
-		)
-	})
+	Test(t,
+		Post(s.URL),
+		Send().Header("X-Headers", "World"),
+		Expect().Body().Equal("World"),
+	)
 }
 
-// func TestSend_Clear(t *testing.T) {
-// 	s := EchoServer()
-// 	defer s.Close()
-//
-// 	calledFunc := false
-//
-// 	Test(t,
-// 		Post(s.URL),
-// 		Send([]byte("Hello Go")),
-// 		Send(func(Hit) {
-// 			calledFunc = true
-// 		}),
-// 		Send().Clear(),
-// 		Send([]byte("Hello World")),
-// 		Expect().Body().Equal(`Hello World`),
-// 	)
-// 	require.False(t, calledFunc)
-// }
-
-func TestOutOfContext(t *testing.T) {
-	s := EchoServer()
+func TestSendHeader_DoubleSet(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		_, _ = io.WriteString(writer, request.Header.Get("X-Headers"))
+	})
+	s := httptest.NewServer(mux)
 	defer s.Close()
-	ExpectError(t,
-		Do(
-			Post(s.URL),
-			Send("World"),
-			Send().Custom(func(hit Hit) {
-				Send("Hello")
-			}),
-			Expect().Custom(func(hit Hit) {
-				Expect("World")
-			}),
-		),
-		PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+
+	Test(t,
+		Post(s.URL),
+		Send().Header("X-Headers", "World"),
+		Send().Header("X-Headers", "Universe"),
+		Expect().Body().Equal("Universe"),
 	)
 }

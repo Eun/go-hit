@@ -30,10 +30,10 @@ type IClearExpectHeaders interface {
 
 type clearExpectHeaders struct {
 	expect    IClearExpect
-	cleanPath CleanPath
+	cleanPath clearPath
 }
 
-func newClearExpectHeaders(expect IClearExpect, cleanPath CleanPath) IClearExpectHeaders {
+func newClearExpectHeaders(expect IClearExpect, cleanPath clearPath) IClearExpectHeaders {
 	return &clearExpectHeaders{
 		expect:    expect,
 		cleanPath: cleanPath,
@@ -42,17 +42,17 @@ func newClearExpectHeaders(expect IClearExpect, cleanPath CleanPath) IClearExpec
 
 // implement IStep interface to make sure we can call just Expect().Headers()
 
-func (hdr *clearExpectHeaders) When() StepTime {
+func (hdr *clearExpectHeaders) when() StepTime {
 	return CleanStep
 }
 
-// Exec contains the logic for Clear().Expect().Headers(), it will remove all Expect().Headers() and Expect().Headers().* Steps
-func (hdr *clearExpectHeaders) Exec(hit Hit) error {
+// exec contains the logic for Clear().Expect().Headers(), it will remove all Expect().Headers() and Expect().Headers().* Steps
+func (hdr *clearExpectHeaders) exec(hit Hit) error {
 	removeSteps(hit, hdr.cleanPath)
 	return nil
 }
 
-func (hdr *clearExpectHeaders) CleanPath() CleanPath {
+func (hdr *clearExpectHeaders) clearPath() clearPath {
 	return hdr.cleanPath
 }
 

@@ -43,9 +43,11 @@ type MySend struct {
 
 // User sets the body to the user
 func (snd MySend) User(user User) hit.IStep {
-	return hit.custom(hit.SendStep, func(hit hit.Hit) {
-		hit.Send().Headers().Set("Content-Type", "application/json")
-		hit.Send().Body().JSON(user)
+	return hit.Custom(hit.SendStep, func(hit hit.Hit) {
+		hit.MustDo(
+			Send().Headers().Set("Content-Type", "application/json"),
+			Send().Body().JSON(user),
+		)
 		// or hit.Request()
 		// hit.Request().Header.Set("Content-Type", "application/json")
 		// hit.Request().Body().JSON().Set(user)
@@ -69,10 +71,12 @@ type MyExpect struct {
 // User expects the body to be equal to the specific user
 func (exp MyExpect) User(user User) hit.IStep {
 	// We have to return our Framework to make sure we can use our custom functions later on
-	return hit.custom(hit.ExpectStep, func(hit hit.Hit) {
+	return hit.Custom(hit.ExpectStep, func(hit hit.Hit) {
 		// use hit.IExpect
-		hit.Expect().Header("Content-Type").Equal("application/json")
-		hit.Expect().Body().JSON().Equal("", user)
+		hit.MustDo(
+			Expect().Header("Content-Type").Equal("application/json"),
+			Expect().Body().JSON().Equal("", user),
+		)
 
 		// or hit.Response()
 		// if hit.Response().Header.Get("Content-Type") != "application/json" {
@@ -87,9 +91,9 @@ func (exp MyExpect) User(user User) hit.IStep {
 // Implement the rest for convenience reasons
 // you can copy the contents from the template_framework.go file
 
-// custom calls a custom Step on the specified execution time
+// custom calls a custom function on the specified execution time
 func Custom(when hit.StepTime, exec hit.Callback) hit.IStep {
-	return hit.custom(when, exec)
+	return hit.Custom(when, exec)
 }
 
 // Debug prints the current Request and Response to hit.Stdout(), you can filter the output based on expressions

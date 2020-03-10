@@ -21,11 +21,11 @@ func newDebug(expression []string) IStep {
 	}
 }
 
-func (*debug) When() StepTime {
+func (*debug) when() StepTime {
 	return BeforeExpectStep
 }
 
-func (d *debug) Exec(hit Hit) error {
+func (d *debug) exec(hit Hit) error {
 	type M map[string]interface{}
 
 	getBody := func(body *HTTPBody) interface{} {
@@ -109,6 +109,6 @@ func (d *debug) Exec(hit Hit) error {
 	return err
 }
 
-func (d *debug) CleanPath() CleanPath {
+func (d *debug) clearPath() clearPath {
 	return nil // not clearable
 }

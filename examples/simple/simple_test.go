@@ -48,8 +48,8 @@ func TestCookie(t *testing.T) {
 	}
 
 	steps := []IStep{
-		SetHTTPClient(client),
-		SetBaseURL("https://httpbin.org/cookies"),
+		HTTPClient(client),
+		BaseURL("https://httpbin.org/cookies"),
 		Expect().Status(http.StatusOK),
 	}
 

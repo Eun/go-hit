@@ -99,8 +99,8 @@ func Test_Debug(t *testing.T) {
 			Post(s.URL),
 			Stdout(buf),
 			Send("Hello World"),
-			Custom(AfterSendStep, func(hit Hit) {
-				hit.RunSteps(Debug("Request"))
+			Custom(BeforeExpectStep, func(hit Hit) {
+				hit.MustDo(Debug("Request"))
 			}),
 		)
 
@@ -292,7 +292,7 @@ func TestMultiUse(t *testing.T) {
 		defer s.Close()
 		template := []IStep{
 			Post(s.URL),
-			Send().Header("Content-Type").Set("application/json"),
+			Send().Header("Content-Type", "application/json"),
 			Expect().Header("Content-Type").Equal("application/json"),
 		}
 		Test(t,
@@ -346,69 +346,68 @@ func TestHTTPClient(t *testing.T) {
 	)
 }
 
-// func TestCombineSteps(t *testing.T) {
-// 	s := EchoServer()
-// 	defer s.Close()
-//
-// 	ExpectError(t,
-// 		Do(
-// 			CombineSteps(
-// 				Post(s.URL),
-// 				Send("Hello"),
-// 				Expect("Hello"),
-// 			),
-// 			Expect().Clear(),
-// 			Expect("World"),
-// 		),
-// 		PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
-// 	)
-// }
+func TestCombineSteps(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
 
-//
-// func TestCombineSteps_DoubleExecution(t *testing.T) {
-// 	s := EchoServer()
-// 	defer s.Close()
-//
-// 	t.Run("send", func(t *testing.T) {
-// 		calls := 0
-// 		Test(
-// 			t,
-// 			Post(s.URL),
-// 			CombineSteps(
-// 				Send().Custom(func(hit Hit) {
-// 					calls++
-// 				}),
-// 			),
-// 		)
-// 		require.Equal(t, 1, calls)
-// 	})
-// 	t.Run("expect", func(t *testing.T) {
-// 		calls := 0
-// 		Test(
-// 			t,
-// 			Post(s.URL),
-// 			CombineSteps(
-// 				Expect().Custom(func(hit Hit) {
-// 					calls++
-// 				}),
-// 			),
-// 		)
-// 		require.Equal(t, 1, calls)
-// 	})
-// 	t.Run("other", func(t *testing.T) {
-// 		calls := 0
-// 		Test(
-// 			t,
-// 			Post(s.URL),
-// 			CombineSteps(
-// 				Custom(BeforeSendStep, func(hit Hit) {
-// 					calls++
-// 				}),
-// 			),
-// 		)
-// 		require.Equal(t, 1, calls)
-// 	})
-// }
+	ExpectError(t,
+		Do(
+			CombineSteps(
+				Post(s.URL),
+				Send("Hello"),
+				Expect("Hello"),
+			),
+			Clear().Expect(),
+			Expect("World"),
+		),
+		PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+	)
+}
+
+func TestCombineSteps_DoubleExecution(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("send", func(t *testing.T) {
+		calls := 0
+		Test(
+			t,
+			Post(s.URL),
+			CombineSteps(
+				Send().Custom(func(hit Hit) {
+					calls++
+				}),
+			),
+		)
+		require.Equal(t, 1, calls)
+	})
+	t.Run("expect", func(t *testing.T) {
+		calls := 0
+		Test(
+			t,
+			Post(s.URL),
+			CombineSteps(
+				Expect().Custom(func(hit Hit) {
+					calls++
+				}),
+			),
+		)
+		require.Equal(t, 1, calls)
+	})
+	t.Run("other", func(t *testing.T) {
+		calls := 0
+		Test(
+			t,
+			Post(s.URL),
+			CombineSteps(
+				Custom(BeforeSendStep, func(hit Hit) {
+					calls++
+				}),
+			),
+		)
+		require.Equal(t, 1, calls)
+	})
+}
 
 func TestDescription(t *testing.T) {
 	s := EchoServer()
@@ -455,7 +454,7 @@ func TestPath(t *testing.T) {
 	)
 }
 
-func TestRunSteps(t *testing.T) {
+func TestDo(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
@@ -466,7 +465,7 @@ func TestRunSteps(t *testing.T) {
 				Post(s.URL),
 				Send("Hello World"),
 				Custom(ExpectStep, func(hit Hit) {
-					hit.RunSteps(
+					hit.MustDo(
 						Expect("Hello Universe"),
 					)
 					shouldNotRun = true
@@ -476,4 +475,39 @@ func TestRunSteps(t *testing.T) {
 		)
 		require.False(t, shouldNotRun)
 	})
+
+	t.Run("Expect in Send Step", func(t *testing.T) {
+		shouldNotRun := false
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send("Hello World"),
+				Custom(SendStep, func(hit Hit) {
+					hit.MustDo(
+						Expect("Hello Universe"),
+					)
+					shouldNotRun = true
+				}),
+			),
+			PtrStr("unable to execute `Expect' during SendStep, can only be run during ExpectStep"),
+		)
+		require.False(t, shouldNotRun)
+	})
+}
+
+func TestOutOfContext(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	Test(
+		t,
+		Post(s.URL),
+		Send("World"),
+		Expect("World"),
+		Send().Custom(func(hit Hit) {
+			Send("Hello Universe") // this will never be run, because you need to wrap this with hit.Do()/MustDo()
+		}),
+		Expect().Custom(func(hit Hit) {
+			Expect("Hello Universe") // this will never be run, because you need to wrap this with hit.Do()/MustDo()
+		}),
+	)
 }

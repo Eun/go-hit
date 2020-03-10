@@ -32,7 +32,7 @@ func TestExpectBodyJSON_Equal(t *testing.T) {
 				Post(s.URL),
 				Send().Body(`"Hello Universe"`),
 				Expect().Custom(func(hit Hit) {
-					hit.RunSteps(Expect().Body().JSON("Hello World"))
+					hit.MustDo(Expect().Body().JSON("Hello World"))
 				}),
 			),
 			PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
@@ -286,7 +286,7 @@ func TestExpectBodyJSON_NotEqual(t *testing.T) {
 				Post(s.URL),
 				Send().Body(`"Hello World"`),
 				Expect().Custom(func(hit Hit) {
-					hit.RunSteps(Expect().Body().JSON().NotEqual("", "Hello World"))
+					hit.MustDo(Expect().Body().JSON().NotEqual("", "Hello World"))
 				}),
 			),
 			PtrStr(`should not be "Hello World"`),

@@ -1,32 +1,40 @@
 package hit
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 	"os"
 
 	"io"
 
-	"sync"
-
-	"runtime"
-
-	"strings"
+	"fmt"
 
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
 	"github.com/Eun/go-hit/internal/minitest"
 )
 
-var contexts sync.Map
+var ett *errortrace.ErrorTraceTemplate
+
+func init() {
+	ett = errortrace.New(
+		"testing",
+		"runtime",
+		errortrace.IgnoreFunc((*hitStep).exec),
+		errortrace.IgnoreStruct((*defaultInstance).Do),
+		errortrace.IgnoreFunc((*expect).Custom),
+		errortrace.IgnoreFunc((*send).Custom),
+		errortrace.IgnoreFunc(Do),
+		errortrace.IgnoreFunc(Test),
+		errortrace.IgnorePackage(minitest.Errorf),
+	)
+}
 
 // Send sends the specified data as the body payload
 // Examples:
 //           Send("Hello World")
 //           Send().Body("Hello World")
 func Send(data ...interface{}) ISend {
-	return newSend(NewCleanPath("Send", data), data)
+	return newSend(newClearPath("Send", data), data)
 }
 
 // Expect expects the body to be equal the specified value, omit the parameter to get more options
@@ -34,7 +42,7 @@ func Send(data ...interface{}) ISend {
 //           Expect("Hello World")
 //           Expect().Body().Contains("Hello World")
 func Expect(data ...interface{}) IExpect {
-	return newExpect(NewCleanPath("Expect", data), data)
+	return newExpect(newClearPath("Expect", data), data)
 }
 
 // Debug prints the current Request and Response to hit.Stdout(), you can filter the output based on expressions
@@ -47,24 +55,28 @@ func Debug(expression ...string) IStep {
 
 // HTTPClient sets the client for the request
 func HTTPClient(client *http.Client) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      BeforeSendStep,
-		CleanPath: nil, // not clearable
-		Exec: func(hit Hit) {
+		ClearPath: nil, // not clearable
+		Exec: func(hit Hit) error {
 			hit.SetHTTPClient(client)
+			return nil
 		},
-	})
+	}
 }
 
 // Stdout sets the output to the specified writer
 func Stdout(w io.Writer) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      BeforeSendStep,
-		CleanPath: nil, // not clearable
-		Exec: func(hit Hit) {
+		ClearPath: nil, // not clearable
+		Exec: func(hit Hit) error {
 			hit.SetStdout(w)
+			return nil
 		},
-	})
+	}
 }
 
 // BaseURL sets the base url for each Connect, Delete, Get, Head, Post, Options, Put, Trace, SetMethod makeMethodStep
@@ -72,24 +84,28 @@ func Stdout(w io.Writer) IStep {
 //           BaseURL("http://example.com")
 //           BaseURL("http://%s/%s", domain, path)
 func BaseURL(url string, a ...interface{}) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      BeforeSendStep,
-		CleanPath: nil, // not clearable
-		Exec: func(hit Hit) {
+		ClearPath: nil, // not clearable
+		Exec: func(hit Hit) error {
 			hit.SetBaseURL(url, a...)
+			return nil
 		},
-	})
+	}
 }
 
 // Request creates a new Hit instance with an existing http request
 func Request(request *http.Request) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      BeforeSendStep,
-		CleanPath: nil, // not clearable
-		Exec: func(hit Hit) {
+		ClearPath: nil, // not clearable
+		Exec: func(hit Hit) error {
 			hit.SetRequest(request)
+			return nil
 		},
-	})
+	}
 }
 
 // Method creates a new Hit instance with the specified makeMethodStep and url
@@ -101,15 +117,21 @@ func Method(method, url string, a ...interface{}) IStep {
 }
 
 func makeMethodStep(method, url string, a ...interface{}) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      BeforeSendStep,
-		CleanPath: nil, // not clearable
-		Exec: func(hit Hit) {
+		ClearPath: nil, // not clearable
+		Exec: func(hit Hit) error {
 			request, err := http.NewRequest(method, internal.MakeURL(hit.BaseURL(), url, a...), nil)
-			minitest.NoError(err, "unable to create request")
+			if err != nil {
+				return err
+			}
+			// remove some standard headers
+			request.Header.Set("User-Agent", "")
 			hit.SetRequest(request)
+			return nil
 		},
-	})
+	}
 }
 
 // Connect creates a new Hit instance with CONNECT as the http makeMethodStep, use the optional arguments to format the url
@@ -194,27 +216,27 @@ func Do(steps ...IStep) error {
 		client: http.DefaultClient,
 		stdout: os.Stdout,
 		steps:  steps,
+		state:  CombineStep,
 	}
-	id := getContextID()
-	if id == 0 {
-		return errors.New("unable to get context id")
+	if err := hit.runSteps(CombineStep); err != nil {
+		return err
 	}
-	contexts.Store(id, hit)
-	defer contexts.Delete(id)
-
+	hit.state = CleanStep
 	if err := hit.runSteps(CleanStep); err != nil {
 		return err
 	}
-
+	hit.state = BeforeSendStep
 	if err := hit.runSteps(BeforeSendStep); err != nil {
 		return err
 	}
 	if hit.request == nil {
 		return fmt.Errorf("unable to perform request: no request set, did you called Post(), Get(), ...?")
 	}
+	hit.state = SendStep
 	if err := hit.runSteps(SendStep); err != nil {
 		return err
 	}
+	hit.state = AfterSendStep
 	if err := hit.runSteps(AfterSendStep); err != nil {
 		return err
 	}
@@ -225,19 +247,24 @@ func Do(steps ...IStep) error {
 	}
 
 	hit.response = newHTTPResponse(hit, res)
+	hit.state = BeforeExpectStep
 	if err := hit.runSteps(BeforeExpectStep); err != nil {
 		return err
 	}
+	hit.state = ExpectStep
 	if err := hit.runSteps(ExpectStep); err != nil {
 		return err
 	}
+	hit.state = AfterExpectStep
 	if err := hit.runSteps(AfterExpectStep); err != nil {
 		return err
 	}
 	if hit.request.Request.Body != nil {
-		_ = hit.request.Request.Body.Close()
+		if err := hit.request.Request.Body.Close(); err != nil {
+			return err
+		}
 	}
-	return nil
+	return err
 }
 
 func MustDo(steps ...IStep) {
@@ -248,62 +275,31 @@ func MustDo(steps ...IStep) {
 
 // CombineSteps combines multiple steps to one
 func CombineSteps(steps ...IStep) IStep {
-	return custom(Step{
-		When:      BeforeSendStep,
-		CleanPath: nil, // not clearable
-		Exec: func(hit Hit) {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CombineStep,
+		ClearPath: nil, // not clearable
+		Exec: func(hit Hit) error {
 			hit.AddSteps(steps...)
+			return nil
 		},
-	})
-}
-
-func getContextID() uintptr {
-	var pc [16]uintptr
-
-	skip := 0
-	for {
-		n := runtime.Callers(skip, pc[:])
-		frames := runtime.CallersFrames(pc[:n])
-		for {
-			frame, more := frames.Next()
-			fmt.Println(frame.Function)
-			// if strings.HasSuffix(frame.Function, "github.com/Eun/go-hit.(*defaultInstance).RunSteps") {
-			// 	return 0
-			// }
-			if strings.HasSuffix(frame.Function, "github.com/Eun/go-hit.Do") {
-				return frame.Entry
-			}
-			if !more {
-				return 0
-			}
-		}
-		skip += n
 	}
-}
-func getContext() Hit {
-	id := getContextID()
-	if id == 0 {
-		return nil
-	}
-	v, ok := contexts.Load(id)
-	if !ok {
-		return nil
-	}
-	return v.(Hit)
 }
 
 // Description sets a custom description for this test.
 // The description will be printed in an error case
 func Description(description string) IStep {
-	return custom(Step{
-		When:      BeforeExpectStep,
-		CleanPath: nil, // not clearable
-		Exec: func(hit Hit) {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      BeforeSendStep,
+		ClearPath: nil, // not clearable
+		Exec: func(hit Hit) error {
 			hit.SetDescription(description)
+			return nil
 		},
-	})
+	}
 }
 
 func Clear() IClear {
-	return newClear(getContext())
+	return newClear()
 }

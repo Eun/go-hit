@@ -1,10 +1,9 @@
 package hit
 
 import (
-	"errors"
-
 	"github.com/Eun/go-hit/internal"
 	"github.com/mohae/deepcopy"
+	"golang.org/x/xerrors"
 )
 
 type IExpect interface {
@@ -20,7 +19,7 @@ type IExpect interface {
 
 	// custom can be used to expect a custom behaviour
 	// Example:
-	//           Expect().custom(func(hit Hit) {
+	//           Expect().Custom(func(hit Hit) {
 	//               if hit.Response().StatusCode != 200 {
 	//                   panic("Expected 200")
 	//               }
@@ -46,33 +45,35 @@ type IExpect interface {
 }
 
 type expect struct {
-	cleanPath CleanPath
+	cleanPath clearPath
 }
 
-func newExpect(cleanPath CleanPath, params []interface{}) IExpect {
+func newExpect(cleanPath clearPath, params []interface{}) IExpect {
 	exp := &expect{
 		cleanPath: cleanPath,
 	}
 
 	if param, ok := internal.GetLastArgument(params); ok {
 		// default action is Interface()
-		return finalExpect{wrap(wrapStep{
-			IStep:     exp.Interface(param),
-			CleanPath: cleanPath,
-		})}
+		return finalExpect{&hitStep{
+			Trace:     ett.Prepare(),
+			When:      ExpectStep,
+			ClearPath: cleanPath,
+			Exec:      exp.Interface(param).exec,
+		}}
 	}
 	return exp
 }
 
-func (*expect) Exec(hit Hit) error {
-	return errors.New("unsupported")
+func (*expect) exec(hit Hit) error {
+	return xerrors.New("unsupported")
 }
 
-func (*expect) When() StepTime {
+func (*expect) when() StepTime {
 	return ExpectStep
 }
 
-func (exp *expect) CleanPath() CleanPath {
+func (exp *expect) clearPath() clearPath {
 	return exp.cleanPath
 }
 
@@ -92,11 +93,15 @@ func (exp *expect) Body(data ...interface{}) IExpectBody {
 //               }
 //           })
 func (exp *expect) Custom(f Callback) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: exp.cleanPath.Push("Custom", []interface{}{f}),
-		Exec:      f,
-	})
+		ClearPath: exp.cleanPath.Push("Custom", []interface{}{f}),
+		Exec: func(hit Hit) error {
+			f(hit)
+			return nil
+		},
+	}
 }
 
 // Headers gets all headers
@@ -128,27 +133,11 @@ func (exp *expect) Status(code ...int) IExpectStatus {
 
 // Interface expects the specified interface
 func (exp *expect) Interface(data interface{}) IStep {
-	switch x := data.(type) {
-	case func(e Hit):
-		return custom(Step{
-			When:      ExpectStep,
-			CleanPath: exp.cleanPath.Push("Interface", []interface{}{data}),
-			Exec:      x,
-		})
-	default:
-		if f := internal.GetGenericFunc(data); f.IsValid() {
-			return custom(Step{
-				When:      ExpectStep,
-				CleanPath: exp.cleanPath.Push("Interface", []interface{}{data}),
-				Exec: func(hit Hit) {
-					internal.CallGenericFunc(f)
-				},
-			})
-		}
-		return wrap(wrapStep{
-			IStep:     exp.Body(data),
-			CleanPath: exp.cleanPath.Push("Interface", []interface{}{data}),
-		})
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      ExpectStep,
+		ClearPath: exp.cleanPath.Push("Interface", []interface{}{data}),
+		Exec:      exp.Body(data).exec,
 	}
 }
 

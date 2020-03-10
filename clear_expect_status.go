@@ -1,10 +1,9 @@
 package hit
 
 import (
-	"errors"
-
 	"github.com/Eun/go-hit/internal"
 	"github.com/Eun/go-hit/internal/minitest"
+	"golang.org/x/xerrors"
 )
 
 type IClearExpectStatus interface {
@@ -23,10 +22,10 @@ type IClearExpectStatus interface {
 
 type clearExpectStatus struct {
 	expect    IClearExpect
-	cleanPath CleanPath
+	cleanPath clearPath
 }
 
-func newClearExpectStatus(expect IClearExpect, cleanPath CleanPath, params []int) IClearExpectStatus {
+func newClearExpectStatus(expect IClearExpect, cleanPath clearPath, params []int) IClearExpectStatus {
 	status := &clearExpectStatus{
 		expect:    expect,
 		cleanPath: cleanPath,
@@ -39,15 +38,15 @@ func newClearExpectStatus(expect IClearExpect, cleanPath CleanPath, params []int
 	return status
 }
 
-func (*clearExpectStatus) Exec(Hit) error {
-	return errors.New("unsupported")
+func (*clearExpectStatus) exec(Hit) error {
+	return xerrors.New("unsupported")
 }
 
-func (*clearExpectStatus) When() StepTime {
+func (*clearExpectStatus) when() StepTime {
 	return CleanStep
 }
 
-func (status *clearExpectStatus) CleanPath() CleanPath {
+func (status *clearExpectStatus) clearPath() clearPath {
 	return status.cleanPath
 }
 
@@ -55,30 +54,34 @@ func (status *clearExpectStatus) CleanPath() CleanPath {
 // Examples:
 //           Expect().Status().Equal(200)
 func (status *clearExpectStatus) Equal(statusCode int) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: status.CleanPath().Push("Equal", []interface{}{statusCode}),
-		Exec: func(hit Hit) {
+		ClearPath: status.clearPath().Push("Equal", []interface{}{statusCode}),
+		Exec: func(hit Hit) error {
 			if hit.Response().StatusCode != statusCode {
 				minitest.Errorf("Expected status code to be %d but was %d instead", statusCode, hit.Response().StatusCode)
 			}
+			return nil
 		},
-	})
+	}
 }
 
 // NotEqual checks if the status is equal to the specified value
 // Examples:
 //           Expect().Status().NotEqual(200)
 func (status *clearExpectStatus) NotEqual(statusCode int) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: status.CleanPath().Push("NotEqual", []interface{}{statusCode}),
-		Exec: func(hit Hit) {
+		ClearPath: status.clearPath().Push("NotEqual", []interface{}{statusCode}),
+		Exec: func(hit Hit) error {
 			if hit.Response().StatusCode == statusCode {
 				minitest.Errorf("Expected status code not to be %d", statusCode)
 			}
+			return nil
 		},
-	})
+	}
 }
 
 // OneOf checks if the status is one of the specified values
@@ -89,13 +92,15 @@ func (status *clearExpectStatus) OneOf(statusCodes ...int) IStep {
 	for i := range statusCodes {
 		args[i] = statusCodes[i]
 	}
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: status.CleanPath().Push("OneOf", args),
-		Exec: func(hit Hit) {
+		ClearPath: status.clearPath().Push("OneOf", args),
+		Exec: func(hit Hit) error {
 			minitest.Contains(statusCodes, hit.Response().StatusCode)
+			return nil
 		},
-	})
+	}
 }
 
 // NotOneOf checks if the status is none of the specified values
@@ -106,103 +111,117 @@ func (status *clearExpectStatus) NotOneOf(statusCodes ...int) IStep {
 	for i := range statusCodes {
 		args[i] = statusCodes[i]
 	}
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: status.CleanPath().Push("NotOneOf", args),
-		Exec: func(hit Hit) {
+		ClearPath: status.clearPath().Push("NotOneOf", args),
+		Exec: func(hit Hit) error {
 			minitest.NotContains(statusCodes, hit.Response().StatusCode)
+			return nil
 		},
-	})
+	}
 }
 
 // GreaterThan checks if the status is greater than the specified value
 // Examples:
 //           Expect().Status().GreaterThan(400)
 func (status *clearExpectStatus) GreaterThan(statusCode int) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: status.CleanPath().Push("GreaterThan", []interface{}{statusCode}),
-		Exec: func(hit Hit) {
+		ClearPath: status.clearPath().Push("GreaterThan", []interface{}{statusCode}),
+		Exec: func(hit Hit) error {
 			if hit.Response().StatusCode <= statusCode {
 				minitest.Errorf("expected %d to be greater than %d", hit.Response().StatusCode, statusCode)
 			}
+			return nil
 		},
-	})
+	}
 }
 
 // LessThan checks if the status is less than the specified value
 // Examples:
 //           Expect().Status().LessThan(400)
 func (status *clearExpectStatus) LessThan(statusCode int) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: status.CleanPath().Push("LessThan", []interface{}{statusCode}),
-		Exec: func(hit Hit) {
+		ClearPath: status.clearPath().Push("LessThan", []interface{}{statusCode}),
+		Exec: func(hit Hit) error {
 			if hit.Response().StatusCode >= statusCode {
 				minitest.Errorf("expected %d to be less than %d", hit.Response().StatusCode, statusCode)
 			}
+			return nil
 		},
-	})
+	}
 }
 
 // GreaterOrEqualThan checks if the status is greater or equal than the specified value
 // Examples:
 //           Expect().Status().GreaterOrEqualThan(200)
 func (status *clearExpectStatus) GreaterOrEqualThan(statusCode int) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: status.CleanPath().Push("GreaterOrEqualThan", []interface{}{statusCode}),
-		Exec: func(hit Hit) {
+		ClearPath: status.clearPath().Push("GreaterOrEqualThan", []interface{}{statusCode}),
+		Exec: func(hit Hit) error {
 			if hit.Response().StatusCode < statusCode {
 				minitest.Errorf("expected %d to be greater or equal than %d", hit.Response().StatusCode, statusCode)
 			}
+			return nil
 		},
-	})
+	}
 }
 
 // LessOrEqualThan checks if the status is less or equal than the specified value
 // Examples:
 //           Expect().Status().LessOrEqualThan(200)
 func (status *clearExpectStatus) LessOrEqualThan(statusCode int) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: status.CleanPath().Push("LessOrEqualThan", []interface{}{statusCode}),
-		Exec: func(hit Hit) {
+		ClearPath: status.clearPath().Push("LessOrEqualThan", []interface{}{statusCode}),
+		Exec: func(hit Hit) error {
 			if hit.Response().StatusCode > statusCode {
 				minitest.Errorf("expected %d to be less or equal than %d", hit.Response().StatusCode, statusCode)
 			}
+			return nil
 		},
-	})
+	}
 }
 
 // Between checks if the status is between the specified value (inclusive)
 // Examples:
 //           Expect().Status().Between(200, 400)
 func (status *clearExpectStatus) Between(min, max int) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: status.CleanPath().Push("Between", []interface{}{min, max}),
-		Exec: func(hit Hit) {
+		ClearPath: status.clearPath().Push("Between", []interface{}{min, max}),
+		Exec: func(hit Hit) error {
 			if hit.Response().StatusCode < min || hit.Response().StatusCode > max {
 				minitest.Errorf("expected %d to be between %d and %d", hit.Response().StatusCode, min, max)
 			}
+			return nil
 		},
-	})
+	}
 }
 
 // NotBetween checks if the status is not between the specified value (inclusive)
 // Examples:
 //           Expect().Status().NotBetween(200, 400)
 func (status *clearExpectStatus) NotBetween(min, max int) IStep {
-	return custom(Step{
+	return &hitStep{
+		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		CleanPath: status.CleanPath().Push("NotBetween", []interface{}{min, max}),
-		Exec: func(hit Hit) {
+		ClearPath: status.clearPath().Push("NotBetween", []interface{}{min, max}),
+		Exec: func(hit Hit) error {
 			if hit.Response().StatusCode >= min && hit.Response().StatusCode <= max {
 				minitest.Errorf("expected %d not to be between %d and %d", hit.Response().StatusCode, min, max)
 			}
+			return nil
 		},
-	})
+	}
 }
 
 type finalClearExpectStatus struct {
