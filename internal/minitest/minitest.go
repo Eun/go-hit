@@ -76,7 +76,7 @@ func Equal(expected, actual interface{}, customMessageAndArgs ...interface{}) {
 
 func NotEqual(expected, actual interface{}, customMessageAndArgs ...interface{}) {
 	if cmp.Equal(expected, actual) {
-		panicNow(stringJoin("\n", fmt.Sprintf("should not be %#s", PrintValue(actual))), customMessageAndArgs...)
+		panicNow(stringJoin("\n", fmt.Sprintf("should not be %s", PrintValue(actual))), customMessageAndArgs...)
 	}
 }
 

@@ -4,38 +4,109 @@ import (
 	"github.com/Eun/go-hit/internal"
 )
 
+// IClearExpect provides a clear functionality to remove previous steps from running in the Expect() scope
 type IClearExpect interface {
 	IStep
-	// Body removes all Expect().Body() steps and all steps chained to Expect().Body(), e.g. Expect().Body().JSON()
+	// Body removes all previous Expect().Body() steps and all steps chained to Expect().Body() e.g. Expect().Body().Equal("Hello World").
+	//
+	// If you specify an argument it will only remove the Expect().Body() steps matching that argument.
+	//
 	// Examples:
-	//           Clear().Expect().Body()
-	//           Clear().Expect().Body().JSON()
+	//     Clear().Expect().Body()                      // will remove all Expect().Body() steps and all chained steps to Expect() e.g. Expect().Body("Hello World")
+	//     Clear().Expect().Body("Hello World")         // will remove all Expect().Body("Hello World") steps
+	//     Clear().Expect().Body().Equal()              // will remove all Expect().Body().Equal() steps
+	//     Clear().Expect().Body().Equal("Hello World") // will remove all Expect().Body().Equal("Hello World") steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Body("Hello Earth"),
+	//         Clear().Expect().Body(),
+	//         Expect().Body("Hello World"),
+	//     )
 	Body(...interface{}) IClearExpectBody
 
-	// Interface removes all Expect().Interface() steps
+	// Interface removes all previous Expect().Interface() steps.
+	//
+	// If you specify an argument it will only remove the Expect().Interface() steps matching that argument.
+	//
+	// Examples:
+	//     Clear().Expect().Interface()              // will remove all Expect().Interface() steps
+	//     Clear().Expect().Interface("Hello World") // will remove all Expect().Interface("Hello World") steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Interface("Hello Earth"),
+	//         Clear().Expect().Interface(),
+	//         Expect().Interface("Hello World"),
+	//     )
 	Interface(...interface{}) IStep
 
-	// custom removes all Expect().custom() steps
-	// Example:
-	//           Clear().Expect().custom()
+	// Custom removes all previous Expect().Custom() steps.
+	//
+	// If you specify an argument it will only remove the Expect().Custom() steps matching that argument.
+	//
+	// Examples:
+	//     Clear().Expect().Custom(fn) // will remove all Expect().Custom(fn) steps
+	//     Clear().Expect().Custom()   // will remove all Expect().Custom() steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Custom(func(hit Hit) {
+	//             if hit.Response().Body().String() != "Hello Earth" {
+	//                 panic("Expected Hello Earth")
+	//             }
+	//         }),
+	//         Clear().Expect().Custom(),
+	//         Expect().Custom(func(hit Hit) {
+	//             if hit.Response().Body().String() != "Hello World" {
+	//                 panic("Expected Hello World")
+	//             }
+	//         }),
+	//     )
 	Custom(...Callback) IStep
 
-	// Headers removes all Expect().Headers() steps and all steps chained to Expect().Headers(), e.g. Expect().Headers().Contains()
+	// Headers removes all previous Expect().Headers() steps and all steps chained to Expect().Headers()
+	// e.g. Expect().Headers().Contains("Content-Type").
+	//
 	// Examples:
-	//           Clear().Expect().Headers()
-	//           Clear().Expect().Headers().Contains()
+	//     Clear().Expect().Headers()                          // will remove all Expect().Headers() steps
+	//     Clear().Expect().Headers().Contains()               // will remove all Expect().Headers().Contains() steps
+	//     Clear().Expect().Headers().Contains("Content-Type") // will remove all Expect().Headers().Contains("Content-Type") steps
 	Headers() IClearExpectHeaders
 
-	// Header removes all Expect().Header() steps and all steps chained to Expect().Header(), e.g. Expect().Header().Contains()
+	// Header removes all previous Expect().Header() steps and all steps chained to Expect().Header()
+	// e.g. Expect().Header("Content-Type").Equal("Content-Type").
+	//
+	// If you specify an argument it will only remove the Expect().Header() steps matching that argument.
+	//
 	// Examples:
-	//           Clear().Expect().Header()
-	//           Clear().Expect().Header().Equal()
+	//     Clear().Expect().Header()                       // will remove all Expect().Header() steps and all chained steps to Expect().Header() e.g Expect().Header("Content-Type").Equal("Content-Type")
+	//     Clear().Expect().Header("Content-Type")         // will remove all Expect().Header("Content-Type") steps and all chained steps to Expect().Header("Content-Type") e.g. Expect().Header("Content-Type").Equal("application/json")
+	//     Clear().Expect().Header("Content-Type").Equal() // will remove all Expect().Header("Content-Type").Equal() steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Header("Content-Type").Equal("application/json"),
+	//         Clear().Expect().Header(),
+	//         Expect().Header("Content-Type").Equal("application/octet-stream"),
+	//     )
 	Header(...string) IClearExpectSpecificHeader
 
-	// Status removes all Expect().Status() steps and all steps chained to Expect().Status(), e.g. Expect().Status().Equal()
+	// Status removes all previous Expect().Status() steps and all steps chained to Expect().Status()
+	// e.g. Expect().Status().Equal(http.StatusOK).
+	//
+	// If you specify an argument it will only remove the Expect().Status() steps matching that argument.
+	//
 	// Examples:
-	//           Clear(),Expect().Status()
-	//           Clear().Expect().Status().Equal()
+	//           Clear().Expect().Status()              // will remove all Expect().Status() steps and all chained steps to Expect().Status() e.g Expect().Status().Equal(http.StatusOK)
+	//           Clear().Expect().Status(http.StatusOK) // will remove all Expect().Status(http.StatusOK) steps
+	//
+	//           Do(
+	//               Post("https://example.com"),
+	//               Expect().Status(http.StatusNotFound),
+	//               Clear().Expect().Status(),
+	//               Expect().Status(http.StatusOK),
+	//           )
 	Status(...int) IClearExpectStatus
 }
 
@@ -46,29 +117,20 @@ type clearExpect struct {
 
 func newClearExpect(cleanPath clearPath, params []interface{}) IClearExpect {
 	if _, ok := internal.GetLastArgument(params); ok {
-		// default action is Interface()
-		return finalClearExpect{&hitStep{
-			Trace:     ett.Prepare(),
-			When:      CleanStep,
-			ClearPath: nil,
-			Exec: func(hit Hit) error {
-				removeSteps(hit, cleanPath)
-				return nil
-			},
-		}}
+		// this runs if we called Clear().Expect(something)
+		return finalClearExpect{removeStep(cleanPath)}
 	}
 	return &clearExpect{
 		cleanPath: cleanPath,
 	}
 }
 
-// implement IStep interface to make sure we can call just Expect()
-
 func (exp *clearExpect) when() StepTime {
 	return CleanStep
 }
 
 func (exp *clearExpect) exec(hit Hit) error {
+	// this runs if we called Clear().Expect()
 	removeSteps(hit, exp.cleanPath)
 	return nil
 }
@@ -77,42 +139,26 @@ func (exp *clearExpect) clearPath() clearPath {
 	return exp.cleanPath
 }
 
-// Body removes all Expect().Body() steps and all steps chained to Expect().Body(), e.g. Expect().Body().JSON()
-// Examples:
-//           Clear().Expect().Body()
-//           Clear().Expect().Body().JSON()
 func (exp *clearExpect) Body(data ...interface{}) IClearExpectBody {
 	return newClearExpectBody(exp, exp.cleanPath.Push("Body", data), data)
 }
 
-// Interface removes all Expect().Interface() steps
 func (exp *clearExpect) Interface(data ...interface{}) IStep {
 	return removeStep(exp.cleanPath.Push("Interface", data))
 }
 
-// custom removes all Expect().custom() steps
-// Example:
-//           Clear().Expect().custom()
-func (exp *clearExpect) Custom(f ...Callback) IStep {
-	args := make([]interface{}, len(f))
-	for i := range f {
-		args[i] = f[i]
+func (exp *clearExpect) Custom(v ...Callback) IStep {
+	args := make([]interface{}, len(v))
+	for i := range v {
+		args[i] = v[i]
 	}
 	return removeStep(exp.cleanPath.Push("Custom", args))
 }
 
-// Headers removes all Expect().Headers() steps and all steps chained to Expect().Headers(), e.g. Expect().Headers().Contains()
-// Examples:
-//           Clear().Expect().Headers()
-//           Clear().Expect().Headers().Contains()
 func (exp *clearExpect) Headers() IClearExpectHeaders {
 	return newClearExpectHeaders(exp, exp.cleanPath.Push("Headers", nil))
 }
 
-// Header removes all Expect().Header() steps and all steps chained to Expect().Header(), e.g. Expect().Header().Contains()
-// Examples:
-//           Clear().Expect().Header()
-//           Clear().Expect().Header().Equal()
 func (exp *clearExpect) Header(name ...string) IClearExpectSpecificHeader {
 	args := make([]interface{}, len(name))
 	for i := range name {
@@ -121,42 +167,38 @@ func (exp *clearExpect) Header(name ...string) IClearExpectSpecificHeader {
 	return newClearExpectSpecificHeader(exp, exp.cleanPath.Push("Header", args))
 }
 
-// Status removes all Expect().Status() steps and all steps chained to Expect().Status(), e.g. Expect().Status().Equal()
-// Examples:
-//           Clear(),Expect().Status()
-//           Clear().Expect().Status().Equal()
 func (exp *clearExpect) Status(code ...int) IClearExpectStatus {
 	args := make([]interface{}, len(code))
 	for i := range code {
 		args[i] = code[i]
 	}
-	return newClearExpectStatus(exp, exp.cleanPath.Push("Status", args), code)
+	return newClearExpectStatus(exp.cleanPath.Push("Status", args), code)
 }
 
 type finalClearExpect struct {
 	IStep
 }
 
-func (f finalClearExpect) Body(...interface{}) IClearExpectBody {
-	panic("only usable with Expect() not with Expect(value)")
+func (finalClearExpect) Body(...interface{}) IClearExpectBody {
+	panic("only usable with Clear().Expect() not with Clear().Expect(value)")
 }
 
-func (f finalClearExpect) Interface(...interface{}) IStep {
-	panic("only usable with Expect() not with Expect(value)")
+func (finalClearExpect) Interface(...interface{}) IStep {
+	panic("only usable with Clear().Expect() not with Clear().Expect(value)")
 }
 
-func (f finalClearExpect) Custom(...Callback) IStep {
-	panic("only usable with Expect() not with Expect(value)")
+func (finalClearExpect) Custom(...Callback) IStep {
+	panic("only usable with Clear().Expect() not with Clear().Expect(value)")
 }
 
-func (f finalClearExpect) Headers() IClearExpectHeaders {
-	panic("only usable with Expect() not with Expect(value)")
+func (finalClearExpect) Headers() IClearExpectHeaders {
+	panic("only usable with Clear().Expect() not with Clear().Expect(value)")
 }
 
-func (f finalClearExpect) Header(...string) IClearExpectSpecificHeader {
-	panic("only usable with Expect() not with Expect(value)")
+func (finalClearExpect) Header(...string) IClearExpectSpecificHeader {
+	panic("only usable with Clear().Expect() not with Clear().Expect(value)")
 }
 
-func (f finalClearExpect) Status(...int) IClearExpectStatus {
-	panic("only usable with Expect() not with Expect(value)")
+func (finalClearExpect) Status(...int) IClearExpectStatus {
+	panic("only usable with Clear().Expect() not with Clear().Expect(value)")
 }

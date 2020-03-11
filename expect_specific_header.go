@@ -7,8 +7,8 @@ import (
 type IExpectSpecificHeader interface {
 	Contains(v string) IStep
 	NotContains(v string) IStep
-	OneOf(values ...interface{}) IStep
-	NotOneOf(values ...interface{}) IStep
+	OneOf(values ...string) IStep
+	NotOneOf(values ...string) IStep
 	Empty() IStep
 	Len(size int) IStep
 	Equal(v interface{}) IStep
@@ -61,11 +61,15 @@ func (hdr *expectSpecificHeader) NotContains(v string) IStep {
 // OneOf checks if the header value is one of the specified values
 // Example:
 //           Expect().Header("Content-Type").OneOf("application/json", "text/x-json")
-func (hdr *expectSpecificHeader) OneOf(values ...interface{}) IStep {
+func (hdr *expectSpecificHeader) OneOf(values ...string) IStep {
+	args := make([]interface{}, len(values))
+	for i := range values {
+		args[i] = values[i]
+	}
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: hdr.cleanPath.Push("OneOf", values),
+		ClearPath: hdr.cleanPath.Push("OneOf", args),
 		Exec: func(hit Hit) error {
 			minitest.Contains(values, hit.Response().Header.Get(hdr.header))
 			return nil
@@ -76,11 +80,15 @@ func (hdr *expectSpecificHeader) OneOf(values ...interface{}) IStep {
 // NotOneOf checks if the header value is one of the specified values
 // Example:
 //           Expect().Header("Content-Type").NotOneOf("application/json", "text/x-json")
-func (hdr *expectSpecificHeader) NotOneOf(values ...interface{}) IStep {
+func (hdr *expectSpecificHeader) NotOneOf(values ...string) IStep {
+	args := make([]interface{}, len(values))
+	for i := range values {
+		args[i] = values[i]
+	}
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: hdr.cleanPath.Push("NotOneOf", values),
+		ClearPath: hdr.cleanPath.Push("NotOneOf", args),
 		Exec: func(hit Hit) error {
 			minitest.NotContains(values, hit.Response().Header.Get(hdr.header))
 			return nil

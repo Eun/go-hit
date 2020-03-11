@@ -2,44 +2,192 @@ package hit
 
 import (
 	"github.com/Eun/go-hit/internal"
-	"github.com/Eun/go-hit/internal/minitest"
-	"golang.org/x/xerrors"
 )
 
+// IClearExpectStatus provides a clear functionality to remove previous steps from running in the Expect().Status() scope
 type IClearExpectStatus interface {
 	IStep
-	Equal(statusCode int) IStep
-	NotEqual(statusCode int) IStep
-	OneOf(statusCodes ...int) IStep
-	NotOneOf(statusCodes ...int) IStep
-	GreaterThan(statusCode int) IStep
-	LessThan(statusCode int) IStep
-	GreaterOrEqualThan(statusCode int) IStep
-	LessOrEqualThan(statusCode int) IStep
-	Between(min, max int) IStep
-	NotBetween(min, max int) IStep
+	// Equal removes all previous Expect().Status().Equal() steps.
+	//
+	// If you specify an argument it will only remove the Expect().Status().Equal() steps matching that argument.
+	//
+	// Examples:
+	//     Clear().Expect().Status().Equal()              // will remove all Expect().Status().Equal() steps
+	//     Clear().Expect().Status().Equal(http.StatusOK) // will remove all Expect().Status().Equal(http.StatusOK) steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Status().Equal(http.StatusNotFound),
+	//         Clear().Expect().Status().Equal(),
+	//         Expect().Status().Equal(http.StatusOK),
+	//     )
+	Equal(...int) IStep
+
+	// NotEqual removes all previous Expect().Status().NotEqual() steps.
+	//
+	// If you specify an argument it will only remove the Expect().Status().NotEqual() steps matching that argument.
+	//
+	// Examples:
+	//     Clear().Expect().Status().NotEqual()              // will remove all Expect().Status().NotEqual() steps
+	//     Clear().Expect().Status().NotEqual(http.StatusOK) // will remove all Expect().Status().NotEqual(http.StatusOK) steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Status().NotEqual(http.StatusOK),
+	//         Clear().Expect().Status().NotEqual(),
+	//         Expect().Status().NotEqual(http.StatusNotFound),
+	//     )
+	NotEqual(...int) IStep
+
+	// OneOf removes all previous Expect().Status().OneOf() steps.
+	//
+	// If you specify an argument it will only remove the Expect().Status().OneOf() steps matching that argument.
+	//
+	// Examples:
+	//     Clear().Expect().Status().OneOf()              // will remove all Expect().Status().OneOf() steps
+	//     Clear().Expect().Status().OneOf(http.StatusOK) // will remove all Expect().Status().OneOf(http.StatusOK) steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Status().OneOf(http.StatusOK, http.StatusNoContent),
+	//         Clear().Expect().Status().OneOf(),
+	//         Expect().Status().OneOf(http.StatusOK),
+	//     )
+	OneOf(...int) IStep
+
+	// NotOneOf removes all previous Expect().Status().NotOneOf() steps.
+	//
+	// If you specify an argument it will only remove the Expect().Status().NotOneOf() steps matching that argument.
+	//
+	// Examples:
+	//     Clear().Expect().Status().NotOneOf()              // will remove all Expect().Status().NotOneOf() steps
+	//     Clear().Expect().Status().NotOneOf(http.StatusOK) // will remove all Expect().Status().NotOneOf(http.StatusOK) steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Status().NotOneOf(http.StatusOK, http.StatusNoContent),
+	//         Clear().Expect().Status().NotOneOf(),
+	//         Expect().Status().NotOneOf(http.StatusNotFound),
+	//     )
+	NotOneOf(...int) IStep
+
+	// GreaterThan removes all previous Expect().Status().GreaterThan() steps.
+	//
+	// If you specify an argument it will only remove the Expect().Status().GreaterThan() steps matching that argument.
+	//
+	// Examples:
+	//     Clear().Expect().Status().GreaterThan()              // will remove all Expect().Status().GreaterThan() steps
+	//     Clear().Expect().Status().GreaterThan(http.StatusOK) // will remove all Expect().Status().GreaterThan(http.StatusOK) steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Status().GreaterThan(http.StatusContinue),
+	//         Clear().Expect().Status().GreaterThan(),
+	//         Expect().Status().GreaterThan(http.StatusOK),
+	//     )
+	GreaterThan(...int) IStep
+
+	// LessThan removes all previous Expect().Status().LessThan() steps.
+	//
+	// If you specify an argument it will only remove the Expect().Status().LessThan() steps matching that argument.
+	//
+	// Examples:
+	//     Clear().Expect().Status().LessThan()              // will remove all Expect().Status().LessThan() steps
+	//     Clear().Expect().Status().LessThan(http.StatusOK) // will remove all Expect().Status().LessThan(http.StatusOK) steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Status().LessThan(http.StatusBadRequest),
+	//         Clear().Expect().Status().LessThan(),
+	//         Expect().Status().LessThan(http.StatusInternalServerError),
+	//     )
+	LessThan(...int) IStep
+
+	// GreaterOrEqualThan removes all previous Expect().Status().GreaterOrEqualThan() steps.
+	//
+	// If you specify an argument it will only remove the Expect().Status().GreaterOrEqualThan() steps matching that argument.
+	//
+	// Examples:
+	//     Clear().Expect().Status().GreaterOrEqualThan()              // will remove all Expect().Status().GreaterOrEqualThan() steps
+	//     Clear().Expect().Status().GreaterOrEqualThan(http.StatusOK) // will remove all Expect().Status().GreaterOrEqualThan(http.StatusOK) steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Status().GreaterOrEqualThan(http.StatusBadRequest),
+	//         Clear().Expect().Status().GreaterOrEqualThan(),
+	//         Expect().Status().GreaterOrEqualThan(http.StatusOK),
+	//     )
+	GreaterOrEqualThan(...int) IStep
+
+	// GreaterOrEqualThan removes all previous Expect().Status().GreaterOrEqualThan() steps.
+	//
+	// If you specify an argument it will only remove the Expect().Status().GreaterOrEqualThan() steps matching that argument.
+	//
+	// Examples:
+	//     Clear().Expect().Status().GreaterOrEqualThan()              // will remove all Expect().Status().GreaterOrEqualThan() steps
+	//     Clear().Expect().Status().GreaterOrEqualThan(http.StatusOK) // will remove all Expect().Status().GreaterOrEqualThan(http.StatusOK) steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Status().GreaterOrEqualThan(http.StatusBadRequest),
+	//         Clear().Expect().Status().GreaterOrEqualThan(),
+	//         Expect().Status().GreaterOrEqualThan(http.StatusOK),
+	//     )
+	LessOrEqualThan(...int) IStep
+
+	// Between removes all previous Expect().Status().Between() steps.
+	//
+	// If you specify an argument it will only remove the Expect().Status().Between() steps matching that argument.
+	//
+	// Examples:
+	//     Clear().Expect().Status().Between()              // will remove all Expect().Status().Between() steps
+	//     Clear().Expect().Status().Between(http.StatusOK) // will remove all Expect().Status().Between(http.StatusOK) steps
+	//     Clear().Expect().Status().Between(http.StatusOK, http.StatusAccepted) // will remove all Expect().Status().Between(http.StatusOK, http.StatusAccepted) steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Status().Between(http.StatusOK, http.StatusAccepted),
+	//         Clear().Expect().Status().Between(),
+	//         Expect().Status().Between(http.StatusBadRequest, http.StatusUnavailableForLegalReasons),
+	//     )
+	Between(...int) IStep
+
+	// NotBetween removes all previous Expect().Status().NotBetween() steps.
+	//
+	// If you specify an argument it will only remove the Expect().Status().NotBetween() steps matching that argument.
+	//
+	// Examples:
+	//     Clear().Expect().Status().NotBetween()              // will remove all Expect().Status().NotBetween() steps
+	//     Clear().Expect().Status().NotBetween(http.StatusOK) // will remove all Expect().Status().NotBetween(http.StatusOK) steps
+	//     Clear().Expect().Status().NotBetween(http.StatusOK, http.StatusAccepted) // will remove all Expect().Status().NotBetween(http.StatusOK, http.StatusAccepted) steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Status().NotBetween(http.StatusOK, http.StatusAccepted),
+	//         Clear().Expect().Status().NotBetween(),
+	//         Expect().Status().NotBetween(http.StatusBadRequest, http.StatusUnavailableForLegalReasons),
+	//     )
+	NotBetween(...int) IStep
 }
 
 type clearExpectStatus struct {
-	expect    IClearExpect
 	cleanPath clearPath
 }
 
-func newClearExpectStatus(expect IClearExpect, cleanPath clearPath, params []int) IClearExpectStatus {
-	status := &clearExpectStatus{
-		expect:    expect,
+func newClearExpectStatus(cleanPath clearPath, params []int) IClearExpectStatus {
+	if _, ok := internal.GetLastIntArgument(params); ok {
+		// this runs if we called Clear().Expect().Status(something)
+		return finalClearExpectStatus{removeStep(cleanPath)}
+	}
+	return &clearExpectStatus{
 		cleanPath: cleanPath,
 	}
-
-	if param, ok := internal.GetLastIntArgument(params); ok {
-		return finalClearExpectStatus{status.Equal(param)}
-	}
-
-	return status
 }
 
-func (*clearExpectStatus) exec(Hit) error {
-	return xerrors.New("unsupported")
+func (status *clearExpectStatus) exec(hit Hit) error {
+	// this runs if we called Clear().Expect().Status()
+	removeSteps(hit, status.cleanPath)
+	return nil
 }
 
 func (*clearExpectStatus) when() StepTime {
@@ -50,211 +198,117 @@ func (status *clearExpectStatus) clearPath() clearPath {
 	return status.cleanPath
 }
 
-// Equal checks if the status is equal to the specified value
-// Examples:
-//           Expect().Status().Equal(200)
-func (status *clearExpectStatus) Equal(statusCode int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: status.clearPath().Push("Equal", []interface{}{statusCode}),
-		Exec: func(hit Hit) error {
-			if hit.Response().StatusCode != statusCode {
-				minitest.Errorf("Expected status code to be %d but was %d instead", statusCode, hit.Response().StatusCode)
-			}
-			return nil
-		},
+func (status *clearExpectStatus) Equal(v ...int) IStep {
+	args := make([]interface{}, len(v))
+	for i := range v {
+		args[i] = v[i]
 	}
+	return removeStep(status.cleanPath.Push("Equal", args))
 }
 
-// NotEqual checks if the status is equal to the specified value
-// Examples:
-//           Expect().Status().NotEqual(200)
-func (status *clearExpectStatus) NotEqual(statusCode int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: status.clearPath().Push("NotEqual", []interface{}{statusCode}),
-		Exec: func(hit Hit) error {
-			if hit.Response().StatusCode == statusCode {
-				minitest.Errorf("Expected status code not to be %d", statusCode)
-			}
-			return nil
-		},
+func (status *clearExpectStatus) NotEqual(v ...int) IStep {
+	args := make([]interface{}, len(v))
+	for i := range v {
+		args[i] = v[i]
 	}
+	return removeStep(status.cleanPath.Push("NotEqual", args))
 }
 
-// OneOf checks if the status is one of the specified values
-// Examples:
-//           Expect().Status().OneOf(200, 201)
-func (status *clearExpectStatus) OneOf(statusCodes ...int) IStep {
-	args := make([]interface{}, len(statusCodes))
-	for i := range statusCodes {
-		args[i] = statusCodes[i]
+func (status *clearExpectStatus) OneOf(v ...int) IStep {
+	args := make([]interface{}, len(v))
+	for i := range v {
+		args[i] = v[i]
 	}
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: status.clearPath().Push("OneOf", args),
-		Exec: func(hit Hit) error {
-			minitest.Contains(statusCodes, hit.Response().StatusCode)
-			return nil
-		},
-	}
+	return removeStep(status.cleanPath.Push("OneOf", args))
 }
 
-// NotOneOf checks if the status is none of the specified values
-// Examples:
-//           Expect().Status().NotOneOf(200, 201)
-func (status *clearExpectStatus) NotOneOf(statusCodes ...int) IStep {
-	args := make([]interface{}, len(statusCodes))
-	for i := range statusCodes {
-		args[i] = statusCodes[i]
+func (status *clearExpectStatus) NotOneOf(v ...int) IStep {
+	args := make([]interface{}, len(v))
+	for i := range v {
+		args[i] = v[i]
 	}
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: status.clearPath().Push("NotOneOf", args),
-		Exec: func(hit Hit) error {
-			minitest.NotContains(statusCodes, hit.Response().StatusCode)
-			return nil
-		},
-	}
+	return removeStep(status.cleanPath.Push("NotOneOf", args))
 }
 
-// GreaterThan checks if the status is greater than the specified value
-// Examples:
-//           Expect().Status().GreaterThan(400)
-func (status *clearExpectStatus) GreaterThan(statusCode int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: status.clearPath().Push("GreaterThan", []interface{}{statusCode}),
-		Exec: func(hit Hit) error {
-			if hit.Response().StatusCode <= statusCode {
-				minitest.Errorf("expected %d to be greater than %d", hit.Response().StatusCode, statusCode)
-			}
-			return nil
-		},
+func (status *clearExpectStatus) GreaterThan(v ...int) IStep {
+	args := make([]interface{}, len(v))
+	for i := range v {
+		args[i] = v[i]
 	}
+	return removeStep(status.cleanPath.Push("GreaterThan", args))
 }
 
-// LessThan checks if the status is less than the specified value
-// Examples:
-//           Expect().Status().LessThan(400)
-func (status *clearExpectStatus) LessThan(statusCode int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: status.clearPath().Push("LessThan", []interface{}{statusCode}),
-		Exec: func(hit Hit) error {
-			if hit.Response().StatusCode >= statusCode {
-				minitest.Errorf("expected %d to be less than %d", hit.Response().StatusCode, statusCode)
-			}
-			return nil
-		},
+func (status *clearExpectStatus) LessThan(v ...int) IStep {
+	args := make([]interface{}, len(v))
+	for i := range v {
+		args[i] = v[i]
 	}
+	return removeStep(status.cleanPath.Push("LessThan", args))
 }
 
-// GreaterOrEqualThan checks if the status is greater or equal than the specified value
-// Examples:
-//           Expect().Status().GreaterOrEqualThan(200)
-func (status *clearExpectStatus) GreaterOrEqualThan(statusCode int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: status.clearPath().Push("GreaterOrEqualThan", []interface{}{statusCode}),
-		Exec: func(hit Hit) error {
-			if hit.Response().StatusCode < statusCode {
-				minitest.Errorf("expected %d to be greater or equal than %d", hit.Response().StatusCode, statusCode)
-			}
-			return nil
-		},
+func (status *clearExpectStatus) GreaterOrEqualThan(v ...int) IStep {
+	args := make([]interface{}, len(v))
+	for i := range v {
+		args[i] = v[i]
 	}
+	return removeStep(status.cleanPath.Push("GreaterOrEqualThan", args))
 }
 
-// LessOrEqualThan checks if the status is less or equal than the specified value
-// Examples:
-//           Expect().Status().LessOrEqualThan(200)
-func (status *clearExpectStatus) LessOrEqualThan(statusCode int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: status.clearPath().Push("LessOrEqualThan", []interface{}{statusCode}),
-		Exec: func(hit Hit) error {
-			if hit.Response().StatusCode > statusCode {
-				minitest.Errorf("expected %d to be less or equal than %d", hit.Response().StatusCode, statusCode)
-			}
-			return nil
-		},
+func (status *clearExpectStatus) LessOrEqualThan(v ...int) IStep {
+	args := make([]interface{}, len(v))
+	for i := range v {
+		args[i] = v[i]
 	}
+	return removeStep(status.cleanPath.Push("LessOrEqualThan", args))
 }
 
-// Between checks if the status is between the specified value (inclusive)
-// Examples:
-//           Expect().Status().Between(200, 400)
-func (status *clearExpectStatus) Between(min, max int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: status.clearPath().Push("Between", []interface{}{min, max}),
-		Exec: func(hit Hit) error {
-			if hit.Response().StatusCode < min || hit.Response().StatusCode > max {
-				minitest.Errorf("expected %d to be between %d and %d", hit.Response().StatusCode, min, max)
-			}
-			return nil
-		},
+func (status *clearExpectStatus) Between(v ...int) IStep {
+	args := make([]interface{}, len(v))
+	for i := range v {
+		args[i] = v[i]
 	}
+	return removeStep(status.cleanPath.Push("Between", args))
 }
 
-// NotBetween checks if the status is not between the specified value (inclusive)
-// Examples:
-//           Expect().Status().NotBetween(200, 400)
-func (status *clearExpectStatus) NotBetween(min, max int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: status.clearPath().Push("NotBetween", []interface{}{min, max}),
-		Exec: func(hit Hit) error {
-			if hit.Response().StatusCode >= min && hit.Response().StatusCode <= max {
-				minitest.Errorf("expected %d not to be between %d and %d", hit.Response().StatusCode, min, max)
-			}
-			return nil
-		},
+func (status *clearExpectStatus) NotBetween(v ...int) IStep {
+	args := make([]interface{}, len(v))
+	for i := range v {
+		args[i] = v[i]
 	}
+	return removeStep(status.cleanPath.Push("NotBetween", args))
 }
 
 type finalClearExpectStatus struct {
 	IStep
 }
 
-func (f finalClearExpectStatus) Equal(statusCode int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+func (finalClearExpectStatus) Equal(...int) IStep {
+	panic("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
 }
-func (f finalClearExpectStatus) NotEqual(statusCode int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+func (finalClearExpectStatus) NotEqual(...int) IStep {
+	panic("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
 }
-func (f finalClearExpectStatus) OneOf(statusCodes ...int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+func (finalClearExpectStatus) OneOf(...int) IStep {
+	panic("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
 }
-func (f finalClearExpectStatus) NotOneOf(statusCodes ...int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+func (finalClearExpectStatus) NotOneOf(...int) IStep {
+	panic("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
 }
-func (f finalClearExpectStatus) GreaterThan(statusCode int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+func (finalClearExpectStatus) GreaterThan(...int) IStep {
+	panic("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
 }
-func (f finalClearExpectStatus) LessThan(statusCode int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+func (finalClearExpectStatus) LessThan(...int) IStep {
+	panic("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
 }
-func (f finalClearExpectStatus) GreaterOrEqualThan(statusCode int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+func (finalClearExpectStatus) GreaterOrEqualThan(...int) IStep {
+	panic("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
 }
-func (f finalClearExpectStatus) LessOrEqualThan(statusCode int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+func (finalClearExpectStatus) LessOrEqualThan(...int) IStep {
+	panic("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
 }
-func (f finalClearExpectStatus) Between(min, max int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+func (finalClearExpectStatus) Between(...int) IStep {
+	panic("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
 }
-func (f finalClearExpectStatus) NotBetween(min, max int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+func (finalClearExpectStatus) NotBetween(...int) IStep {
+	panic("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
 }

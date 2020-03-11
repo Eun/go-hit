@@ -2,35 +2,84 @@ package hit
 
 import "github.com/Eun/go-hit/internal"
 
+// IClearExpectBody provides a clear functionality to remove previous steps from running in the Expect().Body().JSON() scope
 type IClearExpectBodyJSON interface {
 	IStep
-	// Equal removes all Expect().Body().JSON().Equal() steps, if you specify the expression it will only remove
-	// the Expect.Body().JSON().Equal() steps with the matching expression.
+	// Equal removes all previous Expect().Body().JSON().Equal() steps.
+	//
+	// If you specify an argument it will only remove the Expect().Body().Equal() steps matching that argument.
+	//
 	// Examples:
-	//           Expect().Body().JSON().Equal()            // will remove all Equal() steps
-	//           Expect().Body().JSON().Equal("data")      // will only remove Equal("data", ...) steps
-	Equal(...string) IStep
+	//     Clear().Expect().Body().JSON().Equal()              // will remove all Expect().Body().JSON().Equal() steps
+	//     Clear().Expect().Body().JSON().Equal("Name")        // will remove all Expect().Body().JSON().Equal("Name", ...) steps
+	//     Clear().Expect().Body().JSON().Equal("Name", "Joe") // will remove all Expect().Body().JSON().Equal("Name", "Joe") steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Body().JSON().Equal("Name", "Joe"),
+	//         Expect().Body().JSON().Equal("Id", 10),
+	//         Clear().Expect().Body().JSON().Equal("Name"),
+	//         Clear().Expect().Body().JSON().Equal("Id", 10),
+	//         Expect().Body().JSON().Equal("Name", "Alice"),
+	//     )
+	Equal(...interface{}) IStep
 
-	// NotEqual removes all Expect().Body().JSON().NotEqual() steps, if you specify the expression it will only remove
-	// the Expect.Body().JSON().NotEqual() steps with the matching expression.
+	// NotEqual removes all previous Expect().Body().JSON().NotEqual() steps.
+	//
+	// If you specify an argument it will only remove the Expect().Body().NotEqual() steps matching that argument.
+	//
 	// Examples:
-	//           Expect().Body().JSON().NotEqual()            // will remove all NotEqual() steps
-	//           Expect().Body().JSON().NotEqual("data")      // will only remove NotEqual("data", ...) steps
-	NotEqual(...string) IStep
+	//     Clear().Expect().Body().JSON().NotEqual()              // will remove all Expect().Body().JSON().NotEqual() steps
+	//     Clear().Expect().Body().JSON().NotEqual("Name")        // will remove all Expect().Body().JSON().NotEqual("Name") steps
+	//     Clear().Expect().Body().JSON().NotEqual("Name", "Joe") // will remove all Expect().Body().JSON().NotEqual("Name", "Joe") steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Body().JSON().NotEqual("Name", "Joe"),
+	//         Expect().Body().JSON().NotEqual("Id", 10),
+	//         Clear().Expect().Body().JSON().NotEqual("Name"),
+	//         Clear().Expect().Body().JSON().NotEqual("Id", 10),
+	//         Expect().Body().JSON().NotEqual("Name", "Alice"),
+	//     )
+	NotEqual(...interface{}) IStep
 
-	// Contains removes all Expect().Body().JSON().Contains() steps, if you specify the expression it will only remove
-	// the Expect.Body().JSON().Contains() steps with the matching expression.
+	// Contains removes all previous Expect().Body().JSON().Contains() steps.
+	//
+	// If you specify an argument it will only remove the Expect().Body().Contains() steps matching that argument.
+	//
 	// Examples:
-	//           Expect().Body().JSON().Contains()            // will remove all Contains() steps
-	//           Expect().Body().JSON().Contains("data")      // will only remove Contains("data", ...) steps
-	Contains(...string) IStep
+	//     Clear().Expect().Body().JSON().Contains()              // will remove all Expect().Body().JSON().Contains() steps
+	//     Clear().Expect().Body().JSON().Contains("Name")        // will remove all Expect().Body().JSON().Contains("Name") steps
+	//     Clear().Expect().Body().JSON().Contains("Name", "Joe") // will remove all Expect().Body().JSON().Contains("Name", "Joe") steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Body().JSON().Contains("Name", "Joe"),
+	//         Expect().Body().JSON().Contains("Id", 10),
+	//         Clear().Expect().Body().JSON().Contains("Name"),
+	//         Clear().Expect().Body().JSON().Contains("Id", 10),
+	//         Expect().Body().JSON().Contains("Name", "Alice"),
+	//     )
+	Contains(...interface{}) IStep
 
-	// NotContains removes all Expect().Body().JSON().NotContains() steps, if you specify the expression it will only remove
-	// the Expect.Body().JSON().NotContains() steps with the matching expression.
+	// NotContains removes all previous Expect().Body().JSON().NotContains() steps.
+	//
+	// If you specify an argument it will only remove the Expect().Body().NotContains() steps matching that argument.
+	//
 	// Examples:
-	//           Expect().Body().JSON().NotContains()            // will remove all NotContains() steps
-	//           Expect().Body().JSON().NotContains("data")      // will only remove NotContains("data", ...) steps
-	NotContains(...string) IStep
+	//     Clear().Expect().Body().JSON().NotContains()              // will remove all Expect().Body().JSON().NotContains() steps
+	//     Clear().Expect().Body().JSON().NotContains("Name")        // will remove all Expect().Body().JSON().NotContains("Name") steps
+	//     Clear().Expect().Body().JSON().NotContains("Name", "Joe") // will remove all Expect().Body().JSON().NotContains("Name", "Joe") steps
+	//
+	//     Do(
+	//         Post("https://example.com"),
+	//         Expect().Body().JSON().NotContains("Name", "Joe"),
+	//         Expect().Body().JSON().NotContains("Id", 10),
+	//         Clear().Expect().Body().JSON().NotContains("Name"),
+	//         Clear().Expect().Body().JSON().NotContains("Id", 10),
+	//         Expect().Body().JSON().NotContains("Name", "Alice"),
+	//     )
+	NotContains(...interface{}) IStep
 }
 
 type clearExpectBodyJSON struct {
@@ -40,16 +89,8 @@ type clearExpectBodyJSON struct {
 
 func newClearExpectBodyJSON(body IClearExpectBody, cleanPath clearPath, params []interface{}) IClearExpectBodyJSON {
 	if _, ok := internal.GetLastArgument(params); ok {
-		// default action is Interface()
-		return finalClearExpectBodyJSON{&hitStep{
-			Trace:     ett.Prepare(),
-			When:      CleanStep,
-			ClearPath: nil,
-			Exec: func(hit Hit) error {
-				removeSteps(hit, cleanPath)
-				return nil
-			},
-		}}
+		// this runs if we called Clear().Expect().Body().JSON(something)
+		return finalClearExpectBodyJSON{removeStep(cleanPath)}
 	}
 	return &clearExpectBodyJSON{
 		clearExpectBody: body,
@@ -57,14 +98,12 @@ func newClearExpectBodyJSON(body IClearExpectBody, cleanPath clearPath, params [
 	}
 }
 
-// implement IStep interface to make sure we can call just Expect().Body().JSON()
-
 func (jsn *clearExpectBodyJSON) when() StepTime {
 	return CleanStep
 }
 
-// exec contains the logic for Clear().Expect().Body().JSON(), it will remove all Expect().Body().JSON() and Expect().Body().JSON().* Steps
 func (jsn *clearExpectBodyJSON) exec(hit Hit) error {
+	// this runs if we called Clear().Expect().Body().JSON()
 	removeSteps(hit, jsn.cleanPath)
 	return nil
 }
@@ -73,54 +112,34 @@ func (jsn *clearExpectBodyJSON) clearPath() clearPath {
 	return jsn.cleanPath
 }
 
-// Equal removes all Expect().Body().JSON().Equal() steps, if you specify the expression it will only remove
-// the Expect.Body().JSON().Equal() steps with the matching expression.
-// Examples:
-//           Expect().Body().JSON().Equal()            // will remove all Equal() steps
-//           Expect().Body().JSON().Equal("data")      // will only remove Equal("data", ...) steps
-func (jsn *clearExpectBodyJSON) Equal(expression ...string) IStep {
-	args := make([]interface{}, len(expression))
-	for i := range expression {
-		args[i] = expression[i]
+func (jsn *clearExpectBodyJSON) Equal(v ...interface{}) IStep {
+	args := make([]interface{}, len(v))
+	for i := range v {
+		args[i] = v[i]
 	}
 	return removeStep(jsn.cleanPath.Push("Equal", args))
 }
 
-// NotEqual removes all Expect().Body().JSON().NotEqual() steps, if you specify the expression it will only remove
-// the Expect.Body().JSON().NotEqual() steps with the matching expression.
-// Examples:
-//           Expect().Body().JSON().NotEqual()            // will remove all NotEqual() steps
-//           Expect().Body().JSON().NotEqual("data")      // will only remove NotEqual("data", ...) steps
-func (jsn *clearExpectBodyJSON) NotEqual(expression ...string) IStep {
-	args := make([]interface{}, len(expression))
-	for i := range expression {
-		args[i] = expression[i]
+func (jsn *clearExpectBodyJSON) NotEqual(v ...interface{}) IStep {
+	args := make([]interface{}, len(v))
+	for i := range v {
+		args[i] = v[i]
 	}
 	return removeStep(jsn.cleanPath.Push("NotEqual", args))
 }
 
-// Contains removes all Expect().Body().JSON().Contains() steps, if you specify the expression it will only remove
-// the Expect.Body().JSON().Contains() steps with the matching expression.
-// Examples:
-//           Expect().Body().JSON().Contains()            // will remove all Contains() steps
-//           Expect().Body().JSON().Contains("data")      // will only remove Contains("data", ...) steps
-func (jsn *clearExpectBodyJSON) Contains(expression ...string) IStep {
-	args := make([]interface{}, len(expression))
-	for i := range expression {
-		args[i] = expression[i]
+func (jsn *clearExpectBodyJSON) Contains(v ...interface{}) IStep {
+	args := make([]interface{}, len(v))
+	for i := range v {
+		args[i] = v[i]
 	}
 	return removeStep(jsn.cleanPath.Push("Contains", args))
 }
 
-// NotContains removes all Expect().Body().JSON().NotContains() steps, if you specify the expression it will only remove
-// the Expect.Body().JSON().NotContains() steps with the matching expression.
-// Examples:
-//           Expect().Body().JSON().NotContains()            // will remove all NotContains() steps
-//           Expect().Body().JSON().NotContains("data")      // will only remove NotContains("data", ...) steps
-func (jsn *clearExpectBodyJSON) NotContains(expression ...string) IStep {
-	args := make([]interface{}, len(expression))
-	for i := range expression {
-		args[i] = expression[i]
+func (jsn *clearExpectBodyJSON) NotContains(v ...interface{}) IStep {
+	args := make([]interface{}, len(v))
+	for i := range v {
+		args[i] = v[i]
 	}
 	return removeStep(jsn.cleanPath.Push("NotContains", args))
 }
@@ -129,18 +148,18 @@ type finalClearExpectBodyJSON struct {
 	IStep
 }
 
-func (finalClearExpectBodyJSON) Equal(...string) IStep {
+func (finalClearExpectBodyJSON) Equal(...interface{}) IStep {
 	panic("only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)")
 }
 
-func (finalClearExpectBodyJSON) NotEqual(...string) IStep {
+func (finalClearExpectBodyJSON) NotEqual(...interface{}) IStep {
 	panic("only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)")
 }
 
-func (finalClearExpectBodyJSON) Contains(...string) IStep {
+func (finalClearExpectBodyJSON) Contains(...interface{}) IStep {
 	panic("only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)")
 }
 
-func (finalClearExpectBodyJSON) NotContains(...string) IStep {
+func (finalClearExpectBodyJSON) NotContains(...interface{}) IStep {
 	panic("only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)")
 }
