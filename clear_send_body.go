@@ -6,7 +6,38 @@ import (
 
 type IClearSendBody interface {
 	IStep
+	// JSON removes all previous Send().Body().JSON() steps.
+	//
+	// If you specify an argument it will only remove the Send().Body().JSON() steps matching that argument.
+	//
+	// Usage:
+	//     Clear().Send().Body().JSON()                                              // will remove all Send().Body().JSON() steps
+	//     Clear().Send().Body().JSON(map[string]interface{}{"Name": "Joe"})         // will remove all Send().Body().JSON(map[string]interface{}{"Name": "Joe"}) steps
+	//
+	// Example:
+	//     MustDo(
+	//         Post("https://example.com"),
+	//         Send().Body().JSON(map[string]interface{}{"Name": "Joe"}),
+	//         Clear().Send().Body().JSON(),
+	//         Send().Body().JSON(map[string]interface{}{"Name": "Alice"}),
+	//     )
 	JSON(...interface{}) IStep
+
+	// Interface removes all previous Send().Body().Interface() steps.
+	//
+	// If you specify an argument it will only remove the Send().Body().Interface() steps matching that argument.
+	//
+	// Usage:
+	//     Clear().Send().Body().Interface()              // will remove all Send().Body().Interface() steps
+	//     Clear().Send().Body().Interface("Hello World") // will remove all Send().Body().Interface("Hello World") steps
+	//
+	// Example:
+	//     MustDo(
+	//         Post("https://example.com"),
+	//         Send().Body().Interface("Hello Earth"),
+	//         Clear().Send().Body().Interface(),
+	//         Send().Body().Interface("Hello World"),
+	//     )
 	Interface(...interface{}) IStep
 }
 
@@ -16,15 +47,8 @@ type clearSendBody struct {
 
 func newClearSendBody(clearPath clearPath, params []interface{}) IClearSendBody {
 	if _, ok := internal.GetLastArgument(params); ok {
-		return finalClearSendBody{&hitStep{
-			Trace:     ett.Prepare(),
-			When:      SendStep,
-			ClearPath: clearPath,
-			Exec: func(hit Hit) error {
-				removeSteps(hit, clearPath)
-				return nil
-			},
-		}}
+		// this runs if we called Clear().Send().Body(something)
+		return finalClearSendBody{removeStep(clearPath)}
 	}
 
 	return &clearSendBody{
@@ -36,8 +60,8 @@ func (*clearSendBody) when() StepTime {
 	return SendStep
 }
 
-// exec contains the logic for Send().Body(...)
 func (body *clearSendBody) exec(hit Hit) error {
+	// this runs if we called Clear().Send().Body()
 	removeSteps(hit, body.cleanPath)
 	return nil
 }

@@ -6,42 +6,89 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// IExpect provides assertions on the http response
 type IExpect interface {
 	IStep
-	// Body expects the body to be equal the specified value, omit the parameter to get more options
-	// Examples:
-	//           Expect().Body("Hello World")
-	//           Expect().Body().Contains("Hello World")
-	Body(data ...interface{}) IExpectBody
-
-	// Interface expects the specified interface
-	Interface(data interface{}) IStep
-
-	// custom can be used to expect a custom behaviour
+	// Body expects the body to be equal the specified value
+	//
+	// If you omit the argument you can fine tune the assertions.
+	//
+	// Usage:
+	//     Expect().Body("Hello World")
+	//     Expect().Body().Contains("Hello World")
+	//
 	// Example:
-	//           Expect().Custom(func(hit Hit) {
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Body().Contains("Hello World"),
+	//     )
+	Body(value ...interface{}) IExpectBody
+
+	// Interface expects the body to be equal the specified interface.
+	//
+	// Usage:
+	//     Expect().Interface("Hello World")
+	//     Expect().Interface(map[string]interface{}{"Name": "Joe"})
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Interface("Hello World"),
+	//     )
+	Interface(value interface{}) IStep
+
+	// Headers provides assertions to the response headers.
+	//
+	// Usage:
+	//     Expect().Headers().Contains("Content-Type")
+	//     Expect().Headers().Get("Content-Type").Contains("json")
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Headers().Contains("Content-Type"),
+	//     )
+	Headers() IExpectHeaders
+
+	// Header provides assertions to one specific response header.
+	//
+	// Usage:
+	//     Expect().Headers("Content-Type").Equal("application/json")
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Header("Content-Type").Equal("application/json"),
+	//     )
+	Header(headerName string) IExpectSpecificHeader
+
+	// Status expects the status to be the specified code.
+	//
+	// If you omit the argument you can fine tune the assertions.
+	//
+	// Usage:
+	//     Expect().Status(200)
+	//     Expect().Status().Equal(200)
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Status().OneOf(http.StatusOk, http.StatusNoContent),
+	//     )
+	Status(code ...int) IExpectStatus
+
+	// Custom can be used to expect a custom behaviour.
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Custom(func(hit Hit) {
 	//               if hit.Response().StatusCode != 200 {
 	//                   panic("Expected 200")
 	//               }
-	//           })
-	Custom(f Callback) IStep
-
-	// Headers gets all headers
-	// Examples:
-	//           Expect().Headers().Contains("Content-Type")
-	//           Expect().Headers().Get("Content-Type").Contains("json")
-	Headers() IExpectHeaders
-
-	// Header gets the specified header
-	// Example:
-	//           Expect().Headers("Content-Type").Equal("application/json")
-	Header(name string) IExpectSpecificHeader
-
-	// Status expects the status to be the specified code, omit the code to get more options
-	// Examples:
-	//           Expect().Status(200)
-	//           Expect().Status().Equal(200)
-	Status(code ...int) IExpectStatus
+	//         }),
+	//     )
+	Custom(fn Callback) IStep
 }
 
 type expect struct {
@@ -65,8 +112,8 @@ func newExpect(cleanPath clearPath, params []interface{}) IExpect {
 	return exp
 }
 
-func (*expect) exec(hit Hit) error {
-	return xerrors.New("unsupported")
+func (*expect) exec(Hit) error {
+	return xerrors.New("unable to run Expect() without an argument or without a chain. Please use Expect(something) or Expect().Something")
 }
 
 func (*expect) when() StepTime {
@@ -77,52 +124,30 @@ func (exp *expect) clearPath() clearPath {
 	return exp.cleanPath
 }
 
-// Body expects the body to be equal the specified value, omit the parameter to get more options
-// Examples:
-//           Expect().Body("Hello World")
-//           Expect().Body().Contains("Hello World")
-func (exp *expect) Body(data ...interface{}) IExpectBody {
-	return newExpectBody(exp, exp.cleanPath.Push("Body", data), data)
+func (exp *expect) Body(value ...interface{}) IExpectBody {
+	return newExpectBody(exp, exp.cleanPath.Push("Body", value), value)
 }
 
-// custom can be used to expect a custom behaviour
-// Example:
-//           Expect().custom(func(hit Hit){
-//               if hit.Response().StatusCode != 200 {
-//                   panic("Expected 200")
-//               }
-//           })
-func (exp *expect) Custom(f Callback) IStep {
+func (exp *expect) Custom(fn Callback) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: exp.cleanPath.Push("Custom", []interface{}{f}),
+		ClearPath: exp.cleanPath.Push("Custom", []interface{}{fn}),
 		Exec: func(hit Hit) error {
-			f(hit)
+			fn(hit)
 			return nil
 		},
 	}
 }
 
-// Headers gets all headers
-// Examples:
-//           Expect().Headers().Contains("Content-Type")
-//           Expect().Headers().Get("Content-Type").Contains("json")
 func (exp *expect) Headers() IExpectHeaders {
 	return newExpectHeaders(exp, exp.cleanPath.Push("Headers", nil))
 }
 
-// Header gets the specified header
-// Example:
-//           Expect().Header("Content-Type").Equal("application/json")
-func (exp *expect) Header(name string) IExpectSpecificHeader {
-	return newExpectSpecificHeader(exp, exp.cleanPath.Push("Header", []interface{}{name}), name)
+func (exp *expect) Header(headerName string) IExpectSpecificHeader {
+	return newExpectSpecificHeader(exp, exp.cleanPath.Push("Header", []interface{}{headerName}), headerName)
 }
 
-// Status expects the status to be the specified code, omit the code to get more options
-// Examples:
-//           Expect().Status(200)
-//           Expect().Status().Equal(200)
 func (exp *expect) Status(code ...int) IExpectStatus {
 	args := make([]interface{}, len(code))
 	for i := range code {
@@ -131,13 +156,12 @@ func (exp *expect) Status(code ...int) IExpectStatus {
 	return newExpectStatus(exp, exp.cleanPath.Push("Status", args), code)
 }
 
-// Interface expects the specified interface
-func (exp *expect) Interface(data interface{}) IStep {
+func (exp *expect) Interface(value interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: exp.cleanPath.Push("Interface", []interface{}{data}),
-		Exec:      exp.Body(data).exec,
+		ClearPath: exp.cleanPath.Push("Interface", []interface{}{value}),
+		Exec:      exp.Body(value).exec,
 	}
 }
 
@@ -145,27 +169,27 @@ type finalExpect struct {
 	IStep
 }
 
-func (f finalExpect) Body(...interface{}) IExpectBody {
+func (finalExpect) Body(...interface{}) IExpectBody {
 	panic("only usable with Expect() not with Expect(value)")
 }
 
-func (f finalExpect) Interface(interface{}) IStep {
+func (finalExpect) Interface(interface{}) IStep {
 	panic("only usable with Expect() not with Expect(value)")
 }
 
-func (f finalExpect) Custom(Callback) IStep {
+func (finalExpect) Custom(Callback) IStep {
 	panic("only usable with Expect() not with Expect(value)")
 }
 
-func (f finalExpect) Headers() IExpectHeaders {
+func (finalExpect) Headers() IExpectHeaders {
 	panic("only usable with Expect() not with Expect(value)")
 }
 
-func (f finalExpect) Header(string) IExpectSpecificHeader {
+func (finalExpect) Header(string) IExpectSpecificHeader {
 	panic("only usable with Expect() not with Expect(value)")
 }
 
-func (f finalExpect) Status(...int) IExpectStatus {
+func (finalExpect) Status(...int) IExpectStatus {
 	panic("only usable with Expect() not with Expect(value)")
 }
 

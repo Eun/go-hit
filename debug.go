@@ -109,6 +109,6 @@ func (d *debug) exec(hit Hit) error {
 	return err
 }
 
-func (d *debug) clearPath() clearPath {
+func (*debug) clearPath() clearPath {
 	return nil // not clearable
 }

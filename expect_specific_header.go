@@ -4,15 +4,105 @@ import (
 	"github.com/Eun/go-hit/internal/minitest"
 )
 
+// IExpectSpecificHeader provides assertions on one specific http response header
 type IExpectSpecificHeader interface {
-	Contains(v string) IStep
-	NotContains(v string) IStep
-	OneOf(values ...string) IStep
-	NotOneOf(values ...string) IStep
+	// Contains expects the specified header to contain the specified value.
+	//
+	// Usage:
+	//     Expect().Header("Content-Type").Contains("json")
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Header("Content-Type").Contains("json"),
+	//     )
+	Contains(value interface{}) IStep
+
+	// NotContains expects the specified header to contain the specified value.
+	//
+	// Usage:
+	//     Expect().Header("Content-Type").NotContains("json")
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Header("Content-Type").NotContains("json"),
+	//     )
+	NotContains(value interface{}) IStep
+
+	// OneOf expects the specified header to contain one of the specified values.
+	//
+	// Usage:
+	//     Expect().Header("Content-Type").OneOf("application/json", "text/json")
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Header("Content-Type").OneOf("application/json", "text/json"),
+	//     )
+	OneOf(values ...interface{}) IStep
+
+	// NotOneOf expects the specified header to not contain one of the specified values.
+	//
+	// Usage:
+	//     Expect().Header("Content-Type").NotOneOf("application/json", "text/json")
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Header("Content-Type").NotOneOf("application/json", "text/json"),
+	//     )
+	NotOneOf(values ...interface{}) IStep
+
+	// Empty expects the specified header to be empty.
+	//
+	// Usage:
+	//     Expect().Header("Content-Type").Empty()
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Header("Content-Type").Empty(),
+	//     )
 	Empty() IStep
+
+	// Len expects the specified header to be empty.
+	//
+	// Usage:
+	//     Expect().Header("Content-Type").Len(16)
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Header("Content-Type").Len(16),
+	//     )
 	Len(size int) IStep
-	Equal(v interface{}) IStep
-	NotEqual(v interface{}) IStep
+
+	// Equal expects the specified header to be equal the specified value.
+	//
+	// Usage:
+	//     Expect().Header("Content-Type").Equal("application/json")
+	//     Expect().Header("Content-Length").Equal(11)
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Header("Content-Type").Equal("application/json"),
+	//     )
+	Equal(value interface{}) IStep
+
+	// NotEqual expects the specified header to be equal the specified value.
+	//
+	// Usage:
+	//     Expect().Header("Content-Type").NotEqual("application/json")
+	//     Expect().Header("Content-Length").NotEqual(11)
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Header("Content-Type").NotEqual("application/json"),
+	//     )
+	NotEqual(value interface{}) IStep
 }
 type expectSpecificHeader struct {
 	expect    IExpect
@@ -28,48 +118,35 @@ func newExpectSpecificHeader(expect IExpect, cleanPath clearPath, header string)
 	}
 }
 
-// Contains checks if the header value contains the specified value
-// Example:
-//           Expect().Header("Content-Type").Contains("application")
-func (hdr *expectSpecificHeader) Contains(v string) IStep {
+func (hdr *expectSpecificHeader) Contains(value interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: hdr.cleanPath.Push("Contains", []interface{}{v}),
+		ClearPath: hdr.cleanPath.Push("Contains", []interface{}{value}),
 		Exec: func(hit Hit) error {
-			minitest.Contains(hit.Response().Header.Get(hdr.header), v)
+			minitest.Contains(hit.Response().Header.Get(hdr.header), value)
 			return nil
 		},
 	}
 }
 
-// NotContains checks if the header value contains the specified value
-// Example:
-//           Expect().Header("Content-Type").NotContains("application")
-func (hdr *expectSpecificHeader) NotContains(v string) IStep {
+func (hdr *expectSpecificHeader) NotContains(value interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: hdr.cleanPath.Push("NotContains", []interface{}{v}),
+		ClearPath: hdr.cleanPath.Push("NotContains", []interface{}{value}),
 		Exec: func(hit Hit) error {
-			minitest.NotContains(hit.Response().Header.Get(hdr.header), v)
+			minitest.NotContains(hit.Response().Header.Get(hdr.header), value)
 			return nil
 		},
 	}
 }
 
-// OneOf checks if the header value is one of the specified values
-// Example:
-//           Expect().Header("Content-Type").OneOf("application/json", "text/x-json")
-func (hdr *expectSpecificHeader) OneOf(values ...string) IStep {
-	args := make([]interface{}, len(values))
-	for i := range values {
-		args[i] = values[i]
-	}
+func (hdr *expectSpecificHeader) OneOf(values ...interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: hdr.cleanPath.Push("OneOf", args),
+		ClearPath: hdr.cleanPath.Push("OneOf", values),
 		Exec: func(hit Hit) error {
 			minitest.Contains(values, hit.Response().Header.Get(hdr.header))
 			return nil
@@ -77,18 +154,11 @@ func (hdr *expectSpecificHeader) OneOf(values ...string) IStep {
 	}
 }
 
-// NotOneOf checks if the header value is one of the specified values
-// Example:
-//           Expect().Header("Content-Type").NotOneOf("application/json", "text/x-json")
-func (hdr *expectSpecificHeader) NotOneOf(values ...string) IStep {
-	args := make([]interface{}, len(values))
-	for i := range values {
-		args[i] = values[i]
-	}
+func (hdr *expectSpecificHeader) NotOneOf(values ...interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: hdr.cleanPath.Push("NotOneOf", args),
+		ClearPath: hdr.cleanPath.Push("NotOneOf", values),
 		Exec: func(hit Hit) error {
 			minitest.NotContains(values, hit.Response().Header.Get(hdr.header))
 			return nil
@@ -96,9 +166,6 @@ func (hdr *expectSpecificHeader) NotOneOf(values ...string) IStep {
 	}
 }
 
-// Empty checks if the header value is empty
-// Example:
-//           Expect().Headers("Content-Type").Empty()
 func (hdr *expectSpecificHeader) Empty() IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
@@ -111,9 +178,6 @@ func (hdr *expectSpecificHeader) Empty() IStep {
 	}
 }
 
-// Len checks if the the length of the header value is equal to the specified size
-// Example:
-//           Expect().Header("Content-Type").Len(16)
 func (hdr *expectSpecificHeader) Len(size int) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
@@ -126,39 +190,33 @@ func (hdr *expectSpecificHeader) Len(size int) IStep {
 	}
 }
 
-// Equal checks if the header value is equal to the specified value
-// Example:
-//           Expect().Headers("Content-Type").Equal("application/json")
-func (hdr *expectSpecificHeader) Equal(v interface{}) IStep {
+func (hdr *expectSpecificHeader) Equal(value interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: hdr.cleanPath.Push("Equal", []interface{}{v}),
+		ClearPath: hdr.cleanPath.Push("Equal", []interface{}{value}),
 		Exec: func(hit Hit) error {
-			compareData, err := makeCompareable(hit.Response().Header.Get(hdr.header), v)
+			compareData, err := makeCompareable(hit.Response().Header.Get(hdr.header), value)
 			if err != nil {
 				return err
 			}
-			minitest.Equal(v, compareData)
+			minitest.Equal(value, compareData)
 			return nil
 		},
 	}
 }
 
-// NotEqual checks if the header value is equal to the specified value
-// Example:
-//           Expect().Headers("Content-Type").NotEqual("application/json")
-func (hdr *expectSpecificHeader) NotEqual(v interface{}) IStep {
+func (hdr *expectSpecificHeader) NotEqual(value interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: hdr.cleanPath.Push("NotEqual", []interface{}{v}),
+		ClearPath: hdr.cleanPath.Push("NotEqual", []interface{}{value}),
 		Exec: func(hit Hit) error {
-			compareData, err := makeCompareable(hit.Response().Header.Get(hdr.header), v)
+			compareData, err := makeCompareable(hit.Response().Header.Get(hdr.header), value)
 			if err != nil {
 				return err
 			}
-			minitest.NotEqual(v, compareData)
+			minitest.NotEqual(value, compareData)
 			return nil
 		},
 	}

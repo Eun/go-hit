@@ -315,7 +315,7 @@ func TestMultiUse(t *testing.T) {
 
 func TestBaseURL(t *testing.T) {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/foo", func(writer http.ResponseWriter, request *http.Request) {
+	mux.HandleFunc("/foo/", func(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(http.StatusNoContent)
 	})
 	s := httptest.NewServer(mux)

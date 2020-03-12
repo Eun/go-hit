@@ -6,11 +6,61 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// IExpectBodyJSON provides assertions on the http response json body
 type IExpectBodyJSON interface {
 	IStep
+	// Equal expects the json body to be equal to the specified value.
+	//
+	// The first argument can be used to narrow down the compare path
+	//
+	// given the following response: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
+	// Usage:
+	//     Expect().Body().JSON().Equal("", map[string]interface{}{"ID": 10, "Name": "Joe", "Roles": []string{"Admin", "User"}})
+	//     Expect().Body().JSON().Equal("ID", 10)
+	//     Expect().Body().JSON().Equal("Name", "Joe")
+	//     Expect().Body().JSON().Equal("Roles", []string{"Admin", "User"}),
+	//     Expect().Body().JSON().Equal("Roles.0", "Admin"),
+	//
+	// Example:
+	//     // given the following response: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Body().JSON().Equal("Name", "Joe"),
+	//         Expect().Body().JSON().Equal("Roles", []string{"Admin", "User"}),
+	//         Expect().Body().JSON().Equal("Roles.0", "Admin"),
+	//     )
 	Equal(expression string, data interface{}) IStep
+
+	// NotEqual expects the json body to be equal to the specified value.
+	//
+	// The first argument can be used to narrow down the compare path
+	//
+	// see Equal() for usage and examples
 	NotEqual(expression string, data interface{}) IStep
+
+	// Contains expects the json body to be equal to the specified value.
+	//
+	// The first argument can be used to narrow down the compare path
+	//
+	// given the following response: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
+	// Usage:
+	//     Expect().Body().JSON().Contains("", "ID")
+	//     Expect().Body().JSON().Contains("Name", "J")
+	//     Expect().Body().JSON().Contains("Roles", "Admin"),
+	//
+	// Example:
+	//     // given the following response: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Body().JSON().Contains("", "ID"),
+	//     )
 	Contains(expression string, data interface{}) IStep
+
+	// NotContains expects the json body to be equal to the specified value.
+	//
+	// The first argument can be used to narrow down the compare path
+	//
+	// see Contains() for usage and examples
 	NotContains(expression string, data interface{}) IStep
 }
 
@@ -37,7 +87,7 @@ func newExpectBodyJSON(expectBody IExpectBody, cleanPath clearPath, params []int
 }
 
 func (*expectBodyJSON) exec(Hit) error {
-	return xerrors.New("unsupported")
+	return xerrors.New("unable to run Expect().Body().JSON() without an argument or without a chain. Please use Expect().Body().JSON(something) or Expect().Body().JSON().Something")
 }
 
 func (*expectBodyJSON) when() StepTime {
@@ -48,16 +98,6 @@ func (jsn *expectBodyJSON) clearPath() clearPath {
 	return jsn.cleanPath
 }
 
-// Compare functions
-
-// Equal expects the json body to be equal the specified value, the first parameter can be used to narrow down the search path
-// Example:
-//           Giving following response: { "ID": 10, "Name": "Joe" }
-//           Expect().Body().JSON().Equal("", map[string]interface{}{"ID": 10, "Name": "Joe"})
-//           Expect().Body().JSON().Equal("ID", 10)
-
-//           Giving following response: { "ID": 10, "Name": "12", "Names": ["12"] }
-//           Expect().Body().JSON().Equal("Names", []string{"12"})
 func (jsn *expectBodyJSON) Equal(expression string, data interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
@@ -84,11 +124,6 @@ func (jsn *expectBodyJSON) Equal(expression string, data interface{}) IStep {
 	}
 }
 
-// NotEqual expects the json body to be not equal the specified value, the first parameter can be used to narrow down the search path
-// Example:
-//           Giving following response: { "ID": 10, "Name": Joe }
-//           Expect().Body().JSON().NotEqual("", map[string]interface{}{"ID": 10, "Name": "Joe"})
-//           Expect().Body().JSON().NotEqual("ID", 10)
 func (jsn *expectBodyJSON) NotEqual(expression string, data interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
@@ -114,11 +149,6 @@ func (jsn *expectBodyJSON) NotEqual(expression string, data interface{}) IStep {
 	}
 }
 
-// Contains expects the json body to contain the specified value, the first parameter can be used to narrow down the search path
-// Example:
-//           Giving following response: { "ID": 10, "Name": Joe }
-//           Expect().Body().JSON().Contains("", "ID")
-//           Expect().Body().JSON().Contains("Name", "J")
 func (jsn *expectBodyJSON) Contains(expression string, data interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
@@ -138,11 +168,6 @@ func (jsn *expectBodyJSON) Contains(expression string, data interface{}) IStep {
 	}
 }
 
-// NotContains expects the json body to not contain the specified value, the first parameter can be used to narrow down the search path
-// Example:
-//           Giving following response: { "ID": 10, "Name": Joe }
-//           Expect().Body().JSON().NotContains("", "ID")
-//           Expect().Body().JSON().NotContains("Name", "J")
 func (jsn *expectBodyJSON) NotContains(expression string, data interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
@@ -166,18 +191,18 @@ type finalExpectBodyJSON struct {
 	IStep
 }
 
-func (finalExpectBodyJSON) Equal(expression string, data interface{}) IStep {
+func (finalExpectBodyJSON) Equal(string, interface{}) IStep {
 	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
 }
 
-func (finalExpectBodyJSON) NotEqual(expression string, data interface{}) IStep {
+func (finalExpectBodyJSON) NotEqual(string, interface{}) IStep {
 	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
 }
 
-func (finalExpectBodyJSON) Contains(expression string, data interface{}) IStep {
+func (finalExpectBodyJSON) Contains(string, interface{}) IStep {
 	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
 }
 
-func (finalExpectBodyJSON) NotContains(expression string, data interface{}) IStep {
+func (finalExpectBodyJSON) NotContains(string, interface{}) IStep {
 	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
 }

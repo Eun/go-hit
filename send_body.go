@@ -7,8 +7,29 @@ import (
 
 type ISendBody interface {
 	IStep
-	JSON(data interface{}) IStep
-	Interface(data interface{}) IStep
+	// JSON sets the request body to the specified json value.
+	//
+	// Usage:
+	//     Send().Body().JSON(map[string]interface{}{"Name": "Joe"})
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Send().Body().JSON(map[string]interface{}{"Name": "Joe"}),
+	//     )
+	JSON(value interface{}) IStep
+	// Interface sets the request body to the specified json value.
+	//
+	// Usage:
+	//     Send().Body().Interface("Hello World")
+	//     Send().Body().Interface(map[string]interface{}{"Name": "Joe"})
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Send().Body().Interface("Hello World"),
+	//     )
+	Interface(value interface{}) IStep
 }
 
 type sendBody struct {
@@ -36,34 +57,33 @@ func (*sendBody) when() StepTime {
 	return SendStep
 }
 
-// exec contains the logic for Send().Body(...)
 func (*sendBody) exec(Hit) error {
-	return xerrors.New("unsupported")
+	return xerrors.New("unable to run Send().Body() without an argument or without a chain. Please use Send().Body(something) or Send().Body().Something")
 }
 
 func (body *sendBody) clearPath() clearPath {
 	return body.cleanPath
 }
 
-func (body *sendBody) JSON(data interface{}) IStep {
+func (body *sendBody) JSON(value interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      SendStep,
-		ClearPath: body.cleanPath.Push("JSON", []interface{}{data}),
+		ClearPath: body.cleanPath.Push("JSON", []interface{}{value}),
 		Exec: func(hit Hit) error {
-			hit.Request().Body().JSON().Set(data)
+			hit.Request().Body().JSON().Set(value)
 			return nil
 		},
 	}
 }
 
-func (body *sendBody) Interface(data interface{}) IStep {
-	switch x := data.(type) {
+func (body *sendBody) Interface(value interface{}) IStep {
+	switch x := value.(type) {
 	case func(e Hit):
 		return &hitStep{
 			Trace:     ett.Prepare(),
 			When:      SendStep,
-			ClearPath: body.cleanPath.Push("Interface", []interface{}{data}),
+			ClearPath: body.cleanPath.Push("Interface", []interface{}{value}),
 			Exec: func(hit Hit) error {
 				x(hit)
 				return nil
@@ -73,15 +93,15 @@ func (body *sendBody) Interface(data interface{}) IStep {
 		return &hitStep{
 			Trace:     ett.Prepare(),
 			When:      SendStep,
-			ClearPath: body.cleanPath.Push("Interface", []interface{}{data}),
+			ClearPath: body.cleanPath.Push("Interface", []interface{}{value}),
 			Exec:      x,
 		}
 	default:
-		if f := internal.GetGenericFunc(data); f.IsValid() {
+		if f := internal.GetGenericFunc(value); f.IsValid() {
 			return &hitStep{
 				Trace:     ett.Prepare(),
 				When:      SendStep,
-				ClearPath: body.cleanPath.Push("Interface", []interface{}{data}),
+				ClearPath: body.cleanPath.Push("Interface", []interface{}{value}),
 				Exec: func(hit Hit) error {
 					internal.CallGenericFunc(f)
 					return nil
@@ -91,9 +111,9 @@ func (body *sendBody) Interface(data interface{}) IStep {
 		return &hitStep{
 			Trace:     ett.Prepare(),
 			When:      SendStep,
-			ClearPath: body.cleanPath.Push("Interface", []interface{}{data}),
+			ClearPath: body.cleanPath.Push("Interface", []interface{}{value}),
 			Exec: func(hit Hit) error {
-				hit.Request().Body().Set(data)
+				hit.Request().Body().Set(value)
 				return nil
 			},
 		}

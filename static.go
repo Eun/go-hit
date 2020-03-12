@@ -410,6 +410,12 @@ func CombineSteps(steps ...IStep) IStep {
 
 // Description sets a custom description for this test.
 // The description will be printed in an error case
+
+// Example:
+//     MustDo(
+//         Description("Check if example.com is available"),
+//         Get("https://example.com"),
+//     )
 func Description(description string) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
@@ -424,19 +430,44 @@ func Description(description string) IStep {
 
 // Clear can be used to remove previous steps.
 //
-// Examples:
+// Usage:
 //     Clear().Send("Hello World")          // will remove all Send("Hello World") steps
 //     Clear().Send().Body("Hello World")   // will remove all Send().Body("Hello World") steps
 //     Clear().Expect().Body()              // will remove all Expect().Body() steps and all chained steps to Body() e.g. Expect().Body().Equal("Hello World")
 //     Clear().Expect().Body("Hello World") // will remove all Expect().Body("Hello World") steps
 //
+// Example:
 //     MustDo(
 //         Post("https://example.com"),
-//         Send("Hello Earth"),
-//         Expect("Hello World"),
+//         Expect().Status(http.StatusOK),
+//         Expect().Body().Contains("Welcome to example.com"),
 //         Clear().Expect(),
-//         Expect("Hello Earth"),
+//         Expect().Status(http.NotFound),
+//         Expect().Body().Contains("Not found!"),
 //     )
 func Clear() IClear {
 	return newClear()
+}
+
+// Custom can be used to run custom logic during various steps.
+//
+// Example:
+//     MustDo(
+//         Post("https://example.com"),
+//         Custom(ExpectStep, func(hit Hit) {
+//             if hit.Response().Body().String() != "Hello Earth" {
+//                 panic("Expected Hello Earth")
+//             }
+//         }),
+//     )
+func Custom(when StepTime, exec Callback) IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      when,
+		ClearPath: newClearPath("Custom", []interface{}{when, exec}),
+		Exec: func(hit Hit) error {
+			exec(hit)
+			return nil
+		},
+	}
 }

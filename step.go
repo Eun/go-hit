@@ -79,15 +79,3 @@ func (step *hitStep) when() StepTime {
 func (step *hitStep) clearPath() clearPath {
 	return step.ClearPath
 }
-
-func Custom(when StepTime, exec Callback) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      when,
-		ClearPath: newClearPath("Custom", []interface{}{when, exec}),
-		Exec: func(hit Hit) error {
-			exec(hit)
-			return nil
-		},
-	}
-}
