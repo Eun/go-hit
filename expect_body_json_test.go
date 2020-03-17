@@ -811,3 +811,32 @@ func TestExpectBodyJSON_GetAs(t *testing.T) {
 		}),
 	)
 }
+
+func TestExpectBodyJSONFinal(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("Expect().Body().JSON(value).Equal()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)", func() {
+			Do(Expect().Body().JSON("data").Equal("", ""))
+		})
+	})
+
+	t.Run("Expect().Body().JSON(value).NotEqual()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)", func() {
+			Do(Expect().Body().JSON("data").NotEqual("", ""))
+		})
+	})
+
+	t.Run("Expect().Body().JSON(value).Contains()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)", func() {
+			Do(Expect().Body().JSON("data").Contains("", ""))
+		})
+	})
+
+	t.Run("Expect().Body().JSON(value).NotContains()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)", func() {
+			Do(Expect().Body().JSON("data").NotContains("", ""))
+		})
+	})
+}

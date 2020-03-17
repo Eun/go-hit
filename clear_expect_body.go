@@ -134,7 +134,7 @@ func (body *clearExpectBody) when() StepTime {
 
 func (body *clearExpectBody) exec(hit Hit) error {
 	// this runs if we called Clear().Expect().Body()
-	removeSteps(hit, body.cleanPath)
+	removeSteps(hit, body.clearPath())
 	return nil
 }
 

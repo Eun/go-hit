@@ -119,7 +119,7 @@ func (*clearSend) when() StepTime {
 
 func (snd *clearSend) exec(hit Hit) error {
 	// this runs if we called Clear().Send()
-	removeSteps(hit, snd.cleanPath)
+	removeSteps(hit, snd.clearPath())
 	return nil
 }
 

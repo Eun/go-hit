@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	. "github.com/Eun/go-hit"
+	"github.com/stretchr/testify/require"
 )
 
 func TestExpectBody_Equal(t *testing.T) {
@@ -127,5 +128,46 @@ func TestExpectBody_NotContains(t *testing.T) {
 			),
 			PtrStr("invalid character 'H' looking for beginning of value"),
 		)
+	})
+}
+
+func TestExpectBodyFinal(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("Expect().Body(value).Interface()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Expect().Body() not with Expect().Body(value)", func() {
+			Do(Expect().Body("Data").Interface(nil))
+		})
+	})
+
+	t.Run("Expect().Body(value).JSON()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Expect().Body() not with Expect().Body(value)", func() {
+			Do(Expect().Body("Data").JSON(nil))
+		})
+	})
+
+	t.Run("Expect().Body(value).Equal()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Expect().Body() not with Expect().Body(value)", func() {
+			Do(Expect().Body("Data").Equal(nil))
+		})
+	})
+
+	t.Run("Expect().Body(value).NotEqual()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Expect().Body() not with Expect().Body(value)", func() {
+			Do(Expect().Body("Data").NotEqual(nil))
+		})
+	})
+
+	t.Run("Expect().Body(value).Contains()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Expect().Body() not with Expect().Body(value)", func() {
+			Do(Expect().Body("Data").Contains(nil))
+		})
+	})
+
+	t.Run("Expect().Body(value).NotContains()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Expect().Body() not with Expect().Body(value)", func() {
+			Do(Expect().Body("Data").NotContains(nil))
+		})
 	})
 }

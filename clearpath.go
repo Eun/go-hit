@@ -16,6 +16,9 @@ type pathPart struct {
 type clearPath []pathPart
 
 func (cleanPath clearPath) Push(name string, arguments []interface{}) clearPath {
+	if arguments == nil {
+		arguments = []interface{}{}
+	}
 	return append(cleanPath, pathPart{
 		Func:      name,
 		Arguments: arguments,
@@ -23,6 +26,9 @@ func (cleanPath clearPath) Push(name string, arguments []interface{}) clearPath 
 }
 
 func newClearPath(name string, arguments []interface{}) clearPath {
+	if arguments == nil {
+		arguments = []interface{}{}
+	}
 	return []pathPart{
 		{
 			Func:      name,
@@ -49,10 +55,14 @@ func (cleanPath clearPath) Contains(needle clearPath) bool {
 			return false
 		}
 
-		if len(needle[i].Arguments) > 0 {
-			if !cmp.Equal(cleanPath[i].Arguments, needle[i].Arguments, cmp.Comparer(funcComparer)) {
-				return false
-			}
+		hayArgSize := len(cleanPath[i].Arguments)
+		needleArgSize := len(needle[i].Arguments)
+
+		if hayArgSize > needleArgSize {
+			hayArgSize = needleArgSize
+		}
+		if !cmp.Equal(cleanPath[i].Arguments[:hayArgSize], needle[i].Arguments, cmp.Comparer(funcComparer)) {
+			return false
 		}
 	}
 	return true

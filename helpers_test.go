@@ -18,7 +18,9 @@ import (
 func EchoServer() *httptest.Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		writer.Header().Set("Content-Type", request.Header.Get("Content-Type"))
+		for k, v := range request.Header {
+			writer.Header()[k] = v
+		}
 		_, _ = io.Copy(writer, request.Body)
 	})
 	return httptest.NewServer(mux)

@@ -108,7 +108,7 @@ func (jsn *clearExpectBodyJSON) when() StepTime {
 
 func (jsn *clearExpectBodyJSON) exec(hit Hit) error {
 	// this runs if we called Clear().Expect().Body().JSON()
-	removeSteps(hit, jsn.cleanPath)
+	removeSteps(hit, jsn.clearPath())
 	return nil
 }
 

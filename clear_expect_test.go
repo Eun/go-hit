@@ -3,6 +3,8 @@ package hit_test
 import (
 	"testing"
 
+	"net/http"
+
 	. "github.com/Eun/go-hit"
 	"github.com/stretchr/testify/require"
 )
@@ -16,7 +18,7 @@ func TestClearExpect_Body(t *testing.T) {
 			Do(
 				Post(s.URL),
 				Send().Body("Hello Earth"),
-				Expect().Body("Hello Earth"),
+				Expect().Body("Hello Nature"),
 				Clear().Expect().Body(),
 				Expect().Body("Hello World"),
 			),
@@ -29,9 +31,9 @@ func TestClearExpect_Body(t *testing.T) {
 			Do(
 				Post(s.URL),
 				Send().Body("Hello Earth"),
-				Expect().Body("Hello Earth"),
+				Expect().Body("Hello Nature"),
 				Expect().Body("Hello World"),
-				Clear().Expect().Body("Hello Earth"),
+				Clear().Expect().Body("Hello Nature"),
 			),
 			PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), PtrStr(`actual: "Hello Earth"`), nil, nil, nil, nil,
 		)
@@ -47,7 +49,7 @@ func TestClearExpect_Interface(t *testing.T) {
 			Do(
 				Post(s.URL),
 				Send().Interface("Hello Earth"),
-				Expect().Interface("Hello Earth"),
+				Expect().Interface("Hello Nature"),
 				Clear().Expect().Interface(),
 				Expect().Interface("Hello World"),
 			),
@@ -60,40 +62,9 @@ func TestClearExpect_Interface(t *testing.T) {
 			Do(
 				Post(s.URL),
 				Send().Interface("Hello Earth"),
-				Expect().Interface("Hello Earth"),
+				Expect().Interface("Hello Nature"),
 				Expect().Interface("Hello World"),
-				Clear().Expect().Interface("Hello Earth"),
-			),
-			PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), PtrStr(`actual: "Hello Earth"`), nil, nil, nil, nil,
-		)
-	})
-}
-
-func TestClearExpect_Headers(t *testing.T) {
-	s := EchoServer()
-	defer s.Close()
-
-	t.Run("all", func(t *testing.T) {
-		ExpectError(t,
-			Do(
-				Post(s.URL),
-				Send().Header("X-Header", "Hello Earth"),
-				Expect().Headers().Get("X-Header").Equal("Hello Earth"),
-				Clear().Expect().Headers().Get(),
-				Expect().Headers().Get("X-Header").Equal("Hello World"),
-			),
-			PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), PtrStr(`actual: "Hello Earth"`), nil, nil, nil, nil,
-		)
-	})
-
-	t.Run("specific", func(t *testing.T) {
-		ExpectError(t,
-			Do(
-				Post(s.URL),
-				Send().Header("X-Header", "Hello Earth"),
-				Expect().Headers().Get("X-Header").Equal("Hello Earth"),
-				Expect().Headers().Get("X-Header").Equal("Hello World"),
-				Clear().Expect().Headers().Get("X-Header"),
+				Clear().Expect().Interface("Hello Nature"),
 			),
 			PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), PtrStr(`actual: "Hello Earth"`), nil, nil, nil, nil,
 		)
@@ -109,7 +80,7 @@ func TestClearExpect_Header(t *testing.T) {
 			Do(
 				Post(s.URL),
 				Send().Header("X-Header", "Hello Earth"),
-				Expect().Header("X-Header").Equal("Hello Earth"),
+				Expect().Header("X-Header").Equal("Hello Nature"),
 				Clear().Expect().Header(),
 				Expect().Header("X-Header").Equal("Hello World"),
 			),
@@ -122,11 +93,40 @@ func TestClearExpect_Header(t *testing.T) {
 			Do(
 				Post(s.URL),
 				Send().Header("X-Header", "Hello Earth"),
-				Expect().Header("X-Header").Equal("Hello Earth"),
+				Expect().Header("X-Header").Equal("Hello Nature"),
 				Expect().Header("X-Header").Equal("Hello World"),
-				Clear().Expect().Header("X-Header"),
+				Clear().Expect().Header("X-Header").Equal("Hello Nature"),
 			),
 			PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), PtrStr(`actual: "Hello Earth"`), nil, nil, nil, nil,
+		)
+	})
+}
+
+func TestClearExpect_Status(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("all", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Expect().Status(http.StatusOK),
+				Clear().Expect().Status(),
+				Expect().Status(http.StatusNotFound),
+			),
+			PtrStr("Expected status code to be 404 but was 200 instead"),
+		)
+	})
+
+	t.Run("specific", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Expect().Status(http.StatusOK),
+				Expect().Status(http.StatusNotFound),
+				Clear().Expect().Status(http.StatusOK),
+			),
+			PtrStr("Expected status code to be 404 but was 200 instead"),
 		)
 	})
 }
@@ -171,5 +171,39 @@ func TestClearExpect_Custom(t *testing.T) {
 			Clear().Expect().Custom(fn),
 		)
 		require.True(t, ranCustomFunc)
+	})
+}
+
+func TestClearExpectFinal(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	t.Run("Clear().Expect(value).Body()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Clear().Expect() not with Clear().Expect(value)", func() {
+			Do(Clear().Expect("Data").Body())
+		})
+	})
+
+	t.Run("Clear().Expect(value).Interface()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Clear().Expect() not with Clear().Expect(value)", func() {
+			Do(Clear().Expect("Data").Interface())
+		})
+	})
+
+	t.Run("Clear().Expect(value).Custom()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Clear().Expect() not with Clear().Expect(value)", func() {
+			Do(Clear().Expect("Data").Custom())
+		})
+	})
+
+	t.Run("Clear().Expect(value).Header()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Clear().Expect() not with Clear().Expect(value)", func() {
+			Do(Clear().Expect("Data").Header())
+		})
+	})
+
+	t.Run("Clear().Expect(value).Status()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Clear().Expect() not with Clear().Expect(value)", func() {
+			Do(Clear().Expect("Data").Status())
+		})
 	})
 }

@@ -37,30 +37,21 @@ type IExpect interface {
 	//     )
 	Interface(value interface{}) IStep
 
-	// Headers provides assertions to the response headers.
-	//
-	// Usage:
-	//     Expect().Headers().Contains("Content-Type")
-	//     Expect().Headers().Get("Content-Type").Contains("json")
-	//
-	// Example:
-	//     MustDo(
-	//         Get("https://example.com"),
-	//         Expect().Headers().Contains("Content-Type"),
-	//     )
-	Headers() IExpectHeaders
-
 	// Header provides assertions to one specific response header.
 	//
+	// If you omit the argument you can fine tune the assertions.
+	//
 	// Usage:
-	//     Expect().Headers("Content-Type").Equal("application/json")
+	//     Expect().Header().Contains("Content-Type")
+	//     Expect().Header("Content-Type").Equal("application/json")
 	//
 	// Example:
 	//     MustDo(
 	//         Get("https://example.com"),
+	//         Expect().Header().Contains("Content-Type"),
 	//         Expect().Header("Content-Type").Equal("application/json"),
 	//     )
-	Header(headerName string) IExpectSpecificHeader
+	Header(headerName ...string) IExpectHeader
 
 	// Status expects the status to be the specified code.
 	//
@@ -140,12 +131,13 @@ func (exp *expect) Custom(fn Callback) IStep {
 	}
 }
 
-func (exp *expect) Headers() IExpectHeaders {
-	return newExpectHeaders(exp, exp.cleanPath.Push("Headers", nil))
-}
+func (exp *expect) Header(headerName ...string) IExpectHeader {
+	args := make([]interface{}, len(headerName))
+	for i := range headerName {
+		args[i] = headerName[i]
+	}
 
-func (exp *expect) Header(headerName string) IExpectSpecificHeader {
-	return newExpectSpecificHeader(exp, exp.cleanPath.Push("Header", []interface{}{headerName}), headerName)
+	return newExpectHeader(exp, exp.cleanPath.Push("Header", args), headerName...)
 }
 
 func (exp *expect) Status(code ...int) IExpectStatus {
@@ -181,11 +173,7 @@ func (finalExpect) Custom(Callback) IStep {
 	panic("only usable with Expect() not with Expect(value)")
 }
 
-func (finalExpect) Headers() IExpectHeaders {
-	panic("only usable with Expect() not with Expect(value)")
-}
-
-func (finalExpect) Header(string) IExpectSpecificHeader {
+func (finalExpect) Header(...string) IExpectHeader {
 	panic("only usable with Expect() not with Expect(value)")
 }
 

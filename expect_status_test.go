@@ -204,3 +204,16 @@ func TestExpectStatus_NotBetween(t *testing.T) {
 		PtrStr("expected 200 not to be between 100 and 200"),
 	)
 }
+
+func TestExpectStatus_Invalid(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Send().Body("Hello World"),
+			Expect().Status(),
+		), PtrStr("Expected status code to be 404 but was 200 instead"),
+	)
+}

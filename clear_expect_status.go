@@ -196,7 +196,7 @@ func newClearExpectStatus(cleanPath clearPath, params []int) IClearExpectStatus 
 
 func (status *clearExpectStatus) exec(hit Hit) error {
 	// this runs if we called Clear().Expect().Status()
-	removeSteps(hit, status.cleanPath)
+	removeSteps(hit, status.clearPath())
 	return nil
 }
 

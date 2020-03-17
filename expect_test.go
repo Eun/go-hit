@@ -62,6 +62,17 @@ func TestExpect(t *testing.T) {
 				PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
 			)
 		})
+		t.Run("with correct parameter (using Hit) and error", func(t *testing.T) {
+			ExpectError(t,
+				Do(
+					Post(s.URL),
+					Send().Body("Hello World"),
+					Expect(func(hit Hit) error {
+						return hit.Do(Expect("Hello Universe"))
+					})),
+				PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+			)
+		})
 
 		t.Run("with invalid parameter", func(t *testing.T) {
 			calledFunc := false
@@ -106,4 +117,38 @@ func TestExpect_DeepFunc(t *testing.T) {
 		PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
 	)
 	require.True(t, calledFunc)
+}
+
+func TestExpectFinal(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	t.Run("Expect(value).Body()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Expect() not with Expect(value)", func() {
+			Do(Expect("Data").Body())
+		})
+	})
+
+	t.Run("Expect(value).Interface()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Expect() not with Expect(value)", func() {
+			Do(Expect("Data").Interface(nil))
+		})
+	})
+
+	t.Run("Expect(value).Header()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Expect() not with Expect(value)", func() {
+			Do(Expect("Data").Header().Empty())
+		})
+	})
+
+	t.Run("Expect(value).Status()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Expect() not with Expect(value)", func() {
+			Do(Expect("Data").Status())
+		})
+	})
+
+	t.Run("Expect(value).Custom()", func(t *testing.T) {
+		require.PanicsWithValue(t, "only usable with Expect() not with Expect(value)", func() {
+			Do(Expect("Data").Custom(nil))
+		})
+	})
 }

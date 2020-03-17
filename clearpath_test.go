@@ -17,6 +17,8 @@ func TestClearPath_Contains(t *testing.T) {
 		{newClearPath("Foo", []interface{}{1}).Push("Bar", nil), newClearPath("Foo", []interface{}{1}).Push("Bar", nil), true},
 		{newClearPath("Foo", []interface{}{1}).Push("Bar", []interface{}{1}), newClearPath("Foo", []interface{}{1}).Push("Bar", []interface{}{1}), true},
 		{newClearPath("Foo", []interface{}{1}).Push("Bar", nil), newClearPath("Foo", []interface{}{2}), false},
+		{newClearPath("Foo", []interface{}{1, 2}).Push("Bar", nil), newClearPath("Foo", []interface{}{1}), true},
+		{newClearPath("Foo", []interface{}{1}).Push("Bar", nil), newClearPath("Foo", []interface{}{1, 2}), false},
 	}
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {

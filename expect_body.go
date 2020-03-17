@@ -226,21 +226,21 @@ type finalExpectBody struct {
 	IStep
 }
 
-func (f finalExpectBody) JSON(...interface{}) IExpectBodyJSON {
+func (finalExpectBody) JSON(...interface{}) IExpectBodyJSON {
 	panic("only usable with Expect().Body() not with Expect().Body(value)")
 }
-func (f finalExpectBody) Interface(interface{}) IStep {
+func (finalExpectBody) Interface(interface{}) IStep {
 	panic("only usable with Expect().Body() not with Expect().Body(value)")
 }
-func (f finalExpectBody) Equal(interface{}) IStep {
+func (finalExpectBody) Equal(interface{}) IStep {
 	panic("only usable with Expect().Body() not with Expect().Body(value)")
 }
-func (f finalExpectBody) NotEqual(interface{}) IStep {
+func (finalExpectBody) NotEqual(interface{}) IStep {
 	panic("only usable with Expect().Body() not with Expect().Body(value)")
 }
-func (f finalExpectBody) Contains(interface{}) IStep {
+func (finalExpectBody) Contains(interface{}) IStep {
 	panic("only usable with Expect().Body() not with Expect().Body(value)")
 }
-func (f finalExpectBody) NotContains(interface{}) IStep {
+func (finalExpectBody) NotContains(interface{}) IStep {
 	panic("only usable with Expect().Body() not with Expect().Body(value)")
 }

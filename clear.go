@@ -62,7 +62,11 @@ func removeSteps(hit Hit, path clearPath) {
 		if step == hit.CurrentStep() {
 			break
 		}
-		if step.clearPath().Contains(path) {
+		p := step.clearPath()
+		if p == nil {
+			continue
+		}
+		if p.Contains(path) {
 			stepsToRemove = append(stepsToRemove, step)
 		}
 	}

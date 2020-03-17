@@ -68,22 +68,6 @@ type IClearExpect interface {
 	//     )
 	Custom(fn ...Callback) IStep
 
-	// Headers removes all previous Expect().Headers() steps and all steps chained to Expect().Headers()
-	// e.g. Expect().Headers().Contains("Content-Type").
-	//
-	// Usage:
-	//     Clear().Expect().Headers()                          // will remove all Expect().Headers() steps
-	//     Clear().Expect().Headers().Contains()               // will remove all Expect().Headers().Contains() steps
-	//     Clear().Expect().Headers().Contains("Content-Type") // will remove all Expect().Headers().Contains("Content-Type") steps
-	//
-	// Example:
-	//     MustDo(
-	//         Get("https://example.com"),
-	//         Expect().Headers().Contains("Expires"),
-	//         Clear().Expect().Headers(),
-	//     )
-	Headers() IClearExpectHeaders
-
 	// Header removes all previous Expect().Header() steps and all steps chained to Expect().Header()
 	// e.g. Expect().Header("Content-Type").Equal("Content-Type").
 	//
@@ -101,7 +85,7 @@ type IClearExpect interface {
 	//         Clear().Expect().Header(),
 	//         Expect().Header("Content-Type").Equal("application/octet-stream"),
 	//     )
-	Header(headerName ...string) IClearExpectSpecificHeader
+	Header(headerName ...string) IClearExpectHeader
 
 	// Status removes all previous Expect().Status() steps and all steps chained to Expect().Status()
 	// e.g. Expect().Status().Equal(http.StatusOK).
@@ -143,7 +127,7 @@ func (exp *clearExpect) when() StepTime {
 
 func (exp *clearExpect) exec(hit Hit) error {
 	// this runs if we called Clear().Expect()
-	removeSteps(hit, exp.cleanPath)
+	removeSteps(hit, exp.clearPath())
 	return nil
 }
 
@@ -167,16 +151,12 @@ func (exp *clearExpect) Custom(fn ...Callback) IStep {
 	return removeStep(exp.cleanPath.Push("Custom", args))
 }
 
-func (exp *clearExpect) Headers() IClearExpectHeaders {
-	return newClearExpectHeaders(exp, exp.cleanPath.Push("Headers", nil))
-}
-
-func (exp *clearExpect) Header(headerName ...string) IClearExpectSpecificHeader {
+func (exp *clearExpect) Header(headerName ...string) IClearExpectHeader {
 	args := make([]interface{}, len(headerName))
 	for i := range headerName {
 		args[i] = headerName[i]
 	}
-	return newClearExpectSpecificHeader(exp, exp.cleanPath.Push("Header", args))
+	return newClearExpectHeader(exp.cleanPath.Push("Header", args))
 }
 
 func (exp *clearExpect) Status(code ...int) IClearExpectStatus {
@@ -203,11 +183,7 @@ func (finalClearExpect) Custom(...Callback) IStep {
 	panic("only usable with Clear().Expect() not with Clear().Expect(value)")
 }
 
-func (finalClearExpect) Headers() IClearExpectHeaders {
-	panic("only usable with Clear().Expect() not with Clear().Expect(value)")
-}
-
-func (finalClearExpect) Header(...string) IClearExpectSpecificHeader {
+func (finalClearExpect) Header(...string) IClearExpectHeader {
 	panic("only usable with Clear().Expect() not with Clear().Expect(value)")
 }
 
