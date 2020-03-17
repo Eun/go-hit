@@ -100,16 +100,30 @@ func TestSend_Custom(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
-	calledFunc := false
-	Test(t,
-		Post(s.URL),
-		Send().Custom(func(hit Hit) {
-			calledFunc = true
-			hit.Request().Body().SetString("Hello World")
-		}),
-		Expect().Body().Equal(`Hello World`),
-	)
-	require.True(t, calledFunc)
+	t.Run("inline", func(t *testing.T) {
+		calledFunc := false
+		Test(t,
+			Post(s.URL),
+			Send().Custom(func(hit Hit) {
+				calledFunc = true
+				hit.Request().Body().SetString("Hello World")
+			}),
+			Expect().Body().Equal(`Hello World`),
+		)
+		require.True(t, calledFunc)
+	})
+	t.Run("MustDo", func(t *testing.T) {
+		calledFunc := false
+		Test(t,
+			Post(s.URL),
+			Send().Custom(func(hit Hit) {
+				calledFunc = true
+				hit.MustDo(Send("Hello World"))
+			}),
+			Expect().Body().Equal(`Hello World`),
+		)
+		require.True(t, calledFunc)
+	})
 }
 
 func TestSend_Custom_InvalidParameter(t *testing.T) {

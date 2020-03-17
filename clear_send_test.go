@@ -24,7 +24,7 @@ func TestClearSend_Custom(t *testing.T) {
 				}),
 				Expect("Hello World"),
 			),
-			PtrStr("Not equal"), PtrStr(`expected: "Hello Earth"`), nil, nil, nil, nil, nil,
+			PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), PtrStr(`actual: "Hello Earth"`), nil, nil, nil, nil,
 		)
 	})
 
