@@ -87,16 +87,15 @@ type Hit interface {
 }
 
 type defaultInstance struct {
-	steps         []IStep
-	executedSteps []IStep
-	currentStep   IStep
-	request       *HTTPRequest
-	response      *HTTPResponse
-	client        *http.Client
-	state         StepTime
-	stdout        io.Writer
-	baseURL       string
-	description   string
+	steps       []IStep
+	currentStep IStep
+	request     *HTTPRequest
+	response    *HTTPResponse
+	client      *http.Client
+	state       StepTime
+	stdout      io.Writer
+	baseURL     string
+	description string
 }
 
 func (hit *defaultInstance) Request() *HTTPRequest {
@@ -135,16 +134,11 @@ func (hit *defaultInstance) SetBaseURL(url string, a ...interface{}) {
 	hit.baseURL = fmt.Sprintf(url, a...)
 }
 
-func (hit *defaultInstance) collectSteps(state StepTime, offset int) []IStep {
+func (hit *defaultInstance) collectSteps(state StepTime) []IStep {
 	var collectedSteps []IStep
 	for i := 0; i < len(hit.steps); i++ {
 		w := hit.steps[i].when()
 		if w == state {
-			// skip the offset
-			if offset > 0 {
-				offset--
-				continue
-			}
 			collectedSteps = append(collectedSteps, hit.steps[i])
 		}
 	}
@@ -152,37 +146,55 @@ func (hit *defaultInstance) collectSteps(state StepTime, offset int) []IStep {
 }
 
 func (hit *defaultInstance) runSteps(state StepTime) error {
-	totalSteps := len(hit.steps)
 	// find all steps we want to run
-	stepsToRun := hit.collectSteps(state, 0)
+	stepsToRun := hit.collectSteps(state)
 	size := len(stepsToRun)
+
+	// be optimistic and hope nobody changes the size
+	// if not the slice will resize
+	executedSteps := make([]IStep, 0, size)
+
+nextStep:
 	for i := 0; i < size; i++ {
-		if hit.stepAlreadyExecuted(stepsToRun[i]) {
-			continue
+		for _, step := range executedSteps {
+			// step already executed
+			if step == stepsToRun[i] {
+				continue nextStep
+			}
 		}
+
 		hit.currentStep = stepsToRun[i]
 		if err := stepsToRun[i].exec(hit); err != nil {
 			return err
 		}
-		hit.executedSteps = append(hit.executedSteps, stepsToRun[i])
+		executedSteps = append(executedSteps, stepsToRun[i])
 
-		// maybe there is a new step added
-		newTotalSteps := len(hit.steps)
-		if totalSteps != newTotalSteps {
-			// yes they have been modified, start over
-			return hit.runSteps(state)
+		// maybe the steps got modified in some way
+		// lets quickly get the steps we need to execute and compare them with the ones we currently execute
+		newSteps := hit.collectSteps(state)
+		if !stepsAreEqual(stepsToRun, newSteps) {
+			// yep something changed in our scope
+			// start over again
+			i = -1
+			size = len(newSteps)
+			stepsToRun = newSteps
+			continue nextStep
 		}
+
 	}
 	return nil
 }
 
-func (hit *defaultInstance) stepAlreadyExecuted(step IStep) bool {
-	for _, s := range hit.executedSteps {
-		if s == step {
-			return true
+func stepsAreEqual(a, b []IStep) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
 		}
 	}
-	return false
+	return true
 }
 
 func (hit *defaultInstance) CurrentStep() IStep {
