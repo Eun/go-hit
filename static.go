@@ -318,10 +318,11 @@ func Test(t TestingT, steps ...IStep) {
 // Do runs the specified steps and returns error if something was wrong
 func Do(steps ...IStep) error {
 	hit := &defaultInstance{
-		client: http.DefaultClient,
-		stdout: os.Stdout,
-		steps:  steps,
-		state:  CombineStep,
+		client:        http.DefaultClient,
+		stdout:        os.Stdout,
+		steps:         steps,
+		state:         CombineStep,
+		executedSteps: make([]IStep, 0, len(steps)),
 	}
 	if err := hit.runSteps(CombineStep); err != nil {
 		return err

@@ -87,15 +87,16 @@ type Hit interface {
 }
 
 type defaultInstance struct {
-	steps       []IStep
-	currentStep IStep
-	request     *HTTPRequest
-	response    *HTTPResponse
-	client      *http.Client
-	state       StepTime
-	stdout      io.Writer
-	baseURL     string
-	description string
+	steps         []IStep
+	executedSteps []IStep
+	currentStep   IStep
+	request       *HTTPRequest
+	response      *HTTPResponse
+	client        *http.Client
+	state         StepTime
+	stdout        io.Writer
+	baseURL       string
+	description   string
 }
 
 func (hit *defaultInstance) Request() *HTTPRequest {
@@ -155,30 +156,33 @@ func (hit *defaultInstance) runSteps(state StepTime) error {
 	// find all steps we want to run
 	stepsToRun := hit.collectSteps(state, 0)
 	size := len(stepsToRun)
-	i := 0
-	for {
-		if i >= size {
-			return nil
+	for i := 0; i < size; i++ {
+		if hit.stepAlreadyExecuted(stepsToRun[i]) {
+			continue
 		}
 		hit.currentStep = stepsToRun[i]
 		if err := stepsToRun[i].exec(hit); err != nil {
 			return err
 		}
+		hit.executedSteps = append(hit.executedSteps, stepsToRun[i])
 
 		// maybe there is a new step added
 		newTotalSteps := len(hit.steps)
 		if totalSteps != newTotalSteps {
-			// yes they have been modified
-			// find all new steps after the last scan
-			stepsToRun = append(stepsToRun[:i], hit.collectSteps(state, i+1)...)
-			size = len(stepsToRun)
-			i = 0
-			totalSteps = newTotalSteps
-			continue
+			// yes they have been modified, start over
+			return hit.runSteps(state)
 		}
-		i++
 	}
 	return nil
+}
+
+func (hit *defaultInstance) stepAlreadyExecuted(step IStep) bool {
+	for _, s := range hit.executedSteps {
+		if s == step {
+			return true
+		}
+	}
+	return false
 }
 
 func (hit *defaultInstance) CurrentStep() IStep {
