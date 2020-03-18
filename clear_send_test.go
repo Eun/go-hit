@@ -46,3 +46,50 @@ func TestClearSend_Custom(t *testing.T) {
 		require.True(t, ranCustomFunc)
 	})
 }
+
+func TestClearSend_Final(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("Clear().Send(value).Body()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Send("Data").Body()),
+			PtrStr("only usable with Clear().Send() not with Clear().Send(value)"),
+		)
+	})
+
+	t.Run("Clear().Send(value).Body().JSON()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Send("Data").Body().JSON()),
+			PtrStr("only usable with Clear().Send() not with Clear().Send(value)"),
+		)
+	})
+
+	t.Run("Clear().Send(value).Interface()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Send("Data").Interface()),
+			PtrStr("only usable with Clear().Send() not with Clear().Send(value)"),
+		)
+	})
+
+	t.Run("Clear().Send(value).JSON()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Send("Data").JSON()),
+			PtrStr("only usable with Clear().Send() not with Clear().Send(value)"),
+		)
+	})
+
+	t.Run("Clear().Send(value).Header()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Send("Data").Header()),
+			PtrStr("only usable with Clear().Send() not with Clear().Send(value)"),
+		)
+	})
+
+	t.Run("Clear().Send(value).Custom()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Send("Data").Custom()),
+			PtrStr("only usable with Clear().Send() not with Clear().Send(value)"),
+		)
+	})
+}

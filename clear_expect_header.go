@@ -223,23 +223,23 @@ func (hdr *clearExpectHeader) clearPath() clearPath {
 }
 
 func (hdr *clearExpectHeader) Contains(value ...interface{}) IStep {
-	return removeStep(hdr.cleanPath.Push("Contains", value))
+	return removeStep(hdr.clearPath().Push("Contains", value))
 }
 
 func (hdr *clearExpectHeader) NotContains(value ...interface{}) IStep {
-	return removeStep(hdr.cleanPath.Push("NotContains", value))
+	return removeStep(hdr.clearPath().Push("NotContains", value))
 }
 
 func (hdr *clearExpectHeader) OneOf(values ...interface{}) IStep {
-	return removeStep(hdr.cleanPath.Push("OneOf", values))
+	return removeStep(hdr.clearPath().Push("OneOf", values))
 }
 
 func (hdr *clearExpectHeader) NotOneOf(values ...interface{}) IStep {
-	return removeStep(hdr.cleanPath.Push("NotOneOf", values))
+	return removeStep(hdr.clearPath().Push("NotOneOf", values))
 }
 
 func (hdr *clearExpectHeader) Empty() IStep {
-	return removeStep(hdr.cleanPath.Push("Empty", nil))
+	return removeStep(hdr.clearPath().Push("Empty", nil))
 }
 
 func (hdr *clearExpectHeader) Len(size ...int) IStep {
@@ -247,15 +247,15 @@ func (hdr *clearExpectHeader) Len(size ...int) IStep {
 	for i := range size {
 		args[i] = size[i]
 	}
-	return removeStep(hdr.cleanPath.Push("Len", args))
+	return removeStep(hdr.clearPath().Push("Len", args))
 }
 
 func (hdr *clearExpectHeader) Equal(value ...interface{}) IStep {
-	return removeStep(hdr.cleanPath.Push("Equal", value))
+	return removeStep(hdr.clearPath().Push("Equal", value))
 }
 
 func (hdr *clearExpectHeader) NotEqual(value ...interface{}) IStep {
-	return removeStep(hdr.cleanPath.Push("NotEqual", value))
+	return removeStep(hdr.clearPath().Push("NotEqual", value))
 }
 
 type finalClearExpectHeader struct {
@@ -263,7 +263,7 @@ type finalClearExpectHeader struct {
 	message string
 }
 
-func (hdr *finalClearExpectHeader) Contains(...interface{}) IStep {
+func (hdr *finalClearExpectHeader) fail() IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
@@ -272,81 +272,36 @@ func (hdr *finalClearExpectHeader) Contains(...interface{}) IStep {
 			return xerrors.New(hdr.message)
 		},
 	}
+}
+
+func (hdr *finalClearExpectHeader) Contains(...interface{}) IStep {
+	return hdr.fail()
 }
 
 func (hdr *finalClearExpectHeader) NotContains(...interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(hdr.message)
-		},
-	}
+	return hdr.fail()
 }
 
 func (hdr *finalClearExpectHeader) OneOf(...interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(hdr.message)
-		},
-	}
+	return hdr.fail()
 }
 
 func (hdr *finalClearExpectHeader) NotOneOf(...interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(hdr.message)
-		},
-	}
+	return hdr.fail()
 }
 
 func (hdr *finalClearExpectHeader) Empty() IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(hdr.message)
-		},
-	}
+	return hdr.fail()
 }
 
 func (hdr *finalClearExpectHeader) Len(...int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(hdr.message)
-		},
-	}
+	return hdr.fail()
 }
 
 func (hdr *finalClearExpectHeader) Equal(...interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(hdr.message)
-		},
-	}
+	return hdr.fail()
 }
 
 func (hdr *finalClearExpectHeader) NotEqual(...interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(hdr.message)
-		},
-	}
+	return hdr.fail()
 }

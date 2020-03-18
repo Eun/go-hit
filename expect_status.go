@@ -320,7 +320,7 @@ type finalExpectStatus struct {
 	message string
 }
 
-func (status *finalExpectStatus) Equal(int) IStep {
+func (status *finalExpectStatus) fail() IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
@@ -329,94 +329,35 @@ func (status *finalExpectStatus) Equal(int) IStep {
 			return xerrors.New(status.message)
 		},
 	}
+}
+
+func (status *finalExpectStatus) Equal(int) IStep {
+	return status.fail()
 }
 func (status *finalExpectStatus) NotEqual(int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }
 func (status *finalExpectStatus) OneOf(...int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }
 func (status *finalExpectStatus) NotOneOf(...int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }
 func (status *finalExpectStatus) GreaterThan(int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }
 func (status *finalExpectStatus) LessThan(int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }
 func (status *finalExpectStatus) GreaterOrEqualThan(int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }
 func (status *finalExpectStatus) LessOrEqualThan(int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }
 func (status *finalExpectStatus) Between(int, int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }
 func (status *finalExpectStatus) NotBetween(int, int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }

@@ -75,7 +75,7 @@ func (body *sendBody) JSON(value interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      SendStep,
-		ClearPath: body.cleanPath.Push("JSON", []interface{}{value}),
+		ClearPath: body.clearPath().Push("JSON", []interface{}{value}),
 		Exec: func(hit Hit) error {
 			hit.Request().Body().JSON().Set(value)
 			return nil
@@ -89,7 +89,7 @@ func (body *sendBody) Interface(value interface{}) IStep {
 		return &hitStep{
 			Trace:     ett.Prepare(),
 			When:      SendStep,
-			ClearPath: body.cleanPath.Push("Interface", []interface{}{value}),
+			ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
 			Exec: func(hit Hit) error {
 				x(hit)
 				return nil
@@ -99,7 +99,7 @@ func (body *sendBody) Interface(value interface{}) IStep {
 		return &hitStep{
 			Trace:     ett.Prepare(),
 			When:      SendStep,
-			ClearPath: body.cleanPath.Push("Interface", []interface{}{value}),
+			ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
 			Exec:      x,
 		}
 	default:
@@ -107,7 +107,7 @@ func (body *sendBody) Interface(value interface{}) IStep {
 			return &hitStep{
 				Trace:     ett.Prepare(),
 				When:      SendStep,
-				ClearPath: body.cleanPath.Push("Interface", []interface{}{value}),
+				ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
 				Exec: func(hit Hit) error {
 					internal.CallGenericFunc(f)
 					return nil
@@ -117,7 +117,7 @@ func (body *sendBody) Interface(value interface{}) IStep {
 		return &hitStep{
 			Trace:     ett.Prepare(),
 			When:      SendStep,
-			ClearPath: body.cleanPath.Push("Interface", []interface{}{value}),
+			ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
 			Exec: func(hit Hit) error {
 				hit.Request().Body().Set(value)
 				return nil
@@ -131,7 +131,7 @@ type finalSendBody struct {
 	message string
 }
 
-func (body *finalSendBody) JSON(interface{}) IStep {
+func (body *finalSendBody) fail() IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
@@ -142,13 +142,10 @@ func (body *finalSendBody) JSON(interface{}) IStep {
 	}
 }
 
+func (body *finalSendBody) JSON(interface{}) IStep {
+	return body.fail()
+}
+
 func (body *finalSendBody) Interface(interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(body.message)
-		},
-	}
+	return body.fail()
 }

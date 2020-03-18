@@ -222,7 +222,7 @@ func (status *clearExpectStatus) Equal(code ...int) IStep {
 	for i := range code {
 		args[i] = code[i]
 	}
-	return removeStep(status.cleanPath.Push("Equal", args))
+	return removeStep(status.clearPath().Push("Equal", args))
 }
 
 func (status *clearExpectStatus) NotEqual(code ...int) IStep {
@@ -230,7 +230,7 @@ func (status *clearExpectStatus) NotEqual(code ...int) IStep {
 	for i := range code {
 		args[i] = code[i]
 	}
-	return removeStep(status.cleanPath.Push("NotEqual", args))
+	return removeStep(status.clearPath().Push("NotEqual", args))
 }
 
 func (status *clearExpectStatus) OneOf(code ...int) IStep {
@@ -238,7 +238,7 @@ func (status *clearExpectStatus) OneOf(code ...int) IStep {
 	for i := range code {
 		args[i] = code[i]
 	}
-	return removeStep(status.cleanPath.Push("OneOf", args))
+	return removeStep(status.clearPath().Push("OneOf", args))
 }
 
 func (status *clearExpectStatus) NotOneOf(code ...int) IStep {
@@ -246,7 +246,7 @@ func (status *clearExpectStatus) NotOneOf(code ...int) IStep {
 	for i := range code {
 		args[i] = code[i]
 	}
-	return removeStep(status.cleanPath.Push("NotOneOf", args))
+	return removeStep(status.clearPath().Push("NotOneOf", args))
 }
 
 func (status *clearExpectStatus) GreaterThan(code ...int) IStep {
@@ -254,7 +254,7 @@ func (status *clearExpectStatus) GreaterThan(code ...int) IStep {
 	for i := range code {
 		args[i] = code[i]
 	}
-	return removeStep(status.cleanPath.Push("GreaterThan", args))
+	return removeStep(status.clearPath().Push("GreaterThan", args))
 }
 
 func (status *clearExpectStatus) LessThan(code ...int) IStep {
@@ -262,7 +262,7 @@ func (status *clearExpectStatus) LessThan(code ...int) IStep {
 	for i := range code {
 		args[i] = code[i]
 	}
-	return removeStep(status.cleanPath.Push("LessThan", args))
+	return removeStep(status.clearPath().Push("LessThan", args))
 }
 
 func (status *clearExpectStatus) GreaterOrEqualThan(code ...int) IStep {
@@ -270,7 +270,7 @@ func (status *clearExpectStatus) GreaterOrEqualThan(code ...int) IStep {
 	for i := range code {
 		args[i] = code[i]
 	}
-	return removeStep(status.cleanPath.Push("GreaterOrEqualThan", args))
+	return removeStep(status.clearPath().Push("GreaterOrEqualThan", args))
 }
 
 func (status *clearExpectStatus) LessOrEqualThan(code ...int) IStep {
@@ -278,7 +278,7 @@ func (status *clearExpectStatus) LessOrEqualThan(code ...int) IStep {
 	for i := range code {
 		args[i] = code[i]
 	}
-	return removeStep(status.cleanPath.Push("LessOrEqualThan", args))
+	return removeStep(status.clearPath().Push("LessOrEqualThan", args))
 }
 
 func (status *clearExpectStatus) Between(code ...int) IStep {
@@ -286,7 +286,7 @@ func (status *clearExpectStatus) Between(code ...int) IStep {
 	for i := range code {
 		args[i] = code[i]
 	}
-	return removeStep(status.cleanPath.Push("Between", args))
+	return removeStep(status.clearPath().Push("Between", args))
 }
 
 func (status *clearExpectStatus) NotBetween(code ...int) IStep {
@@ -294,7 +294,7 @@ func (status *clearExpectStatus) NotBetween(code ...int) IStep {
 	for i := range code {
 		args[i] = code[i]
 	}
-	return removeStep(status.cleanPath.Push("NotBetween", args))
+	return removeStep(status.clearPath().Push("NotBetween", args))
 }
 
 type finalClearExpectStatus struct {
@@ -302,7 +302,7 @@ type finalClearExpectStatus struct {
 	message string
 }
 
-func (status *finalClearExpectStatus) Equal(...int) IStep {
+func (status *finalClearExpectStatus) fail() IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
@@ -311,94 +311,35 @@ func (status *finalClearExpectStatus) Equal(...int) IStep {
 			return xerrors.New(status.message)
 		},
 	}
+}
+
+func (status *finalClearExpectStatus) Equal(...int) IStep {
+	return status.fail()
 }
 func (status *finalClearExpectStatus) NotEqual(...int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }
 func (status *finalClearExpectStatus) OneOf(...int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }
 func (status *finalClearExpectStatus) NotOneOf(...int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }
 func (status *finalClearExpectStatus) GreaterThan(...int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }
 func (status *finalClearExpectStatus) LessThan(...int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }
 func (status *finalClearExpectStatus) GreaterOrEqualThan(...int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }
 func (status *finalClearExpectStatus) LessOrEqualThan(...int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }
 func (status *finalClearExpectStatus) Between(...int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }
 func (status *finalClearExpectStatus) NotBetween(...int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(status.message)
-		},
-	}
+	return status.fail()
 }

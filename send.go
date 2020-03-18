@@ -113,7 +113,7 @@ func (snd *send) clearPath() clearPath {
 
 func (snd *send) Body(value ...interface{}) ISendBody {
 	if snd.body == nil {
-		snd.body = newSendBody(snd.cleanPath.Push("Body", value), value)
+		snd.body = newSendBody(snd.clearPath().Push("Body", value), value)
 	}
 	return snd.body
 }
@@ -122,7 +122,7 @@ func (snd *send) Interface(value interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      SendStep,
-		ClearPath: snd.cleanPath.Push("Interface", []interface{}{value}),
+		ClearPath: snd.clearPath().Push("Interface", []interface{}{value}),
 		Exec:      snd.Body(value).exec,
 	}
 }
@@ -131,7 +131,7 @@ func (snd *send) JSON(data interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      SendStep,
-		ClearPath: snd.cleanPath.Push("JSON", []interface{}{data}),
+		ClearPath: snd.clearPath().Push("JSON", []interface{}{data}),
 		Exec:      snd.Body().JSON(data).exec,
 	}
 }
@@ -140,7 +140,7 @@ func (snd *send) Header(name string, value interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      SendStep,
-		ClearPath: snd.cleanPath.Push("Header", []interface{}{name, value}),
+		ClearPath: snd.clearPath().Push("Header", []interface{}{name, value}),
 		Exec: func(hit Hit) error {
 			var s string
 			if err := converter.Convert(value, &s); err != nil {
@@ -156,7 +156,7 @@ func (snd *send) Custom(fn Callback) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      SendStep,
-		ClearPath: snd.cleanPath.Push("Custom", []interface{}{fn}),
+		ClearPath: snd.clearPath().Push("Custom", []interface{}{fn}),
 		Exec: func(hit Hit) error {
 			fn(hit)
 			return nil
@@ -169,60 +169,36 @@ type finalSend struct {
 	message string
 }
 
+func (snd *finalSend) fail() IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New(snd.message)
+		},
+	}
+}
+
 func (snd *finalSend) Body(...interface{}) ISendBody {
 	return &finalSendBody{
-		&hitStep{
-			Trace:     ett.Prepare(),
-			When:      CleanStep,
-			ClearPath: nil,
-			Exec: func(hit Hit) error {
-				return xerrors.New(snd.message)
-			},
-		},
-		"only usable with Send() not with Send(value)",
+		snd.fail(),
+		snd.message,
 	}
 }
 
 func (snd *finalSend) Custom(Callback) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(snd.message)
-		},
-	}
+	return snd.fail()
 }
 
 func (snd *finalSend) JSON(interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(snd.message)
-		},
-	}
+	return snd.fail()
 }
 
 func (snd *finalSend) Header(string, interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(snd.message)
-		},
-	}
+	return snd.fail()
 }
 
 func (snd *finalSend) Interface(interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(snd.message)
-		},
-	}
+	return snd.fail()
 }

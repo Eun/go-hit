@@ -174,12 +174,19 @@ func TestClearExpect_Custom(t *testing.T) {
 	})
 }
 
-func TestClearExpectFinal(t *testing.T) {
+func TestClearExpect_Final(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 	t.Run("Clear().Expect(value).Body()", func(t *testing.T) {
 		ExpectError(t,
 			Do(Clear().Expect("Data").Body()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Body().Equal()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Body().Equal()),
 			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
 		)
 	})
@@ -205,9 +212,23 @@ func TestClearExpectFinal(t *testing.T) {
 		)
 	})
 
+	t.Run("Clear().Expect(value).Header().Equal()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Header().Equal()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
 	t.Run("Clear().Expect(value).Status()", func(t *testing.T) {
 		ExpectError(t,
 			Do(Clear().Expect("Data").Status()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Status().Equal()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Status().Equal()),
 			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
 		)
 	})

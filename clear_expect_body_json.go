@@ -132,7 +132,7 @@ func (jsn *clearExpectBodyJSON) Equal(value ...interface{}) IStep {
 	for i := range value {
 		args[i] = value[i]
 	}
-	return removeStep(jsn.cleanPath.Push("Equal", args))
+	return removeStep(jsn.clearPath().Push("Equal", args))
 }
 
 func (jsn *clearExpectBodyJSON) NotEqual(value ...interface{}) IStep {
@@ -140,7 +140,7 @@ func (jsn *clearExpectBodyJSON) NotEqual(value ...interface{}) IStep {
 	for i := range value {
 		args[i] = value[i]
 	}
-	return removeStep(jsn.cleanPath.Push("NotEqual", args))
+	return removeStep(jsn.clearPath().Push("NotEqual", args))
 }
 
 func (jsn *clearExpectBodyJSON) Contains(value ...interface{}) IStep {
@@ -148,7 +148,7 @@ func (jsn *clearExpectBodyJSON) Contains(value ...interface{}) IStep {
 	for i := range value {
 		args[i] = value[i]
 	}
-	return removeStep(jsn.cleanPath.Push("Contains", args))
+	return removeStep(jsn.clearPath().Push("Contains", args))
 }
 
 func (jsn *clearExpectBodyJSON) NotContains(value ...interface{}) IStep {
@@ -156,7 +156,7 @@ func (jsn *clearExpectBodyJSON) NotContains(value ...interface{}) IStep {
 	for i := range value {
 		args[i] = value[i]
 	}
-	return removeStep(jsn.cleanPath.Push("NotContains", args))
+	return removeStep(jsn.clearPath().Push("NotContains", args))
 }
 
 type finalClearExpectBodyJSON struct {
@@ -164,7 +164,7 @@ type finalClearExpectBodyJSON struct {
 	message string
 }
 
-func (jsn *finalClearExpectBodyJSON) Equal(...interface{}) IStep {
+func (jsn *finalClearExpectBodyJSON) fail() IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
@@ -173,37 +173,20 @@ func (jsn *finalClearExpectBodyJSON) Equal(...interface{}) IStep {
 			return xerrors.New(jsn.message)
 		},
 	}
+}
+
+func (jsn *finalClearExpectBodyJSON) Equal(...interface{}) IStep {
+	return jsn.fail()
 }
 
 func (jsn *finalClearExpectBodyJSON) NotEqual(...interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(jsn.message)
-		},
-	}
+	return jsn.fail()
 }
 
 func (jsn *finalClearExpectBodyJSON) Contains(...interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(jsn.message)
-		},
-	}
+	return jsn.fail()
 }
 
 func (jsn *finalClearExpectBodyJSON) NotContains(...interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(jsn.message)
-		},
-	}
+	return jsn.fail()
 }

@@ -132,7 +132,7 @@ func TestClearExpectStatus_NotOneOf(t *testing.T) {
 	})
 }
 
-func TestClearExpectStatusFinal(t *testing.T) {
+func TestClearExpectStatus_Final(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 

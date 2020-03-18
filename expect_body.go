@@ -129,7 +129,7 @@ func (body *expectBody) clearPath() clearPath {
 }
 
 func (body *expectBody) JSON(value ...interface{}) IExpectBodyJSON {
-	return newExpectBodyJSON(body, body.cleanPath.Push("JSON", value), value)
+	return newExpectBodyJSON(body, body.clearPath().Push("JSON", value), value)
 }
 
 func (body *expectBody) Interface(value interface{}) IStep {
@@ -138,7 +138,7 @@ func (body *expectBody) Interface(value interface{}) IStep {
 		return &hitStep{
 			Trace:     ett.Prepare(),
 			When:      ExpectStep,
-			ClearPath: body.cleanPath.Push("Interface", []interface{}{value}),
+			ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
 			Exec: func(hit Hit) error {
 				x(hit)
 				return nil
@@ -148,7 +148,7 @@ func (body *expectBody) Interface(value interface{}) IStep {
 		return &hitStep{
 			Trace:     ett.Prepare(),
 			When:      ExpectStep,
-			ClearPath: body.cleanPath.Push("Interface", []interface{}{value}),
+			ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
 			Exec:      x,
 		}
 	default:
@@ -156,7 +156,7 @@ func (body *expectBody) Interface(value interface{}) IStep {
 			return &hitStep{
 				Trace:     ett.Prepare(),
 				When:      ExpectStep,
-				ClearPath: body.cleanPath.Push("Interface", []interface{}{value}),
+				ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
 				Exec: func(hit Hit) error {
 					internal.CallGenericFunc(f)
 					return nil
@@ -166,7 +166,7 @@ func (body *expectBody) Interface(value interface{}) IStep {
 		return &hitStep{
 			Trace:     ett.Prepare(),
 			When:      ExpectStep,
-			ClearPath: body.cleanPath.Push("Interface", []interface{}{value}),
+			ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
 			Exec:      body.Equal(value).exec,
 		}
 	}
@@ -176,7 +176,7 @@ func (body *expectBody) Equal(value interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: body.cleanPath.Push("Equal", []interface{}{value}),
+		ClearPath: body.clearPath().Push("Equal", []interface{}{value}),
 		Exec: func(hit Hit) error {
 			if hit.Response().body.equalOnlyNativeTypes(value, true) {
 				return nil
@@ -190,7 +190,7 @@ func (body *expectBody) NotEqual(value interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: body.cleanPath.Push("NotEqual", []interface{}{value}),
+		ClearPath: body.clearPath().Push("NotEqual", []interface{}{value}),
 		Exec: func(hit Hit) error {
 			if hit.Response().body.equalOnlyNativeTypes(value, false) {
 				return nil
@@ -204,7 +204,7 @@ func (body *expectBody) Contains(value interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: body.cleanPath.Push("Contains", []interface{}{value}),
+		ClearPath: body.clearPath().Push("Contains", []interface{}{value}),
 		Exec: func(hit Hit) error {
 			if hit.Response().body.containsOnlyNativeTypes(value, true) {
 				return nil
@@ -218,7 +218,7 @@ func (body *expectBody) NotContains(value interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: body.cleanPath.Push("NotContains", []interface{}{value}),
+		ClearPath: body.clearPath().Push("NotContains", []interface{}{value}),
 		Exec: func(hit Hit) error {
 			if hit.Response().body.containsOnlyNativeTypes(value, false) {
 				return nil
@@ -233,66 +233,35 @@ type finalExpectBody struct {
 	message string
 }
 
+func (body *finalExpectBody) fail() IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New(body.message)
+		},
+	}
+}
+
 func (body *finalExpectBody) JSON(...interface{}) IExpectBodyJSON {
 	return &finalExpectBodyJSON{
-		&hitStep{
-			Trace:     ett.Prepare(),
-			When:      CleanStep,
-			ClearPath: nil,
-			Exec: func(hit Hit) error {
-				return xerrors.New(body.message)
-			},
-		},
-		"only usable with Expect().Body() not with Expect().Body(value)",
+		body.fail(),
+		body.message,
 	}
 }
 func (body *finalExpectBody) Interface(interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(body.message)
-		},
-	}
+	return body.fail()
 }
 func (body *finalExpectBody) Equal(interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(body.message)
-		},
-	}
+	return body.fail()
 }
 func (body *finalExpectBody) NotEqual(interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(body.message)
-		},
-	}
+	return body.fail()
 }
 func (body *finalExpectBody) Contains(interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(body.message)
-		},
-	}
+	return body.fail()
 }
 func (body *finalExpectBody) NotContains(interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(body.message)
-		},
-	}
+	return body.fail()
 }

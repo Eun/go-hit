@@ -9,6 +9,8 @@ import (
 
 	"bytes"
 
+	"errors"
+
 	. "github.com/Eun/go-hit"
 	"github.com/stretchr/testify/require"
 )
@@ -39,6 +41,35 @@ func TestSend(t *testing.T) {
 					e.MustDo(Send(`Hello World`))
 				}),
 				Expect().Body().Equal(`Hello World`),
+			)
+			require.True(t, calledFunc)
+		})
+		t.Run("with correct parameter (using Hit) and error", func(t *testing.T) {
+			calledFunc := false
+			ExpectError(t,
+				Do(
+					Post(s.URL),
+					Send(func(e Hit) error {
+						calledFunc = true
+						return e.Do(Send(`Hello Earth`))
+					}),
+					Expect().Body().Equal(`Hello World`),
+				),
+				PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), PtrStr(`actual: "Hello Earth"`), nil, nil, nil, nil,
+			)
+			require.True(t, calledFunc)
+		})
+		t.Run("with correct parameter (using Hit) and error (return an error)", func(t *testing.T) {
+			calledFunc := false
+			ExpectError(t,
+				Do(
+					Post(s.URL),
+					Send(func(e Hit) error {
+						calledFunc = true
+						return errors.New("whoops")
+					}),
+				),
+				PtrStr("whoops"),
 			)
 			require.True(t, calledFunc)
 		})
@@ -221,6 +252,53 @@ func TestSendHeader_DoubleSet(t *testing.T) {
 		Send().Header("X-Headers", "Universe"),
 		Expect().Body().Equal("Universe"),
 	)
+}
+
+func TestSend_Final(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("Send(value).Body()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Send("Data").Body()),
+			PtrStr("only usable with Send() not with Send(value)"),
+		)
+	})
+
+	t.Run("Send(value).Body().JSON()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Send("Data").Body().JSON(nil)),
+			PtrStr("only usable with Send() not with Send(value)"),
+		)
+	})
+
+	t.Run("Send(value).Interface()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Send("Data").Interface(nil)),
+			PtrStr("only usable with Send() not with Send(value)"),
+		)
+	})
+
+	t.Run("Send(value).JSON()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Send("Data").JSON(nil)),
+			PtrStr("only usable with Send() not with Send(value)"),
+		)
+	})
+
+	t.Run("Send(value).Header()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Send("Data").Header("", "")),
+			PtrStr("only usable with Send() not with Send(value)"),
+		)
+	})
+
+	t.Run("Send(value).Custom()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Send("Data").Custom(nil)),
+			PtrStr("only usable with Send() not with Send(value)"),
+		)
+	})
 }
 
 func TestSend_WithoutArgument(t *testing.T) {

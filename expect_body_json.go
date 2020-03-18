@@ -108,7 +108,7 @@ func (jsn *expectBodyJSON) Equal(expression string, data interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: jsn.cleanPath.Push("Equal", []interface{}{expression, data}),
+		ClearPath: jsn.clearPath().Push("Equal", []interface{}{expression, data}),
 		Exec: func(hit Hit) error {
 			v := hit.Response().body.JSON().Get(expression)
 			if v == nil && data == nil {
@@ -134,7 +134,7 @@ func (jsn *expectBodyJSON) NotEqual(expression string, data interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: jsn.cleanPath.Push("NotEqual", []interface{}{expression, data}),
+		ClearPath: jsn.clearPath().Push("NotEqual", []interface{}{expression, data}),
 		Exec: func(hit Hit) error {
 			v := hit.Response().body.JSON().Get(expression)
 			if v == nil && data == nil {
@@ -159,7 +159,7 @@ func (jsn *expectBodyJSON) Contains(expression string, data interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: jsn.cleanPath.Push("Contains", []interface{}{expression, data}),
+		ClearPath: jsn.clearPath().Push("Contains", []interface{}{expression, data}),
 		Exec: func(hit Hit) error {
 			v := hit.Response().body.JSON().Get(expression)
 			if v == nil && data == nil {
@@ -178,7 +178,7 @@ func (jsn *expectBodyJSON) NotContains(expression string, data interface{}) ISte
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: jsn.cleanPath.Push("NotContains", []interface{}{expression, data}),
+		ClearPath: jsn.clearPath().Push("NotContains", []interface{}{expression, data}),
 		Exec: func(hit Hit) error {
 			v := hit.Response().body.JSON().Get(expression)
 			if v == nil && data == nil {
@@ -198,7 +198,7 @@ type finalExpectBodyJSON struct {
 	message string
 }
 
-func (jsn *finalExpectBodyJSON) Equal(string, interface{}) IStep {
+func (jsn *finalExpectBodyJSON) fail() IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
@@ -207,37 +207,20 @@ func (jsn *finalExpectBodyJSON) Equal(string, interface{}) IStep {
 			return xerrors.New(jsn.message)
 		},
 	}
+}
+
+func (jsn *finalExpectBodyJSON) Equal(string, interface{}) IStep {
+	return jsn.fail()
 }
 
 func (jsn *finalExpectBodyJSON) NotEqual(string, interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(jsn.message)
-		},
-	}
+	return jsn.fail()
 }
 
 func (jsn *finalExpectBodyJSON) Contains(string, interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(jsn.message)
-		},
-	}
+	return jsn.fail()
 }
 
 func (jsn *finalExpectBodyJSON) NotContains(string, interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(jsn.message)
-		},
-	}
+	return jsn.fail()
 }

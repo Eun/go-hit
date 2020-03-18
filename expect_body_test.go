@@ -130,7 +130,7 @@ func TestExpectBody_NotContains(t *testing.T) {
 	})
 }
 
-func TestExpectBodyFinal(t *testing.T) {
+func TestExpectBody_Final(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
@@ -144,6 +144,13 @@ func TestExpectBodyFinal(t *testing.T) {
 	t.Run("Expect().Body(value).JSON()", func(t *testing.T) {
 		ExpectError(t,
 			Do(Expect().Body("Data").JSON(nil)),
+			PtrStr("only usable with Expect().Body() not with Expect().Body(value)"),
+		)
+	})
+
+	t.Run("Expect().Body(value).JSON().Equal()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Body("Data").JSON().Equal("", "")),
 			PtrStr("only usable with Expect().Body() not with Expect().Body(value)"),
 		)
 	})

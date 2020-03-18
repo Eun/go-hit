@@ -80,11 +80,11 @@ func (body *clearSendBody) clearPath() clearPath {
 }
 
 func (body *clearSendBody) JSON(data ...interface{}) IStep {
-	return removeStep(body.cleanPath.Push("JSON", data))
+	return removeStep(body.clearPath().Push("JSON", data))
 }
 
 func (body *clearSendBody) Interface(data ...interface{}) IStep {
-	return removeStep(body.cleanPath.Push("Interface", data))
+	return removeStep(body.clearPath().Push("Interface", data))
 }
 
 type finalClearSendBody struct {
@@ -92,7 +92,7 @@ type finalClearSendBody struct {
 	message string
 }
 
-func (body *finalClearSendBody) JSON(...interface{}) IStep {
+func (body *finalClearSendBody) fail() IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
@@ -103,13 +103,10 @@ func (body *finalClearSendBody) JSON(...interface{}) IStep {
 	}
 }
 
+func (body *finalClearSendBody) JSON(...interface{}) IStep {
+	return body.fail()
+}
+
 func (body *finalClearSendBody) Interface(...interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(body.message)
-		},
-	}
+	return body.fail()
 }

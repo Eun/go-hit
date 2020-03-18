@@ -186,7 +186,7 @@ func TestClearExpectBody_NotContains(t *testing.T) {
 	})
 }
 
-func TestClearExpectBodyFinal(t *testing.T) {
+func TestClearExpectBody_Final(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
@@ -196,9 +196,17 @@ func TestClearExpectBodyFinal(t *testing.T) {
 			PtrStr("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)"),
 		)
 	})
+
 	t.Run("Clear().Expect().Body(value).JSON()", func(t *testing.T) {
 		ExpectError(t,
 			Do(Clear().Expect().Body("Data").JSON()),
+			PtrStr("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect().Body(value).JSON().Equal()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect().Body("Data").JSON().Equal()),
 			PtrStr("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)"),
 		)
 	})

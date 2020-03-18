@@ -1,6 +1,8 @@
 package hit
 
 import (
+	"net/http"
+
 	"github.com/Eun/go-hit/internal"
 	"github.com/Eun/go-hit/internal/minitest"
 	"golang.org/x/xerrors"
@@ -224,7 +226,11 @@ func (hdr *expectHeaders) OneOf(values ...interface{}) IStep {
 		When:      ExpectStep,
 		ClearPath: hdr.cleanPath.Push("OneOf", values),
 		Exec: func(hit Hit) error {
-			minitest.Contains(values, hit.Response().Header)
+			var h []http.Header
+			if err := converter.Convert(values, &h); err != nil {
+				return err
+			}
+			minitest.Contains(h, hit.Response().Header)
 			return nil
 		},
 	}
@@ -365,7 +371,7 @@ type finalExpectHeader struct {
 	message string
 }
 
-func (hdr *finalExpectHeader) Contains(interface{}) IStep {
+func (hdr *finalExpectHeader) fail() IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
@@ -374,81 +380,36 @@ func (hdr *finalExpectHeader) Contains(interface{}) IStep {
 			return xerrors.New(hdr.message)
 		},
 	}
+}
+
+func (hdr *finalExpectHeader) Contains(interface{}) IStep {
+	return hdr.fail()
 }
 
 func (hdr *finalExpectHeader) NotContains(interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(hdr.message)
-		},
-	}
+	return hdr.fail()
 }
 
 func (hdr *finalExpectHeader) OneOf(...interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(hdr.message)
-		},
-	}
+	return hdr.fail()
 }
 
 func (hdr *finalExpectHeader) NotOneOf(...interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(hdr.message)
-		},
-	}
+	return hdr.fail()
 }
 
 func (hdr *finalExpectHeader) Empty() IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(hdr.message)
-		},
-	}
+	return hdr.fail()
 }
 
 func (hdr *finalExpectHeader) Len(int) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(hdr.message)
-		},
-	}
+	return hdr.fail()
 }
 
 func (hdr *finalExpectHeader) Equal(interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(hdr.message)
-		},
-	}
+	return hdr.fail()
 }
 
 func (hdr *finalExpectHeader) NotEqual(interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(hdr.message)
-		},
-	}
+	return hdr.fail()
 }

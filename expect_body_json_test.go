@@ -812,7 +812,7 @@ func TestExpectBodyJSON_GetAs(t *testing.T) {
 	)
 }
 
-func TestExpectBodyJSONFinal(t *testing.T) {
+func TestExpectBodyJSON_Final(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 

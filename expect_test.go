@@ -3,6 +3,8 @@ package hit_test
 import (
 	"testing"
 
+	"errors"
+
 	. "github.com/Eun/go-hit"
 	"github.com/stretchr/testify/require"
 )
@@ -70,10 +72,20 @@ func TestExpect(t *testing.T) {
 					Expect(func(hit Hit) error {
 						return hit.Do(Expect("Hello Universe"))
 					})),
-				PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+				PtrStr("Not equal"), PtrStr(`expected: "Hello Universe"`), PtrStr(`actual: "Hello World"`), nil, nil, nil, nil,
 			)
 		})
-
+		t.Run("with correct parameter (using Hit) and error (return an error)", func(t *testing.T) {
+			ExpectError(t,
+				Do(
+					Post(s.URL),
+					Send().Body("Hello World"),
+					Expect(func(hit Hit) error {
+						return errors.New("whoops")
+					})),
+				PtrStr("whoops"),
+			)
+		})
 		t.Run("with invalid parameter", func(t *testing.T) {
 			calledFunc := false
 			Test(t,
@@ -119,15 +131,17 @@ func TestExpect_DeepFunc(t *testing.T) {
 	require.True(t, calledFunc)
 }
 
-func TestExpectFinal(t *testing.T) {
+func TestExpect_Final(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
+
 	t.Run("Expect(value).Body()", func(t *testing.T) {
 		ExpectError(t,
 			Do(Expect("Data").Body()),
 			PtrStr("only usable with Expect() not with Expect(value)"),
 		)
 	})
+
 	t.Run("Expect(value).Body().JSON()", func(t *testing.T) {
 		ExpectError(t,
 			Do(Expect("Data").Body().JSON()),
@@ -142,9 +156,58 @@ func TestExpectFinal(t *testing.T) {
 		)
 	})
 
-	t.Run("Expect(value).Header()", func(t *testing.T) {
+	t.Run("Expect(value).Header().Contains()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Header().Contains(nil)),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
+
+	t.Run("Expect(value).Header().NotContains()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Header().NotContains(nil)),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
+
+	t.Run("Expect(value).Header().OneOf()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Header().OneOf()),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
+
+	t.Run("Expect(value).Header().NotOneOf()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Header().NotOneOf()),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
+
+	t.Run("Expect(value).Header().Empty()", func(t *testing.T) {
 		ExpectError(t,
 			Do(Expect("Data").Header().Empty()),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
+
+	t.Run("Expect(value).Header().Len()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Header().Len(0)),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
+
+	t.Run("Expect(value).Header().Equal()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Header().Equal(nil)),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
+
+	t.Run("Expect(value).Header().NotEqual()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Header().NotEqual(nil)),
 			PtrStr("only usable with Expect() not with Expect(value)"),
 		)
 	})
@@ -152,6 +215,13 @@ func TestExpectFinal(t *testing.T) {
 	t.Run("Expect(value).Status()", func(t *testing.T) {
 		ExpectError(t,
 			Do(Expect("Data").Status()),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
+
+	t.Run("Expect(value).Status().Equal()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Status().Equal(0)),
 			PtrStr("only usable with Expect() not with Expect(value)"),
 		)
 	})

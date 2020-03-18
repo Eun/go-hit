@@ -20,6 +20,7 @@ func TestExpectHeader_Equal(t *testing.T) {
 	Test(t,
 		Post(s.URL),
 		Expect().Header().Equal(map[string]string{"X-Header": "Hello", "Content-Length": "0"}),
+		Expect().Header().Equal(map[string]interface{}{"X-Header": "Hello", "Content-Length": "0"}),
 	)
 	ExpectError(t,
 		Do(
@@ -95,6 +96,36 @@ func TestExpectHeaders_NotContains(t *testing.T) {
 			Expect().Header().NotContains("X-Header"),
 		),
 		PtrStr("http.Header{"), nil, nil, nil, nil, nil, nil, PtrStr(`} should not contain "X-Header"`),
+	)
+}
+
+func TestExpectHeaders_OneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	Test(t,
+		Post(s.URL),
+		Custom(BeforeExpectStep, func(hit Hit) {
+			hit.Response().Header = map[string][]string{
+				"X-Header": []string{"Hello"},
+			}
+		}),
+		Expect().Header().OneOf(map[string]string{"X-Header": "Hello"}),
+	)
+}
+
+func TestExpectHeaders_NotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	Test(t,
+		Post(s.URL),
+		Custom(BeforeExpectStep, func(hit Hit) {
+			hit.Response().Header = map[string][]string{
+				"X-Header": []string{"Hello"},
+			}
+		}),
+		Expect().Header().NotOneOf(map[string]string{"X-Header": "World"}),
 	)
 }
 

@@ -122,14 +122,14 @@ func (exp *expect) clearPath() clearPath {
 }
 
 func (exp *expect) Body(value ...interface{}) IExpectBody {
-	return newExpectBody(exp, exp.cleanPath.Push("Body", value), value)
+	return newExpectBody(exp, exp.clearPath().Push("Body", value), value)
 }
 
 func (exp *expect) Custom(fn Callback) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: exp.cleanPath.Push("Custom", []interface{}{fn}),
+		ClearPath: exp.clearPath().Push("Custom", []interface{}{fn}),
 		Exec: func(hit Hit) error {
 			fn(hit)
 			return nil
@@ -143,7 +143,7 @@ func (exp *expect) Header(headerName ...string) IExpectHeader {
 		args[i] = headerName[i]
 	}
 
-	return newExpectHeader(exp, exp.cleanPath.Push("Header", args), headerName...)
+	return newExpectHeader(exp, exp.clearPath().Push("Header", args), headerName...)
 }
 
 func (exp *expect) Status(code ...int) IExpectStatus {
@@ -151,14 +151,14 @@ func (exp *expect) Status(code ...int) IExpectStatus {
 	for i := range code {
 		args[i] = code[i]
 	}
-	return newExpectStatus(exp, exp.cleanPath.Push("Status", args), code)
+	return newExpectStatus(exp, exp.clearPath().Push("Status", args), code)
 }
 
 func (exp *expect) Interface(value interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      ExpectStep,
-		ClearPath: exp.cleanPath.Push("Interface", []interface{}{value}),
+		ClearPath: exp.clearPath().Push("Interface", []interface{}{value}),
 		Exec:      exp.Body(value).exec,
 	}
 }
@@ -168,67 +168,43 @@ type finalExpect struct {
 	message string
 }
 
+func (exp *finalExpect) fail() IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New(exp.message)
+		},
+	}
+}
+
 func (exp *finalExpect) Body(...interface{}) IExpectBody {
 	return &finalExpectBody{
-		&hitStep{
-			Trace:     ett.Prepare(),
-			When:      CleanStep,
-			ClearPath: nil,
-			Exec: func(hit Hit) error {
-				return xerrors.New(exp.message)
-			},
-		},
-		"only usable with Expect() not with Expect(value)",
+		exp.fail(),
+		exp.message,
 	}
 }
 
 func (exp *finalExpect) Interface(interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(exp.message)
-		},
-	}
+	return exp.fail()
 }
 
 func (exp *finalExpect) Custom(Callback) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(exp.message)
-		},
-	}
+	return exp.fail()
 }
 
 func (exp *finalExpect) Header(...string) IExpectHeader {
 	return &finalExpectHeader{
-		&hitStep{
-			Trace:     ett.Prepare(),
-			When:      CleanStep,
-			ClearPath: nil,
-			Exec: func(hit Hit) error {
-				return xerrors.New(exp.message)
-			},
-		},
-		"only usable with Expect() not with Expect(value)",
+		exp.fail(),
+		exp.message,
 	}
 }
 
 func (exp *finalExpect) Status(...int) IExpectStatus {
 	return &finalExpectStatus{
-		&hitStep{
-			Trace:     ett.Prepare(),
-			When:      CleanStep,
-			ClearPath: nil,
-			Exec: func(hit Hit) error {
-				return xerrors.New(exp.message)
-			},
-		},
-		"only usable with Expect() not with Expect(value)",
+		exp.fail(),
+		exp.message,
 	}
 }
 
