@@ -163,7 +163,7 @@ func Request(request *http.Request) IStep {
 //     )
 
 func Method(method, url string, a ...interface{}) IStep {
-	return Method(method, url, a)
+	return makeMethodStep(method, url, a...)
 }
 
 func makeMethodStep(method, url string, a ...interface{}) IStep {

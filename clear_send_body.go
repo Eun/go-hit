@@ -54,7 +54,7 @@ func newClearSendBody(clearPath clearPath, params []interface{}) IClearSendBody 
 		// this runs if we called Clear().Send().Body(something)
 		return &finalClearSendBody{
 			removeStep(clearPath),
-			"only usable with Clear().Send() not with Clear().Send(value)",
+			"only usable with Clear().Send().Body() not with Clear().Send().Body(value)",
 		}
 	}
 

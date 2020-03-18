@@ -417,6 +417,28 @@ func TestOutOfContext(t *testing.T) {
 	)
 }
 
+func TestAddSteps(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var callOrder []int
+	Test(t,
+		Post(s.URL),
+		Custom(BeforeSendStep, func(hit Hit) {
+			callOrder = append(callOrder, 1)
+			hit.AddSteps(
+				Custom(BeforeSendStep, func(hit Hit) {
+					callOrder = append(callOrder, 2)
+				}),
+			)
+		}),
+		Custom(BeforeSendStep, func(hit Hit) {
+			callOrder = append(callOrder, 3)
+		}),
+	)
+
+	require.Equal(t, []int{1, 3, 2}, callOrder)
+}
+
 func TestInsertSteps(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
@@ -437,4 +459,61 @@ func TestInsertSteps(t *testing.T) {
 	)
 
 	require.Equal(t, []int{1, 2, 3}, callOrder)
+}
+
+func TestAddAndRemoveSteps(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var callOrder []int
+	someStep := Custom(BeforeSendStep, func(hit Hit) {})
+	Test(t,
+		Post(s.URL),
+		someStep,
+		Custom(BeforeSendStep, func(hit Hit) {
+			callOrder = append(callOrder, 1)
+			hit.AddSteps(
+				Custom(BeforeSendStep, func(hit Hit) {
+					callOrder = append(callOrder, 2)
+				}),
+			)
+			hit.RemoveSteps(someStep)
+		}),
+		Custom(BeforeSendStep, func(hit Hit) {
+			callOrder = append(callOrder, 3)
+		}),
+	)
+
+	require.Equal(t, []int{1, 3, 2}, callOrder)
+}
+
+func TestMustDo(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	require.Panics(t, func() {
+		MustDo(
+			Post(s.URL),
+			Send("Hello Alice"),
+			Expect("Hello Joe"),
+		)
+	})
+}
+
+func TestMethods(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Set("Method", request.Method)
+		writer.WriteHeader(http.StatusOK)
+	})
+	s := httptest.NewServer(mux)
+	defer s.Close()
+
+	Test(t, Method(http.MethodGet, s.URL), Expect().Header("Method").Equal(http.MethodGet))
+	// Test(t, Connect(s.URL), Expect().Header("Method").Equal(http.MethodConnect))
+	Test(t, Delete(s.URL), Expect().Header("Method").Equal(http.MethodDelete))
+	Test(t, Get(s.URL), Expect().Header("Method").Equal(http.MethodGet))
+	Test(t, Head(s.URL), Expect().Header("Method").Equal(http.MethodHead))
+	Test(t, Post(s.URL), Expect().Header("Method").Equal(http.MethodPost))
+	Test(t, Options(s.URL), Expect().Header("Method").Equal(http.MethodOptions))
+	Test(t, Put(s.URL), Expect().Header("Method").Equal(http.MethodPut))
+	Test(t, Trace(s.URL), Expect().Header("Method").Equal(http.MethodTrace))
 }
