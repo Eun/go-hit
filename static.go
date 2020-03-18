@@ -161,7 +161,6 @@ func Request(request *http.Request) IStep {
 //     MustDo(
 //         Method(http.MethodGet, "https://%s/%s", "example.com", "index.html"),
 //     )
-
 func Method(method, url string, a ...interface{}) IStep {
 	return makeMethodStep(method, url, a...)
 }

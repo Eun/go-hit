@@ -109,6 +109,20 @@ func Request(request *http.Request) hit.IStep {
 	return hit.Request(request)
 }
 
+// Method creates a new Hit instance with the specified method and url
+//
+// Examples:
+//     MustDo(
+//         Method(http.MethodGet, "https://example.com"),
+//     )
+//
+//     MustDo(
+//         Method(http.MethodGet, "https://%s/%s", "example.com", "index.html"),
+//     )
+func Method(method, url string, a ...interface{}) hit.IStep {
+	return hit.Method(method, url, a...)
+}
+
 // Connect creates a new Hit instance with CONNECT as the http makeMethodStep, use the optional arguments to format the url
 //
 // Examples:
@@ -300,8 +314,4 @@ func Clear() hit.IClear {
 //     )
 func Custom(when hit.StepTime, exec hit.Callback) hit.IStep {
 	return hit.Custom(when, exec)
-}
-
-func Method(method, url string, a ...interface{}) hit.IStep {
-	return hit.Method(method, url, a...)
 }
