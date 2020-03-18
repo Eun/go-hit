@@ -3,6 +3,7 @@ package hit
 import (
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
+	"golang.org/x/xerrors"
 )
 
 // IClearExpectBody provides a clear functionality to remove previous steps from running in the Expect().Body().JSON() scope
@@ -160,17 +161,45 @@ type finalClearExpectBodyJSON struct {
 }
 
 func (finalClearExpectBodyJSON) Equal(...interface{}) IStep {
-	panic("only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)")
+		},
+	}
 }
 
 func (finalClearExpectBodyJSON) NotEqual(...interface{}) IStep {
-	panic("only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)")
+		},
+	}
 }
 
 func (finalClearExpectBodyJSON) Contains(...interface{}) IStep {
-	panic("only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)")
+		},
+	}
 }
 
 func (finalClearExpectBodyJSON) NotContains(...interface{}) IStep {
-	panic("only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)")
+		},
+	}
 }

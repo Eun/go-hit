@@ -395,7 +395,7 @@ func CombineSteps(steps ...IStep) IStep {
 		When:      CombineStep,
 		ClearPath: nil, // not clearable
 		Exec: func(hit Hit) error {
-			hit.AddSteps(steps...)
+			hit.InsertSteps(steps...)
 			return nil
 		},
 	}

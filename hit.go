@@ -47,8 +47,11 @@ type Hit interface {
 	// Steps returns the current step list
 	Steps() []IStep
 
-	// AddSteps adds the specified steps to the step list
+	// AddSteps appends the specified steps to the step list
 	AddSteps(steps ...IStep)
+
+	// InsertSteps inserts the specified steps right after the current step
+	InsertSteps(steps ...IStep)
 
 	// RemoveSteps removes the specified steps from the step list
 	RemoveSteps(steps ...IStep)
@@ -187,8 +190,16 @@ func (hit *defaultInstance) Steps() []IStep {
 }
 
 func (hit *defaultInstance) AddSteps(steps ...IStep) {
-	for i := 0; i < len(steps); i++ {
-		hit.steps = append(hit.steps, steps[i])
+	hit.steps = append(hit.steps, steps...)
+}
+
+func (hit *defaultInstance) InsertSteps(steps ...IStep) {
+	for i, step := range hit.steps {
+		if step != hit.currentStep {
+			continue
+		}
+		hit.steps = append(hit.steps[:i+1], append(steps, hit.steps[i+1:]...)...)
+		return
 	}
 }
 

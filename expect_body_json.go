@@ -4,6 +4,7 @@ import (
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
 	"github.com/Eun/go-hit/internal/minitest"
+	"golang.org/x/xerrors"
 )
 
 // IExpectBodyJSON provides assertions on the http response json body
@@ -194,17 +195,45 @@ type finalExpectBodyJSON struct {
 }
 
 func (finalExpectBodyJSON) Equal(string, interface{}) IStep {
-	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+		},
+	}
 }
 
 func (finalExpectBodyJSON) NotEqual(string, interface{}) IStep {
-	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+		},
+	}
 }
 
 func (finalExpectBodyJSON) Contains(string, interface{}) IStep {
-	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+		},
+	}
 }
 
 func (finalExpectBodyJSON) NotContains(string, interface{}) IStep {
-	panic("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+		},
+	}
 }

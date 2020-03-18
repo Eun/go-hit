@@ -68,26 +68,3 @@ func TestClearExpect(t *testing.T) {
 		)
 	})
 }
-
-func TestClear_NotExistentStep(t *testing.T) {
-	s := EchoServer()
-	defer s.Close()
-
-	ExpectError(t,
-		Do(
-			Post(s.URL),
-			Send().Body("Hello World"),
-			Clear().Expect("Hello Universe"),
-		),
-		PtrStr(`unable to find a step with Expect("Hello Universe")`), PtrStr(`got these steps:`), PtrStr(`Send().Body("Hello World")`),
-	)
-
-	ExpectError(t,
-		Do(
-			Post(s.URL),
-			Send().Body("Hello World"),
-			Clear().Expect(),
-		),
-		PtrStr(`unable to find a step with Expect()`), PtrStr(`got these steps:`), PtrStr(`Send().Body("Hello World")`),
-	)
-}

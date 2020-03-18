@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	. "github.com/Eun/go-hit"
-	"github.com/stretchr/testify/require"
 )
 
 func TestClearExpectBodyJSON_Equal(t *testing.T) {
@@ -176,23 +175,54 @@ func TestClearExpectBodyJSONFinal(t *testing.T) {
 	defer s.Close()
 
 	t.Run("Clear().Expect().Body().JSON(value).Equal()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)", func() {
-			Do(Clear().Expect().Body().JSON("").Equal())
-		})
+		ExpectError(t,
+			Do(Clear().Expect().Body().JSON("").Equal()),
+			PtrStr("only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)"),
+		)
+
 	})
 	t.Run("Clear().Expect().Body().JSON(value).NotEqual()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)", func() {
-			Do(Clear().Expect().Body().JSON("").NotEqual())
-		})
+		ExpectError(t,
+			Do(Clear().Expect().Body().JSON("").NotEqual()),
+			PtrStr("only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)"),
+		)
+
 	})
 	t.Run("Clear().Expect().Body().JSON(value).Contains()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)", func() {
-			Do(Clear().Expect().Body().JSON("").Contains())
-		})
+		ExpectError(t,
+			Do(Clear().Expect().Body().JSON("").Contains()),
+			PtrStr("only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)"),
+		)
+
 	})
 	t.Run("Clear().Expect().Body().JSON(value).NotContains()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)", func() {
-			Do(Clear().Expect().Body().JSON("").NotContains())
-		})
+		ExpectError(t,
+			Do(Clear().Expect().Body().JSON("").NotContains()),
+			PtrStr("only usable with Clear().Expect().Body().JSON() not with Clear().Expect().Body().JSON(value)"),
+		)
+
 	})
+}
+
+func TestClearExpectBodyJSON_NotExistentStep(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Send().Body("Hello World"),
+			Clear().Expect().Body().JSON("Hello Universe"),
+		),
+		PtrStr(`unable to find a step with Expect().Body().JSON("Hello Universe")`), PtrStr(`got these steps:`), PtrStr(`Send().Body("Hello World")`),
+	)
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Send().Body("Hello World"),
+			Clear().Expect().Body().JSON(),
+		),
+		PtrStr(`unable to find a step with Expect().Body().JSON()`), PtrStr(`got these steps:`), PtrStr(`Send().Body("Hello World")`),
+	)
 }

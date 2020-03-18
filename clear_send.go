@@ -3,6 +3,7 @@ package hit
 import (
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
+	"golang.org/x/xerrors"
 )
 
 type IClearSend interface {
@@ -163,21 +164,56 @@ type finalClearSend struct {
 }
 
 func (finalClearSend) Body(...interface{}) IClearSendBody {
-	panic("only usable with Send() not with Send(value)")
+	return finalClearSendBody{&hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Send() not with Send(value)")
+		},
+	}}
 }
 
 func (finalClearSend) Custom(...Callback) IStep {
-	panic("only usable with Send() not with Send(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Send() not with Send(value)")
+		},
+	}
 }
 
 func (finalClearSend) JSON(...interface{}) IStep {
-	panic("only usable with Send() not with Send(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Send() not with Send(value)")
+		},
+	}
 }
 
 func (finalClearSend) Header(...interface{}) IStep {
-	panic("only usable with Send() not with Send(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Send() not with Send(value)")
+		},
+	}
 }
 
 func (finalClearSend) Interface(...interface{}) IStep {
-	panic("only usable with Send() not with Send(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Send() not with Send(value)")
+		},
+	}
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
 	"github.com/mohae/deepcopy"
+	"golang.org/x/xerrors"
 )
 
 // IExpect provides assertions on the http response
@@ -164,23 +165,58 @@ type finalExpect struct {
 }
 
 func (finalExpect) Body(...interface{}) IExpectBody {
-	panic("only usable with Expect() not with Expect(value)")
+	return finalExpectBody{&hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect() not with Expect(value)")
+		},
+	}}
 }
 
 func (finalExpect) Interface(interface{}) IStep {
-	panic("only usable with Expect() not with Expect(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect() not with Expect(value)")
+		},
+	}
 }
 
 func (finalExpect) Custom(Callback) IStep {
-	panic("only usable with Expect() not with Expect(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect() not with Expect(value)")
+		},
+	}
 }
 
 func (finalExpect) Header(...string) IExpectHeader {
-	panic("only usable with Expect() not with Expect(value)")
+	return finalExpectHeader{&hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect() not with Expect(value)")
+		},
+	}}
 }
 
 func (finalExpect) Status(...int) IExpectStatus {
-	panic("only usable with Expect() not with Expect(value)")
+	return finalExpectStatus{&hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect() not with Expect(value)")
+		},
+	}}
 }
 
 func makeCompareable(in, data interface{}) (interface{}, error) {

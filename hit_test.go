@@ -416,3 +416,25 @@ func TestOutOfContext(t *testing.T) {
 		}),
 	)
 }
+
+func TestInsertSteps(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var callOrder []int
+	Test(t,
+		Post(s.URL),
+		Custom(BeforeSendStep, func(hit Hit) {
+			callOrder = append(callOrder, 1)
+			hit.InsertSteps(
+				Custom(BeforeSendStep, func(hit Hit) {
+					callOrder = append(callOrder, 2)
+				}),
+			)
+		}),
+		Custom(BeforeSendStep, func(hit Hit) {
+			callOrder = append(callOrder, 3)
+		}),
+	)
+
+	require.Equal(t, []int{1, 2, 3}, callOrder)
+}

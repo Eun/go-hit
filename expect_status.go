@@ -4,6 +4,7 @@ import (
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
 	"github.com/Eun/go-hit/internal/minitest"
+	"golang.org/x/xerrors"
 )
 
 // IExpectSpecificHeader provides assertions on the http response code
@@ -316,32 +317,102 @@ type finalExpectStatus struct {
 }
 
 func (finalExpectStatus) Equal(int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Status() not with Expect().Status(value)")
+		},
+	}
 }
 func (finalExpectStatus) NotEqual(int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Status() not with Expect().Status(value)")
+		},
+	}
 }
 func (finalExpectStatus) OneOf(...int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Status() not with Expect().Status(value)")
+		},
+	}
 }
 func (finalExpectStatus) NotOneOf(...int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Status() not with Expect().Status(value)")
+		},
+	}
 }
 func (finalExpectStatus) GreaterThan(int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Status() not with Expect().Status(value)")
+		},
+	}
 }
 func (finalExpectStatus) LessThan(int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Status() not with Expect().Status(value)")
+		},
+	}
 }
 func (finalExpectStatus) GreaterOrEqualThan(int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Status() not with Expect().Status(value)")
+		},
+	}
 }
 func (finalExpectStatus) LessOrEqualThan(int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Status() not with Expect().Status(value)")
+		},
+	}
 }
 func (finalExpectStatus) Between(int, int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Status() not with Expect().Status(value)")
+		},
+	}
 }
 func (finalExpectStatus) NotBetween(int, int) IStep {
-	panic("only usable with Expect().Status() not with Expect().Status(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Status() not with Expect().Status(value)")
+		},
+	}
 }

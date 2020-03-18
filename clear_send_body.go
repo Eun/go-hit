@@ -3,6 +3,7 @@ package hit
 import (
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
+	"golang.org/x/xerrors"
 )
 
 type IClearSendBody interface {
@@ -88,9 +89,23 @@ type finalClearSendBody struct {
 }
 
 func (finalClearSendBody) JSON(...interface{}) IStep {
-	panic("only usable with Clear().Send().Body() not with Clear().Send().Body(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Send().Body() not with Clear().Send().Body(value)")
+		},
+	}
 }
 
 func (finalClearSendBody) Interface(...interface{}) IStep {
-	panic("only usable with Clear().Send().Body() not with Clear().Send().Body(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Send().Body() not with Clear().Send().Body(value)")
+		},
+	}
 }

@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	. "github.com/Eun/go-hit"
-	"github.com/stretchr/testify/require"
 )
 
 func TestClearExpectBody_Interface(t *testing.T) {
@@ -192,37 +191,66 @@ func TestClearExpectBodyFinal(t *testing.T) {
 	defer s.Close()
 
 	t.Run("Clear().Expect().Body(value).Interface()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)", func() {
-			Do(Clear().Expect().Body("Data").Interface())
-		})
+		ExpectError(t,
+			Do(Clear().Expect().Body("Data").Interface()),
+			PtrStr("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)"),
+		)
 	})
 	t.Run("Clear().Expect().Body(value).JSON()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)", func() {
-			Do(Clear().Expect().Body("Data").JSON())
-		})
+		ExpectError(t,
+			Do(Clear().Expect().Body("Data").JSON()),
+			PtrStr("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)"),
+		)
 	})
 
 	t.Run("Clear().Expect().Body(value).Equal()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)", func() {
-			Do(Clear().Expect().Body("Data").Equal())
-		})
+		ExpectError(t,
+			Do(Clear().Expect().Body("Data").Equal()),
+			PtrStr("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)"),
+		)
 	})
 
 	t.Run("Clear().Expect().Body(value).NotEqual()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)", func() {
-			Do(Clear().Expect().Body("Data").NotEqual())
-		})
+		ExpectError(t,
+			Do(Clear().Expect().Body("Data").NotEqual()),
+			PtrStr("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)"),
+		)
 	})
 
 	t.Run("Clear().Expect().Body(value).Contains()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)", func() {
-			Do(Clear().Expect().Body("Data").Contains())
-		})
+		ExpectError(t,
+			Do(Clear().Expect().Body("Data").Contains()),
+			PtrStr("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)"),
+		)
 	})
 
 	t.Run("Clear().Expect().Body(value).NotContains()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)", func() {
-			Do(Clear().Expect().Body("Data").NotContains())
-		})
+		ExpectError(t,
+			Do(Clear().Expect().Body("Data").NotContains()),
+			PtrStr("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)"),
+		)
 	})
+}
+
+func TestClearExpectBody_NotExistentStep(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Send().Body("Hello World"),
+			Clear().Expect().Body("Hello Universe"),
+		),
+		PtrStr(`unable to find a step with Expect().Body("Hello Universe")`), PtrStr(`got these steps:`), PtrStr(`Send().Body("Hello World")`),
+	)
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Send().Body("Hello World"),
+			Clear().Expect().Body(),
+		),
+		PtrStr(`unable to find a step with Expect().Body()`), PtrStr(`got these steps:`), PtrStr(`Send().Body("Hello World")`),
+	)
 }

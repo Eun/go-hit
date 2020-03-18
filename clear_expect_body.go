@@ -3,6 +3,7 @@ package hit
 import (
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
+	"golang.org/x/xerrors"
 )
 
 // IClearExpectBody provides a clear functionality to remove previous steps from running in the Expect().Body() scope
@@ -178,20 +179,62 @@ type finalClearExpectBody struct {
 }
 
 func (finalClearExpectBody) Interface(...interface{}) IStep {
-	panic("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)")
+		},
+	}
 }
 func (finalClearExpectBody) JSON(...interface{}) IClearExpectBodyJSON {
-	panic("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)")
+	return finalClearExpectBodyJSON{&hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)")
+		},
+	}}
 }
 func (finalClearExpectBody) Equal(...interface{}) IStep {
-	panic("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)")
+		},
+	}
 }
 func (finalClearExpectBody) NotEqual(...interface{}) IStep {
-	panic("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)")
+		},
+	}
 }
 func (finalClearExpectBody) Contains(...interface{}) IStep {
-	panic("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)")
+		},
+	}
 }
 func (finalClearExpectBody) NotContains(...interface{}) IStep {
-	panic("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect().Body() not with Clear().Expect().Body(value)")
+		},
+	}
 }

@@ -123,33 +123,38 @@ func TestExpectFinal(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 	t.Run("Expect(value).Body()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Expect() not with Expect(value)", func() {
-			Do(Expect("Data").Body())
-		})
+		ExpectError(t,
+			Do(Expect("Data").Body()),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
 	})
 
 	t.Run("Expect(value).Interface()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Expect() not with Expect(value)", func() {
-			Do(Expect("Data").Interface(nil))
-		})
+		ExpectError(t,
+			Do(Expect("Data").Interface(nil)),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
 	})
 
 	t.Run("Expect(value).Header()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Expect() not with Expect(value)", func() {
-			Do(Expect("Data").Header().Empty())
-		})
+		ExpectError(t,
+			Do(Expect("Data").Header().Empty()),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
 	})
 
 	t.Run("Expect(value).Status()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Expect() not with Expect(value)", func() {
-			Do(Expect("Data").Status())
-		})
+		ExpectError(t,
+			Do(Expect("Data").Status()),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
 	})
 
 	t.Run("Expect(value).Custom()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Expect() not with Expect(value)", func() {
-			Do(Expect("Data").Custom(nil))
-		})
+		ExpectError(t,
+			Do(Expect("Data").Custom(nil)),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
 	})
 }
 

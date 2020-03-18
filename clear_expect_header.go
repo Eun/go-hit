@@ -1,6 +1,9 @@
 package hit
 
-import "github.com/Eun/go-hit/errortrace"
+import (
+	"github.com/Eun/go-hit/errortrace"
+	"golang.org/x/xerrors"
+)
 
 // IClearExpectHeader provides a clear functionality to remove previous steps from running in the Expect().Header(...)  scope
 type IClearExpectHeader interface {
@@ -253,4 +256,96 @@ func (hdr *clearExpectHeader) Equal(value ...interface{}) IStep {
 
 func (hdr *clearExpectHeader) NotEqual(value ...interface{}) IStep {
 	return removeStep(hdr.cleanPath.Push("NotEqual", value))
+}
+
+type finalClearExpectHeader struct {
+	IStep
+}
+
+func (finalClearExpectHeader) Contains(...interface{}) IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect() not with Clear().Expect(value)")
+		},
+	}
+}
+
+func (finalClearExpectHeader) NotContains(...interface{}) IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect() not with Clear().Expect(value)")
+		},
+	}
+}
+
+func (finalClearExpectHeader) OneOf(...interface{}) IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect() not with Clear().Expect(value)")
+		},
+	}
+}
+
+func (finalClearExpectHeader) NotOneOf(...interface{}) IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect() not with Clear().Expect(value)")
+		},
+	}
+}
+
+func (finalClearExpectHeader) Empty() IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect() not with Clear().Expect(value)")
+		},
+	}
+}
+
+func (finalClearExpectHeader) Len(...int) IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect() not with Clear().Expect(value)")
+		},
+	}
+}
+
+func (finalClearExpectHeader) Equal(...interface{}) IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect() not with Clear().Expect(value)")
+		},
+	}
+}
+
+func (finalClearExpectHeader) NotEqual(...interface{}) IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect() not with Clear().Expect(value)")
+		},
+	}
 }

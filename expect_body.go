@@ -3,6 +3,7 @@ package hit
 import (
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
+	"golang.org/x/xerrors"
 )
 
 // IExpectBody provides assertions on the http response body
@@ -229,20 +230,62 @@ type finalExpectBody struct {
 }
 
 func (finalExpectBody) JSON(...interface{}) IExpectBodyJSON {
-	panic("only usable with Expect().Body() not with Expect().Body(value)")
+	return finalExpectBodyJSON{&hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Body() not with Expect().Body(value)")
+		},
+	}}
 }
 func (finalExpectBody) Interface(interface{}) IStep {
-	panic("only usable with Expect().Body() not with Expect().Body(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Body() not with Expect().Body(value)")
+		},
+	}
 }
 func (finalExpectBody) Equal(interface{}) IStep {
-	panic("only usable with Expect().Body() not with Expect().Body(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Body() not with Expect().Body(value)")
+		},
+	}
 }
 func (finalExpectBody) NotEqual(interface{}) IStep {
-	panic("only usable with Expect().Body() not with Expect().Body(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Body() not with Expect().Body(value)")
+		},
+	}
 }
 func (finalExpectBody) Contains(interface{}) IStep {
-	panic("only usable with Expect().Body() not with Expect().Body(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Body() not with Expect().Body(value)")
+		},
+	}
 }
 func (finalExpectBody) NotContains(interface{}) IStep {
-	panic("only usable with Expect().Body() not with Expect().Body(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Expect().Body() not with Expect().Body(value)")
+		},
+	}
 }

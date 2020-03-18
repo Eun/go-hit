@@ -3,6 +3,7 @@ package hit
 import (
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
+	"golang.org/x/xerrors"
 )
 
 // IClearExpect provides a clear functionality to remove previous steps from running in the Expect() scope
@@ -176,21 +177,56 @@ type finalClearExpect struct {
 }
 
 func (finalClearExpect) Body(...interface{}) IClearExpectBody {
-	panic("only usable with Clear().Expect() not with Clear().Expect(value)")
+	return finalClearExpectBody{&hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect() not with Clear().Expect(value)")
+		},
+	}}
 }
 
 func (finalClearExpect) Interface(...interface{}) IStep {
-	panic("only usable with Clear().Expect() not with Clear().Expect(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect() not with Clear().Expect(value)")
+		},
+	}
 }
 
 func (finalClearExpect) Custom(...Callback) IStep {
-	panic("only usable with Clear().Expect() not with Clear().Expect(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect() not with Clear().Expect(value)")
+		},
+	}
 }
 
 func (finalClearExpect) Header(...string) IClearExpectHeader {
-	panic("only usable with Clear().Expect() not with Clear().Expect(value)")
+	return finalClearExpectHeader{&hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect() not with Clear().Expect(value)")
+		},
+	}}
 }
 
 func (finalClearExpect) Status(...int) IClearExpectStatus {
-	panic("only usable with Clear().Expect() not with Clear().Expect(value)")
+	return finalClearExpectStatus{&hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Clear().Expect() not with Clear().Expect(value)")
+		},
+	}}
 }

@@ -3,6 +3,7 @@ package hit
 import (
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
+	"golang.org/x/xerrors"
 )
 
 type ISendBody interface {
@@ -127,9 +128,23 @@ type finalSendBody struct {
 }
 
 func (d finalSendBody) JSON(interface{}) IStep {
-	panic("only usable with Send().Body() not with Send().Body(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Send().Body() not with Send().Body(value)")
+		},
+	}
 }
 
 func (d finalSendBody) Interface(interface{}) IStep {
-	panic("only usable with Send().Body() not with Send().Body(value)")
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New("only usable with Send().Body() not with Send().Body(value)")
+		},
+	}
 }

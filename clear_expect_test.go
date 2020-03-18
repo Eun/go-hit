@@ -178,32 +178,60 @@ func TestClearExpectFinal(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 	t.Run("Clear().Expect(value).Body()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Clear().Expect() not with Clear().Expect(value)", func() {
-			Do(Clear().Expect("Data").Body())
-		})
+		ExpectError(t,
+			Do(Clear().Expect("Data").Body()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
 	})
 
 	t.Run("Clear().Expect(value).Interface()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Clear().Expect() not with Clear().Expect(value)", func() {
-			Do(Clear().Expect("Data").Interface())
-		})
+		ExpectError(t,
+			Do(Clear().Expect("Data").Interface()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
 	})
 
 	t.Run("Clear().Expect(value).Custom()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Clear().Expect() not with Clear().Expect(value)", func() {
-			Do(Clear().Expect("Data").Custom())
-		})
+		ExpectError(t,
+			Do(Clear().Expect("Data").Custom()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
 	})
 
 	t.Run("Clear().Expect(value).Header()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Clear().Expect() not with Clear().Expect(value)", func() {
-			Do(Clear().Expect("Data").Header())
-		})
+		ExpectError(t,
+			Do(Clear().Expect("Data").Header()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
 	})
 
 	t.Run("Clear().Expect(value).Status()", func(t *testing.T) {
-		require.PanicsWithValue(t, "only usable with Clear().Expect() not with Clear().Expect(value)", func() {
-			Do(Clear().Expect("Data").Status())
-		})
+		ExpectError(t,
+			Do(Clear().Expect("Data").Status()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
 	})
+}
+
+func TestClearExpect_NotExistentStep(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Send().Body("Hello World"),
+			Clear().Expect("Hello Universe"),
+		),
+		PtrStr(`unable to find a step with Expect("Hello Universe")`), PtrStr(`got these steps:`), PtrStr(`Send().Body("Hello World")`),
+	)
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Send().Body("Hello World"),
+			Clear().Expect(),
+		),
+		PtrStr(`unable to find a step with Expect()`), PtrStr(`got these steps:`), PtrStr(`Send().Body("Hello World")`),
+	)
 }
