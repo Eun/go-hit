@@ -1,4 +1,4 @@
-# github.com/Eun/go-convert v0.0.0-20200204085721-73c60a5fb88b
+# github.com/Eun/go-convert v0.0.0-20200210091419-ec93d4c12868
 github.com/Eun/go-convert
 # github.com/Eun/go-doppelgangerreader v0.0.0-20190911075941-30f1527f16b2
 github.com/Eun/go-doppelgangerreader
@@ -26,7 +26,7 @@ github.com/mattn/go-isatty
 github.com/mohae/deepcopy
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
-# github.com/stretchr/testify v1.4.0
+# github.com/stretchr/testify v1.5.1
 github.com/stretchr/testify/require
 github.com/stretchr/testify/assert
 # github.com/tidwall/pretty v1.0.0
