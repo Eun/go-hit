@@ -6,6 +6,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// IClearSend provides a clear functionality to remove previous steps from running in the Send() scope
 type IClearSend interface {
 	IStep
 	// Body removes all previous Send().Body() steps and all steps chained to Send().Body() e.g. Send().Body().Interface("Hello World").

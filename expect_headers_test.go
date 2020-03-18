@@ -112,6 +112,19 @@ func TestExpectHeaders_OneOf(t *testing.T) {
 		}),
 		Expect().Header().OneOf(map[string]string{"X-Header": "Hello"}),
 	)
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Custom(BeforeExpectStep, func(hit Hit) {
+				hit.Response().Header = map[string][]string{
+					"X-Header": []string{"Hello"},
+				}
+			}),
+			Expect().Header().OneOf(map[string]string{"X-Header": "World"}),
+		),
+		nil, nil, nil, nil, nil, nil, nil,
+	)
 }
 
 func TestExpectHeaders_NotOneOf(t *testing.T) {
@@ -126,6 +139,19 @@ func TestExpectHeaders_NotOneOf(t *testing.T) {
 			}
 		}),
 		Expect().Header().NotOneOf(map[string]string{"X-Header": "World"}),
+	)
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Custom(BeforeExpectStep, func(hit Hit) {
+				hit.Response().Header = map[string][]string{
+					"X-Header": []string{"Hello"},
+				}
+			}),
+			Expect().Header().NotOneOf(map[string]string{"X-Header": "Hello"}),
+		),
+		nil, nil, nil, nil, nil, nil, nil,
 	)
 }
 

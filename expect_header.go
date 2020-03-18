@@ -1,8 +1,6 @@
 package hit
 
 import (
-	"net/http"
-
 	"github.com/Eun/go-hit/internal"
 	"github.com/Eun/go-hit/internal/minitest"
 	"golang.org/x/xerrors"
@@ -226,11 +224,16 @@ func (hdr *expectHeaders) OneOf(values ...interface{}) IStep {
 		When:      ExpectStep,
 		ClearPath: hdr.cleanPath.Push("OneOf", values),
 		Exec: func(hit Hit) error {
-			var h []http.Header
-			if err := converter.Convert(values, &h); err != nil {
+			// convert to map[string]string because its easier to compare
+			var v []map[string]string
+			if err := converter.Convert(values, &v); err != nil {
 				return err
 			}
-			minitest.Contains(h, hit.Response().Header)
+			var hdr map[string]string
+			if err := converter.Convert(hit.Response().Header, &hdr); err != nil {
+				return err
+			}
+			minitest.Contains(v, hdr)
 			return nil
 		},
 	}
@@ -242,7 +245,16 @@ func (hdr *expectHeaders) NotOneOf(values ...interface{}) IStep {
 		When:      ExpectStep,
 		ClearPath: hdr.cleanPath.Push("NotOneOf", values),
 		Exec: func(hit Hit) error {
-			minitest.NotContains(values, hit.Response().Header)
+			// convert to map[string]string because its easier to compare
+			var v []map[string]string
+			if err := converter.Convert(values, &v); err != nil {
+				return err
+			}
+			var hdr map[string]string
+			if err := converter.Convert(hit.Response().Header, &hdr); err != nil {
+				return err
+			}
+			minitest.NotContains(v, hdr)
 			return nil
 		},
 	}

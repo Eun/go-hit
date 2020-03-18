@@ -6,6 +6,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// IClearSendBody provides a clear functionality to remove previous steps from running in the Send().Body() scope
 type IClearSendBody interface {
 	IStep
 	// JSON removes all previous Send().Body().JSON() steps.

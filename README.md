@@ -109,4 +109,4 @@ Test(t,
     )...,
 )
 ```
-More examples can be found in the `exampels directory`
+More examples can be found in the `examples directory`
