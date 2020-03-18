@@ -75,3 +75,15 @@ func (cleanPath clearPath) String() string {
 	}
 	return strings.Join(parts, ".")
 }
+
+func (cleanPath clearPath) CallString() string {
+	parts := make([]string, len(cleanPath))
+	for i := range cleanPath {
+		args := make([]string, len(cleanPath[i].Arguments))
+		for i, argument := range cleanPath[i].Arguments {
+			args[i] = fmt.Sprintf("%#v", argument)
+		}
+		parts[i] = fmt.Sprintf("%s(%s)", cleanPath[i].Func, strings.Join(args, ", "))
+	}
+	return strings.Join(parts, ".")
+}

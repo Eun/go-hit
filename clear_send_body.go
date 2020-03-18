@@ -1,6 +1,7 @@
 package hit
 
 import (
+	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
 )
 
@@ -43,6 +44,7 @@ type IClearSendBody interface {
 
 type clearSendBody struct {
 	cleanPath clearPath
+	trace     *errortrace.ErrorTrace
 }
 
 func newClearSendBody(clearPath clearPath, params []interface{}) IClearSendBody {
@@ -53,6 +55,7 @@ func newClearSendBody(clearPath clearPath, params []interface{}) IClearSendBody 
 
 	return &clearSendBody{
 		cleanPath: clearPath,
+		trace:     ett.Prepare(),
 	}
 }
 
@@ -62,7 +65,9 @@ func (*clearSendBody) when() StepTime {
 
 func (body *clearSendBody) exec(hit Hit) error {
 	// this runs if we called Clear().Send().Body()
-	removeSteps(hit, body.clearPath())
+	if err := removeSteps(hit, body.clearPath()); err != nil {
+		return body.trace.Format(hit.Description(), err.Error())
+	}
 	return nil
 }
 

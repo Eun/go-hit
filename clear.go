@@ -1,5 +1,12 @@
 package hit
 
+import (
+	"fmt"
+	"strings"
+
+	"golang.org/x/xerrors"
+)
+
 // IClear provides a clear functionality to remove previous steps from running
 type IClear interface {
 	// Send removes all previous Send() steps and all steps chained to Send() e.g. Send().Body("Hello World").
@@ -55,8 +62,9 @@ func (clr *clear) Expect(value ...interface{}) IClearExpect {
 	return newClearExpect(newClearPath("Expect", value), value)
 }
 
-func removeSteps(hit Hit, path clearPath) {
+func removeSteps(hit Hit, path clearPath) error {
 	var stepsToRemove []IStep
+	var availableSteps []IStep
 
 	for _, step := range hit.Steps() {
 		if step == hit.CurrentStep() {
@@ -66,11 +74,26 @@ func removeSteps(hit Hit, path clearPath) {
 		if p == nil {
 			continue
 		}
+		availableSteps = append(availableSteps, step)
 		if p.Contains(path) {
 			stepsToRemove = append(stepsToRemove, step)
 		}
 	}
+	if len(stepsToRemove) == 0 {
+		var sb strings.Builder
+		fmt.Fprintf(&sb, "unable to find a step with %s\n", path.CallString())
+
+		if len(availableSteps) > 0 {
+			fmt.Fprintf(&sb, "got these steps:\n")
+			for _, step := range availableSteps {
+				fmt.Fprintf(&sb, "\t%s\n", step.clearPath().CallString())
+			}
+		}
+
+		return xerrors.New(sb.String())
+	}
 	hit.RemoveSteps(stepsToRemove...)
+	return nil
 }
 
 func removeStep(cleanPath clearPath) *hitStep {
@@ -79,8 +102,7 @@ func removeStep(cleanPath clearPath) *hitStep {
 		When:      CleanStep,
 		ClearPath: nil, // not clearable
 		Exec: func(hit Hit) error {
-			removeSteps(hit, cleanPath)
-			return nil
+			return removeSteps(hit, cleanPath)
 		},
 	}
 }

@@ -9,7 +9,6 @@ import (
 
 	"github.com/Eun/go-hit/internal/minitest"
 	"github.com/gookit/color"
-	"golang.org/x/xerrors"
 )
 
 type ErrorTraceTemplate struct {
@@ -37,7 +36,7 @@ func New(ignore ...string) *ErrorTraceTemplate {
 func IgnoreFunc(fn interface{}) string {
 	v := reflect.ValueOf(fn)
 	if !v.IsValid() {
-		panic(xerrors.New("function is is not valid"))
+		panic("function is is not valid")
 	}
 	return strings.TrimSuffix(runtime.FuncForPC(v.Pointer()).Name(), "-fm")
 }
@@ -99,16 +98,7 @@ func (et *ErrorTrace) filterTraceCalls(calls []Call) []Call {
 
 	for i := 0; i < len(calls); i++ {
 		if et.isIncluded(&calls[i]) {
-			exits := false
-			for _, call := range filtered {
-				if call.FullName == calls[i].FullName {
-					exits = true
-					break
-				}
-			}
-			if !exits {
-				filtered = append(filtered, calls[i])
-			}
+			filtered = append(filtered, calls[i])
 		}
 	}
 
@@ -141,6 +131,9 @@ func resolveTraceCalls(pc []uintptr) []Call {
 }
 
 func (et *ErrorTrace) formatStack(calls []Call) string {
+	if len(calls) <= 0 {
+		return "<nil>"
+	}
 	var sb strings.Builder
 
 	if n := len(calls); n > 0 {
@@ -162,8 +155,7 @@ func (et *ErrorTrace) Format(description, errText string) ErrorTraceError {
 	// if we have a inherited trace resolve the items and filter the current trace
 	if et.inheritedTrace {
 		// resolve the inherited calls
-
-		traceCalls = append(traceCalls, resolveTraceCalls(et.inheritedPC)...)
+		traceCalls = append(resolveTraceCalls(et.inheritedPC), traceCalls...)
 	}
 
 	// filter

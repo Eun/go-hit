@@ -1,9 +1,9 @@
 package hit
 
 import (
+	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
 	"github.com/Eun/go-hit/internal/minitest"
-	"golang.org/x/xerrors"
 )
 
 // IExpectSpecificHeader provides assertions on the http response code
@@ -133,17 +133,19 @@ type IExpectStatus interface {
 type expectStatus struct {
 	expect    IExpect
 	cleanPath clearPath
+	trace     *errortrace.ErrorTrace
 }
 
 func newExpectStatus(expect IExpect, cleanPath clearPath, params []int) IExpectStatus {
 	status := &expectStatus{
 		expect:    expect,
 		cleanPath: cleanPath,
+		trace:     ett.Prepare(),
 	}
 
 	if param, ok := internal.GetLastIntArgument(params); ok {
 		return finalExpectStatus{&hitStep{
-			Trace:     ett.Prepare(),
+			Trace:     status.trace,
 			When:      ExpectStep,
 			ClearPath: cleanPath,
 			Exec:      status.Equal(param).exec,
@@ -153,8 +155,8 @@ func newExpectStatus(expect IExpect, cleanPath clearPath, params []int) IExpectS
 	return status
 }
 
-func (*expectStatus) exec(Hit) error {
-	return xerrors.New("unable to run Expect().Status() without an argument or without a chain. Please use Expect().Status(something) or Expect().Status().Something")
+func (status *expectStatus) exec(hit Hit) error {
+	return status.trace.Format(hit.Description(), "unable to run Expect().Status() without an argument or without a chain. Please use Expect().Status(something) or Expect().Status().Something")
 }
 
 func (*expectStatus) when() StepTime {

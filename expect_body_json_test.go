@@ -840,3 +840,16 @@ func TestExpectBodyJSONFinal(t *testing.T) {
 		})
 	})
 }
+
+func TestExpectBodyJSON_WithoutArgument(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON(),
+		),
+		PtrStr("unable to run Expect().Body().JSON() without an argument or without a chain. Please use Expect().Body().JSON(something) or Expect().Body().JSON().Something"),
+	)
+}

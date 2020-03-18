@@ -152,3 +152,16 @@ func TestExpectFinal(t *testing.T) {
 		})
 	})
 }
+
+func TestExpect_WithoutArgument(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect(),
+		),
+		PtrStr("unable to run Expect() without an argument or without a chain. Please use Expect(something) or Expect().Something"),
+	)
+}

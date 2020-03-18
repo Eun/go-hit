@@ -171,3 +171,16 @@ func TestExpectBodyFinal(t *testing.T) {
 		})
 	})
 }
+
+func TestExpectBody_WithoutArgument(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body(),
+		),
+		PtrStr("unable to run Expect().Body() without an argument or without a chain. Please use Expect().Body(something) or Expect().Body().Something"),
+	)
+}

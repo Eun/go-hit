@@ -1,6 +1,7 @@
 package hit
 
 import (
+	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
 )
 
@@ -182,6 +183,7 @@ type IClearExpectStatus interface {
 
 type clearExpectStatus struct {
 	cleanPath clearPath
+	trace     *errortrace.ErrorTrace
 }
 
 func newClearExpectStatus(cleanPath clearPath, params []int) IClearExpectStatus {
@@ -191,12 +193,15 @@ func newClearExpectStatus(cleanPath clearPath, params []int) IClearExpectStatus 
 	}
 	return &clearExpectStatus{
 		cleanPath: cleanPath,
+		trace:     ett.Prepare(),
 	}
 }
 
 func (status *clearExpectStatus) exec(hit Hit) error {
 	// this runs if we called Clear().Expect().Status()
-	removeSteps(hit, status.clearPath())
+	if err := removeSteps(hit, status.clearPath()); err != nil {
+		return status.trace.Format(hit.Description(), err.Error())
+	}
 	return nil
 }
 

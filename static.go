@@ -10,7 +10,6 @@ import (
 
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
-	"github.com/Eun/go-hit/internal/minitest"
 )
 
 var ett *errortrace.ErrorTraceTemplate
@@ -19,13 +18,7 @@ func init() {
 	ett = errortrace.New(
 		"testing",
 		"runtime",
-		errortrace.IgnoreFunc((*hitStep).exec),
-		errortrace.IgnoreStruct((*defaultInstance).Do),
-		errortrace.IgnoreFunc((*expect).Custom),
-		errortrace.IgnoreFunc((*send).Custom),
-		errortrace.IgnoreFunc(Do),
-		errortrace.IgnoreFunc(Test),
-		errortrace.IgnorePackage(minitest.Errorf),
+		errortrace.IgnorePackage(Do),
 	)
 }
 

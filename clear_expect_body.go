@@ -1,6 +1,9 @@
 package hit
 
-import "github.com/Eun/go-hit/internal"
+import (
+	"github.com/Eun/go-hit/errortrace"
+	"github.com/Eun/go-hit/internal"
+)
 
 // IClearExpectBody provides a clear functionality to remove previous steps from running in the Expect().Body() scope
 type IClearExpectBody interface {
@@ -115,6 +118,7 @@ type IClearExpectBody interface {
 type clearExpectBody struct {
 	clearExpect IClearExpect
 	cleanPath   clearPath
+	trace       *errortrace.ErrorTrace
 }
 
 func newClearExpectBody(exp IClearExpect, cleanPath clearPath, params []interface{}) IClearExpectBody {
@@ -125,6 +129,7 @@ func newClearExpectBody(exp IClearExpect, cleanPath clearPath, params []interfac
 	return &clearExpectBody{
 		clearExpect: exp,
 		cleanPath:   cleanPath,
+		trace:       ett.Prepare(),
 	}
 }
 
@@ -134,7 +139,9 @@ func (body *clearExpectBody) when() StepTime {
 
 func (body *clearExpectBody) exec(hit Hit) error {
 	// this runs if we called Clear().Expect().Body()
-	removeSteps(hit, body.clearPath())
+	if err := removeSteps(hit, body.clearPath()); err != nil {
+		return body.trace.Format(hit.Description(), err.Error())
+	}
 	return nil
 }
 
@@ -143,7 +150,7 @@ func (body *clearExpectBody) clearPath() clearPath {
 }
 
 func (body *clearExpectBody) Interface(value ...interface{}) IStep {
-	return removeStep(body.cleanPath.Push("Equal", value))
+	return removeStep(body.cleanPath.Push("Interface", value))
 }
 
 func (body *clearExpectBody) JSON(value ...interface{}) IClearExpectBodyJSON {

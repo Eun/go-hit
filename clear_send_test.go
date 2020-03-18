@@ -36,7 +36,7 @@ func TestClearSend_Custom(t *testing.T) {
 		Test(t,
 			Post(s.URL),
 			Send().Custom(fn),
-			Clear().Expect().Custom(fn),
+			Clear().Send().Custom(fn),
 			Send().Custom(func(hit Hit) {
 				ranCustomFunc = true
 				hit.Request().Body().SetString("Hello World")

@@ -1,5 +1,7 @@
 package hit
 
+import "github.com/Eun/go-hit/errortrace"
+
 // IClearExpectHeader provides a clear functionality to remove previous steps from running in the Expect().Header(...)  scope
 type IClearExpectHeader interface {
 	IStep
@@ -191,11 +193,13 @@ type IClearExpectHeader interface {
 }
 type clearExpectHeader struct {
 	cleanPath clearPath
+	trace     *errortrace.ErrorTrace
 }
 
 func newClearExpectHeader(cleanPath clearPath) IClearExpectHeader {
 	return &clearExpectHeader{
 		cleanPath: cleanPath,
+		trace:     ett.Prepare(),
 	}
 }
 
@@ -205,7 +209,9 @@ func (hdr *clearExpectHeader) when() StepTime {
 
 func (hdr *clearExpectHeader) exec(hit Hit) error {
 	// this runs if we called Clear().Expect().Header("...") or Clear().Expect().Headers().Get("...")
-	removeSteps(hit, hdr.clearPath())
+	if err := removeSteps(hit, hdr.clearPath()); err != nil {
+		return hdr.trace.Format(hit.Description(), err.Error())
+	}
 	return nil
 }
 

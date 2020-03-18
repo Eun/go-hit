@@ -1,8 +1,8 @@
 package hit
 
 import (
+	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
-	"golang.org/x/xerrors"
 )
 
 // IExpectBody provides assertions on the http response body
@@ -89,18 +89,20 @@ type IExpectBody interface {
 type expectBody struct {
 	expect    IExpect
 	cleanPath clearPath
+	trace     *errortrace.ErrorTrace
 }
 
 func newExpectBody(expect IExpect, cleanPath clearPath, params []interface{}) IExpectBody {
 	body := &expectBody{
 		expect:    expect,
 		cleanPath: cleanPath,
+		trace:     ett.Prepare(),
 	}
 
 	if param, ok := internal.GetLastArgument(params); ok {
 		// default action is Equal()
 		return finalExpectBody{&hitStep{
-			Trace:     ett.Prepare(),
+			Trace:     body.trace,
 			When:      ExpectStep,
 			ClearPath: cleanPath,
 			Exec:      body.Interface(param).exec,
@@ -110,8 +112,8 @@ func newExpectBody(expect IExpect, cleanPath clearPath, params []interface{}) IE
 	return body
 }
 
-func (*expectBody) exec(Hit) error {
-	return xerrors.New("unable to run Expect().Body() without an argument or without a chain. Please use Expect().Body(something) or Expect().Body().Something")
+func (body *expectBody) exec(hit Hit) error {
+	return body.trace.Format(hit.Description(), "unable to run Expect().Body() without an argument or without a chain. Please use Expect().Body(something) or Expect().Body().Something")
 }
 
 func (*expectBody) when() StepTime {

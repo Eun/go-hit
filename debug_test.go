@@ -110,6 +110,7 @@ func Test_Debug(t *testing.T) {
 			Post(s.URL),
 			Stdout(buf),
 			Send("Hello World"),
+			Expect("Hello World"),
 			Debug(),
 			Clear().Expect(),
 		)

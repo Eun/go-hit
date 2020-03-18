@@ -43,7 +43,7 @@ func ExpectError(t *testing.T, err error, equalLines ...*string) {
 	require.NotNil(t, err)
 	matches := errorRegex.FindStringSubmatch(vtclean.Clean(err.Error(), false))
 
-	require.Len(t, matches, 2)
+	require.Len(t, matches, 2, "Invalid format, Error:\n%s", err.Error())
 
 	lines := strings.FieldsFunc(matches[1], func(r rune) bool {
 		return r == '\n'

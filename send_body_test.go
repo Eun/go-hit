@@ -90,3 +90,16 @@ func TestSendBody_EmptyBody(t *testing.T) {
 		}),
 	)
 }
+
+func TestSendBody_WithoutArgument(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Send().Body(),
+		),
+		PtrStr("unable to run Send().Body() without an argument or without a chain. Please use Send().Body(something) or Send().Body().Something"),
+	)
+}

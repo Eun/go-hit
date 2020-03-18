@@ -1,9 +1,9 @@
 package hit
 
 import (
+	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
 	"github.com/mohae/deepcopy"
-	"golang.org/x/xerrors"
 )
 
 // IExpect provides assertions on the http response
@@ -84,17 +84,19 @@ type IExpect interface {
 
 type expect struct {
 	cleanPath clearPath
+	trace     *errortrace.ErrorTrace
 }
 
 func newExpect(cleanPath clearPath, params []interface{}) IExpect {
 	exp := &expect{
 		cleanPath: cleanPath,
+		trace:     ett.Prepare(),
 	}
 
 	if param, ok := internal.GetLastArgument(params); ok {
 		// default action is Interface()
 		return finalExpect{&hitStep{
-			Trace:     ett.Prepare(),
+			Trace:     exp.trace,
 			When:      ExpectStep,
 			ClearPath: cleanPath,
 			Exec:      exp.Interface(param).exec,
@@ -103,8 +105,8 @@ func newExpect(cleanPath clearPath, params []interface{}) IExpect {
 	return exp
 }
 
-func (*expect) exec(Hit) error {
-	return xerrors.New("unable to run Expect() without an argument or without a chain. Please use Expect(something) or Expect().Something")
+func (exp *expect) exec(hit Hit) error {
+	return exp.trace.Format(hit.Description(), "unable to run Expect() without an argument or without a chain. Please use Expect(something) or Expect().Something")
 }
 
 func (*expect) when() StepTime {

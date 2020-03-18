@@ -1,6 +1,9 @@
 package hit
 
-import "github.com/Eun/go-hit/internal"
+import (
+	"github.com/Eun/go-hit/errortrace"
+	"github.com/Eun/go-hit/internal"
+)
 
 // IClearExpectBody provides a clear functionality to remove previous steps from running in the Expect().Body().JSON() scope
 type IClearExpectBodyJSON interface {
@@ -89,6 +92,7 @@ type IClearExpectBodyJSON interface {
 type clearExpectBodyJSON struct {
 	clearExpectBody IClearExpectBody
 	cleanPath       clearPath
+	trace           *errortrace.ErrorTrace
 }
 
 func newClearExpectBodyJSON(body IClearExpectBody, cleanPath clearPath, params []interface{}) IClearExpectBodyJSON {
@@ -99,6 +103,7 @@ func newClearExpectBodyJSON(body IClearExpectBody, cleanPath clearPath, params [
 	return &clearExpectBodyJSON{
 		clearExpectBody: body,
 		cleanPath:       cleanPath,
+		trace:           ett.Prepare(),
 	}
 }
 
@@ -108,7 +113,9 @@ func (jsn *clearExpectBodyJSON) when() StepTime {
 
 func (jsn *clearExpectBodyJSON) exec(hit Hit) error {
 	// this runs if we called Clear().Expect().Body().JSON()
-	removeSteps(hit, jsn.clearPath())
+	if err := removeSteps(hit, jsn.clearPath()); err != nil {
+		return jsn.trace.Format(hit.Description(), err.Error())
+	}
 	return nil
 }
 

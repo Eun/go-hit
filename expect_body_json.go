@@ -1,9 +1,9 @@
 package hit
 
 import (
+	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
 	"github.com/Eun/go-hit/internal/minitest"
-	"golang.org/x/xerrors"
 )
 
 // IExpectBodyJSON provides assertions on the http response json body
@@ -67,17 +67,19 @@ type IExpectBodyJSON interface {
 type expectBodyJSON struct {
 	expectBody IExpectBody
 	cleanPath  clearPath
+	trace      *errortrace.ErrorTrace
 }
 
 func newExpectBodyJSON(expectBody IExpectBody, cleanPath clearPath, params []interface{}) IExpectBodyJSON {
 	jsn := &expectBodyJSON{
 		expectBody: expectBody,
 		cleanPath:  cleanPath,
+		trace:      ett.Prepare(),
 	}
 
 	if param, ok := internal.GetLastArgument(params); ok {
 		return finalExpectBodyJSON{&hitStep{
-			Trace:     ett.Prepare(),
+			Trace:     jsn.trace,
 			When:      ExpectStep,
 			ClearPath: jsn.cleanPath,
 			Exec:      jsn.Equal("", param).exec,
@@ -86,8 +88,8 @@ func newExpectBodyJSON(expectBody IExpectBody, cleanPath clearPath, params []int
 	return jsn
 }
 
-func (*expectBodyJSON) exec(Hit) error {
-	return xerrors.New("unable to run Expect().Body().JSON() without an argument or without a chain. Please use Expect().Body().JSON(something) or Expect().Body().JSON().Something")
+func (jsn *expectBodyJSON) exec(hit Hit) error {
+	return jsn.trace.Format(hit.Description(), "unable to run Expect().Body().JSON() without an argument or without a chain. Please use Expect().Body().JSON(something) or Expect().Body().JSON().Something")
 }
 
 func (*expectBodyJSON) when() StepTime {

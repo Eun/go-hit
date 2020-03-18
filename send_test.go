@@ -222,3 +222,16 @@ func TestSendHeader_DoubleSet(t *testing.T) {
 		Expect().Body().Equal("Universe"),
 	)
 }
+
+func TestSend_WithoutArgument(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Send(),
+		),
+		PtrStr("unable to run Send() without an argument or without a chain. Please use Send(something) or Send().Something"),
+	)
+}

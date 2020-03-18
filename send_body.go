@@ -1,8 +1,8 @@
 package hit
 
 import (
+	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
-	"golang.org/x/xerrors"
 )
 
 type ISendBody interface {
@@ -34,16 +34,18 @@ type ISendBody interface {
 
 type sendBody struct {
 	cleanPath clearPath
+	trace     *errortrace.ErrorTrace
 }
 
 func newSendBody(clearPath clearPath, params []interface{}) ISendBody {
 	snd := &sendBody{
 		cleanPath: clearPath,
+		trace:     ett.Prepare(),
 	}
 
 	if param, ok := internal.GetLastArgument(params); ok {
 		return finalSendBody{&hitStep{
-			Trace:     ett.Prepare(),
+			Trace:     snd.trace,
 			When:      SendStep,
 			ClearPath: clearPath,
 			Exec:      snd.Interface(param).exec,
@@ -57,8 +59,8 @@ func (*sendBody) when() StepTime {
 	return SendStep
 }
 
-func (*sendBody) exec(Hit) error {
-	return xerrors.New("unable to run Send().Body() without an argument or without a chain. Please use Send().Body(something) or Send().Body().Something")
+func (body *sendBody) exec(hit Hit) error {
+	return body.trace.Format(hit.Description(), "unable to run Send().Body() without an argument or without a chain. Please use Send().Body(something) or Send().Body().Something")
 }
 
 func (body *sendBody) clearPath() clearPath {

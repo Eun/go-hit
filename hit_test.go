@@ -404,8 +404,7 @@ func TestDo(t *testing.T) {
 func TestOutOfContext(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
-	Test(
-		t,
+	Test(t,
 		Post(s.URL),
 		Send("World"),
 		Expect("World"),

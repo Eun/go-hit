@@ -69,6 +69,11 @@ func (step *hitStep) exec(h Hit) (err error) {
 		}
 	}()
 	err = step.Exec(h)
+	if err != nil {
+		if _, ok := err.(errortrace.ErrorTraceError); !ok {
+			err = step.Trace.Format(h.Description(), err.Error())
+		}
+	}
 	return err
 }
 

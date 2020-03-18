@@ -205,15 +205,15 @@ func TestExpectStatus_NotBetween(t *testing.T) {
 	)
 }
 
-func TestExpectStatus_Invalid(t *testing.T) {
+func TestExpectStatus_WithoutArgument(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
 	ExpectError(t,
 		Do(
 			Post(s.URL),
-			Send().Body("Hello World"),
 			Expect().Status(),
-		), PtrStr("Expected status code to be 404 but was 200 instead"),
+		),
+		PtrStr("unable to run Expect().Status() without an argument or without a chain. Please use Expect().Status(something) or Expect().Status().Something"),
 	)
 }
