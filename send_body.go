@@ -45,12 +45,15 @@ func newSendBody(clearPath clearPath, params []interface{}) ISendBody {
 	}
 
 	if param, ok := internal.GetLastArgument(params); ok {
-		return finalSendBody{&hitStep{
-			Trace:     snd.trace,
-			When:      SendStep,
-			ClearPath: clearPath,
-			Exec:      snd.Interface(param).exec,
-		}}
+		return &finalSendBody{
+			&hitStep{
+				Trace:     snd.trace,
+				When:      SendStep,
+				ClearPath: clearPath,
+				Exec:      snd.Interface(param).exec,
+			},
+			"only usable with Send().Body() not with Send().Body(value)",
+		}
 	}
 
 	return snd
@@ -125,26 +128,27 @@ func (body *sendBody) Interface(value interface{}) IStep {
 
 type finalSendBody struct {
 	IStep
+	message string
 }
 
-func (d finalSendBody) JSON(interface{}) IStep {
+func (body *finalSendBody) JSON(interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Send().Body() not with Send().Body(value)")
+			return xerrors.New(body.message)
 		},
 	}
 }
 
-func (d finalSendBody) Interface(interface{}) IStep {
+func (body *finalSendBody) Interface(interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Send().Body() not with Send().Body(value)")
+			return xerrors.New(body.message)
 		},
 	}
 }

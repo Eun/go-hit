@@ -86,12 +86,15 @@ func newSend(clearPath clearPath, params []interface{}) ISend {
 
 	if param, ok := internal.GetLastArgument(params); ok {
 		// default action is Interface()
-		return finalSend{&hitStep{
-			Trace:     snd.trace,
-			When:      SendStep,
-			ClearPath: clearPath,
-			Exec:      snd.Interface(param).exec,
-		}}
+		return &finalSend{
+			&hitStep{
+				Trace:     snd.trace,
+				When:      SendStep,
+				ClearPath: clearPath,
+				Exec:      snd.Interface(param).exec,
+			},
+			"only usable with Send() not with Send(value)",
+		}
 	}
 	return snd
 }
@@ -163,59 +166,63 @@ func (snd *send) Custom(fn Callback) IStep {
 
 type finalSend struct {
 	IStep
+	message string
 }
 
-func (d finalSend) Body(...interface{}) ISendBody {
-	return finalSendBody{&hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Send() not with Send(value)")
+func (snd *finalSend) Body(...interface{}) ISendBody {
+	return &finalSendBody{
+		&hitStep{
+			Trace:     ett.Prepare(),
+			When:      CleanStep,
+			ClearPath: nil,
+			Exec: func(hit Hit) error {
+				return xerrors.New(snd.message)
+			},
 		},
-	}}
+		"only usable with Send() not with Send(value)",
+	}
 }
 
-func (d finalSend) Custom(Callback) IStep {
+func (snd *finalSend) Custom(Callback) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Send() not with Send(value)")
+			return xerrors.New(snd.message)
 		},
 	}
 }
 
-func (d finalSend) JSON(interface{}) IStep {
+func (snd *finalSend) JSON(interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Send() not with Send(value)")
+			return xerrors.New(snd.message)
 		},
 	}
 }
 
-func (d finalSend) Header(string, interface{}) IStep {
+func (snd *finalSend) Header(string, interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Send() not with Send(value)")
+			return xerrors.New(snd.message)
 		},
 	}
 }
 
-func (d finalSend) Interface(interface{}) IStep {
+func (snd *finalSend) Interface(interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Send() not with Send(value)")
+			return xerrors.New(snd.message)
 		},
 	}
 }

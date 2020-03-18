@@ -51,7 +51,10 @@ type clearSendBody struct {
 func newClearSendBody(clearPath clearPath, params []interface{}) IClearSendBody {
 	if _, ok := internal.GetLastArgument(params); ok {
 		// this runs if we called Clear().Send().Body(something)
-		return finalClearSendBody{removeStep(clearPath)}
+		return &finalClearSendBody{
+			removeStep(clearPath),
+			"only usable with Clear().Send() not with Clear().Send(value)",
+		}
 	}
 
 	return &clearSendBody{
@@ -86,26 +89,27 @@ func (body *clearSendBody) Interface(data ...interface{}) IStep {
 
 type finalClearSendBody struct {
 	IStep
+	message string
 }
 
-func (finalClearSendBody) JSON(...interface{}) IStep {
+func (body *finalClearSendBody) JSON(...interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Clear().Send().Body() not with Clear().Send().Body(value)")
+			return xerrors.New(body.message)
 		},
 	}
 }
 
-func (finalClearSendBody) Interface(...interface{}) IStep {
+func (body *finalClearSendBody) Interface(...interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Clear().Send().Body() not with Clear().Send().Body(value)")
+			return xerrors.New(body.message)
 		},
 	}
 }

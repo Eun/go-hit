@@ -190,7 +190,10 @@ type clearExpectStatus struct {
 func newClearExpectStatus(cleanPath clearPath, params []int) IClearExpectStatus {
 	if _, ok := internal.GetLastIntArgument(params); ok {
 		// this runs if we called Clear().Expect().Status(something)
-		return finalClearExpectStatus{removeStep(cleanPath)}
+		return &finalClearExpectStatus{
+			removeStep(cleanPath),
+			"only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)",
+		}
 	}
 	return &clearExpectStatus{
 		cleanPath: cleanPath,
@@ -296,105 +299,106 @@ func (status *clearExpectStatus) NotBetween(code ...int) IStep {
 
 type finalClearExpectStatus struct {
 	IStep
+	message string
 }
 
-func (finalClearExpectStatus) Equal(...int) IStep {
+func (status *finalClearExpectStatus) Equal(...int) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
+			return xerrors.New(status.message)
 		},
 	}
 }
-func (finalClearExpectStatus) NotEqual(...int) IStep {
+func (status *finalClearExpectStatus) NotEqual(...int) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
+			return xerrors.New(status.message)
 		},
 	}
 }
-func (finalClearExpectStatus) OneOf(...int) IStep {
+func (status *finalClearExpectStatus) OneOf(...int) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
+			return xerrors.New(status.message)
 		},
 	}
 }
-func (finalClearExpectStatus) NotOneOf(...int) IStep {
+func (status *finalClearExpectStatus) NotOneOf(...int) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
+			return xerrors.New(status.message)
 		},
 	}
 }
-func (finalClearExpectStatus) GreaterThan(...int) IStep {
+func (status *finalClearExpectStatus) GreaterThan(...int) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
+			return xerrors.New(status.message)
 		},
 	}
 }
-func (finalClearExpectStatus) LessThan(...int) IStep {
+func (status *finalClearExpectStatus) LessThan(...int) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
+			return xerrors.New(status.message)
 		},
 	}
 }
-func (finalClearExpectStatus) GreaterOrEqualThan(...int) IStep {
+func (status *finalClearExpectStatus) GreaterOrEqualThan(...int) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
+			return xerrors.New(status.message)
 		},
 	}
 }
-func (finalClearExpectStatus) LessOrEqualThan(...int) IStep {
+func (status *finalClearExpectStatus) LessOrEqualThan(...int) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
+			return xerrors.New(status.message)
 		},
 	}
 }
-func (finalClearExpectStatus) Between(...int) IStep {
+func (status *finalClearExpectStatus) Between(...int) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
+			return xerrors.New(status.message)
 		},
 	}
 }
-func (finalClearExpectStatus) NotBetween(...int) IStep {
+func (status *finalClearExpectStatus) NotBetween(...int) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Clear().Expect().Status() not with Clear().Expect().Status(value)")
+			return xerrors.New(status.message)
 		},
 	}
 }

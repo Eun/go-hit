@@ -102,12 +102,15 @@ func newExpectBody(expect IExpect, cleanPath clearPath, params []interface{}) IE
 
 	if param, ok := internal.GetLastArgument(params); ok {
 		// default action is Equal()
-		return finalExpectBody{&hitStep{
-			Trace:     body.trace,
-			When:      ExpectStep,
-			ClearPath: cleanPath,
-			Exec:      body.Interface(param).exec,
-		}}
+		return &finalExpectBody{
+			&hitStep{
+				Trace:     body.trace,
+				When:      ExpectStep,
+				ClearPath: cleanPath,
+				Exec:      body.Interface(param).exec,
+			},
+			"only usable with Expect().Body() not with Expect().Body(value)",
+		}
 	}
 
 	return body
@@ -227,65 +230,69 @@ func (body *expectBody) NotContains(value interface{}) IStep {
 
 type finalExpectBody struct {
 	IStep
+	message string
 }
 
-func (finalExpectBody) JSON(...interface{}) IExpectBodyJSON {
-	return finalExpectBodyJSON{&hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect().Body() not with Expect().Body(value)")
+func (body *finalExpectBody) JSON(...interface{}) IExpectBodyJSON {
+	return &finalExpectBodyJSON{
+		&hitStep{
+			Trace:     ett.Prepare(),
+			When:      CleanStep,
+			ClearPath: nil,
+			Exec: func(hit Hit) error {
+				return xerrors.New(body.message)
+			},
 		},
-	}}
+		"only usable with Expect().Body() not with Expect().Body(value)",
+	}
 }
-func (finalExpectBody) Interface(interface{}) IStep {
+func (body *finalExpectBody) Interface(interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect().Body() not with Expect().Body(value)")
+			return xerrors.New(body.message)
 		},
 	}
 }
-func (finalExpectBody) Equal(interface{}) IStep {
+func (body *finalExpectBody) Equal(interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect().Body() not with Expect().Body(value)")
+			return xerrors.New(body.message)
 		},
 	}
 }
-func (finalExpectBody) NotEqual(interface{}) IStep {
+func (body *finalExpectBody) NotEqual(interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect().Body() not with Expect().Body(value)")
+			return xerrors.New(body.message)
 		},
 	}
 }
-func (finalExpectBody) Contains(interface{}) IStep {
+func (body *finalExpectBody) Contains(interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect().Body() not with Expect().Body(value)")
+			return xerrors.New(body.message)
 		},
 	}
 }
-func (finalExpectBody) NotContains(interface{}) IStep {
+func (body *finalExpectBody) NotContains(interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect().Body() not with Expect().Body(value)")
+			return xerrors.New(body.message)
 		},
 	}
 }

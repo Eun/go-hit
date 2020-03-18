@@ -79,12 +79,15 @@ func newExpectBodyJSON(expectBody IExpectBody, cleanPath clearPath, params []int
 	}
 
 	if param, ok := internal.GetLastArgument(params); ok {
-		return finalExpectBodyJSON{&hitStep{
-			Trace:     jsn.trace,
-			When:      ExpectStep,
-			ClearPath: jsn.cleanPath,
-			Exec:      jsn.Equal("", param).exec,
-		}}
+		return &finalExpectBodyJSON{
+			&hitStep{
+				Trace:     jsn.trace,
+				When:      ExpectStep,
+				ClearPath: jsn.cleanPath,
+				Exec:      jsn.Equal("", param).exec,
+			},
+			"only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)",
+		}
 	}
 	return jsn
 }
@@ -192,48 +195,49 @@ func (jsn *expectBodyJSON) NotContains(expression string, data interface{}) ISte
 
 type finalExpectBodyJSON struct {
 	IStep
+	message string
 }
 
-func (finalExpectBodyJSON) Equal(string, interface{}) IStep {
+func (jsn *finalExpectBodyJSON) Equal(string, interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+			return xerrors.New(jsn.message)
 		},
 	}
 }
 
-func (finalExpectBodyJSON) NotEqual(string, interface{}) IStep {
+func (jsn *finalExpectBodyJSON) NotEqual(string, interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+			return xerrors.New(jsn.message)
 		},
 	}
 }
 
-func (finalExpectBodyJSON) Contains(string, interface{}) IStep {
+func (jsn *finalExpectBodyJSON) Contains(string, interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+			return xerrors.New(jsn.message)
 		},
 	}
 }
 
-func (finalExpectBodyJSON) NotContains(string, interface{}) IStep {
+func (jsn *finalExpectBodyJSON) NotContains(string, interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)")
+			return xerrors.New(jsn.message)
 		},
 	}
 }

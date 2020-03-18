@@ -362,92 +362,93 @@ func (hdr *expectSpecificHeader) NotEqual(value interface{}) IStep {
 
 type finalExpectHeader struct {
 	IStep
+	message string
 }
 
-func (finalExpectHeader) Contains(interface{}) IStep {
+func (hdr *finalExpectHeader) Contains(interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect() not with Expect(value)")
+			return xerrors.New(hdr.message)
 		},
 	}
 }
 
-func (finalExpectHeader) NotContains(interface{}) IStep {
+func (hdr *finalExpectHeader) NotContains(interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect() not with Expect(value)")
+			return xerrors.New(hdr.message)
 		},
 	}
 }
 
-func (finalExpectHeader) OneOf(...interface{}) IStep {
+func (hdr *finalExpectHeader) OneOf(...interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect() not with Expect(value)")
+			return xerrors.New(hdr.message)
 		},
 	}
 }
 
-func (finalExpectHeader) NotOneOf(...interface{}) IStep {
+func (hdr *finalExpectHeader) NotOneOf(...interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect() not with Expect(value)")
+			return xerrors.New(hdr.message)
 		},
 	}
 }
 
-func (finalExpectHeader) Empty() IStep {
+func (hdr *finalExpectHeader) Empty() IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect() not with Expect(value)")
+			return xerrors.New(hdr.message)
 		},
 	}
 }
 
-func (finalExpectHeader) Len(int) IStep {
+func (hdr *finalExpectHeader) Len(int) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect() not with Expect(value)")
+			return xerrors.New(hdr.message)
 		},
 	}
 }
 
-func (finalExpectHeader) Equal(interface{}) IStep {
+func (hdr *finalExpectHeader) Equal(interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect() not with Expect(value)")
+			return xerrors.New(hdr.message)
 		},
 	}
 }
 
-func (finalExpectHeader) NotEqual(interface{}) IStep {
+func (hdr *finalExpectHeader) NotEqual(interface{}) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New("only usable with Expect() not with Expect(value)")
+			return xerrors.New(hdr.message)
 		},
 	}
 }

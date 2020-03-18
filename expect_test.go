@@ -128,6 +128,12 @@ func TestExpectFinal(t *testing.T) {
 			PtrStr("only usable with Expect() not with Expect(value)"),
 		)
 	})
+	t.Run("Expect(value).Body().JSON()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Body().JSON()),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
 
 	t.Run("Expect(value).Interface()", func(t *testing.T) {
 		ExpectError(t,
