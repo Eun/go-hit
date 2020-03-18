@@ -7,6 +7,99 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestClearSend_Body(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("all", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Body("Hello World"),
+				Clear().Send().Body(),
+				Send().Body("Hello Earth"),
+				Expect("Hello World"),
+			),
+			PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), PtrStr(`actual: "Hello Earth"`), nil, nil, nil, nil,
+		)
+	})
+
+	t.Run("specific", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Body("Hello World"),
+				Send().Body("Hello Earth"),
+				Clear().Send().Body("Hello World"),
+				Expect("Hello World"),
+			),
+			PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), PtrStr(`actual: "Hello Earth"`), nil, nil, nil, nil,
+		)
+	})
+}
+
+func TestClearSend_Interface(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("all", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Interface("Hello World"),
+				Clear().Send().Interface(),
+				Send().Interface("Hello Earth"),
+				Expect("Hello World"),
+			),
+			PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), PtrStr(`actual: "Hello Earth"`), nil, nil, nil, nil,
+		)
+	})
+
+	t.Run("specific", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Interface("Hello World"),
+				Send().Interface("Hello Earth"),
+				Clear().Send().Interface("Hello World"),
+				Expect("Hello World"),
+			),
+			PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), PtrStr(`actual: "Hello Earth"`), nil, nil, nil, nil,
+		)
+	})
+}
+
+func TestClearSend_JSON(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("all", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().JSON("Hello World"),
+				Clear().Send().JSON(),
+				Send().JSON("Hello Earth"),
+				Expect(`"Hello World"`),
+			),
+			PtrStr("Not equal"), PtrStr(`expected: "\"Hello World\""`), PtrStr(`actual: "\"Hello Earth\""`), nil, nil, nil, nil,
+		)
+	})
+
+	t.Run("specific", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().JSON("Hello World"),
+				Send().JSON("Hello Earth"),
+				Clear().Send().JSON("Hello World"),
+				Expect(`"Hello World"`),
+			),
+			PtrStr("Not equal"), PtrStr(`expected: "\"Hello World\""`), PtrStr(`actual: "\"Hello Earth\""`), nil, nil, nil, nil,
+		)
+	})
+}
+
 func TestClearSend_Custom(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
@@ -44,6 +137,37 @@ func TestClearSend_Custom(t *testing.T) {
 			Expect("Hello World"),
 		)
 		require.True(t, ranCustomFunc)
+	})
+}
+
+func TestClearSend_Header(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("all", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Header("X-Header", "Hello"),
+				Clear().Send().Header(),
+				Send().Header("X-Header", "World"),
+				Expect().Header("X-Header").Equal("Hello"),
+			),
+			PtrStr("Not equal"), PtrStr(`expected: "Hello"`), PtrStr(`actual: "World"`), nil, nil, nil, nil,
+		)
+	})
+
+	t.Run("specific", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Header("X-Header", "Hello"),
+				Send().Header("X-Header", "World"),
+				Clear().Send().Header("X-Header", "Hello"),
+				Expect().Header("X-Header").Equal("Hello"),
+			),
+			PtrStr("Not equal"), PtrStr(`expected: "Hello"`), PtrStr(`actual: "World"`), nil, nil, nil, nil,
+		)
 	})
 }
 

@@ -212,9 +212,58 @@ func TestClearExpect_Final(t *testing.T) {
 		)
 	})
 
+	t.Run("Clear().Expect(value).Header().Contains()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Header().Contains()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Header().NotContains()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Header().NotContains()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Header().OneOf()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Header().OneOf()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Header().NotOneOf()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Header().NotOneOf()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Header().Empty()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Header().Empty()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Header().Len()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Header().Len()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
 	t.Run("Clear().Expect(value).Header().Equal()", func(t *testing.T) {
 		ExpectError(t,
 			Do(Clear().Expect("Data").Header().Equal()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Header().NotEqual()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Header().NotEqual()),
 			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
 		)
 	})
@@ -229,6 +278,69 @@ func TestClearExpect_Final(t *testing.T) {
 	t.Run("Clear().Expect(value).Status().Equal()", func(t *testing.T) {
 		ExpectError(t,
 			Do(Clear().Expect("Data").Status().Equal()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Status().NotEqual()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Status().NotEqual()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Status().OneOf()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Status().OneOf()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Status().NotOneOf()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Status().NotOneOf()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Status().GreaterThan()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Status().GreaterThan()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Status().LessThan()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Status().LessThan()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Status().GreaterOrEqualThan()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Status().GreaterOrEqualThan()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Status().LessOrEqualThan()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Status().LessOrEqualThan()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Status().Between()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Status().Between()),
+			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
+		)
+	})
+
+	t.Run("Clear().Expect(value).Status().NotBetween()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Expect("Data").Status().NotBetween()),
 			PtrStr("only usable with Clear().Expect() not with Clear().Expect(value)"),
 		)
 	})
