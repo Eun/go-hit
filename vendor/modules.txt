@@ -4,23 +4,23 @@ github.com/Eun/go-convert
 github.com/Eun/go-doppelgangerreader
 # github.com/araddon/dateparse v0.0.0-20190622164848-0fb0a474d195
 github.com/araddon/dateparse
-# github.com/davecgh/go-spew v1.1.1
+# github.com/davecgh/go-spew v1.1.0
 github.com/davecgh/go-spew/spew
-# github.com/google/go-cmp v0.3.1
+# github.com/google/go-cmp v0.4.0
 github.com/google/go-cmp/cmp
 github.com/google/go-cmp/cmp/internal/diff
 github.com/google/go-cmp/cmp/internal/flags
 github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
-# github.com/gookit/color v1.2.0
+# github.com/gookit/color v1.2.3
 github.com/gookit/color
 # github.com/k0kubun/pp v3.0.1+incompatible
 github.com/k0kubun/pp
 # github.com/lunixbochs/vtclean v1.0.0
 github.com/lunixbochs/vtclean
-# github.com/mattn/go-colorable v0.1.4
+# github.com/mattn/go-colorable v0.1.6
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.8
+# github.com/mattn/go-isatty v0.0.12
 github.com/mattn/go-isatty
 # github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 github.com/mohae/deepcopy
@@ -29,12 +29,12 @@ github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.5.1
 github.com/stretchr/testify/require
 github.com/stretchr/testify/assert
-# github.com/tidwall/pretty v1.0.0
+# github.com/tidwall/pretty v1.0.1
 github.com/tidwall/pretty
-# golang.org/x/sys v0.0.0-20190412213103-97732733099d
+# golang.org/x/sys v0.0.0-20200223170610-d5e6a3e2c0ae
 golang.org/x/sys/unix
 # golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 golang.org/x/xerrors
 golang.org/x/xerrors/internal
-# gopkg.in/yaml.v2 v2.2.8
+# gopkg.in/yaml.v2 v2.2.2
 gopkg.in/yaml.v2
