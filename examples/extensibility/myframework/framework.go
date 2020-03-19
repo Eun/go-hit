@@ -28,9 +28,17 @@ func CheckTheSparkles() hit.IStep {
 }
 
 // Send sends the specified data as the body payload
+//
 // Examples:
-//           Send("Hello World")
-//           Send().Body("Hello World")
+//     MustDo(
+//         Post("https://example.com"),
+//         Send("Hello World"),
+//     )
+//
+//     MustDo(
+//         Post("https://example.com"),
+//         Send().Body("Hello World")
+//     )
 func Send(data ...interface{}) MySend {
 	return MySend{
 		ISend: hit.Send(data...),
@@ -44,18 +52,28 @@ type MySend struct {
 // User sets the body to the user
 func (snd MySend) User(user User) hit.IStep {
 	return hit.Custom(hit.SendStep, func(hit hit.Hit) {
-		hit.Send().Headers().Set("Content-Type", "application/json")
-		hit.Send().Body().JSON(user)
+		hit.MustDo(
+			Send().Header("Content-Type", "application/json"),
+			Send().Body().JSON(user),
+		)
 		// or hit.Request()
 		// hit.Request().Header.Set("Content-Type", "application/json")
 		// hit.Request().Body().JSON().Set(user)
 	})
 }
 
-// Expects expects the body to be equal the specified value, omit the parameter to get more options
+// Expect expects the body to be equal the specified value, omit the parameter to get more options
+//
 // Examples:
-//           Expect("Hello World")
-//           Expect().Body().Contains("Hello World")
+//     MustDo(
+//         Get("https://example.com"),
+//         Expect().Body().Contains("Hello World")
+//     )
+//
+//     MustDo(
+//         Get("https://example.com"),
+//         Expect("Hello World"),
+//     )
 func Expect(data ...interface{}) MyExpect {
 	return MyExpect{
 		IExpect: hit.Expect(data...),
@@ -71,8 +89,10 @@ func (exp MyExpect) User(user User) hit.IStep {
 	// We have to return our Framework to make sure we can use our custom functions later on
 	return hit.Custom(hit.ExpectStep, func(hit hit.Hit) {
 		// use hit.IExpect
-		hit.Expect().Header("Content-Type").Equal("application/json")
-		hit.Expect().Body().JSON().Equal("", user)
+		hit.MustDo(
+			Expect().Header("Content-Type").Equal("application/json"),
+			Expect().Body().JSON().Equal("", user),
+		)
 
 		// or hit.Response()
 		// if hit.Response().Header.Get("Content-Type") != "application/json" {
@@ -87,110 +107,233 @@ func (exp MyExpect) User(user User) hit.IStep {
 // Implement the rest for convenience reasons
 // you can copy the contents from the template_framework.go file
 
-// Custom calls a custom Step on the specified execution time
-func Custom(when hit.StepTime, exec hit.Callback) hit.IStep {
-	return hit.Custom(when, exec)
-}
+//
+// // Send sends the specified data as the body payload
+// //
+// // Examples:
+// //     MustDo(
+// //         Post("https://example.com"),
+// //         Send("Hello World"),
+// //     )
+// //
+// //     MustDo(
+// //         Post("https://example.com"),
+// //         Send().Body("Hello World")
+// //     )
+// func Send(data ...interface{}) hit.ISend {
+// 	return hit.Send(data...)
+// }
+
+// // Expect expects the body to be equal the specified value, omit the parameter to get more options
+// //
+// // Examples:
+// //     MustDo(
+// //         Get("https://example.com"),
+// //         Expect().Body().Contains("Hello World")
+// //     )
+// //
+// //     MustDo(
+// //         Get("https://example.com"),
+// //         Expect("Hello World"),
+// //     )
+// func Expect(data ...interface{}) hit.IExpect {
+// 	return hit.Expect(data...)
+// }
 
 // Debug prints the current Request and Response to hit.Stdout(), you can filter the output based on expressions
+//
 // Examples:
-//           Debug()
-//           Debug("Request")
+//     MustDo(
+//         Get("https://example.com"),
+//         Debug(),
+//     )
+//
+//     MustDo(
+//         Get("https://example.com"),
+//         Debug("Response.Headers"),
+//     )
 func Debug(expression ...string) hit.IStep {
 	return hit.Debug(expression...)
 }
 
 // HTTPClient sets the client for the request
+//
+// Example:
+//     var client http.Client
+//     MustDo(
+//         Get("https://example.com"),
+//         HTTPClient(&client),
+//     )
 func HTTPClient(client *http.Client) hit.IStep {
 	return hit.HTTPClient(client)
 }
 
 // Stdout sets the output to the specified writer
+//
+// Example:
+//     MustDo(
+//         Get("https://example.com"),
+//         Stdout(os.Stderr),
+//         Debug(),
+//     )
 func Stdout(w io.Writer) hit.IStep {
 	return hit.Stdout(w)
 }
 
-// BaseURL sets the base url for each Connect, Delete, Get, Head, Post, Options, Put, Trace, SetMethod method
+// BaseURL sets the base url for each Connect, Delete, Get, Head, Post, Options, Put, Trace or Method
+//
 // Examples:
-//           BaseURL("http://example.com")
-//           BaseURL("http://%s/%s", domain, path)
+//     MustDo(
+//         BaseURL("https://example.com")
+//     )
+//
+//     MustDo(
+//         BaseURL("https://%s/%s", "example.com", "index.html")
+//     )
 func BaseURL(url string, a ...interface{}) hit.IStep {
 	return hit.BaseURL(url, a...)
 }
 
 // Request creates a new Hit instance with an existing http request
+//
+// Example:
+//     request, _ := http.NewRequest(http.MethodGet, "https://example.com", nil)
+//     MustDo(
+//         Request(request),
+//     )
 func Request(request *http.Request) hit.IStep {
 	return hit.Request(request)
 }
 
 // Method creates a new Hit instance with the specified method and url
+//
 // Examples:
-//           Method("POST", "http://example.com")
-//           Method("POST", "http://%s/%s", domain, path)
+//     MustDo(
+//         Method(http.MethodGet, "https://example.com"),
+//     )
+//
+//     MustDo(
+//         Method(http.MethodGet, "https://%s/%s", "example.com", "index.html"),
+//     )
 func Method(method, url string, a ...interface{}) hit.IStep {
 	return hit.Method(method, url, a...)
 }
 
-// Connect creates a new Hit instance with CONNECT as the http method, use the optional arguments to format the url
+// Connect creates a new Hit instance with CONNECT as the http makeMethodStep, use the optional arguments to format the url
+//
 // Examples:
-//           Connect("http://example.com")
-//           Connect("http://%s/%s", domain, path)
+//     MustDo(
+//         Connect("https://example.com"),
+//     )
+//
+//     MustDo(
+//         Connect("https://%s/%s", "example.com", "index.html"),
+//     )
 func Connect(url string, a ...interface{}) hit.IStep {
 	return hit.Connect(url, a...)
 }
 
-// Delete creates a new Hit instance with DELETE as the http method, use the optional arguments to format the url
+// Delete creates a new Hit instance with DELETE as the http makeMethodStep, use the optional arguments to format the url
+//
 // Examples:
-//           Delete("http://example.com")
-//           Delete("http://%s/%s", domain, path)
+//     MustDo(
+//         Delete("https://example.com"),
+//     )
+//
+//     MustDo(
+//         Delete("https://%s/%s", "example.com", "index.html"),
+//     )
+//
 func Delete(url string, a ...interface{}) hit.IStep {
 	return hit.Delete(url, a...)
 }
 
-// Get creates a new Hit instance with GET as the http method, use the optional arguments to format the url
+// Get creates a new Hit instance with GET as the http makeMethodStep, use the optional arguments to format the url
+//
 // Examples:
-//           Get("http://example.com")
-//           Get("http://%s/%s", domain, path)
+//     MustDo(
+//         Get("https://example.com"),
+//     )
+//
+//     MustDo(
+//         Get("https://%s/%s", "example.com", "index.html"),
+//     )
+//
 func Get(url string, a ...interface{}) hit.IStep {
 	return hit.Get(url, a...)
 }
 
-// Head creates a new Hit instance with HEAD as the http method, use the optional arguments to format the url
+// Head creates a new Hit instance with HEAD as the http makeMethodStep, use the optional arguments to format the url
+//
 // Examples:
-//           Head("http://example.com")
-//           Head("http://%s/%s", domain, path)
+//     MustDo(
+//         Head("https://example.com"),
+//     )
+//
+//     MustDo(
+//         Head("https://%s/%s", "example.com", "index.html"),
+//     )
+//
 func Head(url string, a ...interface{}) hit.IStep {
 	return hit.Head(url, a...)
 }
 
-// Post creates a new Hit instance with POST as the http method, use the optional arguments to format the url
+// Post creates a new Hit instance with POST as the http makeMethodStep, use the optional arguments to format the url
+//
 // Examples:
-//           Post("http://example.com")
-//           Post("http://%s/%s", domain, path)
+//     MustDo(
+//         Post("https://example.com"),
+//     )
+//
+//     MustDo(
+//         Post("https://%s/%s", "example.com", "index.html"),
+//     )
+//
 func Post(url string, a ...interface{}) hit.IStep {
 	return hit.Post(url, a...)
 }
 
-// Options creates a new Hit instance with OPTIONS as the http method, use the optional arguments to format the url
+// Options creates a new Hit instance with OPTIONS as the http makeMethodStep, use the optional arguments to format the url
+//
 // Examples:
-//           Options("http://example.com")
-//           Options("http://%s/%s", domain, path)
+//     MustDo(
+//         Options("https://example.com"),
+//     )
+//
+//     MustDo(
+//         Options("https://%s/%s", "example.com", "index.html"),
+//     )
+//
 func Options(url string, a ...interface{}) hit.IStep {
 	return hit.Options(url, a...)
 }
 
-// Put creates a new Hit instance with PUT as the http method, use the optional arguments to format the url
+// Put creates a new Hit instance with PUT as the http makeMethodStep, use the optional arguments to format the url
+//
 // Examples:
-//           Put("http://example.com")
-//           Put("http://%s/%s", domain, path)
+//     MustDo(
+//         Put("https://example.com"),
+//     )
+//
+//     MustDo(
+//         Put("https://%s/%s", "example.com", "index.html"),
+//     )
+//
 func Put(url string, a ...interface{}) hit.IStep {
 	return hit.Put(url, a...)
 }
 
-// Trace creates a new Hit instance with TRACE as the http method, use the optional arguments to format the url
+// Trace creates a new Hit instance with TRACE as the http makeMethodStep, use the optional arguments to format the url
+//
 // Examples:
-//           Trace("http://example.com")
-//           Trace("http://%s/%s", domain, path)
+//     MustDo(
+//         Trace("https://example.com"),
+//     )
+//
+//     MustDo(
+//         Trace("https://%s/%s", "example.com", "index.html"),
+//     )
+//
 func Trace(url string, a ...interface{}) hit.IStep {
 	return hit.Trace(url, a...)
 }
@@ -205,13 +348,69 @@ func Do(steps ...hit.IStep) error {
 	return hit.Do(steps...)
 }
 
+// MustDo runs the specified steps and panics with the error if something was wrong
+func MustDo(steps ...hit.IStep) {
+	hit.MustDo(steps...)
+}
+
 // CombineSteps combines multiple steps to one
+//
+// Example:
+//     MustDo(
+//         Get("https://example.com"),
+//         CombineSteps(
+//            Expect().Status(http.StatusOK),
+//            Expect().Body("Hello World"),
+//         ),
+//     )
 func CombineSteps(steps ...hit.IStep) hit.IStep {
 	return hit.CombineSteps(steps...)
 }
 
 // Description sets a custom description for this test.
 // The description will be printed in an error case
+//
+// Example:
+//     MustDo(
+//         Description("Check if example.com is available"),
+//         Get("https://example.com"),
+//     )
 func Description(description string) hit.IStep {
 	return hit.Description(description)
+}
+
+// Clear can be used to remove previous steps.
+//
+// Usage:
+//     Clear().Send("Hello World")          // will remove all Send("Hello World") steps
+//     Clear().Send().Body("Hello World")   // will remove all Send().Body("Hello World") steps
+//     Clear().Expect().Body()              // will remove all Expect().Body() steps and all chained steps to Body() e.g. Expect().Body().Equal("Hello World")
+//     Clear().Expect().Body("Hello World") // will remove all Expect().Body("Hello World") steps
+//
+// Example:
+//     MustDo(
+//         Post("https://example.com"),
+//         Expect().Status(http.StatusOK),
+//         Expect().Body().Contains("Welcome to example.com"),
+//         Clear().Expect(),
+//         Expect().Status(http.NotFound),
+//         Expect().Body().Contains("Not found!"),
+//     )
+func Clear() hit.IClear {
+	return hit.Clear()
+}
+
+// Custom can be used to run custom logic during various steps.
+//
+// Example:
+//     MustDo(
+//         Post("https://example.com"),
+//         Custom(ExpectStep, func(hit Hit) {
+//             if hit.Response().Body().String() != "Hello Earth" {
+//                 panic("Expected Hello Earth")
+//             }
+//         }),
+//     )
+func Custom(when hit.StepTime, exec hit.Callback) hit.IStep {
+	return hit.Custom(when, exec)
 }

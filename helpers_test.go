@@ -18,7 +18,9 @@ import (
 func EchoServer() *httptest.Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		writer.Header().Set("Content-Type", request.Header.Get("Content-Type"))
+		for k, v := range request.Header {
+			writer.Header()[k] = v
+		}
 		_, _ = io.Copy(writer, request.Body)
 	})
 	return httptest.NewServer(mux)
@@ -35,12 +37,13 @@ func PrintJSONServer(jsn interface{}) *httptest.Server {
 }
 
 var errorRegex = regexp.MustCompile(`(?s)Error:\s*(.*)Error Trace:\s*`)
+var whiteSpaceRegex = regexp.MustCompile(`\s+`)
 
 func ExpectError(t *testing.T, err error, equalLines ...*string) {
 	require.NotNil(t, err)
 	matches := errorRegex.FindStringSubmatch(vtclean.Clean(err.Error(), false))
 
-	require.Len(t, matches, 2)
+	require.Len(t, matches, 2, "Invalid format, Error:\n%s", err.Error())
 
 	lines := strings.FieldsFunc(matches[1], func(r rune) bool {
 		return r == '\n'
@@ -50,7 +53,9 @@ func ExpectError(t *testing.T, err error, equalLines ...*string) {
 
 	for i := 0; i < len(lines); i++ {
 		if equalLines[i] != nil {
-			require.Equal(t, *equalLines[i], strings.TrimSpace(lines[i]))
+			require.Equal(t,
+				strings.TrimSpace(whiteSpaceRegex.ReplaceAllString(*equalLines[i], " ")),
+				strings.TrimSpace(whiteSpaceRegex.ReplaceAllString(lines[i], " ")))
 		}
 	}
 }

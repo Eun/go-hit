@@ -26,12 +26,12 @@ func panicNow(err string, customMessageAndArgs ...interface{}) {
 	panic(sb.String())
 }
 
-func stringJoin(seperator string, a ...string) string {
-	return strings.Join(a, seperator)
+func stringJoin(separator string, a ...string) string {
+	return strings.Join(a, separator)
 }
 
 func formatMessage(customMessageAndArgs []interface{}) string {
-	if len(customMessageAndArgs) <= 0 {
+	if len(customMessageAndArgs) == 0 {
 		return ""
 	}
 	s, ok := customMessageAndArgs[0].(string)
@@ -46,7 +46,7 @@ func actualExpectedDiff(actual, expected interface{}) string {
 	fmt.Fprintf(&sb, "expected:\t%s\n", PrintValue(expected))
 	fmt.Fprintf(&sb, "actual:  \t%s\n", PrintValue(actual))
 	if diff := cmp.Diff(expected, actual); diff != "" {
-		fmt.Fprintf(&sb, Format("diff:    ", trimLeftSpaces(diff)))
+		fmt.Fprint(&sb, Format("diff:    ", trimLeftSpaces(diff)))
 	}
 	return sb.String()
 }
@@ -76,7 +76,7 @@ func Equal(expected, actual interface{}, customMessageAndArgs ...interface{}) {
 
 func NotEqual(expected, actual interface{}, customMessageAndArgs ...interface{}) {
 	if cmp.Equal(expected, actual) {
-		panicNow(stringJoin("\n", fmt.Sprintf("should not be %#s", PrintValue(actual))), customMessageAndArgs...)
+		panicNow(stringJoin("\n", fmt.Sprintf("should not be %s", PrintValue(actual))), customMessageAndArgs...)
 	}
 }
 

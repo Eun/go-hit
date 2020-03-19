@@ -56,6 +56,7 @@ func TestExpectSpecificHeader_Equal(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		writer.Header().Set("X-Header", "Hello")
+		writer.Header().Set("X-Int", "3")
 	})
 	s := httptest.NewServer(mux)
 	defer s.Close()
@@ -63,6 +64,7 @@ func TestExpectSpecificHeader_Equal(t *testing.T) {
 	Test(t,
 		Post(s.URL),
 		Expect().Header("X-Header").Equal("Hello"),
+		Expect().Header("X-Int").Equal(3),
 	)
 
 	ExpectError(t,
@@ -70,7 +72,15 @@ func TestExpectSpecificHeader_Equal(t *testing.T) {
 			Post(s.URL),
 			Expect().Header("X-Header").Equal("Bye"),
 		),
-		PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+		PtrStr("Not equal"), PtrStr(`expected: "Bye"`), nil, nil, nil, nil, nil,
+	)
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Header("X-Int").Equal(1),
+		),
+		PtrStr("Not equal"), PtrStr("expected: 1"), nil, nil, nil, nil, nil,
 	)
 }
 
@@ -78,6 +88,7 @@ func TestExpectSpecificHeader_NotEqual(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		writer.Header().Set("X-Header", "Hello")
+		writer.Header().Set("X-Int", "3")
 	})
 	s := httptest.NewServer(mux)
 	defer s.Close()
@@ -85,6 +96,7 @@ func TestExpectSpecificHeader_NotEqual(t *testing.T) {
 	Test(t,
 		Post(s.URL),
 		Expect().Header("X-Header").NotEqual("Bye"),
+		Expect().Header("X-Int").NotEqual(1),
 	)
 
 	ExpectError(t,
@@ -93,6 +105,13 @@ func TestExpectSpecificHeader_NotEqual(t *testing.T) {
 			Expect().Header("X-Header").NotEqual("Hello"),
 		),
 		PtrStr(`should not be "Hello"`),
+	)
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Header("X-Int").NotEqual(3),
+		),
+		PtrStr(`should not be 3`),
 	)
 }
 
@@ -134,9 +153,9 @@ func TestExpectSpecificHeader_NotContains(t *testing.T) {
 	ExpectError(t,
 		Do(
 			Post(s.URL),
-			Expect().Header("X-Header").NotContains("Hello"),
+			Expect().Header("X-Header").NotContains("H"),
 		),
-		PtrStr(`"Hello" should not contain "Hello"`),
+		PtrStr(`"Hello" should not contain "H"`),
 	)
 }
 

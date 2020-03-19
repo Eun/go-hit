@@ -140,29 +140,29 @@ func getStdRecipes() []Recipe {
 		MustMakeRecipe(r.stringToInt64),
 
 		// map
-		Recipe{
+		{
 			From: MapType,
 			To:   MapType,
 			Func: r.mapToMap,
 		},
-		Recipe{
+		{
 			From: StructType,
 			To:   MapType,
 			Func: r.structToMap,
 		},
 
 		// slice
-		Recipe{
+		{
 			From: reflect.TypeOf(""),
 			To:   SliceType,
 			Func: r.stringToSlice,
 		},
-		Recipe{
+		{
 			From: SliceType,
 			To:   SliceType,
 			Func: r.sliceToSlice,
 		},
-		Recipe{
+		{
 			From: NilType,
 			To:   SliceType,
 			Func: r.nilToSlice,
@@ -193,7 +193,7 @@ func getStdRecipes() []Recipe {
 		MustMakeRecipe(r.uint16SliceToString),
 		MustMakeRecipe(r.uint32SliceToString),
 		MustMakeRecipe(r.uint64SliceToString),
-		Recipe{
+		{
 			From: StructType,
 			To:   reflect.TypeOf(&s),
 			Func: r.structToString,
@@ -295,12 +295,12 @@ func getStdRecipes() []Recipe {
 		MustMakeRecipe(r.stringToUint64),
 
 		// struct (last resort)
-		Recipe{
+		{
 			From: MapType,
 			To:   StructType,
 			Func: r.mapToStruct,
 		},
-		Recipe{
+		{
 			From: StructType,
 			To:   StructType,
 			Func: r.structToStruct,

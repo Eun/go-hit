@@ -90,3 +90,35 @@ func TestSendBody_EmptyBody(t *testing.T) {
 		}),
 	)
 }
+
+func TestSendBody_Final(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("Send().Body(value).JSON()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Send().Body("Data").JSON(nil)),
+			PtrStr("only usable with Send().Body() not with Send().Body(value)"),
+		)
+	})
+
+	t.Run("Send().Body(value).Interface()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Send().Body("Data").Interface(nil)),
+			PtrStr("only usable with Send().Body() not with Send().Body(value)"),
+		)
+	})
+}
+
+func TestSendBody_WithoutArgument(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Send().Body(),
+		),
+		PtrStr("unable to run Send().Body() without an argument or without a chain. Please use Send().Body(something) or Send().Body().Something"),
+	)
+}

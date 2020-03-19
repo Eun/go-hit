@@ -9,49 +9,78 @@ import (
 type StepTime uint8
 
 const (
-	BeforeSendStep StepTime = iota + 1
+	CombineStep StepTime = iota + 1
+	CleanStep
+	BeforeSendStep
 	SendStep
 	AfterSendStep
 	BeforeExpectStep
 	ExpectStep
 	AfterExpectStep
-	CleanStep StepTime = 0x80
 )
 
+func (s StepTime) String() string {
+	switch s {
+	case CleanStep:
+		return "CleanStep"
+	case CombineStep:
+		return "CombineStep"
+	case BeforeSendStep:
+		return "BeforeSendStep"
+	case SendStep:
+		return "SendStep"
+	case AfterSendStep:
+		return "AfterSendStep"
+	case BeforeExpectStep:
+		return "BeforeExpectStep"
+	case ExpectStep:
+		return "ExpectStep"
+	case AfterExpectStep:
+		return "AfterExpectStep"
+	}
+	return ""
+}
+
 type IStep interface {
-	exec(Hit) error
 	when() StepTime
+	clearPath() clearPath
+	exec(Hit) error
 }
 
 type hitStep struct {
-	call Callback
-	et   *errortrace.ErrorTrace
-	w    StepTime
+	Trace     *errortrace.ErrorTrace
+	When      StepTime
+	ClearPath clearPath
+	Exec      func(hit Hit) error
 }
 
-func (step hitStep) exec(h Hit) (err error) {
-	if step.call == nil {
+func (step *hitStep) exec(h Hit) (err error) {
+	if step.Exec == nil {
 		return nil
 	}
 	defer func() {
 		r := recover()
 		if r != nil {
-			err = step.et.Format(h.Description(), fmt.Sprint(r))
+			var ok bool
+			err, ok = r.(errortrace.ErrorTraceError)
+			if !ok {
+				err = step.Trace.Format(h.Description(), fmt.Sprint(r))
+			}
 		}
 	}()
-	step.call(h)
+	err = step.Exec(h)
+	if err != nil {
+		if _, ok := err.(errortrace.ErrorTraceError); !ok {
+			err = step.Trace.Format(h.Description(), err.Error())
+		}
+	}
 	return err
 }
 
-func (step hitStep) when() StepTime {
-	return step.w
+func (step *hitStep) when() StepTime {
+	return step.When
 }
 
-// Custom calls a custom Step on the specified execution time
-func Custom(when StepTime, exec Callback) IStep {
-	return hitStep{
-		et:   errortrace.Prepare(),
-		w:    when,
-		call: exec,
-	}
+func (step *hitStep) clearPath() clearPath {
+	return step.ClearPath
 }

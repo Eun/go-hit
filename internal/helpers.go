@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/Eun/go-convert"
+	"github.com/google/go-cmp/cmp"
+	"github.com/mohae/deepcopy"
 )
 
 // GetElem follows all pointers and interfaces until it reaches the base value
@@ -52,13 +54,13 @@ func stringContains(s string, needle interface{}) bool {
 }
 
 func sliceContains(s reflect.Value, needle interface{}) bool {
-	for i := s.Len() - 1; i >= 0; i-- {
+	for i := 0; i < s.Len(); i++ {
 		v := s.Index(i).Interface()
-		needleValue := v
+		needleValue := deepcopy.Copy(v)
 		if err := convert.Convert(needle, &needleValue); err != nil {
 			continue
 		}
-		if v == needleValue {
+		if cmp.Equal(v, needleValue) {
 			return true
 		}
 	}
@@ -68,7 +70,7 @@ func sliceContains(s reflect.Value, needle interface{}) bool {
 func mapContains(m reflect.Value, needle interface{}) bool {
 	for _, key := range m.MapKeys() {
 		v := key.Interface()
-		needleValue := v
+		needleValue := deepcopy.Copy(v)
 		if err := convert.Convert(needle, &needleValue); err != nil {
 			continue
 		}
@@ -80,9 +82,9 @@ func mapContains(m reflect.Value, needle interface{}) bool {
 }
 
 func structContains(st reflect.Value, needle interface{}) bool {
-	for i := st.NumField() - 1; i >= 0; i-- {
+	for i := 0; i < st.NumField(); i++ {
 		v := st.Type().Field(i).Name
-		needleValue := v
+		needleValue := deepcopy.Copy(v)
 		if err := convert.Convert(needle, &needleValue); err != nil {
 			continue
 		}
@@ -91,4 +93,21 @@ func structContains(st reflect.Value, needle interface{}) bool {
 		}
 	}
 	return false
+}
+
+// StringSliceHasPrefixStringSlice returns true if haystack starts with needle
+func StringSliceHasPrefixSlice(haystack, needle []string) bool {
+	haySize := len(haystack)
+	needleSize := len(needle)
+	if needleSize > haySize {
+		return false
+	}
+	haySize = needleSize
+
+	for i := 0; i < haySize; i++ {
+		if haystack[i] != needle[i] {
+			return false
+		}
+	}
+	return true
 }

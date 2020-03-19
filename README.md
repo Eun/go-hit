@@ -109,4 +109,46 @@ Test(t,
     )...,
 )
 ```
-More examples can be found in the `exampels directory`
+More examples can be found in the `examples directory`
+
+### Changelog
+#### 0.4.0
+* Fixed a double run bug in `CombineSteps` (#3)
+* Better `Clear` functionality, you can now clear any previous step by prepending `Clear()`,
+eg. 
+  ```go
+  Do(
+      Get("https://example.com"),
+      Expect().Body("Hello World"),
+      Clear().Expect(),                        // remove all previous Expect() steps
+      // Clear().Expect().Body("Hello World"), // remove only the Expect().Body("Hello World") step
+  )
+  
+  // also works for CombineSteps
+  Do(
+      Post("https://example.com"),        
+      CombineSteps(
+          Send().Body("Hello World"),
+          Expect().Body("Hello World"),
+      ),
+      Clear().Expect(),
+  )
+  ```
+* Simplified `Expect().Header()` use, no more `Expect().Headers()`,
+everything can now be done in the `Expect().Header()` function.
+* More documentation and examples
+* `hit.Do` and `hit.MustDo` for inline steps.
+* Removal of inline steps (use `hit.Do` and `hit.MustDo`)
+  ```go
+  Do(
+      Get("https://example.com"),
+      Expect().Custon(func (hit Hit) {
+          // Expect("Hello World") is invalid now
+          // you must use MustDo() or Do()
+          hit.MustDo(
+              Expect("Hello World"),
+          )
+      }),
+  )
+  ```
+* `hit.InsertSteps` to insert steps during runtime

@@ -11,104 +11,12 @@ import (
 	"io/ioutil"
 	"net/url"
 
-	"encoding/json"
+	"net/http/httptest"
 
 	. "github.com/Eun/go-hit"
-	"github.com/Eun/go-hit/expr"
 	"github.com/lunixbochs/vtclean"
 	"github.com/stretchr/testify/require"
 )
-
-func Test_Debug(t *testing.T) {
-	s := EchoServer()
-	defer s.Close()
-
-	t.Run("no json decode", func(t *testing.T) {
-		buf := bytes.NewBuffer(nil)
-
-		Test(t,
-			Post(s.URL),
-			Stdout(buf),
-			Send("Hello World"),
-			Debug(),
-		)
-
-		var m map[string]interface{}
-		require.NoError(t, json.NewDecoder(vtclean.NewReader(buf, false)).Decode(&m))
-
-		require.NotNil(t, expr.MustGetValue(m, "Request"))
-		require.Equal(t, "Hello World", expr.MustGetValue(m, "Request.Body"))
-		require.NotNil(t, expr.MustGetValue(m, "Response"))
-	})
-
-	t.Run("json decode", func(t *testing.T) {
-		buf := bytes.NewBuffer(nil)
-
-		Test(t,
-			Post(s.URL),
-			Stdout(buf),
-			Send([]int{1, 2, 3}),
-			Debug(),
-		)
-
-		var m map[string]interface{}
-		require.NoError(t, json.NewDecoder(vtclean.NewReader(buf, false)).Decode(&m))
-
-		require.NotNil(t, expr.MustGetValue(m, "Request"))
-		require.Equal(t, []interface{}{1.0, 2.0, 3.0}, expr.MustGetValue(m, "Request.Body"))
-		require.NotNil(t, expr.MustGetValue(m, "Response"))
-	})
-
-	t.Run("debug without body", func(t *testing.T) {
-		buf := bytes.NewBuffer(nil)
-
-		Test(t,
-			Post(s.URL),
-			Stdout(buf),
-			Debug(),
-		)
-
-		var m map[string]interface{}
-		require.NoError(t, json.NewDecoder(vtclean.NewReader(buf, false)).Decode(&m))
-
-		require.NotNil(t, expr.MustGetValue(m, "Request"))
-		require.Nil(t, expr.MustGetValue(m, "Request.Body"))
-		require.NotNil(t, expr.MustGetValue(m, "Response"))
-	})
-
-	t.Run("debug with expression", func(t *testing.T) {
-		buf := bytes.NewBuffer(nil)
-
-		Test(t,
-			Post(s.URL),
-			Stdout(buf),
-			Send("Hello World"),
-			Debug("Request"),
-		)
-
-		var m map[string]interface{}
-		require.NoError(t, json.NewDecoder(vtclean.NewReader(buf, false)).Decode(&m))
-		require.Equal(t, "Hello World", expr.MustGetValue(m, "Body"))
-	})
-
-	t.Run("debug in custom", func(t *testing.T) {
-		buf := bytes.NewBuffer(nil)
-
-		// send garbage so Debugs getBody function cannot parse it as json
-		Test(t,
-			Post(s.URL),
-			Stdout(buf),
-			Send("Hello World"),
-			Custom(AfterSendStep, func(hit Hit) {
-				Debug("Request")
-			}),
-		)
-
-		var m map[string]interface{}
-		require.NoError(t, json.NewDecoder(vtclean.NewReader(buf, false)).Decode(&m))
-		require.Equal(t, "Hello World", expr.MustGetValue(m, "Body"))
-	})
-}
 
 //
 func Test_Stdout(t *testing.T) {
@@ -292,7 +200,7 @@ func TestMultiUse(t *testing.T) {
 		defer s.Close()
 		template := []IStep{
 			Post(s.URL),
-			Send().Header("Content-Type").Set("application/json"),
+			Send().Header("Content-Type", "application/json"),
 			Expect().Header("Content-Type").Equal("application/json"),
 		}
 		Test(t,
@@ -312,22 +220,31 @@ func TestMultiUse(t *testing.T) {
 }
 
 func TestBaseURL(t *testing.T) {
-	s := EchoServer()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/foo/", func(writer http.ResponseWriter, request *http.Request) {
+		writer.WriteHeader(http.StatusNoContent)
+	})
+	s := httptest.NewServer(mux)
 	defer s.Close()
 
 	Test(t,
-		BaseURL(s.URL),
+		BaseURL("%s/foo", s.URL),
 		Get("/"),
-		Expect().Status(http.StatusOK),
+		Expect().Status(http.StatusNoContent),
 	)
 }
 
 func TestFormatURL(t *testing.T) {
-	s := EchoServer()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/foo", func(writer http.ResponseWriter, request *http.Request) {
+		writer.WriteHeader(http.StatusNoContent)
+	})
+	s := httptest.NewServer(mux)
 	defer s.Close()
+
 	Test(t,
-		Get("%s", s.URL),
-		Expect().Status(http.StatusOK),
+		Get("%s/foo", s.URL),
+		Expect().Status(http.StatusNoContent),
 	)
 }
 
@@ -357,11 +274,55 @@ func TestCombineSteps(t *testing.T) {
 				Send("Hello"),
 				Expect("Hello"),
 			),
-			Expect().Clear(),
 			Expect("World"),
 		),
-		PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+		PtrStr("Not equal"), PtrStr(`expected: "World"`), nil, nil, nil, nil, nil,
 	)
+}
+
+func TestCombineSteps_DoubleExecution(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("send", func(t *testing.T) {
+		calls := 0
+		Test(
+			t,
+			Post(s.URL),
+			CombineSteps(
+				Send().Custom(func(hit Hit) {
+					calls++
+				}),
+			),
+		)
+		require.Equal(t, 1, calls)
+	})
+	t.Run("expect", func(t *testing.T) {
+		calls := 0
+		Test(
+			t,
+			Post(s.URL),
+			CombineSteps(
+				Expect().Custom(func(hit Hit) {
+					calls++
+				}),
+			),
+		)
+		require.Equal(t, 1, calls)
+	})
+	t.Run("other", func(t *testing.T) {
+		calls := 0
+		Test(
+			t,
+			Post(s.URL),
+			CombineSteps(
+				Custom(BeforeSendStep, func(hit Hit) {
+					calls++
+				}),
+			),
+		)
+		require.Equal(t, 1, calls)
+	})
 }
 
 func TestDescription(t *testing.T) {
@@ -396,4 +357,162 @@ func TestCustomError(t *testing.T) {
 		),
 		PtrStr("some error"),
 	)
+}
+
+func TestDo(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("Stop Execution", func(t *testing.T) {
+		shouldNotRun := false
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send("Hello World"),
+				Custom(ExpectStep, func(hit Hit) {
+					hit.MustDo(
+						Expect("Hello Universe"),
+					)
+					shouldNotRun = true
+				}),
+			),
+			PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+		)
+		require.False(t, shouldNotRun)
+	})
+
+	t.Run("Expect in Send Step", func(t *testing.T) {
+		shouldNotRun := false
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send("Hello World"),
+				Custom(SendStep, func(hit Hit) {
+					hit.MustDo(
+						Expect("Hello Universe"),
+					)
+					shouldNotRun = true
+				}),
+			),
+			PtrStr("unable to execute `Expect' during SendStep, can only be run during ExpectStep"),
+		)
+		require.False(t, shouldNotRun)
+	})
+}
+
+func TestOutOfContext(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	Test(t,
+		Post(s.URL),
+		Send("World"),
+		Expect("World"),
+		Send().Custom(func(hit Hit) {
+			Send("Hello Universe") // this will never be run, because you need to wrap this with hit.Do()/MustDo()
+		}),
+		Expect().Custom(func(hit Hit) {
+			Expect("Hello Universe") // this will never be run, because you need to wrap this with hit.Do()/MustDo()
+		}),
+	)
+}
+
+func TestAddSteps(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var callOrder []int
+	Test(t,
+		Post(s.URL),
+		Custom(BeforeSendStep, func(hit Hit) {
+			callOrder = append(callOrder, 1)
+			hit.AddSteps(
+				Custom(BeforeSendStep, func(hit Hit) {
+					callOrder = append(callOrder, 2)
+				}),
+			)
+		}),
+		Custom(BeforeSendStep, func(hit Hit) {
+			callOrder = append(callOrder, 3)
+		}),
+	)
+
+	require.Equal(t, []int{1, 3, 2}, callOrder)
+}
+
+func TestInsertSteps(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var callOrder []int
+	Test(t,
+		Post(s.URL),
+		Custom(BeforeSendStep, func(hit Hit) {
+			callOrder = append(callOrder, 1)
+			hit.InsertSteps(
+				Custom(BeforeSendStep, func(hit Hit) {
+					callOrder = append(callOrder, 2)
+				}),
+			)
+		}),
+		Custom(BeforeSendStep, func(hit Hit) {
+			callOrder = append(callOrder, 3)
+		}),
+	)
+
+	require.Equal(t, []int{1, 2, 3}, callOrder)
+}
+
+func TestAddAndRemoveSteps(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var callOrder []int
+	someStep := Custom(BeforeSendStep, func(hit Hit) {})
+	Test(t,
+		Post(s.URL),
+		someStep,
+		Custom(BeforeSendStep, func(hit Hit) {
+			callOrder = append(callOrder, 1)
+			hit.AddSteps(
+				Custom(BeforeSendStep, func(hit Hit) {
+					callOrder = append(callOrder, 2)
+				}),
+			)
+			hit.RemoveSteps(someStep)
+		}),
+		Custom(BeforeSendStep, func(hit Hit) {
+			callOrder = append(callOrder, 3)
+		}),
+	)
+
+	require.Equal(t, []int{1, 3, 2}, callOrder)
+}
+
+func TestMustDo(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	require.Panics(t, func() {
+		MustDo(
+			Post(s.URL),
+			Send("Hello Alice"),
+			Expect("Hello Joe"),
+		)
+	})
+}
+
+func TestMethods(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Set("Method", request.Method)
+		writer.WriteHeader(http.StatusOK)
+	})
+	s := httptest.NewServer(mux)
+	defer s.Close()
+
+	Test(t, Method(http.MethodGet, s.URL), Expect().Header("Method").Equal(http.MethodGet))
+	// Test(t, Connect(s.URL), Expect().Header("Method").Equal(http.MethodConnect))
+	Test(t, Delete(s.URL), Expect().Header("Method").Equal(http.MethodDelete))
+	Test(t, Get(s.URL), Expect().Header("Method").Equal(http.MethodGet))
+	Test(t, Head(s.URL), Expect().Header("Method").Equal(http.MethodHead))
+	Test(t, Post(s.URL), Expect().Header("Method").Equal(http.MethodPost))
+	Test(t, Options(s.URL), Expect().Header("Method").Equal(http.MethodOptions))
+	Test(t, Put(s.URL), Expect().Header("Method").Equal(http.MethodPut))
+	Test(t, Trace(s.URL), Expect().Header("Method").Equal(http.MethodTrace))
 }

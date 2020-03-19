@@ -204,3 +204,91 @@ func TestExpectStatus_NotBetween(t *testing.T) {
 		PtrStr("expected 200 not to be between 100 and 200"),
 	)
 }
+
+func TestExpectStatus_Final(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("Expect().Status(value).Equal()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Status(0).Equal(0)),
+			PtrStr("only usable with Expect().Status() not with Expect().Status(value)"),
+		)
+	})
+
+	t.Run("Expect().Status(value).NotEqual()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Status(0).NotEqual(0)),
+			PtrStr("only usable with Expect().Status() not with Expect().Status(value)"),
+		)
+	})
+
+	t.Run("Expect().Status(value).OneOf()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Status(0).OneOf()),
+			PtrStr("only usable with Expect().Status() not with Expect().Status(value)"),
+		)
+	})
+
+	t.Run("Expect().Status(value).NotOneOf()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Status(0).NotOneOf()),
+			PtrStr("only usable with Expect().Status() not with Expect().Status(value)"),
+		)
+	})
+
+	t.Run("Expect().Status(value).GreaterThan()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Status(0).GreaterThan(0)),
+			PtrStr("only usable with Expect().Status() not with Expect().Status(value)"),
+		)
+	})
+
+	t.Run("Expect().Status(value).LessThan()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Status(0).LessThan(0)),
+			PtrStr("only usable with Expect().Status() not with Expect().Status(value)"),
+		)
+	})
+
+	t.Run("Expect().Status(value).GreaterOrEqualThan()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Status(0).GreaterOrEqualThan(0)),
+			PtrStr("only usable with Expect().Status() not with Expect().Status(value)"),
+		)
+	})
+
+	t.Run("Expect().Status(value).LessOrEqualThan()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Status(0).LessOrEqualThan(0)),
+			PtrStr("only usable with Expect().Status() not with Expect().Status(value)"),
+		)
+	})
+
+	t.Run("Expect().Status(value).Between()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Status(0).Between(0, 0)),
+			PtrStr("only usable with Expect().Status() not with Expect().Status(value)"),
+		)
+	})
+
+	t.Run("Expect().Status(value).NotBetween()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Status(0).NotBetween(0, 0)),
+			PtrStr("only usable with Expect().Status() not with Expect().Status(value)"),
+		)
+	})
+}
+
+func TestExpectStatus_WithoutArgument(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Status(),
+		),
+		PtrStr("unable to run Expect().Status() without an argument or without a chain. Please use Expect().Status(something) or Expect().Status().Something"),
+	)
+}

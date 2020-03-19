@@ -129,3 +129,70 @@ func TestExpectBody_NotContains(t *testing.T) {
 		)
 	})
 }
+
+func TestExpectBody_Final(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("Expect().Body(value).Interface()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Body("Data").Interface(nil)),
+			PtrStr("only usable with Expect().Body() not with Expect().Body(value)"),
+		)
+	})
+
+	t.Run("Expect().Body(value).JSON()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Body("Data").JSON(nil)),
+			PtrStr("only usable with Expect().Body() not with Expect().Body(value)"),
+		)
+	})
+
+	t.Run("Expect().Body(value).JSON().Equal()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Body("Data").JSON().Equal("", "")),
+			PtrStr("only usable with Expect().Body() not with Expect().Body(value)"),
+		)
+	})
+
+	t.Run("Expect().Body(value).Equal()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Body("Data").Equal(nil)),
+			PtrStr("only usable with Expect().Body() not with Expect().Body(value)"),
+		)
+	})
+
+	t.Run("Expect().Body(value).NotEqual()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Body("Data").NotEqual(nil)),
+			PtrStr("only usable with Expect().Body() not with Expect().Body(value)"),
+		)
+	})
+
+	t.Run("Expect().Body(value).Contains()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Body("Data").Contains(nil)),
+			PtrStr("only usable with Expect().Body() not with Expect().Body(value)"),
+		)
+	})
+
+	t.Run("Expect().Body(value).NotContains()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Body("Data").NotContains(nil)),
+			PtrStr("only usable with Expect().Body() not with Expect().Body(value)"),
+		)
+	})
+}
+
+func TestExpectBody_WithoutArgument(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body(),
+		),
+		PtrStr("unable to run Expect().Body() without an argument or without a chain. Please use Expect().Body(something) or Expect().Body().Something"),
+	)
+}

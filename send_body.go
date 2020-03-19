@@ -1,47 +1,151 @@
 package hit
 
+import (
+	"github.com/Eun/go-hit/errortrace"
+	"github.com/Eun/go-hit/internal"
+	"golang.org/x/xerrors"
+)
+
 type ISendBody interface {
 	IStep
-	JSON(data interface{}) IStep
-	Interface(data interface{}) IStep
+	// JSON sets the request body to the specified json value.
+	//
+	// Usage:
+	//     Send().Body().JSON(map[string]interface{}{"Name": "Joe"})
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Send().Body().JSON(map[string]interface{}{"Name": "Joe"}),
+	//     )
+	JSON(value interface{}) IStep
+	// Interface sets the request body to the specified json value.
+	//
+	// Usage:
+	//     Send().Body().Interface("Hello World")
+	//     Send().Body().Interface(map[string]interface{}{"Name": "Joe"})
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Send().Body().Interface("Hello World"),
+	//     )
+	Interface(value interface{}) IStep
 }
 
 type sendBody struct {
-	send ISend
+	cleanPath clearPath
+	trace     *errortrace.ErrorTrace
 }
 
-func newSendBody(send ISend) ISendBody {
-	return &sendBody{send}
+func newSendBody(clearPath clearPath, params []interface{}) ISendBody {
+	snd := &sendBody{
+		cleanPath: clearPath,
+		trace:     ett.Prepare(),
+	}
+
+	if param, ok := internal.GetLastArgument(params); ok {
+		return &finalSendBody{
+			&hitStep{
+				Trace:     snd.trace,
+				When:      SendStep,
+				ClearPath: clearPath,
+				Exec:      snd.Interface(param).exec,
+			},
+			"only usable with Send().Body() not with Send().Body(value)",
+		}
+	}
+
+	return snd
 }
 
-func (body *sendBody) when() StepTime {
-	return body.send.when()
+func (*sendBody) when() StepTime {
+	return SendStep
 }
 
 func (body *sendBody) exec(hit Hit) error {
-	return body.send.exec(hit)
+	return body.trace.Format(hit.Description(), "unable to run Send().Body() without an argument or without a chain. Please use Send().Body(something) or Send().Body().Something")
 }
 
-func (body *sendBody) JSON(data interface{}) IStep {
-	return body.send.Custom(func(hit Hit) {
-		hit.Request().Body().JSON().Set(data)
-	})
+func (body *sendBody) clearPath() clearPath {
+	return body.cleanPath
 }
 
-func (body *sendBody) Interface(data interface{}) IStep {
-	return body.send.Custom(func(hit Hit) {
-		hit.Request().Body().Set(data)
-	})
+func (body *sendBody) JSON(value interface{}) IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      SendStep,
+		ClearPath: body.clearPath().Push("JSON", []interface{}{value}),
+		Exec: func(hit Hit) error {
+			hit.Request().Body().JSON().Set(value)
+			return nil
+		},
+	}
+}
+
+func (body *sendBody) Interface(value interface{}) IStep {
+	switch x := value.(type) {
+	case func(e Hit):
+		return &hitStep{
+			Trace:     ett.Prepare(),
+			When:      SendStep,
+			ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
+			Exec: func(hit Hit) error {
+				x(hit)
+				return nil
+			},
+		}
+	case func(e Hit) error:
+		return &hitStep{
+			Trace:     ett.Prepare(),
+			When:      SendStep,
+			ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
+			Exec:      x,
+		}
+	default:
+		if f := internal.GetGenericFunc(value); f.IsValid() {
+			return &hitStep{
+				Trace:     ett.Prepare(),
+				When:      SendStep,
+				ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
+				Exec: func(hit Hit) error {
+					internal.CallGenericFunc(f)
+					return nil
+				},
+			}
+		}
+		return &hitStep{
+			Trace:     ett.Prepare(),
+			When:      SendStep,
+			ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
+			Exec: func(hit Hit) error {
+				hit.Request().Body().Set(value)
+				return nil
+			},
+		}
+	}
 }
 
 type finalSendBody struct {
 	IStep
+	message string
 }
 
-func (d finalSendBody) JSON(data interface{}) IStep {
-	panic("only usable with Send().Body() not with Send().Body(value)")
+func (body *finalSendBody) fail() IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New(body.message)
+		},
+	}
 }
 
-func (d finalSendBody) Interface(data interface{}) IStep {
-	panic("only usable with Send().Body() not with Send().Body(value)")
+func (body *finalSendBody) JSON(interface{}) IStep {
+	return body.fail()
+}
+
+func (body *finalSendBody) Interface(interface{}) IStep {
+	return body.fail()
 }

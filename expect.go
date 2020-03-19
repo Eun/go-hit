@@ -1,200 +1,211 @@
 package hit
 
 import (
-	"fmt"
-
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
 	"github.com/mohae/deepcopy"
+	"golang.org/x/xerrors"
 )
 
+// IExpect provides assertions on the http response
 type IExpect interface {
 	IStep
-	// Body expects the body to be equal the specified value, omit the parameter to get more options
-	// Examples:
-	//           Expect().Body("Hello World")
-	//           Expect().Body().Contains("Hello World")
-	Body(data ...interface{}) IExpectBody
-
-	// Interface expects the specified interface
-	Interface(interface{}) IStep
-
-	// Custom can be used to expect a custom behaviour
+	// Body expects the body to be equal the specified value
+	//
+	// If you omit the argument you can fine tune the assertions.
+	//
+	// Usage:
+	//     Expect().Body("Hello World")
+	//     Expect().Body().Contains("Hello World")
+	//
 	// Example:
-	//           Expect().Custom(func(hit Hit) {
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Body().Contains("Hello World"),
+	//     )
+	Body(value ...interface{}) IExpectBody
+
+	// Interface expects the body to be equal the specified interface.
+	//
+	// Usage:
+	//     Expect().Interface("Hello World")
+	//     Expect().Interface(map[string]interface{}{"Name": "Joe"})
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Interface("Hello World"),
+	//     )
+	Interface(value interface{}) IStep
+
+	// Header provides assertions to one specific response header.
+	//
+	// If you omit the argument you can fine tune the assertions.
+	//
+	// Usage:
+	//     Expect().Header().Contains("Content-Type")
+	//     Expect().Header("Content-Type").Equal("application/json")
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Header().Contains("Content-Type"),
+	//         Expect().Header("Content-Type").Equal("application/json"),
+	//     )
+	Header(headerName ...string) IExpectHeader
+
+	// Status expects the status to be the specified code.
+	//
+	// If you omit the argument you can fine tune the assertions.
+	//
+	// Usage:
+	//     Expect().Status(200)
+	//     Expect().Status().Equal(200)
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Status().OneOf(http.StatusOk, http.StatusNoContent),
+	//     )
+	Status(code ...int) IExpectStatus
+
+	// Custom can be used to expect a custom behaviour.
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Custom(func(hit Hit) {
 	//               if hit.Response().StatusCode != 200 {
 	//                   panic("Expected 200")
 	//               }
-	//           })
-	Custom(f Callback) IStep
-
-	// Headers gets all headers
-	// Examples:
-	//           Expect().Headers().Contains("Content-Type")
-	//           Expect().Headers().Get("Content-Type").Contains("json")
-	Headers() IExpectHeaders
-
-	// Header gets the specified header
-	// Example:
-	//           Expect().Headers("Content-Type").Equal("application/json")
-	Header(name string) IExpectSpecificHeader
-
-	// Status expects the status to be the specified code, omit the code to get more options
-	// Examples:
-	//           Expect().Status(200)
-	//           Expect().Status().Equal(200)
-	Status(code ...int) IExpectStatus
-
-	// Clear removes all previous expect steps
-	// Example:
-	//           Do(
-	//               Expect().Status(200),  // Will be ignored
-	//               Expect().Clear(),
-	//               Expect().Status(404),
-	//           )
-	Clear() IStep
+	//         }),
+	//     )
+	Custom(fn Callback) IStep
 }
 
 type expect struct {
-	executeNowContext Hit
-	et                *errortrace.ErrorTrace
-	call              Callback
+	cleanPath clearPath
+	trace     *errortrace.ErrorTrace
 }
 
-func newExpect(executeNowContext Hit) IExpect {
-	return &expect{
-		executeNowContext: executeNowContext,
+func newExpect(cleanPath clearPath, params []interface{}) IExpect {
+	exp := &expect{
+		cleanPath: cleanPath,
+		trace:     ett.Prepare(),
 	}
-}
 
-func (exp *expect) when() StepTime {
-	return ExpectStep
-}
-
-func (exp *expect) exec(hit Hit) (err error) {
-	if exp.call == nil {
-		return nil
-	}
-	defer func() {
-		r := recover()
-		if r != nil {
-			err = exp.et.Format(hit.Description(), fmt.Sprint(r))
+	if param, ok := internal.GetLastArgument(params); ok {
+		// default action is Interface()
+		return &finalExpect{
+			&hitStep{
+				Trace:     exp.trace,
+				When:      ExpectStep,
+				ClearPath: cleanPath,
+				Exec:      exp.Interface(param).exec,
+			},
+			"only usable with Expect() not with Expect(value)",
 		}
-	}()
-	exp.call(hit)
-	return err
-}
-
-// Body expects the body to be equal the specified value, omit the parameter to get more options
-// Examples:
-//           Expect().Body("Hello World")
-//           Expect().Body().Contains("Hello World")
-func (exp *expect) Body(data ...interface{}) IExpectBody {
-	if arg, ok := getLastArgument(data); ok {
-		return finalExpectBody{newExpectBody(exp).Equal(arg)}
 	}
-	return newExpectBody(exp)
-}
-
-// Custom can be used to expect a custom behaviour
-// Example:
-//           Expect().Custom(func(hit Hit){
-//               if hit.Response().StatusCode != 200 {
-//                   panic("Expected 200")
-//               }
-//           })
-func (exp *expect) Custom(f Callback) IStep {
-	if exp.executeNowContext != nil {
-		f(exp.executeNowContext)
-		return nil
-	}
-	exp.et = errortrace.Prepare()
-	exp.call = f
 	return exp
 }
 
-// Headers gets all headers
-// Examples:
-//           Expect().Headers().Contains("Content-Type")
-//           Expect().Headers().Get("Content-Type").Contains("json")
-func (exp *expect) Headers() IExpectHeaders {
-	return newExpectHeaders(exp)
+func (exp *expect) exec(hit Hit) error {
+	return exp.trace.Format(hit.Description(), "unable to run Expect() without an argument or without a chain. Please use Expect(something) or Expect().Something")
 }
 
-// Header gets the specified header
-// Example:
-//           Expect().Header("Content-Type").Equal("application/json")
-func (exp *expect) Header(name string) IExpectSpecificHeader {
-	return newExpectSpecificHeader(exp, name)
+func (*expect) when() StepTime {
+	return ExpectStep
 }
 
-// Status expects the status to be the specified code, omit the code to get more options
-// Examples:
-//           Expect().Status(200)
-//           Expect().Status().Equal(200)
-func (exp *expect) Status(code ...int) IExpectStatus {
-	if size := len(code); size > 0 {
-		return finalExpectStatus{newExpectStatus(exp).Equal(code[size-1])}
+func (exp *expect) clearPath() clearPath {
+	return exp.cleanPath
+}
+
+func (exp *expect) Body(value ...interface{}) IExpectBody {
+	return newExpectBody(exp, exp.clearPath().Push("Body", value), value)
+}
+
+func (exp *expect) Custom(fn Callback) IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      ExpectStep,
+		ClearPath: exp.clearPath().Push("Custom", []interface{}{fn}),
+		Exec: func(hit Hit) error {
+			fn(hit)
+			return nil
+		},
 	}
-	return newExpectStatus(exp)
 }
 
-// Clear removes all previous expect steps
-// Example:
-//           Do(
-//               Expect().Status(200),  // Will be ignored
-//               Expect().Clear(),
-//               Expect().Status(404),
-//           )
-func (exp *expect) Clear() IStep {
-	return Custom(ExpectStep|CleanStep, func(hit Hit) {})
+func (exp *expect) Header(headerName ...string) IExpectHeader {
+	args := make([]interface{}, len(headerName))
+	for i := range headerName {
+		args[i] = headerName[i]
+	}
+
+	return newExpectHeader(exp, exp.clearPath().Push("Header", args), headerName...)
 }
 
-// Interface expects the specified interface
-func (exp *expect) Interface(data interface{}) IStep {
-	switch x := data.(type) {
-	case func(e Hit):
-		return exp.Custom(x)
-	default:
-		if f := internal.GetGenericFunc(data); f.IsValid() {
-			return exp.Custom(func(hit Hit) {
-				internal.CallGenericFunc(f)
-			})
-		}
-		return exp.Body(data)
+func (exp *expect) Status(code ...int) IExpectStatus {
+	args := make([]interface{}, len(code))
+	for i := range code {
+		args[i] = code[i]
+	}
+	return newExpectStatus(exp, exp.clearPath().Push("Status", args), code)
+}
+
+func (exp *expect) Interface(value interface{}) IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      ExpectStep,
+		ClearPath: exp.clearPath().Push("Interface", []interface{}{value}),
+		Exec:      exp.Body(value).exec,
 	}
 }
 
 type finalExpect struct {
 	IStep
+	message string
 }
 
-func (f finalExpect) Body(data ...interface{}) IExpectBody {
-	panic("only usable with Expect() not with Expect(value)")
+func (exp *finalExpect) fail() IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      CleanStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			return xerrors.New(exp.message)
+		},
+	}
 }
 
-func (f finalExpect) Interface(interface{}) IStep {
-	panic("only usable with Expect() not with Expect(value)")
+func (exp *finalExpect) Body(...interface{}) IExpectBody {
+	return &finalExpectBody{
+		exp.fail(),
+		exp.message,
+	}
 }
 
-func (f finalExpect) Custom(Callback) IStep {
-	panic("only usable with Expect() not with Expect(value)")
+func (exp *finalExpect) Interface(interface{}) IStep {
+	return exp.fail()
 }
 
-func (f finalExpect) Headers() IExpectHeaders {
-	panic("only usable with Expect() not with Expect(value)")
+func (exp *finalExpect) Custom(Callback) IStep {
+	return exp.fail()
 }
 
-func (f finalExpect) Header(name string) IExpectSpecificHeader {
-	panic("only usable with Expect() not with Expect(value)")
+func (exp *finalExpect) Header(...string) IExpectHeader {
+	return &finalExpectHeader{
+		exp.fail(),
+		exp.message,
+	}
 }
 
-func (f finalExpect) Status(code ...int) IExpectStatus {
-	panic("only usable with Expect() not with Expect(value)")
-}
-
-func (f finalExpect) Clear() IStep {
-	panic("only usable with Expect() not with Expect(value)")
+func (exp *finalExpect) Status(...int) IExpectStatus {
+	return &finalExpectStatus{
+		exp.fail(),
+		exp.message,
+	}
 }
 
 func makeCompareable(in, data interface{}) (interface{}, error) {

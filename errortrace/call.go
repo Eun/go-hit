@@ -13,9 +13,10 @@ type Call struct {
 	Line         int
 	PC           uintptr
 	Entry        uintptr
+	FullName     string
 }
 
-func (c *Call) FullName() string {
+func (c *Call) setFullName() {
 	var sb strings.Builder
 	if c.PackageName != "" {
 		sb.WriteString(c.PackageName)
@@ -26,7 +27,7 @@ func (c *Call) FullName() string {
 		sb.WriteRune('.')
 	}
 	sb.WriteString(c.FunctionName)
-	return sb.String()
+	c.FullName = sb.String()
 }
 
 func makeCall(frame runtime.Frame) Call {
@@ -61,12 +62,15 @@ func makeCall(frame runtime.Frame) Call {
 	})
 
 	size := len(parts)
+	//nolint:gomnd
 	if size <= 1 {
+		call.setFullName()
 		return call
 	}
 	size--
 
 	call.FunctionPath = strings.Join(parts[:size], ".")
 	call.FunctionName = parts[size]
+	call.setFullName()
 	return call
 }

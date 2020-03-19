@@ -32,7 +32,7 @@ func TestExpectBodyJSON_Equal(t *testing.T) {
 				Post(s.URL),
 				Send().Body(`"Hello Universe"`),
 				Expect().Custom(func(hit Hit) {
-					hit.Expect().Body().JSON("Hello World")
+					hit.MustDo(Expect().Body().JSON("Hello World"))
 				}),
 			),
 			PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
@@ -286,7 +286,7 @@ func TestExpectBodyJSON_NotEqual(t *testing.T) {
 				Post(s.URL),
 				Send().Body(`"Hello World"`),
 				Expect().Custom(func(hit Hit) {
-					hit.Expect().Body().JSON().NotEqual("", "Hello World")
+					hit.MustDo(Expect().Body().JSON().NotEqual("", "Hello World"))
 				}),
 			),
 			PtrStr(`should not be "Hello World"`),
@@ -809,5 +809,51 @@ func TestExpectBodyJSON_GetAs(t *testing.T) {
 			h.Response().Body().JSON().GetAs("Name", &name)
 			require.Equal(t, "Joe", name)
 		}),
+	)
+}
+
+func TestExpectBodyJSON_Final(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("Expect().Body().JSON(value).Equal()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Body().JSON("data").Equal("", "")),
+			PtrStr("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)"),
+		)
+	})
+
+	t.Run("Expect().Body().JSON(value).NotEqual()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Body().JSON("data").NotEqual("", "")),
+			PtrStr("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)"),
+		)
+	})
+
+	t.Run("Expect().Body().JSON(value).Contains()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Body().JSON("data").Contains("", "")),
+			PtrStr("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)"),
+		)
+	})
+
+	t.Run("Expect().Body().JSON(value).NotContains()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect().Body().JSON("data").NotContains("", "")),
+			PtrStr("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)"),
+		)
+	})
+}
+
+func TestExpectBodyJSON_WithoutArgument(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON(),
+		),
+		PtrStr("unable to run Expect().Body().JSON() without an argument or without a chain. Please use Expect().Body().JSON(something) or Expect().Body().JSON().Something"),
 	)
 }
