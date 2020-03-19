@@ -182,13 +182,13 @@ type finalClearExpectBody struct {
 	message string
 }
 
-func (exp *finalClearExpectBody) fail() IStep {
+func (body *finalClearExpectBody) fail() IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
 		When:      CleanStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return xerrors.New(exp.message)
+			return xerrors.New(body.message)
 		},
 	}
 }

@@ -54,7 +54,7 @@ func stringContains(s string, needle interface{}) bool {
 }
 
 func sliceContains(s reflect.Value, needle interface{}) bool {
-	for i := s.Len() - 1; i >= 0; i-- {
+	for i := 0; i < s.Len(); i++ {
 		v := s.Index(i).Interface()
 		needleValue := deepcopy.Copy(v)
 		if err := convert.Convert(needle, &needleValue); err != nil {
@@ -82,7 +82,7 @@ func mapContains(m reflect.Value, needle interface{}) bool {
 }
 
 func structContains(st reflect.Value, needle interface{}) bool {
-	for i := st.NumField() - 1; i >= 0; i-- {
+	for i := 0; i < st.NumField(); i++ {
 		v := st.Type().Field(i).Name
 		needleValue := deepcopy.Copy(v)
 		if err := convert.Convert(needle, &needleValue); err != nil {

@@ -64,9 +64,10 @@ func (clr *clear) Expect(value ...interface{}) IClearExpect {
 
 func removeSteps(hit Hit, path clearPath) error {
 	var stepsToRemove []IStep
-	var availableSteps []IStep
+	steps := hit.Steps()
+	availableSteps := make([]IStep, 0, len(steps))
 
-	for _, step := range hit.Steps() {
+	for _, step := range steps {
 		if step == hit.CurrentStep() {
 			break
 		}

@@ -74,9 +74,7 @@ func newHTTPRequest(hit Hit, req *http.Request) *HTTPRequest {
 	}
 
 	newRequest.TransferEncoding = make([]string, len(req.TransferEncoding))
-	for i, v := range req.TransferEncoding {
-		newRequest.TransferEncoding[i] = v
-	}
+	copy(newRequest.TransferEncoding, req.TransferEncoding)
 
 	var factory doppelgangerreader.DoppelgangerFactory
 	if req.Body != nil {

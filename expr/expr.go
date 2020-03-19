@@ -153,7 +153,7 @@ func getValueFromStructByIndex(m reflect.Value, expr *expression, n int, opts op
 	}
 
 	keys := make([]string, m.NumField())
-	for i := m.NumField() - 1; i >= 0; i-- {
+	for i := 0; i < m.NumField(); i++ {
 		keys[i] = m.Type().Field(i).Name
 	}
 	sort.Slice(keys, func(i, j int) bool {
@@ -163,7 +163,7 @@ func getValueFromStructByIndex(m reflect.Value, expr *expression, n int, opts op
 }
 
 func getValueFromStructByName(m reflect.Value, expr *expression, opts options) (interface{}, bool, error) {
-	for i := m.NumField() - 1; i >= 0; i-- {
+	for i := 0; i < m.NumField(); i++ {
 		fieldType := m.Type().Field(i)
 		if !isKeyEqual(fieldType.Name, expr.Current(), opts) {
 			continue
@@ -189,7 +189,7 @@ func getValueFromSliceByIndex(m reflect.Value, expr *expression, n int, opts opt
 }
 
 func getValueFromSliceByName(m reflect.Value, expr *expression, opts options) (interface{}, bool, error) {
-	for i := m.Len() - 1; i >= 0; i-- {
+	for i := 0; i < m.Len(); i++ {
 		r := internal.GetElem(m.Index(i))
 		if !r.IsValid() {
 			continue

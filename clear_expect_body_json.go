@@ -128,35 +128,19 @@ func (jsn *clearExpectBodyJSON) clearPath() clearPath {
 }
 
 func (jsn *clearExpectBodyJSON) Equal(value ...interface{}) IStep {
-	args := make([]interface{}, len(value))
-	for i := range value {
-		args[i] = value[i]
-	}
-	return removeStep(jsn.clearPath().Push("Equal", args))
+	return removeStep(jsn.clearPath().Push("Equal", value))
 }
 
 func (jsn *clearExpectBodyJSON) NotEqual(value ...interface{}) IStep {
-	args := make([]interface{}, len(value))
-	for i := range value {
-		args[i] = value[i]
-	}
-	return removeStep(jsn.clearPath().Push("NotEqual", args))
+	return removeStep(jsn.clearPath().Push("NotEqual", value))
 }
 
 func (jsn *clearExpectBodyJSON) Contains(value ...interface{}) IStep {
-	args := make([]interface{}, len(value))
-	for i := range value {
-		args[i] = value[i]
-	}
-	return removeStep(jsn.clearPath().Push("Contains", args))
+	return removeStep(jsn.clearPath().Push("Contains", value))
 }
 
 func (jsn *clearExpectBodyJSON) NotContains(value ...interface{}) IStep {
-	args := make([]interface{}, len(value))
-	for i := range value {
-		args[i] = value[i]
-	}
-	return removeStep(jsn.clearPath().Push("NotContains", args))
+	return removeStep(jsn.clearPath().Push("NotContains", value))
 }
 
 type finalClearExpectBodyJSON struct {

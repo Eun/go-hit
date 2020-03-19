@@ -274,7 +274,6 @@ func TestCombineSteps(t *testing.T) {
 				Send("Hello"),
 				Expect("Hello"),
 			),
-			Clear().Expect(),
 			Expect("World"),
 		),
 		PtrStr("Not equal"), PtrStr(`expected: "World"`), nil, nil, nil, nil, nil,

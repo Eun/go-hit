@@ -68,3 +68,21 @@ func TestClearExpect(t *testing.T) {
 		)
 	})
 }
+
+func TestClear_CombineSteps(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			CombineSteps(
+				Post(s.URL),
+				Send("Hello"),
+				Expect("World"),
+			),
+			Clear().Expect(),
+			Expect("Nature"),
+		),
+		PtrStr("Not equal"), PtrStr(`expected: "Nature"`), nil, nil, nil, nil, nil,
+	)
+}

@@ -12,8 +12,10 @@ import (
 	"github.com/Eun/go-hit/internal"
 )
 
+//nolint:gochecknoglobals
 var ett *errortrace.ErrorTraceTemplate
 
+//nolint:gochecknoinits
 func init() {
 	ett = errortrace.New(
 		"testing",

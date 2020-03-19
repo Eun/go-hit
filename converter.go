@@ -10,8 +10,10 @@ import (
 	"golang.org/x/xerrors"
 )
 
+//nolint:gochecknoglobals
 var converter convert.Converter
 
+//nolint:gochecknoinits
 // create a new converter with custom converts
 func init() {
 	converter = convert.New(convert.Options{

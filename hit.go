@@ -180,7 +180,6 @@ nextStep:
 			stepsToRun = newSteps
 			continue nextStep
 		}
-
 	}
 	return nil
 }
@@ -219,6 +218,7 @@ func (hit *defaultInstance) InsertSteps(steps ...IStep) {
 	}
 }
 
+//nolint:gomnd
 func (hit *defaultInstance) RemoveSteps(steps ...IStep) {
 removeStep:
 	for j := len(steps) - 1; j >= 0; j-- {
