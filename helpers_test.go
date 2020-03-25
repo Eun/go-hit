@@ -18,10 +18,21 @@ import (
 func EchoServer() *httptest.Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header()["Date"] = nil
 		for k, v := range request.Header {
 			writer.Header()[k] = v
 		}
+
+		for k := range request.Trailer {
+			writer.Header().Add("Trailer", k)
+		}
+
+		writer.WriteHeader(http.StatusOK)
 		_, _ = io.Copy(writer, request.Body)
+
+		for k, v := range request.Trailer {
+			writer.Header()[k] = v
+		}
 	})
 	return httptest.NewServer(mux)
 }

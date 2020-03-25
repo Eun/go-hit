@@ -56,7 +56,7 @@ func Expect(data ...interface{}) IExpect {
 	return newExpect(newClearPath("Expect", data), data)
 }
 
-// Debug prints the current Request and Response to hit.Stdout(), you can filter the output based on expressions
+// Debug prints the current Request and Response to hit.Stdout(), omit the parameter to get more options
 //
 // Examples:
 //     MustDo(
@@ -66,9 +66,10 @@ func Expect(data ...interface{}) IExpect {
 //
 //     MustDo(
 //         Get("https://example.com"),
-//         Debug("Response.Headers"),
+//         Debug().Request().Header(),
+//         Debug().Response().Header("Content-Type"),
 //     )
-func Debug(expression ...string) IStep {
+func Debug(expression ...string) IDebug {
 	return newDebug(expression)
 }
 

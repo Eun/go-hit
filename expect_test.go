@@ -212,6 +212,62 @@ func TestExpect_Final(t *testing.T) {
 		)
 	})
 
+	t.Run("Expect(value).Trailer().Contains()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Trailer().Contains(nil)),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
+
+	t.Run("Expect(value).Trailer().NotContains()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Trailer().NotContains(nil)),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
+
+	t.Run("Expect(value).Trailer().OneOf()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Trailer().OneOf()),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
+
+	t.Run("Expect(value).Trailer().NotOneOf()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Trailer().NotOneOf()),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
+
+	t.Run("Expect(value).Trailer().Empty()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Trailer().Empty()),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
+
+	t.Run("Expect(value).Trailer().Len()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Trailer().Len(0)),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
+
+	t.Run("Expect(value).Trailer().Equal()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Trailer().Equal(nil)),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
+
+	t.Run("Expect(value).Trailer().NotEqual()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Expect("Data").Trailer().NotEqual(nil)),
+			PtrStr("only usable with Expect() not with Expect(value)"),
+		)
+	})
+
 	t.Run("Expect(value).Status()", func(t *testing.T) {
 		ExpectError(t,
 			Do(Expect("Data").Status()),

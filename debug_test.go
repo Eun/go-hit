@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_Debug(t *testing.T) {
+func TestDebug(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
@@ -84,16 +84,30 @@ func Test_Debug(t *testing.T) {
 		require.Equal(t, "Hello World", expr.MustGetValue(m, "Body"))
 	})
 
+	t.Run("debug request", func(t *testing.T) {
+		buf := bytes.NewBuffer(nil)
+
+		Test(t,
+			Post(s.URL),
+			Stdout(buf),
+			Send("Hello World"),
+			Debug().Request(),
+		)
+
+		var m map[string]interface{}
+		require.NoError(t, json.NewDecoder(vtclean.NewReader(buf, false)).Decode(&m))
+		require.Equal(t, "Hello World", expr.MustGetValue(m, "Body"))
+	})
+
 	t.Run("debug in custom", func(t *testing.T) {
 		buf := bytes.NewBuffer(nil)
 
-		// send garbage so Debugs getBody function cannot parse it as json
 		Test(t,
 			Post(s.URL),
 			Stdout(buf),
 			Send("Hello World"),
 			Custom(BeforeExpectStep, func(hit Hit) {
-				hit.MustDo(Debug("Request"))
+				hit.MustDo(Debug().Request())
 			}),
 		)
 
@@ -102,10 +116,22 @@ func Test_Debug(t *testing.T) {
 		require.Equal(t, "Hello World", expr.MustGetValue(m, "Body"))
 	})
 
+	t.Run("Time", func(t *testing.T) {
+		buf := bytes.NewBuffer(nil)
+
+		Test(t,
+			Post(s.URL),
+			Stdout(buf),
+			Send("Hello World"),
+			Expect("Hello World"),
+			Debug().Time(),
+			Clear().Expect(),
+		)
+	})
+
 	t.Run("Debug with Clear", func(t *testing.T) {
 		buf := bytes.NewBuffer(nil)
 
-		// send garbage so Debugs getBody function cannot parse it as json
 		Test(t,
 			Post(s.URL),
 			Stdout(buf),

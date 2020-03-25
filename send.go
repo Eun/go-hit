@@ -1,6 +1,8 @@
 package hit
 
 import (
+	"net/http"
+
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
 	"golang.org/x/xerrors"
@@ -59,6 +61,18 @@ type ISend interface {
 	//         Send().Header("Content-Type", "application/json"),
 	//     )
 	Header(name string, value interface{}) IStep
+
+	// Trailer sets the specified request trailer to the specified value
+	//
+	// Usage:
+	//     Send().Trailer("Content-Type", "application/json")
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Send().Trailer("Content-Type", "application/json"),
+	//     )
+	Trailer(name string, value interface{}) IStep
 
 	// Custom can be used to send a custom behaviour.
 	//
@@ -152,6 +166,25 @@ func (snd *send) Header(name string, value interface{}) IStep {
 	}
 }
 
+func (snd *send) Trailer(name string, value interface{}) IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      SendStep,
+		ClearPath: snd.clearPath().Push("Trailer", []interface{}{name, value}),
+		Exec: func(hit Hit) error {
+			var s string
+			if err := converter.Convert(value, &s); err != nil {
+				return err
+			}
+			if hit.Request().Trailer == nil {
+				hit.Request().Trailer = make(http.Header)
+			}
+			hit.Request().Trailer.Set(name, s)
+			return nil
+		},
+	}
+}
+
 func (snd *send) Custom(fn Callback) IStep {
 	return &hitStep{
 		Trace:     ett.Prepare(),
@@ -196,6 +229,10 @@ func (snd *finalSend) JSON(interface{}) IStep {
 }
 
 func (snd *finalSend) Header(string, interface{}) IStep {
+	return snd.fail()
+}
+
+func (snd *finalSend) Trailer(string, interface{}) IStep {
 	return snd.fail()
 }
 

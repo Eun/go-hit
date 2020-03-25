@@ -217,3 +217,17 @@ func TestClearSend_Final(t *testing.T) {
 		)
 	})
 }
+
+func TestClearSend_NotExistentStep(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body(),
+		),
+		PtrStr(`unable to find a step with Send().Body()`),
+	)
+
+}

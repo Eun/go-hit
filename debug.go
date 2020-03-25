@@ -2,8 +2,10 @@ package hit
 
 import (
 	"encoding/json"
-	"net/http"
+	"fmt"
 	"time"
+
+	"io"
 
 	"github.com/Eun/go-hit/expr"
 	"github.com/Eun/go-hit/internal"
@@ -11,11 +13,35 @@ import (
 	"github.com/tidwall/pretty"
 )
 
+// IDebug provides a debug functionality for the Request and Response
+type IDebug interface {
+	IStep
+	// Time prints the current Time
+	Time() IStep
+	// Request prints the Request
+	//
+	// Usage:
+	//     Debug().Request()                        // print the whole Request
+	//     Debug().Request().Body()                 // print only the body
+	//     Debug().Request().Header()               // print all headers
+	//     Debug().Request().Header("Content-Type") // print the Content-Type header
+	Request() IDebugRequest
+
+	// Request prints the Response
+	//
+	// Usage:
+	//     Debug().Response()                        // print the whole Response
+	//     Debug().Response().Body()                 // print only the body
+	//     Debug().Response().Header()               // print all headers
+	//     Debug().Response().Header("Content-Type") // print the Content-Type header
+	Response() IDebugResponse
+}
+
 type debug struct {
 	expression []string
 }
 
-func newDebug(expression []string) IStep {
+func newDebug(expression []string) IDebug {
 	return &debug{
 		expression: expression,
 	}
@@ -41,62 +67,25 @@ func (*debug) getBody(body *HTTPBody) interface{} {
 	return s
 }
 
-func (*debug) getHeader(header http.Header) map[string]interface{} {
-	m := make(map[string]interface{})
+func (*debug) getMap(header map[string][]string) map[string]string {
+	m := make(map[string]string)
 	for key := range header {
-		m[key] = header.Get(key)
+		// skip empty fields
+		if s := header[key]; len(s) > 0 && s[0] != "" {
+			m[key] = s[0]
+		}
 	}
 	return m
 }
 
-func (d *debug) exec(hit Hit) error {
-	type M map[string]interface{}
-
-	m := M{
-		"Time": time.Now().String(),
+func (d *debug) printJSONWithExpression(hit Hit, v interface{}, expression []string) error {
+	if e, ok := internal.GetLastStringArgument(expression); ok {
+		v = expr.MustGetValue(v, e, expr.IgnoreError, expr.IgnoreNotFound)
 	}
+	return d.printJSON(hit, v)
+}
 
-	if hit.Request() != nil {
-		m["Request"] = M{
-			"Header":           d.getHeader(hit.Request().Header),
-			"Trailer":          d.getHeader(hit.Request().Trailer),
-			"Method":           hit.Request().Method,
-			"URL":              hit.Request().URL,
-			"Proto":            hit.Request().Proto,
-			"ProtoMajor":       hit.Request().ProtoMajor,
-			"ProtoMinor":       hit.Request().ProtoMinor,
-			"ContentLength":    hit.Request().ContentLength,
-			"TransferEncoding": hit.Request().TransferEncoding,
-			"Host":             hit.Request().Host,
-			"Form":             hit.Request().Form,
-			"PostForm":         hit.Request().PostForm,
-			"MultipartForm":    hit.Request().MultipartForm,
-			"RemoteAddr":       hit.Request().RemoteAddr,
-			"RequestURI":       hit.Request().RequestURI,
-			"Body":             d.getBody(hit.Request().Body()),
-		}
-	}
-
-	if hit.Response() != nil {
-		m["Response"] = M{
-			"Header":           d.getHeader(hit.Response().Header),
-			"Trailer":          d.getHeader(hit.Response().Trailer),
-			"Proto":            hit.Response().Proto,
-			"ProtoMajor":       hit.Response().ProtoMajor,
-			"ProtoMinor":       hit.Response().ProtoMinor,
-			"ContentLength":    hit.Response().ContentLength,
-			"TransferEncoding": hit.Response().TransferEncoding,
-			"Body":             d.getBody(hit.Response().body),
-			"Status":           hit.Response().Status,
-			"StatusCode":       hit.Response().StatusCode,
-		}
-	}
-
-	var v interface{} = m
-	if expression, ok := internal.GetLastStringArgument(d.expression); ok {
-		v = expr.MustGetValue(m, expression, expr.IgnoreError, expr.IgnoreNotFound)
-	}
-
+func (*debug) printJSON(hit Hit, v interface{}) error {
 	bytes, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -109,6 +98,50 @@ func (d *debug) exec(hit Hit) error {
 	return err
 }
 
+func (d *debug) exec(hit Hit) error {
+	type M map[string]interface{}
+
+	m := M{
+		"Time": time.Now().String(),
+	}
+
+	if hit.Request() != nil {
+		m["Request"] = newDebugRequest().data(hit)
+	}
+
+	if hit.Response() != nil {
+		m["Response"] = newDebugResponse().data(hit)
+	}
+
+	var v interface{} = m
+	if e, ok := internal.GetLastStringArgument(d.expression); ok {
+		fmt.Println("Warning: Debug(something) is deprecated, use Debug().Something")
+		v = expr.MustGetValue(m, e, expr.IgnoreError, expr.IgnoreNotFound)
+	}
+
+	return d.printJSON(hit, v)
+}
+
 func (*debug) clearPath() clearPath {
 	return nil // not clearable
+}
+
+func (*debug) Time() IStep {
+	return &hitStep{
+		Trace:     ett.Prepare(),
+		When:      BeforeExpectStep,
+		ClearPath: nil,
+		Exec: func(hit Hit) error {
+			_, err := io.WriteString(hit.Stdout(), time.Now().String())
+			return err
+		},
+	}
+}
+
+func (*debug) Request() IDebugRequest {
+	return newDebugRequest()
+}
+
+func (*debug) Response() IDebugResponse {
+	return newDebugResponse()
 }

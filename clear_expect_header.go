@@ -211,7 +211,7 @@ func (hdr *clearExpectHeader) when() StepTime {
 }
 
 func (hdr *clearExpectHeader) exec(hit Hit) error {
-	// this runs if we called Clear().Expect().Header("...") or Clear().Expect().Headers().Get("...")
+	// this runs if we called Clear().Expect().Header("...")
 	if err := removeSteps(hit, hdr.clearPath()); err != nil {
 		return hdr.trace.Format(hit.Description(), err.Error())
 	}

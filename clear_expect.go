@@ -89,6 +89,25 @@ type IClearExpect interface {
 	//     )
 	Header(headerName ...string) IClearExpectHeader
 
+	// Trailer removes all previous Expect().Trailer() steps and all steps chained to Expect().Trailer()
+	// e.g. Expect().Trailer("Content-Type").Equal("Content-Type").
+	//
+	// If you specify an argument it will only remove the Expect().Trailer() steps matching that argument.
+	//
+	// Usage:
+	//     Clear().Expect().Trailer()                       // will remove all Expect().Trailer() steps and all chained steps to Expect().Trailer() e.g Expect().Trailer("Content-Type").Equal("Content-Type")
+	//     Clear().Expect().Trailer("Content-Type")         // will remove all Expect().Trailer("Content-Type") steps and all chained steps to Expect().Trailer("Content-Type") e.g. Expect().Trailer("Content-Type").Equal("application/json")
+	//     Clear().Expect().Trailer("Content-Type").Equal() // will remove all Expect().Trailer("Content-Type").Equal() steps
+	//
+	// Example:
+	//     MustDo(
+	//         Post("https://example.com"),
+	//         Expect().Trailer("Content-Type").Equal("application/json"),
+	//         Clear().Expect().Trailer(),
+	//         Expect().Trailer("Content-Type").Equal("application/octet-stream"),
+	//     )
+	Trailer(trailerName ...string) IClearExpectTrailer
+
 	// Status removes all previous Expect().Status() steps and all steps chained to Expect().Status()
 	// e.g. Expect().Status().Equal(http.StatusOK).
 	//
@@ -167,6 +186,14 @@ func (exp *clearExpect) Header(headerName ...string) IClearExpectHeader {
 	return newClearExpectHeader(exp.clearPath().Push("Header", args))
 }
 
+func (exp *clearExpect) Trailer(trailerName ...string) IClearExpectTrailer {
+	args := make([]interface{}, len(trailerName))
+	for i := range trailerName {
+		args[i] = trailerName[i]
+	}
+	return newClearExpectTrailer(exp.clearPath().Push("Trailer", args))
+}
+
 func (exp *clearExpect) Status(code ...int) IClearExpectStatus {
 	args := make([]interface{}, len(code))
 	for i := range code {
@@ -208,6 +235,13 @@ func (exp *finalClearExpect) Custom(...Callback) IStep {
 
 func (exp *finalClearExpect) Header(...string) IClearExpectHeader {
 	return &finalClearExpectHeader{
+		exp.fail(),
+		exp.message,
+	}
+}
+
+func (exp *finalClearExpect) Trailer(...string) IClearExpectTrailer {
+	return &finalClearExpectTrailer{
 		exp.fail(),
 		exp.message,
 	}

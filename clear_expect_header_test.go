@@ -14,11 +14,16 @@ func TestClearExpectHeader_Contains(t *testing.T) {
 		ExpectError(t,
 			Do(
 				Post(s.URL),
+				Custom(BeforeExpectStep, func(hit Hit) {
+					hit.Response().Header = map[string][]string{
+						"X-Header1": []string{"Hello"},
+					}
+				}),
 				Expect().Header().Contains("X-Header1"),
 				Clear().Expect().Header().Contains(),
 				Expect().Header().Contains("X-Header2"),
 			),
-			nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, PtrStr(`} does not contain "X-Header2"`),
+			nil, nil, nil, nil, PtrStr(`} does not contain "X-Header2"`),
 		)
 	})
 
@@ -26,11 +31,16 @@ func TestClearExpectHeader_Contains(t *testing.T) {
 		ExpectError(t,
 			Do(
 				Post(s.URL),
+				Custom(BeforeExpectStep, func(hit Hit) {
+					hit.Response().Header = map[string][]string{
+						"X-Header1": []string{"Hello"},
+					}
+				}),
 				Expect().Header().Contains("X-Header1"),
 				Expect().Header().Contains("X-Header2"),
 				Clear().Expect().Header().Contains("X-Header1"),
 			),
-			nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, PtrStr(`} does not contain "X-Header2"`))
+			nil, nil, nil, nil, PtrStr(`} does not contain "X-Header2"`))
 	})
 }
 

@@ -3,10 +3,6 @@ package hit_test
 import (
 	"testing"
 
-	"io"
-	"net/http"
-	"net/http/httptest"
-
 	"bytes"
 
 	"errors"
@@ -224,33 +220,37 @@ func TestSend_JSON(t *testing.T) {
 }
 
 func TestSendHeader(t *testing.T) {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		_, _ = io.WriteString(writer, request.Header.Get("X-Headers"))
-	})
-	s := httptest.NewServer(mux)
+	s := EchoServer()
 	defer s.Close()
 
 	Test(t,
 		Post(s.URL),
-		Send().Header("X-Headers", "World"),
-		Expect().Body().Equal("World"),
+		Send().Header("X-Header", "World"),
+		Expect().Header("X-Header").Equal("World"),
+	)
+}
+
+func TestSendTrailer(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	Test(t,
+		Post(s.URL),
+		Send().Trailer("X-Trailer", "Hello"),
+		Send().Body("Hello"),
+		Expect().Trailer("X-Trailer").Equal("Hello"),
 	)
 }
 
 func TestSendHeader_DoubleSet(t *testing.T) {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		_, _ = io.WriteString(writer, request.Header.Get("X-Headers"))
-	})
-	s := httptest.NewServer(mux)
+	s := EchoServer()
 	defer s.Close()
 
 	Test(t,
 		Post(s.URL),
-		Send().Header("X-Headers", "World"),
-		Send().Header("X-Headers", "Universe"),
-		Expect().Body().Equal("Universe"),
+		Send().Header("X-Header", "World"),
+		Send().Header("X-Header", "Universe"),
+		Expect().Header("X-Header").Equal("Universe"),
 	)
 }
 

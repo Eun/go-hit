@@ -6,7 +6,7 @@ import (
 	. "github.com/Eun/go-hit"
 )
 
-func TestClearSend(t *testing.T) {
+func TestClear_Send(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
@@ -37,7 +37,7 @@ func TestClearSend(t *testing.T) {
 	})
 }
 
-func TestClearExpect(t *testing.T) {
+func TestClear_Expect(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
@@ -85,4 +85,29 @@ func TestClear_CombineSteps(t *testing.T) {
 		),
 		PtrStr("Not equal"), PtrStr(`expected: "Nature"`), nil, nil, nil, nil, nil,
 	)
+}
+
+func TestClear_NotExistentStep(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("Send", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Clear().Send(),
+			),
+			PtrStr(`unable to find a step with Send()`),
+		)
+	})
+
+	t.Run("Expect", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Clear().Expect(),
+			),
+			PtrStr(`unable to find a step with Expect()`),
+		)
+	})
 }

@@ -54,6 +54,22 @@ type IExpect interface {
 	//     )
 	Header(headerName ...string) IExpectHeader
 
+	// Trailer provides assertions to one specific response header.
+	//
+	// If you omit the argument you can fine tune the assertions.
+	//
+	// Usage:
+	//     Expect().Trailer().Contains("Content-Type")
+	//     Expect().Trailer("Content-Type").Equal("application/json")
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Trailer().Contains("Content-Type"),
+	//         Expect().Trailer("Content-Type").Equal("application/json"),
+	//     )
+	Trailer(trailerName ...string) IExpectTrailer
+
 	// Status expects the status to be the specified code.
 	//
 	// If you omit the argument you can fine tune the assertions.
@@ -146,6 +162,15 @@ func (exp *expect) Header(headerName ...string) IExpectHeader {
 	return newExpectHeader(exp, exp.clearPath().Push("Header", args), headerName...)
 }
 
+func (exp *expect) Trailer(trailerName ...string) IExpectTrailer {
+	args := make([]interface{}, len(trailerName))
+	for i := range trailerName {
+		args[i] = trailerName[i]
+	}
+
+	return newExpectTrailer(exp, exp.clearPath().Push("Trailer", args), trailerName...)
+}
+
 func (exp *expect) Status(code ...int) IExpectStatus {
 	args := make([]interface{}, len(code))
 	for i := range code {
@@ -196,6 +221,13 @@ func (exp *finalExpect) Custom(Callback) IStep {
 
 func (exp *finalExpect) Header(...string) IExpectHeader {
 	return &finalExpectHeader{
+		exp.fail(),
+		exp.message,
+	}
+}
+
+func (exp *finalExpect) Trailer(...string) IExpectTrailer {
+	return &finalExpectTrailer{
 		exp.fail(),
 		exp.message,
 	}

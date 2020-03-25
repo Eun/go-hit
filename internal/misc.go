@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"io"
 	"strings"
 )
 
@@ -38,4 +39,15 @@ func MakeURL(base, url string, a ...interface{}) string {
 		return base
 	}
 	return strings.TrimRight(base, "/") + "/" + strings.TrimLeft(url, "/")
+}
+
+type devNullWriter struct{}
+
+func (devNullWriter) Write(p []byte) (int, error) {
+	return len(p), nil
+}
+
+// DevNullWriter returns a writer to the abyss
+func DevNullWriter() io.Writer {
+	return devNullWriter{}
 }
