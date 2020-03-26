@@ -50,7 +50,7 @@ func TestDebugRequestHeader(t *testing.T) {
 
 		b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
 		require.NoError(t, err)
-		require.Equal(t, `"Foo"`, strings.TrimSpace(string(b)))
+		require.Equal(t, "Foo", strings.TrimSpace(string(b)))
 	})
 
 	t.Run("clear", func(t *testing.T) {
@@ -100,7 +100,7 @@ func TestDebugResponseHeader(t *testing.T) {
 
 		b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
 		require.NoError(t, err)
-		require.Equal(t, `"Foo"`, strings.TrimSpace(string(b)))
+		require.Equal(t, "Foo", strings.TrimSpace(string(b)))
 	})
 
 	t.Run("clear", func(t *testing.T) {

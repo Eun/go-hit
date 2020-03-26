@@ -3,8 +3,6 @@ package hit
 import (
 	"io"
 	"strconv"
-
-	"github.com/Eun/go-convert"
 )
 
 type IDebugRequest interface {
@@ -41,21 +39,6 @@ type IDebugRequest interface {
 
 	// Host prints the Request's Host
 	Host() IStep
-
-	// Form prints the Request's Form
-	Form(expression ...string) IStep
-
-	// PostForm prints the Request's PostForm
-	PostForm(expression ...string) IStep
-
-	// MultipartForm prints the Request's MultipartForm
-	MultipartForm(expression ...string) IStep
-
-	// RemoteAddr prints the Request's RemoteAddr
-	RemoteAddr() IStep
-
-	// RequestURI prints the Request's RequestURI
-	RequestURI() IStep
 
 	// Header prints the Request's Header
 	//
@@ -111,11 +94,6 @@ func (d *debugRequest) data(hit Hit) map[string]interface{} {
 		"ContentLength":    hit.Request().ContentLength,
 		"TransferEncoding": hit.Request().TransferEncoding,
 		"Host":             hit.Request().Host,
-		"Form":             hit.Request().Form,
-		"PostForm":         hit.Request().PostForm,
-		"MultipartForm":    hit.Request().MultipartForm,
-		"RemoteAddr":       hit.Request().RemoteAddr,
-		"RequestURI":       hit.Request().RequestURI,
 		"Header":           d.debug.getMap(hit.Request().Header),
 		"Trailer":          d.debug.getMap(hit.Request().Trailer),
 		"Body":             d.debug.getBody(hit.Request().Body()),
@@ -123,7 +101,7 @@ func (d *debugRequest) data(hit Hit) map[string]interface{} {
 }
 
 func (d *debugRequest) exec(hit Hit) error {
-	return d.debug.printJSON(hit, d.data(hit))
+	return d.debug.print(hit, d.data(hit))
 }
 
 func (*debugRequest) clearPath() clearPath {
@@ -148,7 +126,7 @@ func (d *debugRequest) URL(expression ...string) IStep {
 		When:      BeforeExpectStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return d.debug.printJSONWithExpression(hit, hit.Request().URL, expression)
+			return d.debug.printWithExpression(hit, hit.Request().URL, expression)
 		},
 	}
 }
@@ -207,7 +185,7 @@ func (d *debugRequest) TransferEncoding(expression ...string) IStep {
 		When:      BeforeExpectStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return d.debug.printJSONWithExpression(hit, hit.Request().TransferEncoding, expression)
+			return d.debug.printWithExpression(hit, hit.Request().TransferEncoding, expression)
 		},
 	}
 }
@@ -219,67 +197,6 @@ func (d *debugRequest) Host() IStep {
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
 			_, err := io.WriteString(hit.Stdout(), hit.Request().Host)
-			return err
-		},
-	}
-}
-
-func (d *debugRequest) Form(expression ...string) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      BeforeExpectStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return d.debug.printJSONWithExpression(hit, d.debug.getMap(hit.Request().Form), expression)
-		},
-	}
-}
-
-func (d *debugRequest) PostForm(expression ...string) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      BeforeExpectStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return d.debug.printJSONWithExpression(hit, d.debug.getMap(hit.Request().PostForm), expression)
-		},
-	}
-}
-
-func (d *debugRequest) MultipartForm(expression ...string) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      BeforeExpectStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			var m map[string]interface{}
-			if err := convert.Convert(hit.Request().MultipartForm, &m); err != nil {
-				return err
-			}
-			return d.debug.printJSONWithExpression(hit, m, expression)
-		},
-	}
-}
-
-func (d *debugRequest) RemoteAddr() IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      BeforeExpectStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			_, err := io.WriteString(hit.Stdout(), hit.Request().RemoteAddr)
-			return err
-		},
-	}
-}
-
-func (d *debugRequest) RequestURI() IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      BeforeExpectStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			_, err := io.WriteString(hit.Stdout(), hit.Request().RequestURI)
 			return err
 		},
 	}
@@ -299,7 +216,7 @@ func (d *debugRequest) Body(expression ...string) IStep {
 		When:      BeforeExpectStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return d.debug.printJSONWithExpression(hit, d.debug.getBody(hit.Request().Body()), expression)
+			return d.debug.printWithExpression(hit, d.debug.getBody(hit.Request().Body()), expression)
 		},
 	}
 }

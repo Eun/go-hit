@@ -52,7 +52,7 @@ func (d *debugHeader) exec(hit Hit) error {
 	default:
 		return xerrors.New("unknown mode")
 	}
-	return d.debug.printJSONWithExpression(hit, d.debug.getMap(headers), d.expression)
+	return d.debug.printWithExpression(hit, d.debug.getMap(headers), d.expression)
 }
 
 func (*debugHeader) clearPath() clearPath {

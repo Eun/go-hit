@@ -3,6 +3,8 @@ package hit
 import (
 	"net/http"
 
+	"strings"
+
 	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal"
 	"golang.org/x/xerrors"
@@ -159,6 +161,9 @@ func (snd *send) Header(name string, value interface{}) IStep {
 			var s string
 			if err := converter.Convert(value, &s); err != nil {
 				return err
+			}
+			if strings.EqualFold(name, "host") {
+				hit.Request().Host = s
 			}
 			hit.Request().Header.Set(name, s)
 			return nil

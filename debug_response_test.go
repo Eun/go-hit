@@ -32,7 +32,7 @@ func TestDebugResponse_Body(t *testing.T) {
 
 		b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
 		require.NoError(t, err)
-		require.Equal(t, `"Hello World"`, strings.TrimSpace(string(b)))
+		require.Equal(t, "Hello World", strings.TrimSpace(string(b)))
 	})
 
 	t.Run("json decode", func(t *testing.T) {
@@ -87,7 +87,7 @@ func TestDebugResponse_Header(t *testing.T) {
 
 		b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
 		require.NoError(t, err)
-		require.Equal(t, `"Foo"`, strings.TrimSpace(string(b)))
+		require.Equal(t, "Foo", strings.TrimSpace(string(b)))
 	})
 
 	t.Run("clear", func(t *testing.T) {
@@ -140,7 +140,7 @@ func TestDebugResponse_Trailer(t *testing.T) {
 
 		b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
 		require.NoError(t, err)
-		require.Equal(t, `"Foo"`, strings.TrimSpace(string(b)))
+		require.Equal(t, "Foo", strings.TrimSpace(string(b)))
 	})
 
 	t.Run("clear", func(t *testing.T) {

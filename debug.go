@@ -7,6 +7,8 @@ import (
 
 	"io"
 
+	"reflect"
+
 	"github.com/Eun/go-hit/expr"
 	"github.com/Eun/go-hit/internal"
 	"github.com/gookit/color"
@@ -78,18 +80,36 @@ func (*debug) getMap(header map[string][]string) map[string]string {
 	return m
 }
 
-func (d *debug) printJSONWithExpression(hit Hit, v interface{}, expression []string) error {
+func (d *debug) printWithExpression(hit Hit, v interface{}, expression []string) error {
 	if e, ok := internal.GetLastStringArgument(expression); ok {
 		v = expr.MustGetValue(v, e, expr.IgnoreError, expr.IgnoreNotFound)
 	}
-	return d.printJSON(hit, v)
+	return d.print(hit, v)
 }
 
-func (*debug) printJSON(hit Hit, v interface{}) error {
+func (*debug) print(hit Hit, v interface{}) error {
+	if v == nil {
+		_, err := io.WriteString(hit.Stdout(), "<nil>")
+		return err
+	}
+
+	// if v is struct, map, or slice, use json
+	// if not print directly
+
+	rv := reflect.TypeOf(v)
+	for rv.Kind() == reflect.Ptr {
+		rv = rv.Elem()
+	}
+	if rv.Kind() != reflect.Struct && rv.Kind() != reflect.Slice && rv.Kind() != reflect.Map {
+		_, err := fmt.Fprintf(hit.Stdout(), "%v", v)
+		return err
+	}
+
 	bytes, err := json.Marshal(v)
 	if err != nil {
 		return err
 	}
+
 	bytes = pretty.Pretty(bytes)
 	if color.IsSupportColor() {
 		bytes = pretty.Color(bytes, nil)
@@ -119,7 +139,7 @@ func (d *debug) exec(hit Hit) error {
 		v = expr.MustGetValue(m, e, expr.IgnoreError, expr.IgnoreNotFound)
 	}
 
-	return d.printJSON(hit, v)
+	return d.print(hit, v)
 }
 
 func (*debug) clearPath() clearPath {

@@ -16,6 +16,146 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestDebugRequest_Method(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	buf := bytes.NewBuffer(nil)
+
+	Test(t,
+		Post(s.URL),
+		Stdout(buf),
+		Debug().Request().Method(),
+	)
+
+	b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
+	require.NoError(t, err)
+	require.Equal(t, `POST`, strings.TrimSpace(string(b)))
+}
+
+func TestDebugRequest_URL(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	buf := bytes.NewBuffer(nil)
+
+	Test(t,
+		Post(s.URL),
+		Stdout(buf),
+		Debug().Request().URL("Host"),
+	)
+
+	b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
+	require.NoError(t, err)
+	require.Equal(t, s.Listener.Addr().String(), strings.TrimSpace(string(b)))
+}
+
+func TestDebugRequest_Proto(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	buf := bytes.NewBuffer(nil)
+
+	Test(t,
+		Post(s.URL),
+		Stdout(buf),
+		Debug().Request().Proto(),
+	)
+
+	b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
+	require.NoError(t, err)
+	require.Equal(t, "HTTP/1.1", strings.TrimSpace(string(b)))
+}
+
+func TestDebugRequest_ProtoMajor(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	buf := bytes.NewBuffer(nil)
+
+	Test(t,
+		Post(s.URL),
+		Stdout(buf),
+		Debug().Request().ProtoMajor(),
+	)
+
+	b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
+	require.NoError(t, err)
+	require.Equal(t, "1", strings.TrimSpace(string(b)))
+}
+
+func TestDebugRequest_ProtoMinor(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	buf := bytes.NewBuffer(nil)
+
+	Test(t,
+		Post(s.URL),
+		Stdout(buf),
+		Debug().Request().ProtoMinor(),
+	)
+
+	b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
+	require.NoError(t, err)
+	require.Equal(t, "1", strings.TrimSpace(string(b)))
+}
+
+func TestDebugRequest_ContentLength(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	buf := bytes.NewBuffer(nil)
+
+	Test(t,
+		Post(s.URL),
+		Stdout(buf),
+		Send("Hello World"),
+		Debug().Request().ContentLength(),
+	)
+
+	b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
+	require.NoError(t, err)
+	require.Equal(t, "11", strings.TrimSpace(string(b)))
+}
+
+func TestDebugRequest_TransferEncoding(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	buf := bytes.NewBuffer(nil)
+
+	Test(t,
+		Post(s.URL),
+		Stdout(buf),
+		Send("Hello World"),
+		Debug().Request().TransferEncoding(),
+	)
+
+	b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
+	require.NoError(t, err)
+	require.Equal(t, "[]", strings.TrimSpace(string(b)))
+}
+
+func TestDebugRequest_Host(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	buf := bytes.NewBuffer(nil)
+
+	Test(t,
+		Post(s.URL),
+		Stdout(buf),
+		Send("Hello World"),
+		Send().Header("Host", "example.com"),
+		Debug().Request().Host(),
+	)
+
+	b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
+	require.NoError(t, err)
+	require.Equal(t, "example.com", strings.TrimSpace(string(b)))
+}
+
 func TestDebugRequest_Body(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
@@ -32,7 +172,7 @@ func TestDebugRequest_Body(t *testing.T) {
 
 		b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
 		require.NoError(t, err)
-		require.Equal(t, `"Hello World"`, strings.TrimSpace(string(b)))
+		require.Equal(t, `Hello World`, strings.TrimSpace(string(b)))
 	})
 
 	t.Run("json decode", func(t *testing.T) {
@@ -88,7 +228,7 @@ func TestDebugRequest_Header(t *testing.T) {
 
 		b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
 		require.NoError(t, err)
-		require.Equal(t, `"Foo"`, strings.TrimSpace(string(b)))
+		require.Equal(t, "Foo", strings.TrimSpace(string(b)))
 	})
 
 	t.Run("clear", func(t *testing.T) {
@@ -142,7 +282,7 @@ func TestDebugRequest_Trailer(t *testing.T) {
 
 		b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
 		require.NoError(t, err)
-		require.Equal(t, `"Foo"`, strings.TrimSpace(string(b)))
+		require.Equal(t, "Foo", strings.TrimSpace(string(b)))
 	})
 
 	t.Run("clear", func(t *testing.T) {

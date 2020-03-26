@@ -352,6 +352,7 @@ func Do(steps ...IStep) error {
 	if err != nil {
 		return fmt.Errorf("unable to perform request: %s", err.Error())
 	}
+	hit.request.Request.ContentLength = hit.request.Body().Length()
 
 	hit.response = newHTTPResponse(hit, res)
 	hit.state = BeforeExpectStep

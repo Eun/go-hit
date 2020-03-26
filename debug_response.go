@@ -98,7 +98,7 @@ func (d *debugResponse) exec(hit Hit) error {
 	if hit.Response() == nil {
 		return xerrors.New("Response not available")
 	}
-	return d.debug.printJSON(hit, d.data(hit))
+	return d.debug.print(hit, d.data(hit))
 }
 
 func (*debugResponse) clearPath() clearPath {
@@ -159,7 +159,7 @@ func (d *debugResponse) TransferEncoding(expression ...string) IStep {
 		When:      BeforeExpectStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return d.debug.printJSONWithExpression(hit, hit.Response().TransferEncoding, expression)
+			return d.debug.printWithExpression(hit, hit.Response().TransferEncoding, expression)
 		},
 	}
 }
@@ -202,7 +202,7 @@ func (d *debugResponse) Body(expression ...string) IStep {
 		When:      BeforeExpectStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return d.debug.printJSONWithExpression(hit, d.debug.getBody(hit.Response().Body()), expression)
+			return d.debug.printWithExpression(hit, d.debug.getBody(hit.Response().Body()), expression)
 		},
 	}
 }

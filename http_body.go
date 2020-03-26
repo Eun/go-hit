@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/Eun/go-doppelgangerreader"
+	"github.com/Eun/go-hit/internal"
 	"github.com/Eun/go-hit/internal/minitest"
 )
 
@@ -252,6 +253,18 @@ func (body *HTTPBody) Bool() bool {
 // JSON returns the body as an jso
 func (body *HTTPBody) JSON() *HTTPJson {
 	return newHTTPJson(body)
+}
+
+// Length returns the body's length
+func (body *HTTPBody) Length() int64 {
+	if body.factory == nil {
+		return 0
+	}
+
+	r := body.factory.NewDoppelganger()
+	n, _ := io.Copy(internal.DevNullWriter(), r)
+	_ = r.Close()
+	return n
 }
 
 func (body *HTTPBody) setOnlyNativeTypes(a interface{}) bool {
