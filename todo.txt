@@ -1,3 +1,2 @@
-* Test Debug()
 * XML
 * Implement Store

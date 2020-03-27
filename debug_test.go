@@ -99,6 +99,21 @@ func TestDebug(t *testing.T) {
 		require.Equal(t, "Hello World", expr.MustGetValue(m, "Body"))
 	})
 
+	t.Run("debug request", func(t *testing.T) {
+		buf := bytes.NewBuffer(nil)
+
+		Test(t,
+			Post(s.URL),
+			Stdout(buf),
+			Send("Hello World"),
+			Debug().Response(),
+		)
+
+		var m map[string]interface{}
+		require.NoError(t, json.NewDecoder(vtclean.NewReader(buf, false)).Decode(&m))
+		require.Equal(t, "200 OK", expr.MustGetValue(m, "Status"))
+	})
+
 	t.Run("debug in custom", func(t *testing.T) {
 		buf := bytes.NewBuffer(nil)
 

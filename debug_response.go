@@ -3,8 +3,6 @@ package hit
 import (
 	"io"
 	"strconv"
-
-	"golang.org/x/xerrors"
 )
 
 type IDebugResponse interface {
@@ -95,9 +93,6 @@ func (d *debugResponse) data(hit Hit) map[string]interface{} {
 }
 
 func (d *debugResponse) exec(hit Hit) error {
-	if hit.Response() == nil {
-		return xerrors.New("Response not available")
-	}
 	return d.debug.print(hit, d.data(hit))
 }
 
@@ -159,7 +154,11 @@ func (d *debugResponse) TransferEncoding(expression ...string) IStep {
 		When:      BeforeExpectStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return d.debug.printWithExpression(hit, hit.Response().TransferEncoding, expression)
+			te := hit.Response().TransferEncoding
+			if te == nil {
+				te = []string{}
+			}
+			return d.debug.printWithExpression(hit, te, expression)
 		},
 	}
 }

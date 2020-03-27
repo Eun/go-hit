@@ -16,6 +16,129 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestDebugResponse_Proto(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	buf := bytes.NewBuffer(nil)
+
+	Test(t,
+		Post(s.URL),
+		Stdout(buf),
+		Debug().Response().Proto(),
+	)
+
+	b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
+	require.NoError(t, err)
+	require.Equal(t, "HTTP/1.1", strings.TrimSpace(string(b)))
+}
+
+func TestDebugResponse_ProtoMajor(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	buf := bytes.NewBuffer(nil)
+
+	Test(t,
+		Post(s.URL),
+		Stdout(buf),
+		Debug().Response().ProtoMajor(),
+	)
+
+	b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
+	require.NoError(t, err)
+	require.Equal(t, "1", strings.TrimSpace(string(b)))
+}
+
+func TestDebugResponse_ProtoMinor(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	buf := bytes.NewBuffer(nil)
+
+	Test(t,
+		Post(s.URL),
+		Stdout(buf),
+		Debug().Response().ProtoMinor(),
+	)
+
+	b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
+	require.NoError(t, err)
+	require.Equal(t, "1", strings.TrimSpace(string(b)))
+}
+
+func TestDebugResponse_ContentLength(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	buf := bytes.NewBuffer(nil)
+
+	Test(t,
+		Post(s.URL),
+		Stdout(buf),
+		Send("Hello World"),
+		Debug().Response().ContentLength(),
+	)
+
+	b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
+	require.NoError(t, err)
+	require.Equal(t, "11", strings.TrimSpace(string(b)))
+}
+
+func TestDebugResponse_TransferEncoding(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	buf := bytes.NewBuffer(nil)
+
+	Test(t,
+		Post(s.URL),
+		Stdout(buf),
+		Send("Hello World"),
+		Debug().Response().TransferEncoding(),
+	)
+
+	b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
+	require.NoError(t, err)
+	require.Equal(t, "[]", strings.TrimSpace(string(b)))
+}
+
+func TestDebugResponse_Status(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	buf := bytes.NewBuffer(nil)
+
+	Test(t,
+		Post(s.URL),
+		Stdout(buf),
+		Send("Hello World"),
+		Debug().Response().Status(),
+	)
+
+	b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
+	require.NoError(t, err)
+	require.Equal(t, "200 OK", strings.TrimSpace(string(b)))
+}
+
+func TestDebugResponse_StatusCode(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	buf := bytes.NewBuffer(nil)
+
+	Test(t,
+		Post(s.URL),
+		Stdout(buf),
+		Send("Hello World"),
+		Debug().Response().StatusCode(),
+	)
+
+	b, err := ioutil.ReadAll(vtclean.NewReader(buf, false))
+	require.NoError(t, err)
+	require.Equal(t, "200", strings.TrimSpace(string(b)))
+}
+
 func TestDebugResponse_Body(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()

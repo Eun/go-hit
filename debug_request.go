@@ -185,7 +185,11 @@ func (d *debugRequest) TransferEncoding(expression ...string) IStep {
 		When:      BeforeExpectStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return d.debug.printWithExpression(hit, hit.Request().TransferEncoding, expression)
+			te := hit.Request().TransferEncoding
+			if te == nil {
+				te = []string{}
+			}
+			return d.debug.printWithExpression(hit, te, expression)
 		},
 	}
 }
