@@ -1,4 +1,4 @@
-package hit
+package hit_test
 
 import (
 	"errors"
@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/Eun/go-hit"
 	"github.com/stretchr/testify/require"
 )
 
@@ -54,15 +55,15 @@ func ImplementsAllFunctionsOf(t *testing.T, a, b interface{}) {
 }
 
 func TestClearSend(t *testing.T) {
-	ImplementsAllFunctionsOf(t, Send(), Clear().Send())
-	ImplementsAllFunctionsOf(t, Send().Body(), Clear().Send().Body())
+	ImplementsAllFunctionsOf(t, hit.Send(), hit.Clear().Send())
+	ImplementsAllFunctionsOf(t, hit.Send().Body(), hit.Clear().Send().Body())
 }
 
 func TestClearExpect(t *testing.T) {
-	ImplementsAllFunctionsOf(t, Expect(), Clear().Expect())
-	ImplementsAllFunctionsOf(t, Expect().Body(), Clear().Expect().Body())
-	ImplementsAllFunctionsOf(t, Expect().Body().JSON(), Clear().Expect().Body().JSON())
-	ImplementsAllFunctionsOf(t, Expect().Header(), Clear().Expect().Header())
-	ImplementsAllFunctionsOf(t, Expect().Trailer(), Clear().Expect().Trailer())
-	ImplementsAllFunctionsOf(t, Expect().Status(), Clear().Expect().Status())
+	ImplementsAllFunctionsOf(t, hit.Expect(), hit.Clear().Expect())
+	ImplementsAllFunctionsOf(t, hit.Expect().Body(), hit.Clear().Expect().Body())
+	ImplementsAllFunctionsOf(t, hit.Expect().Body().JSON(), hit.Clear().Expect().Body().JSON())
+	ImplementsAllFunctionsOf(t, hit.Expect().Header(), hit.Clear().Expect().Header())
+	ImplementsAllFunctionsOf(t, hit.Expect().Trailer(), hit.Clear().Expect().Trailer())
+	ImplementsAllFunctionsOf(t, hit.Expect().Status(), hit.Clear().Expect().Status())
 }
