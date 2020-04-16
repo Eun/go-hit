@@ -32,16 +32,16 @@ func CheckTheSparkles() hit.IStep {
 // Examples:
 //     MustDo(
 //         Post("https://example.com"),
-//         Send("Hello World"),
+//         Send().Body("Hello World"),
 //     )
 //
 //     MustDo(
 //         Post("https://example.com"),
-//         Send().Body("Hello World")
+//         Send().Body().Interface("Hello World")
 //     )
-func Send(data ...interface{}) MySend {
+func Send() MySend {
 	return MySend{
-		ISend: hit.Send(data...),
+		ISend: hit.Send(),
 	}
 }
 
@@ -67,16 +67,16 @@ func (snd MySend) User(user User) hit.IStep {
 // Examples:
 //     MustDo(
 //         Get("https://example.com"),
-//         Expect().Body().Contains("Hello World")
+//         Expect().Body("Hello World")
 //     )
 //
 //     MustDo(
 //         Get("https://example.com"),
-//         Expect("Hello World"),
+//         Expect().Body().Contains("Hello World")
 //     )
-func Expect(data ...interface{}) MyExpect {
+func Expect() MyExpect {
 	return MyExpect{
-		IExpect: hit.Expect(data...),
+		IExpect: hit.Expect(),
 	}
 }
 
@@ -107,40 +107,39 @@ func (exp MyExpect) User(user User) hit.IStep {
 // Implement the rest for convenience reasons
 // you can copy the contents from the template_framework.go file
 
+// Send sends the specified data as the body payload
 //
-// // Send sends the specified data as the body payload
-// //
-// // Examples:
-// //     MustDo(
-// //         Post("https://example.com"),
-// //         Send("Hello World"),
-// //     )
-// //
-// //     MustDo(
-// //         Post("https://example.com"),
-// //         Send().Body("Hello World")
-// //     )
-// func Send(data ...interface{}) hit.ISend {
-// 	return hit.Send(data...)
+// Examples:
+//     MustDo(
+//         Post("https://example.com"),
+//         Send().Body("Hello World"),
+//     )
+//
+//     MustDo(
+//         Post("https://example.com"),
+//         Send().Body().Interface("Hello World")
+//     )
+// func Send() hit.ISend {
+// 	return hit.Send()
 // }
 
-// // Expect expects the body to be equal the specified value, omit the parameter to get more options
-// //
-// // Examples:
-// //     MustDo(
-// //         Get("https://example.com"),
-// //         Expect().Body().Contains("Hello World")
-// //     )
-// //
-// //     MustDo(
-// //         Get("https://example.com"),
-// //         Expect("Hello World"),
-// //     )
-// func Expect(data ...interface{}) hit.IExpect {
-// 	return hit.Expect(data...)
+// Expect expects the body to be equal the specified value, omit the parameter to get more options
+//
+// Examples:
+//     MustDo(
+//         Get("https://example.com"),
+//         Expect().Body("Hello World")
+//     )
+//
+//     MustDo(
+//         Get("https://example.com"),
+//         Expect().Body().Contains("Hello World")
+//     )
+// func Expect() hit.IExpect {
+// 	return hit.Expect()
 // }
 
-// Debug prints the current Request and Response to hit.Stdout(), you can filter the output based on expressions
+// Debug prints the current Request and Response to hit.Stdout(), omit the parameter to get more options
 //
 // Examples:
 //     MustDo(
@@ -150,10 +149,34 @@ func (exp MyExpect) User(user User) hit.IStep {
 //
 //     MustDo(
 //         Get("https://example.com"),
-//         Debug("Response.Headers"),
+//         Debug().Request().Header(),
+//         Debug().Response().Header("Content-Type"),
 //     )
-func Debug(expression ...string) hit.IStep {
+func Debug(expression ...string) hit.IDebug {
 	return hit.Debug(expression...)
+}
+
+// Store stores the current Request or Response
+//
+// Examples:
+//     var body string
+//     MustDo(
+//         Get("https://example.com"),
+//         Store().Response().Body().In(&body),
+//     )
+//
+//     var headers http.Header
+//     MustDo(
+//         Get("https://example.com"),
+//         Store().Response().Header.In(&headers),
+//     )
+//     var contentType string
+//     MustDo(
+//         Get("https://example.com"),
+//         Store().Response().Header("Content-Type").In(&contentType),
+//     )
+func Store() hit.IStore {
+	return hit.Store()
 }
 
 // HTTPClient sets the client for the request

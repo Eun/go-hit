@@ -40,7 +40,6 @@ func Send() hit.ISend {
 //         Get("https://example.com"),
 //         Expect().Body().Contains("Hello World")
 //     )
-//
 func Expect() hit.IExpect {
 	return hit.Expect()
 }

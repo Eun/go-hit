@@ -52,7 +52,6 @@ func Send() ISend {
 //         Get("https://example.com"),
 //         Expect().Body().Contains("Hello World")
 //     )
-//
 func Expect() IExpect {
 	return newExpect(newClearPath("Expect", nil))
 }
