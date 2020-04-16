@@ -109,22 +109,6 @@ func TestMakeCall(t *testing.T) {
 	}
 }
 
-func TestCall_FullName(t *testing.T) {
-	t.Run("", func(t *testing.T) {
-		c := Call{PackageName: "package", FunctionName: "Func"}
-		require.Equal(t, "package.Func", c.FullName)
-	})
-
-	t.Run("", func(t *testing.T) {
-		c := Call{PackageName: "package", FunctionName: ""}
-		require.Equal(t, "package.", c.FullName)
-	})
-	t.Run("", func(t *testing.T) {
-		c := Call{PackageName: "", FunctionName: "Func"}
-		require.Equal(t, "Func", c.FullName)
-	})
-}
-
 // func TestErrorTrace(t *testing.T) {
 // 	t.Run("", func(t *testing.T) {
 // 		tm, err := New(0)
