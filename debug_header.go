@@ -5,7 +5,7 @@ import (
 
 	"io"
 
-	"github.com/Eun/go-hit/internal"
+	"github.com/Eun/go-hit/internal/misc"
 	"golang.org/x/xerrors"
 )
 
@@ -47,7 +47,7 @@ func (d *debugHeader) exec(hit Hit) error {
 		headers = hit.Request().Trailer
 	case debugTrailerResponse:
 		// we have to read the body to get the trailers
-		_, _ = io.Copy(internal.DevNullWriter(), hit.Response().Body().Reader())
+		_, _ = io.Copy(misc.DevNullWriter(), hit.Response().Body().Reader())
 		headers = hit.Response().Trailer
 	default:
 		return xerrors.New("unknown mode")

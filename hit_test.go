@@ -271,10 +271,10 @@ func TestCombineSteps(t *testing.T) {
 		Do(
 			CombineSteps(
 				Post(s.URL),
-				Send("Hello"),
-				Expect("Hello"),
+				Send().Body("Hello"),
+				Expect().Body("Hello"),
 			),
-			Expect("World"),
+			Expect().Body("World"),
 		),
 		PtrStr("Not equal"), PtrStr(`expected: "World"`), nil, nil, nil, nil, nil,
 	)
@@ -337,8 +337,8 @@ func TestDescription(t *testing.T) {
 			require.Equal(t, "Test #A", hit.Description())
 		}),
 		Post(s.URL),
-		Send("Hello"),
-		Expect("World"),
+		Send().Body("Hello"),
+		Expect().Body("World"),
 	)
 	require.NotNil(t, err)
 	require.True(t, strings.HasPrefix(vtclean.Clean(err.Error(), false), "Description:\tTest #A"))
@@ -368,10 +368,10 @@ func TestDo(t *testing.T) {
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send("Hello World"),
+				Send().Body("Hello World"),
 				Custom(ExpectStep, func(hit Hit) {
 					hit.MustDo(
-						Expect("Hello Universe"),
+						Expect().Body("Hello Universe"),
 					)
 					shouldNotRun = true
 				}),
@@ -386,15 +386,15 @@ func TestDo(t *testing.T) {
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send("Hello World"),
+				Send().Body("Hello World"),
 				Custom(SendStep, func(hit Hit) {
 					hit.MustDo(
-						Expect("Hello Universe"),
+						Expect().Body("Hello Universe"),
 					)
 					shouldNotRun = true
 				}),
 			),
-			PtrStr("unable to execute `Expect' during SendStep, can only be run during ExpectStep"),
+			PtrStr("unable to execute `Expect.Body' during SendStep, can only be run during ExpectStep"),
 		)
 		require.False(t, shouldNotRun)
 	})
@@ -405,13 +405,13 @@ func TestOutOfContext(t *testing.T) {
 	defer s.Close()
 	Test(t,
 		Post(s.URL),
-		Send("World"),
-		Expect("World"),
+		Send().Body("World"),
+		Expect().Body("World"),
 		Send().Custom(func(hit Hit) {
-			Send("Hello Universe") // this will never be run, because you need to wrap this with hit.Do()/MustDo()
+			Send().Body("Hello Universe") // this will never be run, because you need to wrap this with hit.Do()/MustDo()
 		}),
 		Expect().Custom(func(hit Hit) {
-			Expect("Hello Universe") // this will never be run, because you need to wrap this with hit.Do()/MustDo()
+			Expect().Body("Hello Universe") // this will never be run, because you need to wrap this with hit.Do()/MustDo()
 		}),
 	)
 }
@@ -491,8 +491,8 @@ func TestMustDo(t *testing.T) {
 	require.Panics(t, func() {
 		MustDo(
 			Post(s.URL),
-			Send("Hello Alice"),
-			Expect("Hello Joe"),
+			Send().Body("Hello Alice"),
+			Expect().Body("Hello Joe"),
 		)
 	})
 }

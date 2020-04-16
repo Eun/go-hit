@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Eun/go-hit/internal"
+	"github.com/Eun/go-hit/internal/misc"
 )
 
 type expression struct {
@@ -65,7 +65,7 @@ func getExpr(expr string) *expression {
 }
 
 func getValue(v reflect.Value, expr *expression, opts options) (interface{}, bool, error) {
-	r := internal.GetElem(v)
+	r := misc.GetElem(v)
 
 	if expr.End() {
 		if r.IsValid() && r.CanInterface() {
@@ -75,6 +75,9 @@ func getValue(v reflect.Value, expr *expression, opts options) (interface{}, boo
 	}
 
 	if !r.IsValid() {
+		if expr.CurrentPos > 0 {
+			return nil, true, nil
+		}
 		return nil, false, fmt.Errorf("%s cannot be used with the expression %s", v.Type().String(), expr.String())
 	}
 
@@ -105,7 +108,7 @@ func getValueFromMapByIndex(m reflect.Value, expr *expression, n int, options op
 	}
 	keys := make([]reflect.Value, m.Len())
 	for i, key := range m.MapKeys() {
-		r := internal.GetElem(key)
+		r := misc.GetElem(key)
 		if !r.IsValid() {
 			continue
 		}
@@ -123,7 +126,7 @@ func getValueFromMapByIndex(m reflect.Value, expr *expression, n int, options op
 
 func getValueFromMapByName(m reflect.Value, expr *expression, opts options) (interface{}, bool, error) {
 	for _, key := range m.MapKeys() {
-		r := internal.GetElem(key)
+		r := misc.GetElem(key)
 		if !r.IsValid() {
 			continue
 		}
@@ -190,7 +193,7 @@ func getValueFromSliceByIndex(m reflect.Value, expr *expression, n int, opts opt
 
 func getValueFromSliceByName(m reflect.Value, expr *expression, opts options) (interface{}, bool, error) {
 	for i := 0; i < m.Len(); i++ {
-		r := internal.GetElem(m.Index(i))
+		r := misc.GetElem(m.Index(i))
 		if !r.IsValid() {
 			continue
 		}

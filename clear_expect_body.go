@@ -2,7 +2,7 @@ package hit
 
 import (
 	"github.com/Eun/go-hit/errortrace"
-	"github.com/Eun/go-hit/internal"
+	"github.com/Eun/go-hit/internal/misc"
 	"golang.org/x/xerrors"
 )
 
@@ -123,7 +123,7 @@ type clearExpectBody struct {
 }
 
 func newClearExpectBody(exp IClearExpect, cleanPath clearPath, params []interface{}) IClearExpectBody {
-	if _, ok := internal.GetLastArgument(params); ok {
+	if _, ok := misc.GetLastArgument(params); ok {
 		// this runs if we called Clear().Expect().Body(something)
 		return &finalClearExpectBody{
 			removeStep(cleanPath),

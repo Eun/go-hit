@@ -2,8 +2,8 @@ package hit
 
 import (
 	"github.com/Eun/go-hit/errortrace"
-	"github.com/Eun/go-hit/internal"
 	"github.com/Eun/go-hit/internal/minitest"
+	"github.com/Eun/go-hit/internal/misc"
 	"golang.org/x/xerrors"
 )
 
@@ -78,7 +78,7 @@ func newExpectBodyJSON(expectBody IExpectBody, cleanPath clearPath, params []int
 		trace:      ett.Prepare(),
 	}
 
-	if param, ok := internal.GetLastArgument(params); ok {
+	if param, ok := misc.GetLastArgument(params); ok {
 		return &finalExpectBodyJSON{
 			&hitStep{
 				Trace:     jsn.trace,
@@ -117,15 +117,14 @@ func (jsn *expectBodyJSON) Equal(expression string, data interface{}) IStep {
 
 			if v == nil || data == nil {
 				// will fail
-				minitest.Equal(data, v)
+				return minitest.Error.Equal(data, v)
 			}
 
 			compareData, err := makeCompareable(v, data)
 			if err != nil {
 				return nil
 			}
-			minitest.Equal(data, compareData)
-			return nil
+			return minitest.Error.Equal(data, compareData)
 		},
 	}
 }
@@ -138,19 +137,18 @@ func (jsn *expectBodyJSON) NotEqual(expression string, data interface{}) IStep {
 		Exec: func(hit Hit) error {
 			v := hit.Response().body.JSON().Get(expression)
 			if v == nil && data == nil {
-				minitest.Errorf("should not be %s", minitest.PrintValue(v))
+				return minitest.Error.Errorf("should not be %s", minitest.PrintValue(v))
 			}
 
 			if v == nil || data == nil {
-				minitest.NotEqual(data, v)
+				return minitest.Error.NotEqual(data, v)
 			}
 
 			compareData, err := makeCompareable(v, data)
 			if err != nil {
 				return err
 			}
-			minitest.NotEqual(data, compareData)
-			return nil
+			return minitest.Error.NotEqual(data, compareData)
 		},
 	}
 }
@@ -161,15 +159,7 @@ func (jsn *expectBodyJSON) Contains(expression string, data interface{}) IStep {
 		When:      ExpectStep,
 		ClearPath: jsn.clearPath().Push("Contains", []interface{}{expression, data}),
 		Exec: func(hit Hit) error {
-			v := hit.Response().body.JSON().Get(expression)
-			if v == nil && data == nil {
-				return nil
-			}
-
-			if !internal.Contains(v, data) {
-				minitest.Errorf("%s does not contain %s", minitest.PrintValue(v), minitest.PrintValue(data))
-			}
-			return nil
+			return minitest.Error.Contains(hit.Response().body.JSON().Get(expression), data)
 		},
 	}
 }
@@ -180,15 +170,7 @@ func (jsn *expectBodyJSON) NotContains(expression string, data interface{}) ISte
 		When:      ExpectStep,
 		ClearPath: jsn.clearPath().Push("NotContains", []interface{}{expression, data}),
 		Exec: func(hit Hit) error {
-			v := hit.Response().body.JSON().Get(expression)
-			if v == nil && data == nil {
-				minitest.Errorf("%s does contain %s", minitest.PrintValue(v), minitest.PrintValue(data))
-			}
-
-			if internal.Contains(v, data) {
-				minitest.Errorf("%s does contain %s", minitest.PrintValue(v), minitest.PrintValue(data))
-			}
-			return nil
+			return minitest.Error.NotContains(hit.Response().body.JSON().Get(expression), data)
 		},
 	}
 }

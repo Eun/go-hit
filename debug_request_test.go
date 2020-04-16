@@ -110,7 +110,7 @@ func TestDebugRequest_ContentLength(t *testing.T) {
 	Test(t,
 		Post(s.URL),
 		Stdout(buf),
-		Send("Hello World"),
+		Send().Body("Hello World"),
 		Debug().Request().ContentLength(),
 	)
 
@@ -128,7 +128,7 @@ func TestDebugRequest_TransferEncoding(t *testing.T) {
 	Test(t,
 		Post(s.URL),
 		Stdout(buf),
-		Send("Hello World"),
+		Send().Body("Hello World"),
 		Debug().Request().TransferEncoding(),
 	)
 
@@ -146,7 +146,7 @@ func TestDebugRequest_Host(t *testing.T) {
 	Test(t,
 		Post(s.URL),
 		Stdout(buf),
-		Send("Hello World"),
+		Send().Body("Hello World"),
 		Send().Header("Host", "example.com"),
 		Debug().Request().Host(),
 	)
@@ -166,7 +166,7 @@ func TestDebugRequest_Body(t *testing.T) {
 		Test(t,
 			Post(s.URL),
 			Stdout(buf),
-			Send("Hello World"),
+			Send().Body("Hello World"),
 			Debug().Request().Body(),
 		)
 
@@ -181,7 +181,7 @@ func TestDebugRequest_Body(t *testing.T) {
 		Test(t,
 			Post(s.URL),
 			Stdout(buf),
-			Send([]int{1, 2, 3}),
+			Send().Body().JSON([]int{1, 2, 3}),
 			Debug().Request().Body(),
 		)
 
@@ -238,7 +238,7 @@ func TestDebugRequest_Header(t *testing.T) {
 			Send().Body("Hello"),
 			Send().Header("X-Header1", "Foo"),
 			Send().Header("X-Header2", "Bar"),
-			Expect("Hello World"),
+			Expect().Body("Hello World"),
 			Stdout(buf),
 			Debug().Request().Header(),
 			Clear().Expect(),
@@ -292,7 +292,7 @@ func TestDebugRequest_Trailer(t *testing.T) {
 			Send().Body("Hello"),
 			Send().Trailer("X-Trailer1", "Foo"),
 			Send().Trailer("X-Trailer2", "Bar"),
-			Expect("Hello World"),
+			Expect().Body("Hello World"),
 			Stdout(buf),
 			Debug().Request().Trailer(),
 			Clear().Expect(),

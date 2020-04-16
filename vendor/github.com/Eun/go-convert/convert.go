@@ -86,10 +86,44 @@ func (conv defaultConverter) ConvertReflectValue(src, dst reflect.Value, options
 
 	if len(options) > 0 {
 		conv.options.SkipUnknownFields = options[0].SkipUnknownFields
-		conv.options.Recipes = append(options[0].Recipes, conv.options.Recipes...)
+		conv.options.Recipes = joinRecipes(conv.options.Recipes, options[0].Recipes)
 	}
 
 	return conv.convertNow(src, dst, out, options...)
+}
+
+// joinRecipes joins recipes and customRecipes it puts the generic recipes on the end
+func joinRecipes(recipes, customRecipes []Recipe) []Recipe {
+	result := make([]Recipe, 0, len(recipes)+len(customRecipes))
+	// all normal recipes go to the front
+	for i := range customRecipes {
+		if isGenericType(customRecipes[i].From) || isGenericType(customRecipes[i].To) {
+			continue
+		}
+		result = append(result, customRecipes[i])
+	}
+	for i := range recipes {
+		if isGenericType(recipes[i].From) || isGenericType(recipes[i].To) {
+			continue
+		}
+		result = append(result, recipes[i])
+	}
+
+	// all generic recipes go to the end
+	for i := range customRecipes {
+		if !isGenericType(customRecipes[i].From) && !isGenericType(customRecipes[i].To) {
+			continue
+		}
+		result = append(result, customRecipes[i])
+	}
+	for i := range recipes {
+		if !isGenericType(recipes[i].From) && !isGenericType(recipes[i].To) {
+			continue
+		}
+		result = append(result, recipes[i])
+	}
+
+	return result
 }
 
 func (conv defaultConverter) convertNow(src, dst, out reflect.Value, options ...Options) error {
@@ -99,7 +133,7 @@ func (conv defaultConverter) convertNow(src, dst, out reflect.Value, options ...
 		out.Elem().Type().String())
 
 	genericFrom := conv.getGenericType(src.Type())
-	genericTo := conv.getGenericType(out.Elem().Type())
+	genericTo := conv.getGenericType(out.Type().Elem())
 
 	if genericFrom != nil {
 		debug2(">> generic from: %s\n", genericFrom.String())
@@ -191,7 +225,7 @@ func New(options ...Options) Converter {
 	conv := defaultConverterInstance
 	if len(options) > 0 {
 		conv.options.SkipUnknownFields = options[0].SkipUnknownFields
-		conv.options.Recipes = append(options[0].Recipes, conv.options.Recipes...)
+		conv.options.Recipes = joinRecipes(conv.options.Recipes, options[0].Recipes)
 	}
 	return &conv
 }

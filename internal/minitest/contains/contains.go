@@ -1,4 +1,4 @@
-package internal
+package contains
 
 import (
 	"reflect"
@@ -8,19 +8,6 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/mohae/deepcopy"
 )
-
-// GetElem follows all pointers and interfaces until it reaches the base value
-func GetElem(r reflect.Value) reflect.Value {
-	for r.IsValid() && r.Kind() == reflect.Ptr || r.Kind() == reflect.Interface {
-		r = r.Elem()
-	}
-	return r
-}
-
-// GetValue returns a internal.Value and follows all pointers and interfaces until it reaches the base value
-func GetValue(v interface{}) reflect.Value {
-	return GetElem(reflect.ValueOf(v))
-}
 
 func Contains(heystack interface{}, needle interface{}) bool {
 	if heystack == nil && needle == nil {
@@ -93,21 +80,4 @@ func structContains(st reflect.Value, needle interface{}) bool {
 		}
 	}
 	return false
-}
-
-// StringSliceHasPrefixStringSlice returns true if haystack starts with needle
-func StringSliceHasPrefixSlice(haystack, needle []string) bool {
-	haySize := len(haystack)
-	needleSize := len(needle)
-	if needleSize > haySize {
-		return false
-	}
-	haySize = needleSize
-
-	for i := 0; i < haySize; i++ {
-		if haystack[i] != needle[i] {
-			return false
-		}
-	}
-	return true
 }

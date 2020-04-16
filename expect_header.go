@@ -1,9 +1,8 @@
 package hit
 
 import (
-	"github.com/Eun/go-hit/internal"
 	"github.com/Eun/go-hit/internal/minitest"
-	"golang.org/x/xerrors"
+	"github.com/Eun/go-hit/internal/misc"
 )
 
 // IExpectHeader provides assertions on the http response header(s)
@@ -65,7 +64,7 @@ type IExpectHeader interface {
 	// Empty expects the specified header to be empty.
 	//
 	// Usage:
-	//     Expect().Headers().Empty()
+	//     Expect().Header().Empty()
 	//     Expect().Header("Content-Type").Empty()
 	//
 	// Example:
@@ -119,7 +118,7 @@ type IExpectHeader interface {
 }
 
 func newExpectHeader(expect IExpect, cleanPath clearPath, headerName ...string) IExpectHeader {
-	name, ok := internal.GetLastStringArgument(headerName)
+	name, ok := misc.GetLastStringArgument(headerName)
 	if ok {
 		return newExpectSpecificHeader(expect, cleanPath, name)
 	}
@@ -144,8 +143,7 @@ func (hdr *expectHeaders) Contains(headerName interface{}) IStep {
 		When:      ExpectStep,
 		ClearPath: hdr.cleanPath.Push("Contains", []interface{}{headerName}),
 		Exec: func(hit Hit) error {
-			minitest.Contains(hit.Response().Header, headerName)
-			return nil
+			return minitest.Error.Contains(hit.Response().Header, headerName)
 		},
 	}
 }
@@ -156,8 +154,7 @@ func (hdr *expectHeaders) NotContains(headerName interface{}) IStep {
 		When:      ExpectStep,
 		ClearPath: hdr.cleanPath.Push("NotContains", []interface{}{headerName}),
 		Exec: func(hit Hit) error {
-			minitest.NotContains(hit.Response().Header, headerName)
-			return nil
+			return minitest.Error.NotContains(hit.Response().Header, headerName)
 		},
 	}
 }
@@ -168,8 +165,7 @@ func (hdr *expectHeaders) Empty() IStep {
 		When:      ExpectStep,
 		ClearPath: hdr.cleanPath.Push("Empty", nil),
 		Exec: func(hit Hit) error {
-			minitest.Empty(hit.Response().Header)
-			return nil
+			return minitest.Error.Empty(hit.Response().Header)
 		},
 	}
 }
@@ -180,8 +176,7 @@ func (hdr *expectHeaders) Len(size int) IStep {
 		When:      ExpectStep,
 		ClearPath: hdr.cleanPath.Push("Len", []interface{}{size}),
 		Exec: func(hit Hit) error {
-			minitest.Len(hit.Response().Header, size)
-			return nil
+			return minitest.Error.Len(hit.Response().Header, size)
 		},
 	}
 }
@@ -196,8 +191,7 @@ func (hdr *expectHeaders) Equal(value interface{}) IStep {
 			if err != nil {
 				return err
 			}
-			minitest.Equal(value, compareData)
-			return nil
+			return minitest.Error.Equal(value, compareData)
 		},
 	}
 }
@@ -212,8 +206,7 @@ func (hdr *expectHeaders) NotEqual(value interface{}) IStep {
 			if err != nil {
 				return err
 			}
-			minitest.NotEqual(value, compareData)
-			return nil
+			return minitest.Error.NotEqual(value, compareData)
 		},
 	}
 }
@@ -233,8 +226,7 @@ func (hdr *expectHeaders) OneOf(values ...interface{}) IStep {
 			if err := converter.Convert(hit.Response().Header, &hdr); err != nil {
 				return err
 			}
-			minitest.Contains(v, hdr)
-			return nil
+			return minitest.Error.Contains(v, hdr)
 		},
 	}
 }
@@ -254,8 +246,7 @@ func (hdr *expectHeaders) NotOneOf(values ...interface{}) IStep {
 			if err := converter.Convert(hit.Response().Header, &hdr); err != nil {
 				return err
 			}
-			minitest.NotContains(v, hdr)
-			return nil
+			return minitest.Error.NotContains(v, hdr)
 		},
 	}
 }
@@ -280,8 +271,7 @@ func (hdr *expectSpecificHeader) Contains(value interface{}) IStep {
 		When:      ExpectStep,
 		ClearPath: hdr.cleanPath.Push("Contains", []interface{}{value}),
 		Exec: func(hit Hit) error {
-			minitest.Contains(hit.Response().Header.Get(hdr.header), value)
-			return nil
+			return minitest.Error.Contains(hit.Response().Header.Get(hdr.header), value)
 		},
 	}
 }
@@ -292,8 +282,7 @@ func (hdr *expectSpecificHeader) NotContains(value interface{}) IStep {
 		When:      ExpectStep,
 		ClearPath: hdr.cleanPath.Push("NotContains", []interface{}{value}),
 		Exec: func(hit Hit) error {
-			minitest.NotContains(hit.Response().Header.Get(hdr.header), value)
-			return nil
+			return minitest.Error.NotContains(hit.Response().Header.Get(hdr.header), value)
 		},
 	}
 }
@@ -304,8 +293,7 @@ func (hdr *expectSpecificHeader) OneOf(values ...interface{}) IStep {
 		When:      ExpectStep,
 		ClearPath: hdr.cleanPath.Push("OneOf", values),
 		Exec: func(hit Hit) error {
-			minitest.Contains(values, hit.Response().Header.Get(hdr.header))
-			return nil
+			return minitest.Error.Contains(values, hit.Response().Header.Get(hdr.header))
 		},
 	}
 }
@@ -316,8 +304,7 @@ func (hdr *expectSpecificHeader) NotOneOf(values ...interface{}) IStep {
 		When:      ExpectStep,
 		ClearPath: hdr.cleanPath.Push("NotOneOf", values),
 		Exec: func(hit Hit) error {
-			minitest.NotContains(values, hit.Response().Header.Get(hdr.header))
-			return nil
+			return minitest.Error.NotContains(values, hit.Response().Header.Get(hdr.header))
 		},
 	}
 }
@@ -328,8 +315,7 @@ func (hdr *expectSpecificHeader) Empty() IStep {
 		When:      ExpectStep,
 		ClearPath: hdr.cleanPath.Push("Empty", nil),
 		Exec: func(hit Hit) error {
-			minitest.Empty(hit.Response().Header.Get(hdr.header))
-			return nil
+			return minitest.Error.Empty(hit.Response().Header.Get(hdr.header))
 		},
 	}
 }
@@ -340,8 +326,7 @@ func (hdr *expectSpecificHeader) Len(size int) IStep {
 		When:      ExpectStep,
 		ClearPath: hdr.cleanPath.Push("Len", []interface{}{size}),
 		Exec: func(hit Hit) error {
-			minitest.Len(hit.Response().Header.Get(hdr.header), size)
-			return nil
+			return minitest.Error.Len(hit.Response().Header.Get(hdr.header), size)
 		},
 	}
 }
@@ -356,8 +341,7 @@ func (hdr *expectSpecificHeader) Equal(value interface{}) IStep {
 			if err != nil {
 				return err
 			}
-			minitest.Equal(value, compareData)
-			return nil
+			return minitest.Error.Equal(value, compareData)
 		},
 	}
 }
@@ -372,56 +356,7 @@ func (hdr *expectSpecificHeader) NotEqual(value interface{}) IStep {
 			if err != nil {
 				return err
 			}
-			minitest.NotEqual(value, compareData)
-			return nil
+			return minitest.Error.NotEqual(value, compareData)
 		},
 	}
-}
-
-type finalExpectHeader struct {
-	IStep
-	message string
-}
-
-func (hdr *finalExpectHeader) fail() IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(hdr.message)
-		},
-	}
-}
-
-func (hdr *finalExpectHeader) Contains(interface{}) IStep {
-	return hdr.fail()
-}
-
-func (hdr *finalExpectHeader) NotContains(interface{}) IStep {
-	return hdr.fail()
-}
-
-func (hdr *finalExpectHeader) OneOf(...interface{}) IStep {
-	return hdr.fail()
-}
-
-func (hdr *finalExpectHeader) NotOneOf(...interface{}) IStep {
-	return hdr.fail()
-}
-
-func (hdr *finalExpectHeader) Empty() IStep {
-	return hdr.fail()
-}
-
-func (hdr *finalExpectHeader) Len(int) IStep {
-	return hdr.fail()
-}
-
-func (hdr *finalExpectHeader) Equal(interface{}) IStep {
-	return hdr.fail()
-}
-
-func (hdr *finalExpectHeader) NotEqual(interface{}) IStep {
-	return hdr.fail()
 }

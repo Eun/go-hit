@@ -76,8 +76,8 @@ type debugRequest struct {
 	debug *debug
 }
 
-func newDebugRequest() *debugRequest {
-	return &debugRequest{}
+func newDebugRequest(d *debug) *debugRequest {
+	return &debugRequest{d}
 }
 
 func (*debugRequest) when() StepTime {
@@ -96,7 +96,7 @@ func (d *debugRequest) data(hit Hit) map[string]interface{} {
 		"Host":             hit.Request().Host,
 		"Header":           d.debug.getMap(hit.Request().Header),
 		"Trailer":          d.debug.getMap(hit.Request().Trailer),
-		"Body":             d.debug.getBody(hit.Request().Body()),
+		"Body":             hit.Request().Body().GetBestFittingObject(),
 	}
 }
 
@@ -220,7 +220,7 @@ func (d *debugRequest) Body(expression ...string) IStep {
 		When:      BeforeExpectStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return d.debug.printWithExpression(hit, d.debug.getBody(hit.Request().Body()), expression)
+			return d.debug.printWithExpression(hit, hit.Request().Body().GetBestFittingObject(), expression)
 		},
 	}
 }

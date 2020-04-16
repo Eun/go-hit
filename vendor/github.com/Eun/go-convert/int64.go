@@ -1,9 +1,16 @@
 package convert
 
 import (
+	"errors"
+	"fmt"
+	"reflect"
 	"strconv"
+	"time"
 )
 
+func (stdRecipes) nilToInt64(Converter, NilValue, *int64) error {
+	return nil
+}
 func (stdRecipes) intToInt64(c Converter, in int, out *int64) error {
 	*out = int64(in)
 	return nil
@@ -73,4 +80,41 @@ func (stdRecipes) stringToInt64(c Converter, in string, out *int64) error {
 	}
 	*out = i
 	return nil
+}
+func (stdRecipes) timeToInt64(c Converter, in time.Time, out *int64) error {
+	*out = in.Unix()
+	return nil
+}
+
+func (s stdRecipes) structToInt64(c Converter, in StructValue, out *int64) error {
+	err := s.baseStructToInt64(c, in.Value, out)
+	if err == nil {
+		return err
+	}
+
+	// test for *struct.Int64()
+	v := reflect.New(in.Type())
+	v.Elem().Set(in.Value)
+	if s.baseStructToInt64(c, v, out) == nil {
+		return nil
+	}
+	return err
+}
+
+func (s stdRecipes) baseStructToInt64(_ Converter, in reflect.Value, out *int64) error {
+	if !in.CanInterface() {
+		return errors.New("unable to make interface")
+	}
+	type toInt64 interface {
+		Int64() int64
+	}
+
+	// check for struct.Int64()
+	i, ok := in.Interface().(toInt64)
+	if ok {
+		*out = i.Int64()
+		return nil
+	}
+
+	return fmt.Errorf("%s has no Int64() function", in.Type().String())
 }

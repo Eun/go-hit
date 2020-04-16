@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/Eun/go-doppelgangerreader"
+	"github.com/Eun/go-hit/httpbody"
 )
 
 type HTTPRequest struct {
 	Hit Hit
 	*http.Request
-	body *HTTPBody
+	body *httpbody.HttpBody
 }
 
 func newHTTPRequest(hit Hit, req *http.Request) *HTTPRequest {
@@ -76,22 +76,19 @@ func newHTTPRequest(hit Hit, req *http.Request) *HTTPRequest {
 	newRequest.TransferEncoding = make([]string, len(req.TransferEncoding))
 	copy(newRequest.TransferEncoding, req.TransferEncoding)
 
-	var factory doppelgangerreader.DoppelgangerFactory
+	body := httpbody.NewHttpBody(req.Body, newRequest.Header)
+
 	if req.Body != nil {
-		factory = doppelgangerreader.NewFactory(req.Body)
-		req.Body = factory.NewDoppelganger()
+		req.Body = body.Reader()
 	}
 
 	return &HTTPRequest{
 		Hit:     hit,
 		Request: newRequest,
-		body: &HTTPBody{
-			hit:     hit,
-			factory: factory,
-		},
+		body:    body,
 	}
 }
 
-func (req *HTTPRequest) Body() *HTTPBody {
+func (req *HTTPRequest) Body() *httpbody.HttpBody {
 	return req.body
 }

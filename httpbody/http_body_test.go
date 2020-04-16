@@ -1,4 +1,4 @@
-package hit_test
+package httpbody_test
 
 import (
 	"bytes"

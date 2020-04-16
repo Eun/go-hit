@@ -1,0 +1,17 @@
+name: golangci-lint-runner
+on: pull_request
+jobs:
+  golangci-lint-runner:
+    runs-on: ubuntu-latest
+    steps:
+      - name: linter
+        uses: "docker://talononedevs/golangci-lint-runner:latest"
+        with:
+          entrypoint: /bin/golangci-lint-runner
+          args: standalone
+        env:
+          APPROVE: true
+          REQUEST_CHANGES: true
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          NO_ISSUES_TEXT: "No issues found"
+          NO_CHANGES_TEXT: "No issues found"

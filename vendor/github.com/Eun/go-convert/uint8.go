@@ -1,9 +1,16 @@
 package convert
 
 import (
+	"errors"
+	"fmt"
+	"reflect"
 	"strconv"
+	"time"
 )
 
+func (stdRecipes) nilToUint8(Converter, NilValue, *uint8) error {
+	return nil
+}
 func (stdRecipes) intToUint8(c Converter, in int, out *uint8) error {
 	*out = uint8(in)
 	return nil
@@ -73,4 +80,42 @@ func (stdRecipes) stringToUint8(c Converter, in string, out *uint8) error {
 	}
 	*out = uint8(i)
 	return nil
+}
+
+func (stdRecipes) timeToUint8(c Converter, in time.Time, out *uint8) error {
+	*out = uint8(in.Unix())
+	return nil
+}
+
+func (s stdRecipes) structToUint8(c Converter, in StructValue, out *uint8) error {
+	err := s.baseStructToUint8(c, in.Value, out)
+	if err == nil {
+		return err
+	}
+
+	// test for *struct.Uint8()
+	v := reflect.New(in.Type())
+	v.Elem().Set(in.Value)
+	if s.baseStructToUint8(c, v, out) == nil {
+		return nil
+	}
+	return err
+}
+
+func (s stdRecipes) baseStructToUint8(_ Converter, in reflect.Value, out *uint8) error {
+	if !in.CanInterface() {
+		return errors.New("unable to make interface")
+	}
+	type toUint interface {
+		Uint8() uint8
+	}
+
+	// check for struct.Uint8()
+	i, ok := in.Interface().(toUint)
+	if ok {
+		*out = i.Uint8()
+		return nil
+	}
+
+	return fmt.Errorf("%s has no Uint8() function", in.Type().String())
 }

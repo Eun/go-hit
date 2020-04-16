@@ -2,7 +2,7 @@ package hit
 
 import (
 	"github.com/Eun/go-hit/errortrace"
-	"github.com/Eun/go-hit/internal"
+	"github.com/Eun/go-hit/internal/misc"
 	"golang.org/x/xerrors"
 )
 
@@ -14,8 +14,8 @@ type IClearSendBody interface {
 	// If you specify an argument it will only remove the Send().Body().JSON() steps matching that argument.
 	//
 	// Usage:
-	//     Clear().Send().Body().JSON()                                              // will remove all Send().Body().JSON() steps
-	//     Clear().Send().Body().JSON(map[string]interface{}{"Name": "Joe"})         // will remove all Send().Body().JSON(map[string]interface{}{"Name": "Joe"}) steps
+	//     Clear().Send().Body().JSON()                                      // will remove all Send().Body().JSON() steps
+	//     Clear().Send().Body().JSON(map[string]interface{}{"Name": "Joe"}) // will remove all Send().Body().JSON(map[string]interface{}{"Name": "Joe"}) steps
 	//
 	// Example:
 	//     MustDo(
@@ -25,6 +25,23 @@ type IClearSendBody interface {
 	//         Send().Body().JSON(map[string]interface{}{"Name": "Alice"}),
 	//     )
 	JSON(...interface{}) IStep
+
+	// XML removes all previous Send().Body().XML() steps.
+	//
+	// If you specify an argument it will only remove the Send().Body().XML() steps matching that argument.
+	//
+	// Usage:
+	//     Clear().Send().Body().XML()                   // will remove all Send().Body().XML() steps
+	//     Clear().Send().Body().XML([]string{"A", "B"}) // will remove all Send().Body().XML([]string{"A", "B"}) steps
+	//
+	// Example:
+	//     MustDo(
+	//         Post("https://example.com"),
+	//         Send().Body().XML([]string{"A", "B"}),
+	//         Clear().Send().Body().XML(),
+	//         Send().Body().XML([]string{"1", "2"}),
+	//     )
+	XML(...interface{}) IStep
 
 	// Interface removes all previous Send().Body().Interface() steps.
 	//
@@ -50,7 +67,7 @@ type clearSendBody struct {
 }
 
 func newClearSendBody(clearPath clearPath, params []interface{}) IClearSendBody {
-	if _, ok := internal.GetLastArgument(params); ok {
+	if _, ok := misc.GetLastArgument(params); ok {
 		// this runs if we called Clear().Send().Body(something)
 		return &finalClearSendBody{
 			removeStep(clearPath),
@@ -84,6 +101,10 @@ func (body *clearSendBody) JSON(data ...interface{}) IStep {
 	return removeStep(body.clearPath().Push("JSON", data))
 }
 
+func (body *clearSendBody) XML(data ...interface{}) IStep {
+	return removeStep(body.clearPath().Push("XML", data))
+}
+
 func (body *clearSendBody) Interface(data ...interface{}) IStep {
 	return removeStep(body.clearPath().Push("Interface", data))
 }
@@ -105,6 +126,10 @@ func (body *finalClearSendBody) fail() IStep {
 }
 
 func (body *finalClearSendBody) JSON(...interface{}) IStep {
+	return body.fail()
+}
+
+func (body *finalClearSendBody) XML(...interface{}) IStep {
 	return body.fail()
 }
 

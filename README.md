@@ -27,7 +27,7 @@ func TestHttpBin(t *testing.T) {
 Test(t,
     Get("https://httpbin.org/post"),
     Expect().Status(http.StatusMethodNotAllowed),
-    Expect().Headers().Contains("Content-Type"),
+    Expect().Header().Contains("Content-Type"),
     Expect().Body().Contains("Method Not Allowed"),
 )
 ``` 
@@ -42,15 +42,32 @@ Test(t,
 )
 ``` 
 
+
 ### Sending and expecting JSON
 ```go
 Test(t,
     Post("https://httpbin.org/post"),
-    Send().Headers().Set("Content-Type", "application/json"),
+    Send().Header("Content-Type", "application/json"),
     Send().Body().JSON(map[string][]string{"Foo": []string{"Bar", "Baz"}}),
     Expect().Status(http.StatusOK),
     Expect().Body().JSON().Equal("json.Foo.1", "Baz"),
 )
+``` 
+
+
+## Storing data from the Response
+```go
+var name string
+var roles []string
+Test(t,
+    Post("https://httpbin.org/post"),
+    Send().Header("Content-Type", "application/json"),
+    Send().Body().JSON(map[string]interface{}{"Name": "Joe", "Roles": []string{"Admin", "Developer"}}),
+    Expect().Status(http.StatusOK),
+    Store().Response().Body().JSON("json.Name").In(&name),
+    Store().Response().Body().JSON("json.Roles").In(&roles),
+)
+fmt.Printf("%s has %d roles\n", name, len(roles))
 ``` 
 
 ## Problems? `Debug`!
@@ -94,8 +111,8 @@ Test(t,
 ```go
 template := []IStep{
     Post("https://httpbin.org/post"),
-    Send().Headers().Set("Content-Type", "application/json"),
-    Expect().Headers("Content-Type").Equal("application/json"),
+    Send().Header("Content-Type", "application/json"),
+    Expect().Header("Content-Type").Equal("application/json"),
 }
 Test(t,
     append(template,

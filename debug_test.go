@@ -22,7 +22,7 @@ func TestDebug(t *testing.T) {
 		Test(t,
 			Post(s.URL),
 			Stdout(buf),
-			Send("Hello World"),
+			Send().Body("Hello World"),
 			Debug(),
 		)
 
@@ -40,7 +40,7 @@ func TestDebug(t *testing.T) {
 		Test(t,
 			Post(s.URL),
 			Stdout(buf),
-			Send([]int{1, 2, 3}),
+			Send().Body().JSON([]int{1, 2, 3}),
 			Debug(),
 		)
 
@@ -65,7 +65,7 @@ func TestDebug(t *testing.T) {
 		require.NoError(t, json.NewDecoder(vtclean.NewReader(buf, false)).Decode(&m))
 
 		require.NotNil(t, expr.MustGetValue(m, "Request"))
-		require.Nil(t, expr.MustGetValue(m, "Request.Body"))
+		require.Equal(t, "", expr.MustGetValue(m, "Request.Body"))
 		require.NotNil(t, expr.MustGetValue(m, "Response"))
 	})
 
@@ -75,7 +75,7 @@ func TestDebug(t *testing.T) {
 		Test(t,
 			Post(s.URL),
 			Stdout(buf),
-			Send("Hello World"),
+			Send().Body("Hello World"),
 			Debug("Request"),
 		)
 
@@ -90,7 +90,7 @@ func TestDebug(t *testing.T) {
 		Test(t,
 			Post(s.URL),
 			Stdout(buf),
-			Send("Hello World"),
+			Send().Body("Hello World"),
 			Debug().Request(),
 		)
 
@@ -105,7 +105,7 @@ func TestDebug(t *testing.T) {
 		Test(t,
 			Post(s.URL),
 			Stdout(buf),
-			Send("Hello World"),
+			Send().Body("Hello World"),
 			Debug().Response(),
 		)
 
@@ -120,7 +120,7 @@ func TestDebug(t *testing.T) {
 		Test(t,
 			Post(s.URL),
 			Stdout(buf),
-			Send("Hello World"),
+			Send().Body("Hello World"),
 			Custom(BeforeExpectStep, func(hit Hit) {
 				hit.MustDo(Debug().Request())
 			}),
@@ -137,8 +137,8 @@ func TestDebug(t *testing.T) {
 		Test(t,
 			Post(s.URL),
 			Stdout(buf),
-			Send("Hello World"),
-			Expect("Hello World"),
+			Send().Body("Hello World"),
+			Expect().Body("Hello World"),
 			Debug().Time(),
 			Clear().Expect(),
 		)
@@ -150,8 +150,8 @@ func TestDebug(t *testing.T) {
 		Test(t,
 			Post(s.URL),
 			Stdout(buf),
-			Send("Hello World"),
-			Expect("Hello World"),
+			Send().Body("Hello World"),
+			Expect().Body("Hello World"),
 			Debug(),
 			Clear().Expect(),
 		)

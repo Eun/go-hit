@@ -1,8 +1,12 @@
 package hit
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/Eun/go-hit/errortrace"
-	"github.com/Eun/go-hit/internal"
+
+	"github.com/Eun/go-hit/internal/misc"
 	"golang.org/x/xerrors"
 )
 
@@ -100,7 +104,7 @@ func newExpectBody(expect IExpect, cleanPath clearPath, params []interface{}) IE
 		trace:     ett.Prepare(),
 	}
 
-	if param, ok := internal.GetLastArgument(params); ok {
+	if param, ok := misc.GetLastArgument(params); ok {
 		// default action is Equal()
 		return &finalExpectBody{
 			&hitStep{
@@ -152,13 +156,13 @@ func (body *expectBody) Interface(value interface{}) IStep {
 			Exec:      x,
 		}
 	default:
-		if f := internal.GetGenericFunc(value); f.IsValid() {
+		if f := misc.GetGenericFunc(value); f.IsValid() {
 			return &hitStep{
 				Trace:     ett.Prepare(),
 				When:      ExpectStep,
 				ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
 				Exec: func(hit Hit) error {
-					internal.CallGenericFunc(f)
+					misc.CallGenericFunc(f)
 					return nil
 				},
 			}
@@ -178,10 +182,19 @@ func (body *expectBody) Equal(value interface{}) IStep {
 		When:      ExpectStep,
 		ClearPath: body.clearPath().Push("Equal", []interface{}{value}),
 		Exec: func(hit Hit) error {
-			if hit.Response().body.equalOnlyNativeTypes(value, true) {
+			handled, err := hit.Response().body.EqualOnlyNativeTypes(value, true)
+			if err != nil {
+				return err
+			}
+			if handled {
 				return nil
 			}
-			return Expect().Body().JSON().Equal("", value).exec(hit)
+			switch strings.ToLower(hit.Response().Header.Get("Content-Type")) {
+			case "application/json", "text/json":
+				return Expect().Body().JSON().Equal("", value).exec(hit)
+			default:
+				return fmt.Errorf("unsure howto compare %s with %T", hit.Response().Header.Get("Content-Type"), value)
+			}
 		},
 	}
 }
@@ -192,10 +205,19 @@ func (body *expectBody) NotEqual(value interface{}) IStep {
 		When:      ExpectStep,
 		ClearPath: body.clearPath().Push("NotEqual", []interface{}{value}),
 		Exec: func(hit Hit) error {
-			if hit.Response().body.equalOnlyNativeTypes(value, false) {
+			handled, err := hit.Response().body.EqualOnlyNativeTypes(value, false)
+			if err != nil {
+				return err
+			}
+			if handled {
 				return nil
 			}
-			return Expect().Body().JSON().NotEqual("", value).exec(hit)
+			switch strings.ToLower(hit.Response().Header.Get("Content-Type")) {
+			case "application/json", "text/json":
+				return Expect().Body().JSON().NotEqual("", value).exec(hit)
+			default:
+				return fmt.Errorf("unsure howto compare %s with %T", hit.Response().Header.Get("Content-Type"), value)
+			}
 		},
 	}
 }
@@ -206,10 +228,19 @@ func (body *expectBody) Contains(value interface{}) IStep {
 		When:      ExpectStep,
 		ClearPath: body.clearPath().Push("Contains", []interface{}{value}),
 		Exec: func(hit Hit) error {
-			if hit.Response().body.containsOnlyNativeTypes(value, true) {
+			handled, err := hit.Response().body.ContainsOnlyNativeTypes(value, true)
+			if err != nil {
+				return err
+			}
+			if handled {
 				return nil
 			}
-			return Expect().Body().JSON().Contains("", value).exec(hit)
+			switch strings.ToLower(hit.Response().Header.Get("Content-Type")) {
+			case "application/json", "text/json":
+				return Expect().Body().JSON().Contains("", value).exec(hit)
+			default:
+				return fmt.Errorf("unsure howto compare %s with %T", hit.Response().Header.Get("Content-Type"), value)
+			}
 		},
 	}
 }
@@ -220,10 +251,19 @@ func (body *expectBody) NotContains(value interface{}) IStep {
 		When:      ExpectStep,
 		ClearPath: body.clearPath().Push("NotContains", []interface{}{value}),
 		Exec: func(hit Hit) error {
-			if hit.Response().body.containsOnlyNativeTypes(value, false) {
+			handled, err := hit.Response().body.ContainsOnlyNativeTypes(value, false)
+			if err != nil {
+				return err
+			}
+			if handled {
 				return nil
 			}
-			return Expect().Body().JSON().NotContains("", value).exec(hit)
+			switch strings.ToLower(hit.Response().Header.Get("Content-Type")) {
+			case "application/json", "text/json":
+				return Expect().Body().JSON().NotContains("", value).exec(hit)
+			default:
+				return fmt.Errorf("unsure howto compare %s with %T", hit.Response().Header.Get("Content-Type"), value)
+			}
 		},
 	}
 }

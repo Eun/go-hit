@@ -9,7 +9,7 @@ import (
 	"fmt"
 
 	"github.com/Eun/go-hit/errortrace"
-	"github.com/Eun/go-hit/internal"
+	"github.com/Eun/go-hit/internal/misc"
 )
 
 //nolint:gochecknoglobals
@@ -29,15 +29,15 @@ func init() {
 // Examples:
 //     MustDo(
 //         Post("https://example.com"),
-//         Send("Hello World"),
+//         Send().Body("Hello World"),
 //     )
 //
 //     MustDo(
 //         Post("https://example.com"),
-//         Send().Body("Hello World")
+//         Send().Body().Interface("Hello World")
 //     )
-func Send(data ...interface{}) ISend {
-	return newSend(newClearPath("Send", data), data)
+func Send() ISend {
+	return newSend(newClearPath("Send", nil))
 }
 
 // Expect expects the body to be equal the specified value, omit the parameter to get more options
@@ -45,15 +45,16 @@ func Send(data ...interface{}) ISend {
 // Examples:
 //     MustDo(
 //         Get("https://example.com"),
-//         Expect().Body().Contains("Hello World")
+//         Expect().Body("Hello World")
 //     )
 //
 //     MustDo(
 //         Get("https://example.com"),
-//         Expect("Hello World"),
+//         Expect().Body().Contains("Hello World")
 //     )
-func Expect(data ...interface{}) IExpect {
-	return newExpect(newClearPath("Expect", data), data)
+//
+func Expect() IExpect {
+	return newExpect(newClearPath("Expect", nil))
 }
 
 // Debug prints the current Request and Response to hit.Stdout(), omit the parameter to get more options
@@ -71,6 +72,29 @@ func Expect(data ...interface{}) IExpect {
 //     )
 func Debug(expression ...string) IDebug {
 	return newDebug(expression)
+}
+
+// Store stores the current Request or Response
+//
+// Examples:
+//     var body string
+//     MustDo(
+//         Get("https://example.com"),
+//         Store().Response().Body().In(&body),
+//     )
+//
+//     var headers http.Header
+//     MustDo(
+//         Get("https://example.com"),
+//         Store().Response().Header.In(&headers),
+//     )
+//     var contentType string
+//     MustDo(
+//         Get("https://example.com"),
+//         Store().Response().Header("Content-Type").In(&contentType),
+//     )
+func Store() IStore {
+	return newStore()
 }
 
 // HTTPClient sets the client for the request
@@ -174,7 +198,7 @@ func makeMethodStep(method, url string, a ...interface{}) IStep {
 		When:      BeforeSendStep,
 		ClearPath: nil, // not clearable
 		Exec: func(hit Hit) error {
-			request, err := http.NewRequest(method, internal.MakeURL(hit.BaseURL(), url, a...), nil)
+			request, err := http.NewRequest(method, misc.MakeURL(hit.BaseURL(), url, a...), nil)
 			if err != nil {
 				return err
 			}

@@ -247,7 +247,7 @@ func TestExpectBodyJSON_Equal(t *testing.T) {
 	t.Run("nil", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(nil),
+			Send().Body("null"),
 			Expect().Body().JSON().Equal("", nil),
 		)
 		ExpectError(t,
@@ -496,13 +496,13 @@ func TestExpectBodyJSON_NotEqual(t *testing.T) {
 	t.Run("nil", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(8),
+			Send().Body().JSON(8),
 			Expect().Body().JSON().NotEqual("", nil),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(nil),
+				Send().Body("null"),
 				Expect().Body().JSON().NotEqual("", nil),
 			),
 			PtrStr("should not be nil"),
@@ -699,7 +699,7 @@ func TestExpectBodyJSON_NotContains(t *testing.T) {
 				Send().Body(`{"Name":"Joe", "ID": 10}`),
 				Expect().Body().JSON().NotContains("", "Name"),
 			),
-			PtrStr("map[string]interface {}{"), nil, nil, PtrStr(`} does contain "Name"`),
+			PtrStr("map[string]interface {}{"), nil, nil, PtrStr(`} should not contain "Name"`),
 		)
 	})
 
@@ -715,7 +715,7 @@ func TestExpectBodyJSON_NotContains(t *testing.T) {
 				Send().Body(`[1, 2, 3]`),
 				Expect().Body().JSON().NotContains("", 2),
 			),
-			PtrStr("[]interface {}{"), nil, nil, nil, PtrStr("} does contain 2"),
+			PtrStr("[]interface {}{"), nil, nil, nil, PtrStr("} should not contain 2"),
 		)
 	})
 
@@ -731,7 +731,7 @@ func TestExpectBodyJSON_NotContains(t *testing.T) {
 				Send().Body(`"Hello World"`),
 				Expect().Body().JSON().NotContains("", "W"),
 			),
-			PtrStr(`"Hello World" does contain "W"`),
+			PtrStr(`"Hello World" should not contain "W"`),
 		)
 	})
 
@@ -747,7 +747,7 @@ func TestExpectBodyJSON_NotContains(t *testing.T) {
 				Send().Body(`null`),
 				Expect().Body().JSON().NotContains("", nil),
 			),
-			PtrStr(`nil does contain nil`),
+			PtrStr(`nil should not contain nil`),
 		)
 	})
 }
@@ -793,20 +793,20 @@ func TestExpectBodyJSON_GetAs(t *testing.T) {
 
 	Test(t,
 		Post(s.URL),
-		Send(User{10, "Joe"}),
-		Expect(func(h Hit) {
+		Send().Body(`{"Id": 10, "Name": "Joe"}`),
+		Expect().Custom(func(h Hit) {
 			var user User
-			h.Response().Body().JSON().GetAs("", &user)
+			h.Response().Body().JSON().MustDecode("", &user)
 			require.Equal(t, User{10, "Joe"}, user)
 		}),
 	)
 
 	Test(t,
 		Post(s.URL),
-		Send(User{10, "Joe"}),
-		Expect(func(h Hit) {
+		Send().Body(`{"Id": 10, "Name": "Joe"}`),
+		Expect().Custom(func(h Hit) {
 			var name string
-			h.Response().Body().JSON().GetAs("Name", &name)
+			h.Response().Body().JSON().MustDecode("Name", &name)
 			require.Equal(t, "Joe", name)
 		}),
 	)

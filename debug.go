@@ -10,7 +10,7 @@ import (
 	"reflect"
 
 	"github.com/Eun/go-hit/expr"
-	"github.com/Eun/go-hit/internal"
+	"github.com/Eun/go-hit/internal/misc"
 	"github.com/gookit/color"
 	"github.com/tidwall/pretty"
 )
@@ -53,22 +53,6 @@ func (*debug) when() StepTime {
 	return BeforeExpectStep
 }
 
-func (*debug) getBody(body *HTTPBody) interface{} {
-	reader := body.JSON().body.Reader()
-	// if there is a json reader
-	if reader != nil {
-		var container interface{}
-		if err := json.NewDecoder(reader).Decode(&container); err == nil {
-			return container
-		}
-	}
-	s := body.String()
-	if len(s) == 0 {
-		return nil
-	}
-	return s
-}
-
 func (*debug) getMap(header map[string][]string) map[string]string {
 	m := make(map[string]string)
 	for key := range header {
@@ -81,7 +65,7 @@ func (*debug) getMap(header map[string][]string) map[string]string {
 }
 
 func (d *debug) printWithExpression(hit Hit, v interface{}, expression []string) error {
-	if e, ok := internal.GetLastStringArgument(expression); ok {
+	if e, ok := misc.GetLastStringArgument(expression); ok {
 		v = expr.MustGetValue(v, e, expr.IgnoreError, expr.IgnoreNotFound)
 	}
 	return d.print(hit, v)
@@ -126,15 +110,15 @@ func (d *debug) exec(hit Hit) error {
 	}
 
 	if hit.Request() != nil {
-		m["Request"] = newDebugRequest().data(hit)
+		m["Request"] = newDebugRequest(d).data(hit)
 	}
 
 	if hit.Response() != nil {
-		m["Response"] = newDebugResponse().data(hit)
+		m["Response"] = newDebugResponse(d).data(hit)
 	}
 
 	var v interface{} = m
-	if e, ok := internal.GetLastStringArgument(d.expression); ok {
+	if e, ok := misc.GetLastStringArgument(d.expression); ok {
 		fmt.Println("Warning: Debug(something) is deprecated, use Debug().Something")
 		v = expr.MustGetValue(m, e, expr.IgnoreError, expr.IgnoreNotFound)
 	}
@@ -158,10 +142,10 @@ func (*debug) Time() IStep {
 	}
 }
 
-func (*debug) Request() IDebugRequest {
-	return newDebugRequest()
+func (d *debug) Request() IDebugRequest {
+	return newDebugRequest(d)
 }
 
-func (*debug) Response() IDebugResponse {
-	return newDebugResponse()
+func (d *debug) Response() IDebugResponse {
+	return newDebugResponse(d)
 }

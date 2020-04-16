@@ -2,7 +2,7 @@ package hit
 
 import (
 	"github.com/Eun/go-hit/errortrace"
-	"github.com/Eun/go-hit/internal"
+	"github.com/Eun/go-hit/internal/misc"
 	"golang.org/x/xerrors"
 )
 
@@ -188,7 +188,7 @@ type clearExpectStatus struct {
 }
 
 func newClearExpectStatus(cleanPath clearPath, params []int) IClearExpectStatus {
-	if _, ok := internal.GetLastIntArgument(params); ok {
+	if _, ok := misc.GetLastIntArgument(params); ok {
 		// this runs if we called Clear().Expect().Status(something)
 		return &finalClearExpectStatus{
 			removeStep(cleanPath),

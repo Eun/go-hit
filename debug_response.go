@@ -67,8 +67,8 @@ type debugResponse struct {
 	debug *debug
 }
 
-func newDebugResponse() *debugResponse {
-	return &debugResponse{}
+func newDebugResponse(d *debug) *debugResponse {
+	return &debugResponse{d}
 }
 
 func (*debugResponse) when() StepTime {
@@ -77,7 +77,7 @@ func (*debugResponse) when() StepTime {
 
 func (d *debugResponse) data(hit Hit) map[string]interface{} {
 	// we have to read body before trailer
-	body := d.debug.getBody(hit.Response().body)
+	body := hit.Response().body.GetBestFittingObject()
 	return map[string]interface{}{
 		"Proto":            hit.Response().Proto,
 		"ProtoMajor":       hit.Response().ProtoMajor,
@@ -201,7 +201,7 @@ func (d *debugResponse) Body(expression ...string) IStep {
 		When:      BeforeExpectStep,
 		ClearPath: nil,
 		Exec: func(hit Hit) error {
-			return d.debug.printWithExpression(hit, d.debug.getBody(hit.Response().Body()), expression)
+			return d.debug.printWithExpression(hit, hit.Response().Body().GetBestFittingObject(), expression)
 		},
 	}
 }

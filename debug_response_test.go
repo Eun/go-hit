@@ -76,7 +76,7 @@ func TestDebugResponse_ContentLength(t *testing.T) {
 	Test(t,
 		Post(s.URL),
 		Stdout(buf),
-		Send("Hello World"),
+		Send().Body("Hello World"),
 		Debug().Response().ContentLength(),
 	)
 
@@ -94,7 +94,7 @@ func TestDebugResponse_TransferEncoding(t *testing.T) {
 	Test(t,
 		Post(s.URL),
 		Stdout(buf),
-		Send("Hello World"),
+		Send().Body("Hello World"),
 		Debug().Response().TransferEncoding(),
 	)
 
@@ -112,7 +112,7 @@ func TestDebugResponse_Status(t *testing.T) {
 	Test(t,
 		Post(s.URL),
 		Stdout(buf),
-		Send("Hello World"),
+		Send().Body("Hello World"),
 		Debug().Response().Status(),
 	)
 
@@ -130,7 +130,7 @@ func TestDebugResponse_StatusCode(t *testing.T) {
 	Test(t,
 		Post(s.URL),
 		Stdout(buf),
-		Send("Hello World"),
+		Send().Body("Hello World"),
 		Debug().Response().StatusCode(),
 	)
 
@@ -149,7 +149,7 @@ func TestDebugResponse_Body(t *testing.T) {
 		Test(t,
 			Post(s.URL),
 			Stdout(buf),
-			Send("Hello World"),
+			Send().Body("Hello World"),
 			Debug().Response().Body(),
 		)
 
@@ -164,7 +164,7 @@ func TestDebugResponse_Body(t *testing.T) {
 		Test(t,
 			Post(s.URL),
 			Stdout(buf),
-			Send([]int{1, 2, 3}),
+			Send().Body().JSON([]int{1, 2, 3}),
 			Debug().Response().Body(),
 		)
 
@@ -220,7 +220,7 @@ func TestDebugResponse_Header(t *testing.T) {
 			Send().Body("Hello"),
 			Send().Header("X-Header1", "Foo"),
 			Send().Header("X-Header2", "Bar"),
-			Expect("Hello World"),
+			Expect().Body("Hello World"),
 			Stdout(buf),
 			Debug().Response().Header(),
 			Clear().Expect(),
@@ -273,7 +273,7 @@ func TestDebugResponse_Trailer(t *testing.T) {
 			Send().Body("Hello"),
 			Send().Trailer("X-Trailer1", "Foo"),
 			Send().Trailer("X-Trailer2", "Bar"),
-			Expect("Hello World"),
+			Expect().Body("Hello World"),
 			Stdout(buf),
 			Debug().Response().Trailer(),
 			Clear().Expect(),

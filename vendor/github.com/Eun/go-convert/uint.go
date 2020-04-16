@@ -1,9 +1,16 @@
 package convert
 
 import (
+	"errors"
+	"fmt"
+	"reflect"
 	"strconv"
+	"time"
 )
 
+func (stdRecipes) nilToUint(Converter, NilValue, *uint) error {
+	return nil
+}
 func (stdRecipes) intToUint(c Converter, in int, out *uint) error {
 	*out = uint(in)
 	return nil
@@ -73,4 +80,41 @@ func (stdRecipes) stringToUint(c Converter, in string, out *uint) error {
 	}
 	*out = uint(i)
 	return nil
+}
+func (stdRecipes) timeToUint(c Converter, in time.Time, out *uint) error {
+	*out = uint(in.Unix())
+	return nil
+}
+
+func (s stdRecipes) structToUint(c Converter, in StructValue, out *uint) error {
+	err := s.baseStructToUint(c, in.Value, out)
+	if err == nil {
+		return err
+	}
+
+	// test for *struct.Uint()
+	v := reflect.New(in.Type())
+	v.Elem().Set(in.Value)
+	if s.baseStructToUint(c, v, out) == nil {
+		return nil
+	}
+	return err
+}
+
+func (s stdRecipes) baseStructToUint(_ Converter, in reflect.Value, out *uint) error {
+	if !in.CanInterface() {
+		return errors.New("unable to make interface")
+	}
+	type toUint interface {
+		Uint() uint
+	}
+
+	// check for struct.Uint()
+	i, ok := in.Interface().(toUint)
+	if ok {
+		*out = i.Uint()
+		return nil
+	}
+
+	return fmt.Errorf("%s has no Uint() function", in.Type().String())
 }

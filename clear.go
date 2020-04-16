@@ -11,22 +11,19 @@ import (
 type IClear interface {
 	// Send removes all previous Send() steps and all steps chained to Send() e.g. Send().Body("Hello World").
 	//
-	// If you specify an argument it will only remove the Send() steps matching that argument.
-	//
 	// Usage:
 	//     Clear().Send()                      // will remove all Send() steps and all chained steps to Send() e.g. Send().Body("Hello World")
-	//     Clear().Send("Hello World")         // will remove all Send("Hello World") steps
 	//     Clear().Send().Body()               // will remove all Send().Body() steps and all chained steps to Body() e.g. Send().Body().Equal("Hello World")
 	//     Clear().Send().Body("Hello World")  // will remove all Send().Body("Hello World") steps
 	//
 	// Example:
 	//     MustDo(
 	//         Post("https://example.com"),
-	//         Send("Hello Earth"),
+	//         Send().Body("Hello Earth"),
 	//         Clear().Send(),
-	//         Send("Hello World"),
+	//         Send().Body("Hello World"),
 	//     )
-	Send(value ...interface{}) IClearSend
+	Send() IClearSend
 
 	// Expect removes all previous Expect() steps and all steps chained to Expect() e.g. Expect().Body("Hello World").
 	//
@@ -34,18 +31,17 @@ type IClear interface {
 	//
 	// Usage:
 	//     Clear().Expect()                      // will remove all Expect() steps and all chained steps to Expect() e.g. Expect().Body("Hello World")
-	//     Clear().Expect("Hello World")         // will remove all Expect("Hello World") steps
 	//     Clear().Expect().Body()               // will remove all Expect().Body() steps and all chained steps to Body() e.g. Expect().Body().Equal("Hello World")
 	//     Clear().Expect().Body("Hello World")  // will remove all Expect().Body("Hello World") steps
 	//
 	// Example:
 	//     MustDo(
 	//         Post("https://example.com"),
-	//         Expect("Hello Earth"),
+	//         Expect().Body("Hello Earth"),
 	//         Clear().Expect(),
-	//         Expect("Hello World"),
+	//         Expect().Body("Hello World"),
 	//     )
-	Expect(value ...interface{}) IClearExpect
+	Expect() IClearExpect
 }
 
 type clear struct{}
@@ -54,12 +50,12 @@ func newClear() IClear {
 	return &clear{}
 }
 
-func (clr *clear) Send(value ...interface{}) IClearSend {
-	return newClearSend(newClearPath("Send", value), value)
+func (clr *clear) Send() IClearSend {
+	return newClearSend(newClearPath("Send", nil))
 }
 
-func (clr *clear) Expect(value ...interface{}) IClearExpect {
-	return newClearExpect(newClearPath("Expect", value), value)
+func (clr *clear) Expect() IClearExpect {
+	return newClearExpect(newClearPath("Expect", nil))
 }
 
 func removeSteps(hit Hit, path clearPath) error {

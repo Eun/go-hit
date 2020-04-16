@@ -2,8 +2,8 @@ package hit
 
 import (
 	"github.com/Eun/go-hit/errortrace"
-	"github.com/Eun/go-hit/internal"
 	"github.com/Eun/go-hit/internal/minitest"
+	"github.com/Eun/go-hit/internal/misc"
 	"golang.org/x/xerrors"
 )
 
@@ -144,7 +144,7 @@ func newExpectStatus(expect IExpect, cleanPath clearPath, params []int) IExpectS
 		trace:     ett.Prepare(),
 	}
 
-	if param, ok := internal.GetLastIntArgument(params); ok {
+	if param, ok := misc.GetLastIntArgument(params); ok {
 		return &finalExpectStatus{
 			&hitStep{
 				Trace:     status.trace,
@@ -178,7 +178,7 @@ func (status *expectStatus) Equal(statusCode int) IStep {
 		ClearPath: status.clearPath().Push("Equal", []interface{}{statusCode}),
 		Exec: func(hit Hit) error {
 			if hit.Response().StatusCode != statusCode {
-				minitest.Errorf("Expected status code to be %d but was %d instead", statusCode, hit.Response().StatusCode)
+				return minitest.Error.Errorf("Expected status code to be %d but was %d instead", statusCode, hit.Response().StatusCode)
 			}
 			return nil
 		},
@@ -192,7 +192,7 @@ func (status *expectStatus) NotEqual(statusCode int) IStep {
 		ClearPath: status.clearPath().Push("NotEqual", []interface{}{statusCode}),
 		Exec: func(hit Hit) error {
 			if hit.Response().StatusCode == statusCode {
-				minitest.Errorf("Expected status code not to be %d", statusCode)
+				return minitest.Error.Errorf("Expected status code not to be %d", statusCode)
 			}
 			return nil
 		},
@@ -209,8 +209,7 @@ func (status *expectStatus) OneOf(statusCodes ...int) IStep {
 		When:      ExpectStep,
 		ClearPath: status.clearPath().Push("OneOf", args),
 		Exec: func(hit Hit) error {
-			minitest.Contains(statusCodes, hit.Response().StatusCode)
-			return nil
+			return minitest.Error.Contains(statusCodes, hit.Response().StatusCode)
 		},
 	}
 }
@@ -225,8 +224,7 @@ func (status *expectStatus) NotOneOf(statusCodes ...int) IStep {
 		When:      ExpectStep,
 		ClearPath: status.clearPath().Push("NotOneOf", args),
 		Exec: func(hit Hit) error {
-			minitest.NotContains(statusCodes, hit.Response().StatusCode)
-			return nil
+			return minitest.Error.NotContains(statusCodes, hit.Response().StatusCode)
 		},
 	}
 }
@@ -238,7 +236,7 @@ func (status *expectStatus) GreaterThan(statusCode int) IStep {
 		ClearPath: status.clearPath().Push("GreaterThan", []interface{}{statusCode}),
 		Exec: func(hit Hit) error {
 			if hit.Response().StatusCode <= statusCode {
-				minitest.Errorf("expected %d to be greater than %d", hit.Response().StatusCode, statusCode)
+				return minitest.Error.Errorf("expected %d to be greater than %d", hit.Response().StatusCode, statusCode)
 			}
 			return nil
 		},
@@ -252,7 +250,7 @@ func (status *expectStatus) LessThan(statusCode int) IStep {
 		ClearPath: status.clearPath().Push("LessThan", []interface{}{statusCode}),
 		Exec: func(hit Hit) error {
 			if hit.Response().StatusCode >= statusCode {
-				minitest.Errorf("expected %d to be less than %d", hit.Response().StatusCode, statusCode)
+				return minitest.Error.Errorf("expected %d to be less than %d", hit.Response().StatusCode, statusCode)
 			}
 			return nil
 		},
@@ -266,7 +264,7 @@ func (status *expectStatus) GreaterOrEqualThan(statusCode int) IStep {
 		ClearPath: status.clearPath().Push("GreaterOrEqualThan", []interface{}{statusCode}),
 		Exec: func(hit Hit) error {
 			if hit.Response().StatusCode < statusCode {
-				minitest.Errorf("expected %d to be greater or equal than %d", hit.Response().StatusCode, statusCode)
+				return minitest.Error.Errorf("expected %d to be greater or equal than %d", hit.Response().StatusCode, statusCode)
 			}
 			return nil
 		},
@@ -280,7 +278,7 @@ func (status *expectStatus) LessOrEqualThan(statusCode int) IStep {
 		ClearPath: status.clearPath().Push("LessOrEqualThan", []interface{}{statusCode}),
 		Exec: func(hit Hit) error {
 			if hit.Response().StatusCode > statusCode {
-				minitest.Errorf("expected %d to be less or equal than %d", hit.Response().StatusCode, statusCode)
+				return minitest.Error.Errorf("expected %d to be less or equal than %d", hit.Response().StatusCode, statusCode)
 			}
 			return nil
 		},
@@ -294,7 +292,7 @@ func (status *expectStatus) Between(min, max int) IStep {
 		ClearPath: status.clearPath().Push("Between", []interface{}{min, max}),
 		Exec: func(hit Hit) error {
 			if hit.Response().StatusCode < min || hit.Response().StatusCode > max {
-				minitest.Errorf("expected %d to be between %d and %d", hit.Response().StatusCode, min, max)
+				return minitest.Error.Errorf("expected %d to be between %d and %d", hit.Response().StatusCode, min, max)
 			}
 			return nil
 		},
@@ -308,7 +306,7 @@ func (status *expectStatus) NotBetween(min, max int) IStep {
 		ClearPath: status.clearPath().Push("NotBetween", []interface{}{min, max}),
 		Exec: func(hit Hit) error {
 			if hit.Response().StatusCode >= min && hit.Response().StatusCode <= max {
-				minitest.Errorf("expected %d not to be between %d and %d", hit.Response().StatusCode, min, max)
+				return minitest.Error.Errorf("expected %d not to be between %d and %d", hit.Response().StatusCode, min, max)
 			}
 			return nil
 		},

@@ -155,7 +155,7 @@ func TestClearExpectBodyJSON_NotContains(t *testing.T) {
 				Expect().Body().JSON().NotContains("Surname", "Doe"),
 				Clear().Expect().Body().JSON().NotContains("Name"),
 			),
-			PtrStr(`"Doe" does contain "Doe"`),
+			PtrStr(`"Doe" should not contain "Doe"`),
 		)
 	})
 

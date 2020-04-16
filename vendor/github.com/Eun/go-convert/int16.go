@@ -1,9 +1,16 @@
 package convert
 
 import (
+	"errors"
+	"fmt"
+	"reflect"
 	"strconv"
+	"time"
 )
 
+func (stdRecipes) nilToInt16(Converter, NilValue, *int16) error {
+	return nil
+}
 func (stdRecipes) intToInt16(c Converter, in int, out *int16) error {
 	*out = int16(in)
 	return nil
@@ -73,4 +80,41 @@ func (stdRecipes) stringToInt16(c Converter, in string, out *int16) error {
 	}
 	*out = int16(i)
 	return nil
+}
+func (stdRecipes) timeToInt16(c Converter, in time.Time, out *int16) error {
+	*out = int16(in.Unix())
+	return nil
+}
+
+func (s stdRecipes) structToInt16(c Converter, in StructValue, out *int16) error {
+	err := s.baseStructToInt16(c, in.Value, out)
+	if err == nil {
+		return err
+	}
+
+	// test for *struct.Int16()
+	v := reflect.New(in.Type())
+	v.Elem().Set(in.Value)
+	if s.baseStructToInt16(c, v, out) == nil {
+		return nil
+	}
+	return err
+}
+
+func (s stdRecipes) baseStructToInt16(_ Converter, in reflect.Value, out *int16) error {
+	if !in.CanInterface() {
+		return errors.New("unable to make interface")
+	}
+	type toInt16 interface {
+		Int16() int16
+	}
+
+	// check for struct.Int16()
+	i, ok := in.Interface().(toInt16)
+	if ok {
+		*out = i.Int16()
+		return nil
+	}
+
+	return fmt.Errorf("%s has no Int16() function", in.Type().String())
 }

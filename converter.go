@@ -6,8 +6,10 @@ import (
 
 	"strings"
 
+	"net/url"
+
 	"github.com/Eun/go-convert"
-	"golang.org/x/xerrors"
+	"github.com/Eun/go-hit/httpbody"
 )
 
 //nolint:gochecknoglobals
@@ -19,27 +21,45 @@ func init() {
 	converter = convert.New(convert.Options{
 		Recipes: []convert.Recipe{
 			// convert http.Header to different map types (map[string]string, map[string]interface{}, ...)
-			{
-				From: reflect.TypeOf(http.Header{}),
-				To:   convert.MapType,
-				Func: func(c convert.Converter, in reflect.Value, out reflect.Value) error {
-					if !in.CanInterface() {
-						return xerrors.New("CanInterface() == false")
+			convert.MustMakeRecipe(func(c convert.Converter, in http.Header, out convert.MapValue) error {
+				m := make(map[string]string)
+				for key, value := range in {
+					m[key] = strings.Join(value, "")
+				}
+				return c.ConvertReflectValue(reflect.ValueOf(m), out.Value)
+			}),
+			// convert different map types to http.Header
+			convert.MustMakeRecipe(func(c convert.Converter, in convert.MapValue, out *http.Header) error {
+				(*out) = make(map[string][]string)
+
+				iter := in.MapRange()
+				for iter.Next() {
+					var key string
+					var value string
+					if err := c.ConvertReflectValue(iter.Key(), reflect.ValueOf(&key)); err != nil {
+						return err
 					}
-					hdr, ok := in.Interface().(http.Header)
-					if !ok {
-						return xerrors.New("source is not a http.Header")
+					if err := c.ConvertReflectValue(iter.Value(), reflect.ValueOf(&value)); err != nil {
+						return err
 					}
-					if hdr == nil {
-						return xerrors.New("source is nil")
-					}
-					m := make(map[string]string)
-					for key, value := range hdr {
-						m[key] = strings.Join(value, "")
-					}
-					return c.ConvertReflectValue(reflect.ValueOf(m), out)
-				},
-			},
+					(*out)[key] = []string{value}
+				}
+				return nil
+			}),
+			convert.MustMakeRecipe(func(_ convert.Converter, in url.Userinfo, out *url.Userinfo) error {
+				if pass, ok := in.Password(); ok {
+					*out = *url.UserPassword(in.Username(), pass)
+				} else {
+					*out = *url.User(in.Username())
+				}
+				return nil
+			}),
+
+			convert.MustMakeRecipe(func(_ convert.Converter, in httpbody.HttpBody, out *httpbody.HttpBody) error {
+				// just copy
+				*out = in
+				return nil
+			}),
 		},
 	})
 }

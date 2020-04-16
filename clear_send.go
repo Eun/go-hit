@@ -2,8 +2,6 @@ package hit
 
 import (
 	"github.com/Eun/go-hit/errortrace"
-	"github.com/Eun/go-hit/internal"
-	"golang.org/x/xerrors"
 )
 
 // IClearSend provides a clear functionality to remove previous steps from running in the Send() scope
@@ -28,40 +26,6 @@ type IClearSend interface {
 	//     )
 	Body(value ...interface{}) IClearSendBody
 
-	// Interface removes all previous Send().Interface() steps.
-	//
-	// If you specify an argument it will only remove the Send().Interface() steps matching that argument.
-	//
-	// Usage:
-	//     Clear().Send().Interface()              // will remove all Send().Interface() steps
-	//     Clear().Send().Interface("Hello World") // will remove all Send().Interface("Hello World") steps
-	//
-	// Example:
-	//     MustDo(
-	//         Post("https://example.com"),
-	//         Send().Interface("Hello Earth"),
-	//         Clear().Send().Interface(),
-	//         Send().Interface("Hello World"),
-	//     )
-	Interface(value ...interface{}) IStep
-
-	// JSON removes all previous Send().JSON() steps.
-	//
-	// If you specify an argument it will only remove the Send().JSON() steps matching that argument.
-	//
-	// Usage:
-	//     Clear().Send().JSON()                                      // will remove all Send().JSON() steps
-	//     Clear().Send().JSON(map[string]interface{}{"Name": "Joe"}) // will remove all Send().JSON("Hello World") steps
-	//
-	// Example:
-	//     MustDo(
-	//         Post("https://example.com"),
-	//         Send().JSON(map[string]interface{}{"Name": "Joe"}),
-	//         Clear().Send().JSON(),
-	//         Send().JSON(map[string]interface{}{"Name": "Alice"}),
-	//     )
-	JSON(value ...interface{}) IStep
-
 	// Header removes all previous Send().Header() steps.
 	//
 	// If you specify an argument it will only remove the Send().Header() steps matching that argument.
@@ -79,6 +43,24 @@ type IClearSend interface {
 	//         Send().Header("Content-Type", "application/json"),
 	//     )
 	Header(values ...interface{}) IStep
+
+	// Trailer removes all previous Send().Trailer() steps.
+	//
+	// If you specify an argument it will only remove the Send().Trailer() steps matching that argument.
+	//
+	// Usage:
+	//     Clear().Send().Trailer()                                   // will remove all Send().Trailer() steps
+	//     Clear().Send().Trailer("Content-Type")                     // will remove all Send().Trailer("Content-Type", ...) step
+	//     Clear().Send().Trailer("Content-Type", "application/json") // will remove all Send().Trailer("Content-Type", "application/json") steps
+	//
+	// Example:
+	//     MustDo(
+	//         Post("https://example.com"),
+	//         Send().Trailer("Content-Type", "application/xml"),
+	//         Clear().Send().Trailer("Content-Type"),
+	//         Send().Trailer("Content-Type", "application/json"),
+	//     )
+	Trailer(values ...interface{}) IStep
 
 	// Custom removes all previous Send().Custom() steps.
 	//
@@ -107,14 +89,7 @@ type clearSend struct {
 	trace     *errortrace.ErrorTrace
 }
 
-func newClearSend(clearPath clearPath, params []interface{}) IClearSend {
-	if _, ok := internal.GetLastArgument(params); ok {
-		// this runs if we called Clear().Send(something)
-		return &finalClearSend{
-			removeStep(clearPath),
-			"only usable with Clear().Send() not with Clear().Send(value)",
-		}
-	}
+func newClearSend(clearPath clearPath) IClearSend {
 	return &clearSend{
 		cleanPath: clearPath,
 		trace:     ett.Prepare(),
@@ -141,8 +116,12 @@ func (snd *clearSend) Body(value ...interface{}) IClearSendBody {
 	return newClearSendBody(snd.clearPath().Push("Body", value), value)
 }
 
-func (snd *clearSend) Interface(value ...interface{}) IStep {
-	return removeStep(snd.clearPath().Push("Interface", value))
+func (snd *clearSend) Header(values ...interface{}) IStep {
+	return removeStep(snd.clearPath().Push("Header", values))
+}
+
+func (snd *clearSend) Trailer(values ...interface{}) IStep {
+	return removeStep(snd.clearPath().Push("Trailer", values))
 }
 
 // custom can be used to send a custom behaviour
@@ -152,52 +131,4 @@ func (snd *clearSend) Custom(fn ...Callback) IStep {
 		args[i] = fn[i]
 	}
 	return removeStep(snd.clearPath().Push("Custom", args))
-}
-
-// JSON sets the body to the specific data (shortcut for Body().JSON()
-func (snd *clearSend) JSON(value ...interface{}) IStep {
-	return removeStep(snd.clearPath().Push("JSON", value))
-}
-
-func (snd *clearSend) Header(values ...interface{}) IStep {
-	return removeStep(snd.clearPath().Push("Header", values))
-}
-
-type finalClearSend struct {
-	IStep
-	message string
-}
-
-func (snd *finalClearSend) fail() IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(snd.message)
-		},
-	}
-}
-
-func (snd *finalClearSend) Body(...interface{}) IClearSendBody {
-	return &finalClearSendBody{
-		snd.fail(),
-		snd.message,
-	}
-}
-
-func (snd *finalClearSend) Custom(...Callback) IStep {
-	return snd.fail()
-}
-
-func (snd *finalClearSend) JSON(...interface{}) IStep {
-	return snd.fail()
-}
-
-func (snd *finalClearSend) Header(...interface{}) IStep {
-	return snd.fail()
-}
-
-func (snd *finalClearSend) Interface(...interface{}) IStep {
-	return snd.fail()
 }

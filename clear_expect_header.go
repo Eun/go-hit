@@ -2,7 +2,6 @@ package hit
 
 import (
 	"github.com/Eun/go-hit/errortrace"
-	"golang.org/x/xerrors"
 )
 
 // IClearExpectHeader provides a clear functionality to remove previous steps from running in the Expect().Header(...)  scope
@@ -256,52 +255,4 @@ func (hdr *clearExpectHeader) Equal(value ...interface{}) IStep {
 
 func (hdr *clearExpectHeader) NotEqual(value ...interface{}) IStep {
 	return removeStep(hdr.clearPath().Push("NotEqual", value))
-}
-
-type finalClearExpectHeader struct {
-	IStep
-	message string
-}
-
-func (hdr *finalClearExpectHeader) fail() IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(hdr.message)
-		},
-	}
-}
-
-func (hdr *finalClearExpectHeader) Contains(...interface{}) IStep {
-	return hdr.fail()
-}
-
-func (hdr *finalClearExpectHeader) NotContains(...interface{}) IStep {
-	return hdr.fail()
-}
-
-func (hdr *finalClearExpectHeader) OneOf(...interface{}) IStep {
-	return hdr.fail()
-}
-
-func (hdr *finalClearExpectHeader) NotOneOf(...interface{}) IStep {
-	return hdr.fail()
-}
-
-func (hdr *finalClearExpectHeader) Empty() IStep {
-	return hdr.fail()
-}
-
-func (hdr *finalClearExpectHeader) Len(...int) IStep {
-	return hdr.fail()
-}
-
-func (hdr *finalClearExpectHeader) Equal(...interface{}) IStep {
-	return hdr.fail()
-}
-
-func (hdr *finalClearExpectHeader) NotEqual(...interface{}) IStep {
-	return hdr.fail()
 }

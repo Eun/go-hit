@@ -17,7 +17,7 @@ func TestClearSendBody_JSON(t *testing.T) {
 				Send().Body().JSON("Hello World"),
 				Clear().Send().Body().JSON(),
 				Send().Body().JSON("Hello Earth"),
-				Expect("Hello World"),
+				Expect().Body("Hello World"),
 			),
 			PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), PtrStr(`actual: "\"Hello Earth\""`), nil, nil, nil, nil,
 		)
@@ -30,9 +30,40 @@ func TestClearSendBody_JSON(t *testing.T) {
 				Send().Body().JSON("Hello World"),
 				Send().Body().JSON("Hello Earth"),
 				Clear().Send().Body().JSON("Hello World"),
-				Expect("Hello World"),
+				Expect().Body("Hello World"),
 			),
 			PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), PtrStr(`actual: "\"Hello Earth\""`), nil, nil, nil, nil,
+		)
+	})
+}
+
+func TestClearSendBody_XML(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("all", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Body().XML([]string{"A", "B"}),
+				Clear().Send().Body().XML(),
+				Send().Body().XML([]string{"A", "B", "C"}),
+				Expect().Body("<string>A</string><string>B</string>"),
+			),
+			PtrStr("Not equal"), PtrStr(`expected: "<string>A</string><string>B</string>"`), PtrStr(`actual: "<string>A</string><string>B</string><string>C</string>"`), nil, nil, nil, nil,
+		)
+	})
+
+	t.Run("specific", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Body().XML([]string{"A", "B"}),
+				Send().Body().XML([]string{"A", "C"}),
+				Clear().Send().Body().XML([]string{"A", "B"}),
+				Expect().Body("<string>A</string><string>B</string>"),
+			),
+			PtrStr("Not equal"), PtrStr(`expected: "<string>A</string><string>B</string>"`), PtrStr(`actual: "<string>A</string><string>C</string>"`), nil, nil, nil, nil,
 		)
 	})
 }
@@ -48,7 +79,7 @@ func TestClearSendBody_Interface(t *testing.T) {
 				Send().Body().Interface("Hello World"),
 				Clear().Send().Body().Interface(),
 				Send().Body().Interface("Hello Earth"),
-				Expect("Hello World"),
+				Expect().Body("Hello World"),
 			),
 			PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), PtrStr(`actual: "Hello Earth"`), nil, nil, nil, nil,
 		)
@@ -61,7 +92,7 @@ func TestClearSendBody_Interface(t *testing.T) {
 				Send().Body().Interface("Hello World"),
 				Send().Body().Interface("Hello Earth"),
 				Clear().Send().Body().Interface("Hello World"),
-				Expect("Hello World"),
+				Expect().Body("Hello World"),
 			),
 			PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), PtrStr(`actual: "Hello Earth"`), nil, nil, nil, nil,
 		)
@@ -75,6 +106,12 @@ func TestClearSendBody_Final(t *testing.T) {
 	t.Run("Clear().Send().Body(value).JSON()", func(t *testing.T) {
 		ExpectError(t,
 			Do(Clear().Send().Body("Data").JSON()),
+			PtrStr("only usable with Clear().Send().Body() not with Clear().Send().Body(value)"),
+		)
+	})
+	t.Run("Clear().Send().Body(value).XML()", func(t *testing.T) {
+		ExpectError(t,
+			Do(Clear().Send().Body("Data").XML()),
 			PtrStr("only usable with Clear().Send().Body() not with Clear().Send().Body(value)"),
 		)
 	})
