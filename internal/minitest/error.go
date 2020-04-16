@@ -6,11 +6,10 @@ import (
 
 	"strings"
 
-	"errors"
-
 	"github.com/Eun/go-hit/internal/minitest/contains"
 	"github.com/Eun/go-hit/internal/misc"
 	"github.com/google/go-cmp/cmp"
+	"golang.org/x/xerrors"
 )
 
 type ReturnError struct{}
@@ -26,7 +25,7 @@ func makeError(err string, customMessageAndArgs ...interface{}) error {
 		sb.WriteString(err)
 	}
 
-	return errors.New(sb.String())
+	return xerrors.New(sb.String())
 }
 
 func (ReturnError) Errorf(messageAndArgs ...interface{}) error {
