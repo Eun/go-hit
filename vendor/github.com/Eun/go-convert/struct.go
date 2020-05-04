@@ -7,7 +7,11 @@ import (
 	"strings"
 )
 
-func (stdRecipes) mapToStruct(c Converter, in reflect.Value, out reflect.Value) error {
+func (stdRecipes) nilToStruct(Converter, NilValue, StructValue) error {
+	return nil
+}
+
+func (stdRecipes) mapToStruct(c Converter, in MapValue, out StructValue) error {
 	fieldNameValue := reflect.New(reflect.TypeOf(""))
 	for _, key := range in.MapKeys() {
 		// convert key
@@ -38,7 +42,7 @@ func (stdRecipes) mapToStruct(c Converter, in reflect.Value, out reflect.Value) 
 	return nil
 }
 
-func (stdRecipes) structToStruct(c Converter, in reflect.Value, out reflect.Value) error {
+func (stdRecipes) structToStruct(c Converter, in, out StructValue) error {
 	for i := in.NumField() - 1; i >= 0; i-- {
 		fieldName := in.Type().Field(i).Name
 		// find the destination field

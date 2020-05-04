@@ -6,22 +6,27 @@ import (
 	"errors"
 )
 
-func (stdRecipes) stringToSlice(c Converter, in, out reflect.Value) error {
+func (stdRecipes) nilToSlice(_ Converter, _ NilValue, out SliceValue) error {
+	out.Elem().Set(reflect.MakeSlice(reflect.SliceOf(out.Type().Elem().Elem()), 0, 0))
+	return nil
+}
+
+func (stdRecipes) stringToSlice(c Converter, in string, out SliceValue) error {
 	valueType := out.Type().Elem().Elem()
 	switch valueType.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		str := in.String()
-		sl := reflect.MakeSlice(reflect.SliceOf(valueType), len(str), len(str))
-		for i := in.Len() - 1; i >= 0; i-- {
-			sl.Index(i).SetInt(int64(str[i]))
+		size := len(in)
+		sl := reflect.MakeSlice(reflect.SliceOf(valueType), size, size)
+		for i := size - 1; i >= 0; i-- {
+			sl.Index(i).SetInt(int64(in[i]))
 		}
 		out.Elem().Set(sl)
 		return nil
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		str := in.String()
-		sl := reflect.MakeSlice(reflect.SliceOf(valueType), len(str), len(str))
-		for i := in.Len() - 1; i >= 0; i-- {
-			sl.Index(i).SetUint(uint64(str[i]))
+		size := len(in)
+		sl := reflect.MakeSlice(reflect.SliceOf(valueType), size, size)
+		for i := size - 1; i >= 0; i-- {
+			sl.Index(i).SetUint(uint64(in[i]))
 		}
 		out.Elem().Set(sl)
 		return nil
@@ -29,9 +34,9 @@ func (stdRecipes) stringToSlice(c Converter, in, out reflect.Value) error {
 	return errors.New("no recipe")
 }
 
-func (stdRecipes) sliceToSlice(c Converter, in, out reflect.Value) error {
-	out = out.Elem()
-	valueType := out.Type().Elem()
+func (stdRecipes) sliceToSlice(c Converter, in, out SliceValue) error {
+	o := out.Elem()
+	valueType := o.Type().Elem()
 
 	length := in.Len()
 
@@ -39,8 +44,8 @@ func (stdRecipes) sliceToSlice(c Converter, in, out reflect.Value) error {
 	for i := length - 1; i >= 0; i-- {
 		value := reflect.New(valueType)
 		// lookup the original
-		if i < out.Len() {
-			orig := out.Index(i)
+		if i < o.Len() {
+			orig := o.Index(i)
 			if orig.IsValid() {
 				value.Elem().Set(orig)
 			}
@@ -51,11 +56,6 @@ func (stdRecipes) sliceToSlice(c Converter, in, out reflect.Value) error {
 		}
 		sl.Index(i).Set(value.Elem())
 	}
-	out.Set(sl)
-	return nil
-}
-
-func (stdRecipes) nilToSlice(c Converter, _, out reflect.Value) error {
-	out.Elem().Set(reflect.MakeSlice(reflect.SliceOf(out.Type().Elem().Elem()), 0, 0))
+	o.Set(sl)
 	return nil
 }

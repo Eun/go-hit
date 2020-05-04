@@ -1,9 +1,16 @@
 package convert
 
 import (
+	"errors"
+	"fmt"
+	"reflect"
 	"strconv"
+	"time"
 )
 
+func (stdRecipes) nilToUint64(Converter, NilValue, *uint64) error {
+	return nil
+}
 func (stdRecipes) intToUint64(c Converter, in int, out *uint64) error {
 	*out = uint64(in)
 	return nil
@@ -73,4 +80,48 @@ func (stdRecipes) stringToUint64(c Converter, in string, out *uint64) error {
 	}
 	*out = uint64(i)
 	return nil
+}
+func (stdRecipes) timeToUint64(c Converter, in time.Time, out *uint64) error {
+	*out = uint64(in.Unix())
+	return nil
+}
+
+func (s stdRecipes) structToUint64(c Converter, in StructValue, out *uint64) error {
+	err := s.baseStructToUint64(c, in.Value, out)
+	if err == nil {
+		return err
+	}
+
+	// test for *struct.Uint64()
+	v := reflect.New(in.Type())
+	v.Elem().Set(in.Value)
+	if s.baseStructToUint64(c, v, out) == nil {
+		return nil
+	}
+	return err
+}
+
+func (s stdRecipes) baseStructToUint64(_ Converter, in reflect.Value, out *uint64) error {
+	if !in.CanInterface() {
+		return errors.New("unable to make interface")
+	}
+	type toUint64 interface {
+		Uint64() uint64
+	}
+	type toUint64WithErr interface {
+		Uint64() (uint64, error)
+	}
+
+	// check for struct.Uint64()
+	if i, ok := in.Interface().(toUint64); ok {
+		*out = i.Uint64()
+		return nil
+	}
+	if i, ok := in.Interface().(toUint64WithErr); ok {
+		var err error
+		*out, err = i.Uint64()
+		return err
+	}
+
+	return fmt.Errorf("%s has no Uint64() function", in.Type().String())
 }
