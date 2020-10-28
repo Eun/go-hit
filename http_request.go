@@ -5,13 +5,14 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/Eun/go-doppelgangerreader"
+	"github.com/Eun/go-hit/httpbody"
 )
 
+// HTTPRequest contains the http.Request and methods to extract/set data for the body.
 type HTTPRequest struct {
 	Hit Hit
 	*http.Request
-	body *HTTPBody
+	body *httpbody.HTTPBody
 }
 
 func newHTTPRequest(hit Hit, req *http.Request) *HTTPRequest {
@@ -76,22 +77,20 @@ func newHTTPRequest(hit Hit, req *http.Request) *HTTPRequest {
 	newRequest.TransferEncoding = make([]string, len(req.TransferEncoding))
 	copy(newRequest.TransferEncoding, req.TransferEncoding)
 
-	var factory doppelgangerreader.DoppelgangerFactory
+	body := httpbody.NewHTTPBody(req.Body, newRequest.Header)
+
 	if req.Body != nil {
-		factory = doppelgangerreader.NewFactory(req.Body)
-		req.Body = factory.NewDoppelganger()
+		req.Body = body.Reader()
 	}
 
 	return &HTTPRequest{
 		Hit:     hit,
 		Request: newRequest,
-		body: &HTTPBody{
-			hit:     hit,
-			factory: factory,
-		},
+		body:    body,
 	}
 }
 
-func (req *HTTPRequest) Body() *HTTPBody {
+// Body provides methods for accessing the http body.
+func (req *HTTPRequest) Body() *httpbody.HTTPBody {
 	return req.body
 }

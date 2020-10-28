@@ -48,10 +48,14 @@ func MakeRecipe(fn interface{}) (Recipe, error) {
 	r.From = v.Type().In(1)
 	r.To = v.Type().In(2)
 
-	r.Func = wrapFunc(v)
-	if r.To.Kind() != reflect.Ptr {
+	fromWrapper, _ := getGenericWrapper(r.From)
+	toWrapper, hasToWrapper := getGenericWrapper(r.To)
+
+	if !hasToWrapper && r.To.Kind() != reflect.Ptr {
 		return Recipe{}, fmt.Errorf("%s has invalid pattern", v.Type().String())
 	}
+
+	r.Func = wrapFunc(v, fromWrapper, toWrapper)
 
 	if v.Type().NumOut() != 1 {
 		return Recipe{}, fmt.Errorf("%s has invalid pattern", v.Type().String())
@@ -97,9 +101,11 @@ func MustMakeRecipes(f ...interface{}) []Recipe {
 	return r
 }
 
-func wrapFunc(f reflect.Value) func(c Converter, in reflect.Value, out reflect.Value) error {
+type wrapParam func(reflect.Value) reflect.Value
+
+func wrapFunc(f reflect.Value, wrapIn, wrapOut wrapParam) func(c Converter, in reflect.Value, out reflect.Value) error {
 	return func(c Converter, in reflect.Value, out reflect.Value) error {
-		result := f.Call([]reflect.Value{reflect.ValueOf(c), in, out})
+		result := f.Call([]reflect.Value{reflect.ValueOf(c), wrapIn(in), wrapOut(out)})
 		if !result[0].IsNil() {
 			return result[0].Interface().(error)
 		}

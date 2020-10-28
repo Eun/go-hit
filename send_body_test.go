@@ -1,68 +1,85 @@
 package hit_test
 
 import (
-	"bytes"
 	"fmt"
 	"testing"
 
-	. "github.com/Eun/go-hit"
 	"github.com/stretchr/testify/require"
+
+	. "github.com/Eun/go-hit"
 )
 
-func TestSendBody_JSON(t *testing.T) {
+func TestSendBody_String(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
 	Test(t,
 		Post(s.URL),
-		Send().Body().JSON([]string{"A", "B"}),
-		Expect().Body().Equal(`["A","B"]`),
+		Send().Body().String("Hello World"),
+		Expect().Body().String().Equal("Hello World"),
 	)
 }
-
-func TestSendBody(t *testing.T) {
+func TestSendBody_JSON(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
-
-	t.Run("bytes", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Send().Body([]byte("Hello World")),
-			Expect().Body().Equal(`Hello World`),
-		)
-	})
 
 	t.Run("string", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body("Hello World"),
-			Expect().Body().Equal(`Hello World`),
+			Send().Body().JSON("Hello World"),
+			Expect().Body().String().Equal(`"Hello World"`),
 		)
 	})
-
-	t.Run("reader", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Send().Body(bytes.NewBufferString("Hello World")),
-			Expect().Body().Equal(`Hello World`),
-		)
-	})
-
 	t.Run("slice", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body([]string{"A", "B"}),
-			Expect().Body().Equal(`["A","B"]`),
+			Send().Body().JSON([]string{"A", "B"}),
+			Expect().Body().String().Equal(`["A","B"]`),
+		)
+	})
+
+	t.Run("object", func(t *testing.T) {
+		Test(t,
+			Post(s.URL),
+			Send().Body().JSON(map[string]interface{}{"A": "1", "B": "2"}),
+			Expect().Body().String().Equal(`{"A":"1","B":"2"}`),
 		)
 	})
 
 	t.Run("int", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(8),
-			Expect().Body().Equal(`8`),
+			Send().Body().JSON(8),
+			Expect().Body().String().Equal(`8`),
 		)
 	})
+
+	t.Run("struct", func(t *testing.T) {
+		var user = struct {
+			Name string
+			ID   int
+		}{
+			"Joe",
+			10,
+		}
+
+		Test(t,
+			Post(s.URL),
+			Send().Body().JSON(user),
+			Expect().Body().String().Equal(`{"Name":"Joe","ID":10}`),
+		)
+	})
+}
+
+func TestSendBody_XML(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	Test(t,
+		Post(s.URL),
+		Send().Body().XML([]string{"A", "B"}),
+		Expect().Body().String().Equal(`<string>A</string><string>B</string>`),
+	)
 }
 
 func TestSendBody_ModifyPreviousBody(t *testing.T) {
@@ -71,11 +88,11 @@ func TestSendBody_ModifyPreviousBody(t *testing.T) {
 
 	Test(t,
 		Post(s.URL),
-		Send().Body("Hello"),
-		Send().Body(func(hit Hit) {
-			hit.Request().Body().SetString(fmt.Sprintf("%s World", hit.Request().Body().String()))
+		Send().Body().String("Hello"),
+		Send().Custom(func(hit Hit) {
+			hit.Request().Body().SetString(fmt.Sprintf("%s World", hit.Request().Body().MustString()))
 		}),
-		Expect().Body().Equal(`Hello World`),
+		Expect().Body().String().Equal("Hello World"),
 	)
 }
 
@@ -85,40 +102,20 @@ func TestSendBody_EmptyBody(t *testing.T) {
 
 	Test(t,
 		Get(s.URL),
-		Send().Body(func(hit Hit) {
-			require.Empty(t, hit.Request().Body().String())
+		Send().Custom(func(hit Hit) {
+			require.Empty(t, hit.Request().Body().MustString())
 		}),
 	)
 }
 
-func TestSendBody_Final(t *testing.T) {
+func TestSendBody_FormValue(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
-	t.Run("Send().Body(value).JSON()", func(t *testing.T) {
-		ExpectError(t,
-			Do(Send().Body("Data").JSON(nil)),
-			PtrStr("only usable with Send().Body() not with Send().Body(value)"),
-		)
-	})
-
-	t.Run("Send().Body(value).Interface()", func(t *testing.T) {
-		ExpectError(t,
-			Do(Send().Body("Data").Interface(nil)),
-			PtrStr("only usable with Send().Body() not with Send().Body(value)"),
-		)
-	})
-}
-
-func TestSendBody_WithoutArgument(t *testing.T) {
-	s := EchoServer()
-	defer s.Close()
-
-	ExpectError(t,
-		Do(
-			Post(s.URL),
-			Send().Body(),
-		),
-		PtrStr("unable to run Send().Body() without an argument or without a chain. Please use Send().Body(something) or Send().Body().Something"),
+	Test(t,
+		Post(s.URL),
+		Send().Body().FormValues("username").Add("joe"),
+		Send().Body().FormValues("password").Add("secret"),
+		Expect().Body().String().OneOf("password=secret&username=joe", "username=joe&password=secret"),
 	)
 }

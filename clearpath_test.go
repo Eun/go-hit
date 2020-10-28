@@ -4,21 +4,21 @@ import "testing"
 
 func TestClearPath_Contains(t *testing.T) {
 	tests := []struct {
-		haystack clearPath
-		needle   clearPath
+		haystack callPath
+		needle   callPath
 		want     bool
 	}{
-		{newClearPath("Foo", nil).Push("Bar", nil), newClearPath("Foo", nil).Push("Bar", nil), true},
-		{newClearPath("Foo", nil).Push("Bar", nil), newClearPath("Foo", nil), true},
-		{newClearPath("Foo", nil).Push("Bar", nil), newClearPath("Foo", []interface{}{1}), false},
-		{newClearPath("Foo", []interface{}{1}).Push("Bar", nil), newClearPath("Foo", nil), true},
-		{newClearPath("Foo", []interface{}{1}).Push("Bar", nil), newClearPath("Foo", nil).Push("Bar", nil), true},
-		{newClearPath("Foo", []interface{}{1}).Push("Bar", nil), newClearPath("Foo", []interface{}{1}), true},
-		{newClearPath("Foo", []interface{}{1}).Push("Bar", nil), newClearPath("Foo", []interface{}{1}).Push("Bar", nil), true},
-		{newClearPath("Foo", []interface{}{1}).Push("Bar", []interface{}{1}), newClearPath("Foo", []interface{}{1}).Push("Bar", []interface{}{1}), true},
-		{newClearPath("Foo", []interface{}{1}).Push("Bar", nil), newClearPath("Foo", []interface{}{2}), false},
-		{newClearPath("Foo", []interface{}{1, 2}).Push("Bar", nil), newClearPath("Foo", []interface{}{1}), true},
-		{newClearPath("Foo", []interface{}{1}).Push("Bar", nil), newClearPath("Foo", []interface{}{1, 2}), false},
+		{newCallPath("Foo", nil).Push("Bar", nil), newCallPath("Foo", nil).Push("Bar", nil), true},
+		{newCallPath("Foo", nil).Push("Bar", nil), newCallPath("Foo", nil), true},
+		{newCallPath("Foo", nil).Push("Bar", nil), newCallPath("Foo", []interface{}{1}), false},
+		{newCallPath("Foo", []interface{}{1}).Push("Bar", nil), newCallPath("Foo", nil), true},
+		{newCallPath("Foo", []interface{}{1}).Push("Bar", nil), newCallPath("Foo", nil).Push("Bar", nil), true},
+		{newCallPath("Foo", []interface{}{1}).Push("Bar", nil), newCallPath("Foo", []interface{}{1}), true},
+		{newCallPath("Foo", []interface{}{1}).Push("Bar", nil), newCallPath("Foo", []interface{}{1}).Push("Bar", nil), true},
+		{newCallPath("Foo", []interface{}{1}).Push("Bar", []interface{}{1}), newCallPath("Foo", []interface{}{1}).Push("Bar", []interface{}{1}), true},
+		{newCallPath("Foo", []interface{}{1}).Push("Bar", nil), newCallPath("Foo", []interface{}{2}), false},
+		{newCallPath("Foo", []interface{}{1, 2}).Push("Bar", nil), newCallPath("Foo", []interface{}{1}), true},
+		{newCallPath("Foo", []interface{}{1}).Push("Bar", nil), newCallPath("Foo", []interface{}{1, 2}), false},
 	}
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {

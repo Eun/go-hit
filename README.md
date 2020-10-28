@@ -1,4 +1,5 @@
-# hit [![Travis](https://img.shields.io/travis/Eun/go-hit.svg)](https://travis-ci.org/Eun/go-hit) [![Codecov](https://img.shields.io/codecov/c/github/Eun/go-hit.svg)](https://codecov.io/gh/Eun/go-hit) [![GoDoc](https://godoc.org/github.com/Eun/go-hit?status.svg)](https://godoc.org/github.com/Eun/go-hit) [![go-report](https://goreportcard.com/badge/github.com/Eun/go-hit)](https://goreportcard.com/report/github.com/Eun/go-hit)
+
+# go-hit [![Actions Status](https://github.com/Eun/go-hit/workflows/CI/badge.svg)](https://github.com/Eun/go-hit/actions) [![Codecov](https://img.shields.io/codecov/c/github/Eun/go-hit.svg)](https://codecov.io/gh/Eun/go-hit) [![GoDoc](https://godoc.org/github.com/Eun/go-hit?status.svg)](https://godoc.org/github.com/Eun/go-hit) [![go-report](https://goreportcard.com/badge/github.com/Eun/go-hit)](https://goreportcard.com/report/github.com/Eun/go-hit)
 hit is an **h**ttp **i**ntegration **t**est framework written in golang.
 
 It is designed to be flexible as possible, but to keep a simple to use interface for developers.
@@ -7,80 +8,120 @@ So lets get started!
 
 > go get -u github.com/Eun/go-hit
 
-```go
+```go //ignore
+package main
+
 import (
-	"net/http"
-	. "github.com/Eun/go-hit"
+    "net/http"
+    . "github.com/Eun/go-hit"
+)
+
+func main() {
+    MustDo(
+        Description("Post to httpbin.org"),
+        Get("https://httpbin.org/post"),
+        Expect().Status().Equal(http.StatusMethodNotAllowed),
+        Expect().Body().String().Contains("Method Not Allowed"),
+    )
+}
+```
+
+Or use the `Test()` function:
+```go //ignore
+package main_test
+import (
+    "testing"
+    "net/http"
+    . "github.com/Eun/go-hit"
 )
 
 func TestHttpBin(t *testing.T) {
     Test(t,
         Description("Post to httpbin.org"),
         Get("https://httpbin.org/post"),
-        Expect().Status(http.StatusMethodNotAllowed),
+        Expect().Status().Equal(http.StatusMethodNotAllowed),
+        Expect().Body().String().Contains("Method Not Allowed"),
     )
 }
 ``` 
 
 ## expect, expect, expect, ....
 ```go
-Test(t,
+MustDo(
     Get("https://httpbin.org/post"),
-    Expect().Status(http.StatusMethodNotAllowed),
-    Expect().Headers().Contains("Content-Type"),
-    Expect().Body().Contains("Method Not Allowed"),
+    Expect().Status().Equal(http.StatusMethodNotAllowed),
+    Expect().Headers("Content-Type").NotEmpty(),
+    Expect().Body().String().Contains("Method Not Allowed"),
 )
 ``` 
 
 ## Sending some data
 ```go
-Test(t,
+MustDo(
     Post("https://httpbin.org/post"),
-    Send().Body("Hello HttpBin"),
-    Expect().Status(http.StatusOK),
-    Expect().Body().Contains("Hello HttpBin"), 
+    Send().Body().String("Hello HttpBin"),
+    Expect().Status().Equal(http.StatusOK),
+    Expect().Body().String().Contains("Hello HttpBin"), 
 )
 ``` 
 
+
 ### Sending and expecting JSON
 ```go
-Test(t,
+MustDo(
     Post("https://httpbin.org/post"),
-    Send().Headers().Set("Content-Type", "application/json"),
+    Send().Headers("Content-Type").Add("application/json"),
     Send().Body().JSON(map[string][]string{"Foo": []string{"Bar", "Baz"}}),
-    Expect().Status(http.StatusOK),
-    Expect().Body().JSON().Equal("json.Foo.1", "Baz"),
+    Expect().Status().Equal(http.StatusOK),
+    Expect().Body().JSON().JQ(".json.Foo[1]").Equal("Baz"),
 )
+``` 
+
+
+## Storing data from the Response
+```go
+var name string
+var roles []string
+MustDo(
+    Post("https://httpbin.org/post"),
+    Send().Headers("Content-Type").Add("application/json"),
+    Send().Body().JSON(map[string]interface{}{"Name": "Joe", "Roles": []string{"Admin", "Developer"}}),
+    Expect().Status().Equal(http.StatusOK),
+    Store().Response().Body().JSON().JQ(".json.Name").In(&name),
+    Store().Response().Body().JSON().JQ(".json.Roles").In(&roles),
+)
+fmt.Printf("%s has %d roles\n", name, len(roles))
 ``` 
 
 ## Problems? `Debug`!
 ```go
-Test(
-    Post(t, "https://httpbin.org/post"),
+MustDo(
+    Post("https://httpbin.org/post"),
     Debug(),
+    Debug().Response().Body(),
 )
 ```
 
 ## Twisted!
 Although the following is hard to read it is possible to do!
 ```go
-Test(t,
+MustDo(
     Post("https://httpbin.org/post"),
-    Expect().Status(200),
-    Send("Hello World"),
-    Expect().Body().Contains("Hello"),
+    Expect().Status().Equal(200),
+    Send().Body().String("Hello World"),
+    Expect().Body().String().Contains("Hello"),
 )
 ```
 
 ## Custom Send and Expects
 ```go
-Test(t,
+MustDo(
     Get("https://httpbin.org/get"),
     Send().Custom(func(hit Hit) {
         hit.Request().Body().SetStringf("Hello %s", "World")
     }),
     Expect().Custom(func(hit Hit) {
-        if len(hit.Response().Body().String()) <= 0 {
+        if len(hit.Response().Body().MustString()) <= 0 {
             t.FailNow()
         }
     }),
@@ -92,31 +133,59 @@ Test(t,
 
 ## Templates / Multiuse
 ```go
-template := []IStep{
+template := CombineSteps(
     Post("https://httpbin.org/post"),
-    Send().Headers().Set("Content-Type", "application/json"),
+    Send().Headers("Content-Type").Add("application/json"),
     Expect().Headers("Content-Type").Equal("application/json"),
-}
-Test(t,
-    append(template,
-        Send().Body().JSON("Hello World"),
-    )...,
+)
+MustDo(
+    template,
+    Send().Body().JSON("Hello World"),
+)
+
+MustDo(
+    template,
+    Send().Body().JSON("Hello Universe"),
+)
+```
+
+## Clean Previous Steps
+Sometimes it is necessary to remove some steps that were added before.
+```go
+template := CombineSteps(
+    Get("https://httpbin.org/basic-auth/joe/secret"),
+    Expect().Status().Equal(http.StatusOK),
+)
+MustDo(
+    Description("login with correct credentials"),
+    template,
+    Send().Headers("Authorization").Add("Basic " + base64.StdEncoding.EncodeToString([]byte("joe:secret"))),
 )
 
 Test(t,
-    append(template,
-        Send().Body().JSON("Hello Universe"),
-    )...,
+    Description("login with incorrect credentials"),
+    template,
+    Clear().Expect().Status(),
+    Expect().Status().Equal(http.StatusUnauthorized),
+    Send().Headers("Authorization").Add("Basic " + base64.StdEncoding.EncodeToString([]byte("joe:joe"))),
 )
 ```
 More examples can be found in the `examples directory`
 
 ### Changelog
+#### 0.5.0
+* Rehaul the api, make things more explicit
+* Fix some issues
+* `Store()` functionality
+* Generate `Clear()` paths
+* Infinite `JQ()` functionality
+* Test `README.md` and documentation parts
+
 #### 0.4.0
 * Fixed a double run bug in `CombineSteps` (#3)
 * Better `Clear` functionality, you can now clear any previous step by prepending `Clear()`,
 eg. 
-  ```go
+  ```go //ignore
   Do(
       Get("https://example.com"),
       Expect().Body("Hello World"),
@@ -128,7 +197,7 @@ eg.
   Do(
       Post("https://example.com"),        
       CombineSteps(
-          Send().Body("Hello World"),
+          Send().Body().String("Hello World"),
           Expect().Body("Hello World"),
       ),
       Clear().Expect(),
@@ -139,7 +208,7 @@ everything can now be done in the `Expect().Header()` function.
 * More documentation and examples
 * `hit.Do` and `hit.MustDo` for inline steps.
 * Removal of inline steps (use `hit.Do` and `hit.MustDo`)
-  ```go
+  ```go //ignore
   Do(
       Get("https://example.com"),
       Expect().Custon(func (hit Hit) {

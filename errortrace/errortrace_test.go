@@ -27,39 +27,42 @@ func TestMakeCall(t *testing.T) {
 				FunctionName: "Test",
 				File:         "somefile.go",
 				Line:         10,
+				FullName:     "packagename.Test",
 			},
 		},
 		{"with function path",
 			runtime.Frame{
 				PC:       0,
 				Func:     nil,
-				Function: "github.com/Eun/go-hit/errortrace.(*defaultInstance).Trace.func1",
+				Function: "github.com/Eun/go-hit/ett.(*defaultInstance).Trace.func1",
 				File:     "somefile.go",
 				Line:     10,
 				Entry:    0,
 			},
 			Call{
-				PackageName:  "github.com/Eun/go-hit/errortrace",
+				PackageName:  "github.com/Eun/go-hit/ett",
 				FunctionPath: "(*defaultInstance).Trace",
 				FunctionName: "func1",
 				File:         "somefile.go",
 				Line:         10,
+				FullName:     "github.com/Eun/go-hit/ett.(*defaultInstance).Trace.func1",
 			},
 		},
 		{"full",
 			runtime.Frame{
 				PC:       0,
 				Func:     nil,
-				Function: "github.com/Eun/go-hit/errortrace.Trace",
+				Function: "github.com/Eun/go-hit/ett.Trace",
 				File:     "somefile.go",
 				Line:     10,
 				Entry:    0,
 			},
 			Call{
-				PackageName:  "github.com/Eun/go-hit/errortrace",
+				PackageName:  "github.com/Eun/go-hit/ett",
 				FunctionName: "Trace",
 				File:         "somefile.go",
 				Line:         10,
+				FullName:     "github.com/Eun/go-hit/ett.Trace",
 			},
 		},
 		{"no package",
@@ -76,6 +79,7 @@ func TestMakeCall(t *testing.T) {
 				FunctionName: "Trace",
 				File:         "somefile.go",
 				Line:         10,
+				FullName:     "Trace",
 			},
 		},
 		{"no package",
@@ -92,6 +96,7 @@ func TestMakeCall(t *testing.T) {
 				FunctionName: "Trace",
 				File:         "somefile.go",
 				Line:         10,
+				FullName:     "Trace",
 			},
 		},
 	}
@@ -99,40 +104,7 @@ func TestMakeCall(t *testing.T) {
 	for i := range tests {
 		test := tests[i]
 		t.Run(test.Name, func(t *testing.T) {
-			require.Equal(t, test.ExpectedCall, makeCall(test.Frame))
+			require.Equal(t, test.ExpectedCall, makeCall(&test.Frame))
 		})
 	}
 }
-
-func TestCall_FullName(t *testing.T) {
-	t.Run("", func(t *testing.T) {
-		c := Call{PackageName: "package", FunctionName: "Func"}
-		require.Equal(t, "package.Func", c.FullName)
-	})
-
-	t.Run("", func(t *testing.T) {
-		c := Call{PackageName: "package", FunctionName: ""}
-		require.Equal(t, "package.", c.FullName)
-	})
-	t.Run("", func(t *testing.T) {
-		c := Call{PackageName: "", FunctionName: "Func"}
-		require.Equal(t, "Func", c.FullName)
-	})
-}
-
-// func TestErrorTrace(t *testing.T) {
-// 	t.Run("", func(t *testing.T) {
-// 		tm, err := New(0)
-// 		require.NoError(t, err)
-// 		et := tm.Prepare()
-//
-// 		var wg sync.WaitGroup
-// 		wg.Add(1)
-// 		go func() {
-// 			fmt.Println(et.Format("Hello World", "Some Error"))
-// 			wg.Done()
-// 		}()
-//
-// 		wg.Wait()
-// 	})
-// }

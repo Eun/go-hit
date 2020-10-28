@@ -1,7 +1,10 @@
 package hit
 
 import (
+	"bytes"
 	"fmt"
+
+	"golang.org/x/xerrors"
 
 	"github.com/Eun/go-hit/errortrace"
 )
@@ -42,45 +45,75 @@ func (s StepTime) String() string {
 }
 
 type IStep interface {
+	trace() *errortrace.ErrorTrace
 	when() StepTime
-	clearPath() clearPath
-	exec(Hit) error
+	callPath() callPath
+	exec(instance *hitImpl) error
 }
 
 type hitStep struct {
-	Trace     *errortrace.ErrorTrace
-	When      StepTime
-	ClearPath clearPath
-	Exec      func(hit Hit) error
+	Trace    *errortrace.ErrorTrace
+	When     StepTime
+	CallPath callPath
+	Exec     func(hit *hitImpl) error
 }
 
-func (step *hitStep) exec(h Hit) (err error) {
-	if step.Exec == nil {
-		return nil
-	}
-	defer func() {
-		r := recover()
-		if r != nil {
-			var ok bool
-			err, ok = r.(errortrace.ErrorTraceError)
-			if !ok {
-				err = step.Trace.Format(h.Description(), fmt.Sprint(r))
-			}
-		}
-	}()
-	err = step.Exec(h)
-	if err != nil {
-		if _, ok := err.(errortrace.ErrorTraceError); !ok {
-			err = step.Trace.Format(h.Description(), err.Error())
-		}
-	}
-	return err
+func (step *hitStep) trace() *errortrace.ErrorTrace {
+	return step.Trace
 }
 
 func (step *hitStep) when() StepTime {
 	return step.When
 }
 
-func (step *hitStep) clearPath() clearPath {
-	return step.ClearPath
+func (step *hitStep) callPath() callPath {
+	return step.CallPath
+}
+
+func (step *hitStep) exec(hit *hitImpl) (err error) {
+	if step.Exec == nil {
+		return nil
+	}
+	return step.Exec(hit)
+}
+
+func execStep(hit *hitImpl, step IStep) (err error) {
+	setError := func(r interface{}) {
+		if r == nil {
+			return
+		}
+
+		setMeta := func() {
+			step.trace().SetDescription(hit.Description())
+			var b bytes.Buffer
+			if newDebug(step.callPath().Push("Debug", nil), &b).exec(hit) == nil {
+				step.trace().SetContext(b.String())
+			}
+		}
+
+		switch v := r.(type) {
+		case *errortrace.ErrorTrace:
+			// this is already a errortrace
+			err = v
+			return
+		case error:
+			step.trace().SetError(v)
+			setMeta()
+			err = step.trace()
+		default:
+			step.trace().SetError(xerrors.New(fmt.Sprint(r)))
+			setMeta()
+			err = step.trace()
+		}
+	}
+
+	defer func() {
+		setError(recover())
+	}()
+	setError(step.exec(hit))
+	return err
+}
+
+func StepCallPath(step IStep, withArguments bool) string {
+	return step.callPath().CallString(withArguments)
 }

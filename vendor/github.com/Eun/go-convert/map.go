@@ -4,7 +4,11 @@ import (
 	"reflect"
 )
 
-func (stdRecipes) mapToMap(c Converter, in reflect.Value, out reflect.Value) error {
+func (stdRecipes) nilToMap(Converter, NilValue, MapValue) error {
+	return nil
+}
+
+func (stdRecipes) mapToMap(c Converter, in MapValue, out MapValue) error {
 	keyType := out.Elem().Type().Key()
 	valueType := out.Elem().Type().Elem()
 
@@ -37,7 +41,7 @@ func (stdRecipes) mapToMap(c Converter, in reflect.Value, out reflect.Value) err
 	return nil
 }
 
-func (stdRecipes) structToMap(c Converter, in reflect.Value, out reflect.Value) error {
+func (stdRecipes) structToMap(c Converter, in StructValue, out MapValue) error {
 	keyType := out.Elem().Type().Key()
 	valueType := out.Elem().Type().Elem()
 

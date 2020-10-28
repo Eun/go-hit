@@ -13,32 +13,32 @@ func TestExpectBody_Equal(t *testing.T) {
 	t.Run("bytes", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`Hello World`),
-			Expect().Body([]byte("Hello World")),
+			Send().Body().String(`Hello World`),
+			Expect().Body().Bytes().Equal([]byte("Hello World")),
 		)
 	})
 
 	t.Run("string", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body("Hello World"),
-			Expect().Body(`Hello World`),
+			Send().Body().String("Hello World"),
+			Expect().Body().String().Equal(`Hello World`),
 		)
 	})
 
-	t.Run("slice", func(t *testing.T) {
+	t.Run("slice (JSON)", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`["A","B"]`),
-			Expect().Body([]interface{}{"A", "B"}),
+			Send().Body().String(`["A", "B"]`),
+			Expect().Body().JSON().Equal([]string{"A", "B"}),
 		)
 	})
 
 	t.Run("int", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body("8"),
-			Expect().Body(8),
+			Send().Body().String("8"),
+			Expect().Body().Int().Equal(8),
 		)
 	})
 }
@@ -50,32 +50,32 @@ func TestExpectBody_NotEqual(t *testing.T) {
 	t.Run("bytes", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`Hello World`),
-			Expect().Body().NotEqual([]byte("Hello Universe")),
+			Send().Body().String(`Hello World`),
+			Expect().Body().Bytes().NotEqual([]byte("Hello Universe")),
 		)
 	})
 
 	t.Run("string", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body("Hello World"),
-			Expect().Body().NotEqual(`Hello Universe`),
-		)
-	})
-
-	t.Run("slice", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Send().Body(`["A","B"]`),
-			Expect().Body().NotEqual([]interface{}{"A", "B", "C"}),
+			Send().Body().String("Hello World"),
+			Expect().Body().String().NotEqual(`Hello Universe`),
 		)
 	})
 
 	t.Run("int", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body("8"),
-			Expect().Body().NotEqual(6),
+			Send().Body().String("8"),
+			Expect().Body().Int().NotEqual(6),
+		)
+	})
+
+	t.Run("slice (JSON)", func(t *testing.T) {
+		Test(t,
+			Post(s.URL),
+			Send().Body().String(`["A", "B"]`),
+			Expect().Body().JSON().NotEqual([]string{"A", "B", "C"}),
 		)
 	})
 }
@@ -87,20 +87,19 @@ func TestExpectBody_Contains(t *testing.T) {
 	t.Run("string", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body("Hello World"),
-			Expect().Body().Contains(`World`),
+			Send().Body().String("Hello World"),
+			Expect().Body().String().Contains(`World`),
 		)
 	})
 
-	t.Run("slice", func(t *testing.T) {
-		// slice goes to json
+	t.Run("slice (JSON)", func(t *testing.T) {
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body("Hello World"),
-				Expect().Body().Contains([]string{"Hello World"}),
+				Send().Body().String(`"Hello World"`),
+				Expect().Body().JSON().Contains([]string{"Hello World"}),
 			),
-			PtrStr("invalid character 'H' looking for beginning of value"),
+			PtrStr(`"Hello World" does not contain []string{`), PtrStr(`"Hello World",`), PtrStr("}"),
 		)
 	})
 }
@@ -112,87 +111,16 @@ func TestExpectBody_NotContains(t *testing.T) {
 	t.Run("string", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body("Hello World"),
-			Expect().Body().NotContains(`Universe`),
+			Send().Body().String("Hello World"),
+			Expect().Body().String().NotContains(`Universe`),
 		)
 	})
 
-	t.Run("slice", func(t *testing.T) {
-		// slice goes to json
-		ExpectError(t,
-			Do(
-				Post(s.URL),
-				Send().Body("Hello World"),
-				Expect().Body().NotContains([]string{"Hello Universe"}),
-			),
-			PtrStr("invalid character 'H' looking for beginning of value"),
-		)
-	})
-}
-
-func TestExpectBody_Final(t *testing.T) {
-	s := EchoServer()
-	defer s.Close()
-
-	t.Run("Expect().Body(value).Interface()", func(t *testing.T) {
-		ExpectError(t,
-			Do(Expect().Body("Data").Interface(nil)),
-			PtrStr("only usable with Expect().Body() not with Expect().Body(value)"),
-		)
-	})
-
-	t.Run("Expect().Body(value).JSON()", func(t *testing.T) {
-		ExpectError(t,
-			Do(Expect().Body("Data").JSON(nil)),
-			PtrStr("only usable with Expect().Body() not with Expect().Body(value)"),
-		)
-	})
-
-	t.Run("Expect().Body(value).JSON().Equal()", func(t *testing.T) {
-		ExpectError(t,
-			Do(Expect().Body("Data").JSON().Equal("", "")),
-			PtrStr("only usable with Expect().Body() not with Expect().Body(value)"),
-		)
-	})
-
-	t.Run("Expect().Body(value).Equal()", func(t *testing.T) {
-		ExpectError(t,
-			Do(Expect().Body("Data").Equal(nil)),
-			PtrStr("only usable with Expect().Body() not with Expect().Body(value)"),
-		)
-	})
-
-	t.Run("Expect().Body(value).NotEqual()", func(t *testing.T) {
-		ExpectError(t,
-			Do(Expect().Body("Data").NotEqual(nil)),
-			PtrStr("only usable with Expect().Body() not with Expect().Body(value)"),
-		)
-	})
-
-	t.Run("Expect().Body(value).Contains()", func(t *testing.T) {
-		ExpectError(t,
-			Do(Expect().Body("Data").Contains(nil)),
-			PtrStr("only usable with Expect().Body() not with Expect().Body(value)"),
-		)
-	})
-
-	t.Run("Expect().Body(value).NotContains()", func(t *testing.T) {
-		ExpectError(t,
-			Do(Expect().Body("Data").NotContains(nil)),
-			PtrStr("only usable with Expect().Body() not with Expect().Body(value)"),
-		)
-	})
-}
-
-func TestExpectBody_WithoutArgument(t *testing.T) {
-	s := EchoServer()
-	defer s.Close()
-
-	ExpectError(t,
-		Do(
+	t.Run("slice (JSON)", func(t *testing.T) {
+		Test(t,
 			Post(s.URL),
-			Expect().Body(),
-		),
-		PtrStr("unable to run Expect().Body() without an argument or without a chain. Please use Expect().Body(something) or Expect().Body().Something"),
-	)
+			Send().Body().String(`"Hello World"`),
+			Expect().Body().JSON().NotContains([]string{"Hello Universe"}),
+		)
+	})
 }

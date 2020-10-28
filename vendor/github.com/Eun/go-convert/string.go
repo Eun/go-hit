@@ -6,7 +6,12 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
+
+func (stdRecipes) nilToString(Converter, NilValue, *string) error {
+	return nil
+}
 
 func (stdRecipes) intToString(c Converter, in int, out *string) error {
 	*out = strconv.FormatInt(int64(in), 10)
@@ -64,7 +69,7 @@ func (stdRecipes) boolToString(c Converter, in bool, out *string) error {
 }
 
 func (stdRecipes) float32ToString(_ Converter, in float32, out *string) error {
-	if out != nil && len(*out) > 0 {
+	if *out != "" && strings.ContainsRune(*out, '%') {
 		*out = fmt.Sprintf(*out, in)
 		return nil
 	}
@@ -73,7 +78,7 @@ func (stdRecipes) float32ToString(_ Converter, in float32, out *string) error {
 }
 
 func (stdRecipes) float64ToString(_ Converter, in float64, out *string) error {
-	if out != nil && len(*out) > 0 {
+	if *out != "" && strings.ContainsRune(*out, '%') {
 		*out = fmt.Sprintf(*out, in)
 		return nil
 	}
@@ -176,34 +181,46 @@ func (stdRecipes) uint64SliceToString(c Converter, in []uint64, out *string) err
 	return nil
 }
 
-func (s stdRecipes) structToString(c Converter, in reflect.Value, out reflect.Value) error {
-	err := s.baseStructToString(c, in, out)
+func (stdRecipes) timeToString(c Converter, in time.Time, out *string) error {
+	*out = in.String()
+	return nil
+}
+
+func (s stdRecipes) structToString(c Converter, in StructValue, out *string) error {
+	err := s.baseStructToString(c, in.Value, out)
 	if err == nil {
 		return err
 	}
 
 	// test for *struct.String()
 	v := reflect.New(in.Type())
-	v.Elem().Set(in)
+	v.Elem().Set(in.Value)
 	if s.baseStructToString(c, v, out) == nil {
 		return nil
 	}
 	return err
 }
 
-func (s stdRecipes) baseStructToString(c Converter, in reflect.Value, out reflect.Value) error {
+func (s stdRecipes) baseStructToString(_ Converter, in reflect.Value, out *string) error {
 	if !in.CanInterface() {
 		return errors.New("unable to make interface")
 	}
 	type toString interface {
 		String() string
 	}
+	type toStringWithErr interface {
+		String() (string, error)
+	}
 
 	// check for struct.String()
-	i, ok := in.Interface().(toString)
-	if ok {
-		out.Elem().SetString(i.String())
+	if i, ok := in.Interface().(toString); ok {
+		*out = i.String()
 		return nil
+	}
+	if i, ok := in.Interface().(toStringWithErr); ok {
+		var err error
+		*out, err = i.String()
+		return err
 	}
 
 	return fmt.Errorf("%s has no String() function", in.Type().String())

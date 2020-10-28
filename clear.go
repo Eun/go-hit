@@ -1,3 +1,5 @@
+// +build !generate
+
 package hit
 
 import (
@@ -7,62 +9,85 @@ import (
 	"golang.org/x/xerrors"
 )
 
-// IClear provides a clear functionality to remove previous steps from running
+// IClear provides a clear functionality to remove previous steps from running.
 type IClear interface {
-	// Send removes all previous Send() steps and all steps chained to Send() e.g. Send().Body("Hello World").
-	//
-	// If you specify an argument it will only remove the Send() steps matching that argument.
+	// Send removes all previous steps chained to Send()
+	// e.g. Send().Body().String("Hello World") or Send().Headers("Content-Type", "application/json").
 	//
 	// Usage:
-	//     Clear().Send()                      // will remove all Send() steps and all chained steps to Send() e.g. Send().Body("Hello World")
-	//     Clear().Send("Hello World")         // will remove all Send("Hello World") steps
-	//     Clear().Send().Body()               // will remove all Send().Body() steps and all chained steps to Body() e.g. Send().Body().Equal("Hello World")
-	//     Clear().Send().Body("Hello World")  // will remove all Send().Body("Hello World") steps
+	//     // will remove all previous steps chained to Send() e.g. Send().Body().String("Hello World") or
+	//     // Send().Headers("Content-Type", "application/json")
+	//     Clear().Send()
+	//
+	//     // will remove all previous steps chained to Send().Body() e.g. Send().Body().String("Hello World") or
+	//     // Send().Body().Int(127)
+	//     Clear().Send().Body()
+	//
+	//     // will remove all previous Send().Body().String() steps e.g. Send().Body().String("Hello World") or
+	//     // Send().Body().String("Hello Earth")
+	//     Clear().Send().Body().String()
+	//
+	//     // will remove all previous Send().Body().String("Hello World") steps
+	//     Clear().Send().Body().String("Hello World")
 	//
 	// Example:
 	//     MustDo(
 	//         Post("https://example.com"),
-	//         Send("Hello Earth"),
+	//         Send().Body().String("Hello Earth"),
 	//         Clear().Send(),
-	//         Send("Hello World"),
+	//         Send().Body().String("Hello World"),
 	//     )
-	Send(value ...interface{}) IClearSend
+	Send() IClearSend
 
-	// Expect removes all previous Expect() steps and all steps chained to Expect() e.g. Expect().Body("Hello World").
-	//
-	// If you specify an argument it will only remove the Expect() steps matching that argument.
+	// Expect removes all previous steps chained to Expect()
+	// e.g. Expect().Body().String().Equal("Hello World") or Expect().Headers("Content-Type").Equal("application/json").
 	//
 	// Usage:
-	//     Clear().Expect()                      // will remove all Expect() steps and all chained steps to Expect() e.g. Expect().Body("Hello World")
-	//     Clear().Expect("Hello World")         // will remove all Expect("Hello World") steps
-	//     Clear().Expect().Body()               // will remove all Expect().Body() steps and all chained steps to Body() e.g. Expect().Body().Equal("Hello World")
-	//     Clear().Expect().Body("Hello World")  // will remove all Expect().Body("Hello World") steps
+	//     // will remove all previous steps chained to Expect() e.g. Expect().Body().String().Equal("Hello World")
+	//     // or Expect().Status().Equal(200)
+	//     Clear().Expect()
+	//
+	//     // will remove all previous steps chained to Expect().Body().String() e.g.
+	//     // Expect().Body().String().Equal("Hello World") or Expect().Body().String().Contains("Hello")
+	//     Clear().Expect().Body().String()
+	//
+	//     // will remove all previous Expect().Body().String().Equal() steps e.g.
+	//     // Expect().Body().String().Equal("Hello World") or Expect().Body().String().Contains("Hello")
+	//     Clear().Expect().Body().String().Equal()
+	//
+	//     // will remove all previous Expect().Body().String().Equal("Hello World") steps
+	//     Clear().Expect().Body().String().Equal("Hello World")
 	//
 	// Example:
 	//     MustDo(
-	//         Post("https://example.com"),
-	//         Expect("Hello Earth"),
+	//         Get("https://example.com"),
+	//         Expect().Body().String().Equal("Hello Earth"),
 	//         Clear().Expect(),
-	//         Expect("Hello World"),
+	//         Expect().Body().String().Equal("Hello World"),
 	//     )
-	Expect(value ...interface{}) IClearExpect
+	Expect() IClearExpect
 }
 
-type clear struct{}
-
-func newClear() IClear {
-	return &clear{}
+type clear struct {
+	cp callPath
 }
 
-func (clr *clear) Send(value ...interface{}) IClearSend {
-	return newClearSend(newClearPath("Send", value), value)
+func newClear(cp callPath) IClear {
+	return &clear{
+		cp: cp,
+	}
 }
 
-func (clr *clear) Expect(value ...interface{}) IClearExpect {
-	return newClearExpect(newClearPath("Expect", value), value)
+func (clr *clear) Send() IClearSend {
+	return newClearSend(clr.cp.Push("Send", nil))
 }
 
-func removeSteps(hit Hit, path clearPath) error {
+func (clr *clear) Expect() IClearExpect {
+	return newClearExpect(clr.cp.Push("Expect", nil))
+}
+
+func removeSteps(hit Hit, path callPath) error {
+	path = path[1:] // remove Clean()
 	var stepsToRemove []IStep
 	steps := hit.Steps()
 	availableSteps := make([]IStep, 0, len(steps))
@@ -71,7 +96,7 @@ func removeSteps(hit Hit, path clearPath) error {
 		if step == hit.CurrentStep() {
 			break
 		}
-		p := step.clearPath()
+		p := step.callPath()
 		if p == nil {
 			continue
 		}
@@ -82,12 +107,12 @@ func removeSteps(hit Hit, path clearPath) error {
 	}
 	if len(stepsToRemove) == 0 {
 		var sb strings.Builder
-		fmt.Fprintf(&sb, "unable to find a step with %s\n", path.CallString())
+		fmt.Fprintf(&sb, "unable to find a step with %s\n", path.CallString(true))
 
 		if len(availableSteps) > 0 {
 			fmt.Fprintf(&sb, "got these steps:\n")
 			for _, step := range availableSteps {
-				fmt.Fprintf(&sb, "\t%s\n", step.clearPath().CallString())
+				fmt.Fprintf(&sb, "\t%s\n", step.callPath().CallString(true))
 			}
 		}
 
@@ -97,12 +122,12 @@ func removeSteps(hit Hit, path clearPath) error {
 	return nil
 }
 
-func removeStep(cleanPath clearPath) *hitStep {
+func removeStep(cleanPath callPath) *hitStep {
 	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil, // not clearable
-		Exec: func(hit Hit) error {
+		Trace:    ett.Prepare(),
+		When:     CleanStep,
+		CallPath: cleanPath,
+		Exec: func(hit *hitImpl) error {
 			return removeSteps(hit, cleanPath)
 		},
 	}

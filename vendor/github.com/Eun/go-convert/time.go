@@ -6,6 +6,10 @@ import (
 	"github.com/araddon/dateparse"
 )
 
+func (stdRecipes) nilToTime(Converter, NilValue, *time.Time) error {
+	return nil
+}
+
 func (stdRecipes) intToTime(c Converter, in int, out *time.Time) error {
 	*out = time.Unix(int64(in), 0)
 	return nil
