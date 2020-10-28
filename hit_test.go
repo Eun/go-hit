@@ -1,48 +1,33 @@
 package hit_test
 
 import (
+	"bytes"
+	"context"
+	"crypto/rand"
+	"io"
+	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"strconv"
+	"strings"
 	"testing"
 
-	"strings"
-
-	"bytes"
-
-	"io/ioutil"
-	"net/url"
-
-	"net/http/httptest"
-
-	. "github.com/Eun/go-hit"
 	"github.com/lunixbochs/vtclean"
 	"github.com/stretchr/testify/require"
+
+	. "github.com/Eun/go-hit"
 )
-
-//
-func Test_Stdout(t *testing.T) {
-	s := EchoServer()
-	defer s.Close()
-
-	buf := bytes.NewBuffer(nil)
-
-	Test(t,
-		Post(s.URL),
-		Stdout(buf),
-		Custom(BeforeSendStep, func(hit Hit) {
-			require.Equal(t, buf, hit.Stdout())
-		}),
-	)
-}
 
 func TestRequest(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
-	req, err := http.NewRequest("POST", s.URL, bytes.NewReader([]byte("Hello World")))
+	req, err := http.NewRequestWithContext(context.Background(), "POST", s.URL, bytes.NewReader([]byte("Hello World")))
 	require.NoError(t, err)
 	Test(t,
 		Request(req),
-		Expect().Body("Hello World"),
+		Expect().Body().String().Equal("Hello World"),
 	)
 }
 
@@ -51,21 +36,21 @@ func TestMultiUse(t *testing.T) {
 	defer s.Close()
 
 	t.Run("body", func(t *testing.T) {
-		req, err := http.NewRequest(http.MethodPost, s.URL, bytes.NewReader([]byte("Hello World")))
+		req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, s.URL, bytes.NewReader([]byte("Hello World")))
 		require.NoError(t, err)
 
 		Test(t,
 			Request(req),
-			Expect().Body("Hello World"),
+			Expect().Body().String().Equal("Hello World"),
 		)
 
 		Test(t,
 			Request(req),
-			Expect().Body("Hello World"),
+			Expect().Body().String().Equal("Hello World"),
 		)
 	})
 	t.Run("header/trailer", func(t *testing.T) {
-		req, err := http.NewRequest(http.MethodPost, s.URL, bytes.NewReader([]byte("Hello World")))
+		req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, s.URL, bytes.NewReader([]byte("Hello World")))
 		require.NoError(t, err)
 		req.Header.Set("X-Header", "Foo")
 		req.Trailer = map[string][]string{"X-Trailer": {"Bar"}}
@@ -200,20 +185,20 @@ func TestMultiUse(t *testing.T) {
 		defer s.Close()
 		template := []IStep{
 			Post(s.URL),
-			Send().Header("Content-Type", "application/json"),
-			Expect().Header("Content-Type").Equal("application/json"),
+			Send().Headers("Content-Type").Add("application/json"),
+			Expect().Headers("Content-Type").Equal("application/json"),
 		}
 		Test(t,
 			append(template,
 				Send().Body().JSON("Hello World"),
-				Expect().Body().JSON("Hello World"),
+				Expect().Body().JSON().Equal("Hello World"),
 			)...,
 		)
 
 		Test(t,
 			append(template,
 				Send().Body().JSON("Hello Universe"),
-				Expect().Body().JSON("Hello Universe"),
+				Expect().Body().JSON().Equal("Hello Universe"),
 			)...,
 		)
 	})
@@ -230,7 +215,7 @@ func TestBaseURL(t *testing.T) {
 	Test(t,
 		BaseURL("%s/foo", s.URL),
 		Get("/"),
-		Expect().Status(http.StatusNoContent),
+		Expect().Status().Equal(http.StatusNoContent),
 	)
 }
 
@@ -244,7 +229,7 @@ func TestFormatURL(t *testing.T) {
 
 	Test(t,
 		Get("%s/foo", s.URL),
-		Expect().Status(http.StatusNoContent),
+		Expect().Status().Equal(http.StatusNoContent),
 	)
 }
 
@@ -271,12 +256,12 @@ func TestCombineSteps(t *testing.T) {
 		Do(
 			CombineSteps(
 				Post(s.URL),
-				Send("Hello"),
-				Expect("Hello"),
+				Send().Body().String("Hello"),
+				Expect().Body().String().Equal("Hello"),
 			),
-			Expect("World"),
+			Expect().Body().String().Equal("World"),
 		),
-		PtrStr("Not equal"), PtrStr(`expected: "World"`), nil, nil, nil, nil, nil,
+		PtrStr("not equal"), PtrStr(`expected: "World"`), nil, nil, nil, nil, nil,
 	)
 }
 
@@ -337,8 +322,8 @@ func TestDescription(t *testing.T) {
 			require.Equal(t, "Test #A", hit.Description())
 		}),
 		Post(s.URL),
-		Send("Hello"),
-		Expect("World"),
+		Send().Body().String("Hello"),
+		Expect().Body().String().Equal("World"),
 	)
 	require.NotNil(t, err)
 	require.True(t, strings.HasPrefix(vtclean.Clean(err.Error(), false), "Description:\tTest #A"))
@@ -368,15 +353,15 @@ func TestDo(t *testing.T) {
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send("Hello World"),
+				Send().Body().String("Hello World"),
 				Custom(ExpectStep, func(hit Hit) {
 					hit.MustDo(
-						Expect("Hello Universe"),
+						Expect().Body().String().Equal("Hello Universe"),
 					)
 					shouldNotRun = true
 				}),
 			),
-			PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+			PtrStr("not equal"), nil, nil, nil, nil, nil, nil,
 		)
 		require.False(t, shouldNotRun)
 	})
@@ -386,15 +371,15 @@ func TestDo(t *testing.T) {
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send("Hello World"),
+				Send().Body().String("Hello World"),
 				Custom(SendStep, func(hit Hit) {
 					hit.MustDo(
-						Expect("Hello Universe"),
+						Expect().Body().String().Equal("Hello Universe"),
 					)
 					shouldNotRun = true
 				}),
 			),
-			PtrStr("unable to execute `Expect' during SendStep, can only be run during ExpectStep"),
+			PtrStr(`unable to execute Expect().Body().String().Equal("Hello Universe") during SendStep, can only be run during ExpectStep`),
 		)
 		require.False(t, shouldNotRun)
 	})
@@ -405,13 +390,13 @@ func TestOutOfContext(t *testing.T) {
 	defer s.Close()
 	Test(t,
 		Post(s.URL),
-		Send("World"),
-		Expect("World"),
+		Send().Body().String("World"),
+		Expect().Body().String().Equal("World"),
 		Send().Custom(func(hit Hit) {
-			Send("Hello Universe") // this will never be run, because you need to wrap this with hit.Do()/MustDo()
+			Send().Body().String("Hello Universe") // this will never be run, because you need to wrap this with hit.Do()/MustDo()
 		}),
 		Expect().Custom(func(hit Hit) {
-			Expect("Hello Universe") // this will never be run, because you need to wrap this with hit.Do()/MustDo()
+			Expect().Body().String().Equal("Hello Universe") // this will never be run, because you need to wrap this with hit.Do()/MustDo()
 		}),
 	)
 }
@@ -491,8 +476,8 @@ func TestMustDo(t *testing.T) {
 	require.Panics(t, func() {
 		MustDo(
 			Post(s.URL),
-			Send("Hello Alice"),
-			Expect("Hello Joe"),
+			Send().Body().String("Hello Alice"),
+			Expect().Body().String().Equal("Hello Joe"),
 		)
 	})
 }
@@ -506,13 +491,71 @@ func TestMethods(t *testing.T) {
 	s := httptest.NewServer(mux)
 	defer s.Close()
 
-	Test(t, Method(http.MethodGet, s.URL), Expect().Header("Method").Equal(http.MethodGet))
-	// Test(t, Connect(s.URL), Expect().Header("Method").Equal(http.MethodConnect))
-	Test(t, Delete(s.URL), Expect().Header("Method").Equal(http.MethodDelete))
-	Test(t, Get(s.URL), Expect().Header("Method").Equal(http.MethodGet))
-	Test(t, Head(s.URL), Expect().Header("Method").Equal(http.MethodHead))
-	Test(t, Post(s.URL), Expect().Header("Method").Equal(http.MethodPost))
-	Test(t, Options(s.URL), Expect().Header("Method").Equal(http.MethodOptions))
-	Test(t, Put(s.URL), Expect().Header("Method").Equal(http.MethodPut))
-	Test(t, Trace(s.URL), Expect().Header("Method").Equal(http.MethodTrace))
+	Test(t, Method(http.MethodGet, s.URL), Expect().Headers("Method").Equal(http.MethodGet))
+	Test(t, Delete(s.URL), Expect().Headers("Method").Equal(http.MethodDelete))
+	Test(t, Get(s.URL), Expect().Headers("Method").Equal(http.MethodGet))
+	Test(t, Head(s.URL), Expect().Headers("Method").Equal(http.MethodHead))
+	Test(t, Post(s.URL), Expect().Headers("Method").Equal(http.MethodPost))
+	Test(t, Options(s.URL), Expect().Headers("Method").Equal(http.MethodOptions))
+	Test(t, Put(s.URL), Expect().Headers("Method").Equal(http.MethodPut))
+	Test(t, Trace(s.URL), Expect().Headers("Method").Equal(http.MethodTrace))
+}
+
+func TestReturn(t *testing.T) {
+	executed := false
+	s := EchoServer()
+	defer s.Close()
+	Test(t,
+		Post(s.URL),
+		Send().Body().String("Hello World"),
+		Expect().Custom(func(hit Hit) {
+			executed = true
+		}),
+		Expect().Body().String().Equal("Hello World"),
+		Return(),
+		Expect().Body().String().Equal("Hello Universe"),
+	)
+	require.True(t, executed)
+}
+
+func BenchmarkBigPayloads(b *testing.B) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		if err := request.ParseForm(); err != nil {
+			writer.WriteHeader(http.StatusBadRequest)
+			io.WriteString(writer, err.Error())
+			return
+		}
+		size, err := strconv.ParseInt(request.PostForm.Get("length"), 10, 64)
+		if err != nil {
+			writer.WriteHeader(http.StatusBadRequest)
+			io.WriteString(writer, err.Error())
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+		io.Copy(writer, io.LimitReader(rand.Reader, size))
+	})
+	s := httptest.NewServer(mux)
+	defer s.Close()
+
+	steps := CombineSteps(
+		Post(s.URL),
+		Send().Headers("Content-Type").Add("application/x-www-form-urlencoded"),
+		Expect().Status().Equal(http.StatusOK),
+	)
+
+	payloadSizes := []int{
+		1024,
+		1024 * 10,
+		1024 * 100,
+		1024 * 1000,
+	}
+	for _, size := range payloadSizes {
+		b.Run(strconv.Itoa(size), func(b *testing.B) {
+			Test(b,
+				steps,
+				Send().Body().FormValues("length").Add(size),
+			)
+		})
+	}
 }

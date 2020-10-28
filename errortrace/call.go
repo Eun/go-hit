@@ -30,7 +30,7 @@ func (c *Call) setFullName() {
 	c.FullName = sb.String()
 }
 
-func makeCall(frame runtime.Frame) Call {
+func makeCall(frame *runtime.Frame) Call {
 	// find the last slash
 	lastSlash := strings.LastIndexFunc(frame.Function, func(r rune) bool {
 		return r == '/'

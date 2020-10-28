@@ -1,267 +1,222 @@
 package hit
 
-import (
-	"github.com/Eun/go-hit/errortrace"
-	"github.com/Eun/go-hit/internal"
-	"golang.org/x/xerrors"
-)
-
-// IExpectBody provides assertions on the http response body
+// IExpectBody provides assertions on the http response body.
 type IExpectBody interface {
-	IStep
-
-	// Interface expects the body to be equal the specified interface.
+	// Bytes expects the body to be equal the specified byte slice.
 	//
 	// Usage:
-	//     Expect().Body().Interface("Hello World")
-	//     Expect().Body().Interface(map[string]interface{}{"Name": "Joe"})
-	//
-	// Example:
-	//     MustDo(
-	//         Get("https://example.com"),
-	//         Expect().Body().Interface("Hello World"),
-	//     )
-	Interface(data interface{}) IStep
+	//     Expect().Body().Bytes().Equal([]byte("Hello World"))
+	//     Expect().Body().Bytes().Contains([]byte("H"))
+	Bytes() IExpectBytes
 
-	// JSON expects the body to be equal the specified value.
-	//
-	// If you omit the argument you can fine tune the assertions.
+	// FormValues expects the body to be equal to the specified FormValues
 	//
 	// Usage:
-	//           Expect().Body().JSON([]int{1, 2, 3})
-	//           Expect().Body().JSON().Contains(1)
-	//
-	// Example:
-	//     MustDo(
-	//         Get("https://example.com"),
-	//         Expect().Body().JSON(map[string]interface{}{"Name": "Joe"}),
-	//     )
-	JSON(value ...interface{}) IExpectBodyJSON
+	//     Expect().Body().FormValues("username").Equal("joe")
+	FormValues(name string) IExpectFormValues
 
-	// Equal expects the body to be equal to the specified value
+	// Float32 expects the body to be equal the specified int.
 	//
 	// Usage:
-	//     Expect().Body().Equal("Hello World")
-	//
-	// Example:
-	//     MustDo(
-	//         Get("https://example.com"),
-	//         Expect().Body().Equal("Hello World"),
-	//     )
-	Equal(value interface{}) IStep
+	//     Expect().Body().Float32().Equal(0.0)
+	//     Expect().Body().Float32().GreaterThan(5.0)
+	Float32() IExpectFloat32
 
-	// NotEqual expects the body to be not equal to the specified value
+	// Float64 expects the body to be equal the specified int.
 	//
 	// Usage:
-	//     Expect().Body().NotEqual("Hello World")
-	//
-	// Example:
-	//     MustDo(
-	//         Get("https://example.com"),
-	//         Expect().Body().NotEqual("Hello World"),
-	//     )
-	NotEqual(value interface{}) IStep
+	//     Expect().Body().Float64().Equal(0.0)
+	//     Expect().Body().Float64().GreaterThan(5.0)
+	Float64() IExpectFloat64
 
-	// Contains expects the body to contain the specified value
+	// Int expects the body to be equal the specified int.
 	//
 	// Usage:
-	//     Expect().Body().Contains("Hello World")
-	//
-	// Example:
-	//     MustDo(
-	//         Get("https://example.com"),
-	//         Expect().Body().Contains("Hello World"),
-	//     )
-	Contains(value interface{}) IStep
+	//     Expect().Body().Int().Equal(0)
+	//     Expect().Body().Int().GreaterThan(5)
+	Int() IExpectInt
 
-	// NotContains expects the body to not contain the specified value
+	// Int8 expects the body to be equal the specified int8.
 	//
 	// Usage:
-	//     Expect().Body().NotContains("Hello World")
+	//     Expect().Body().Int8().Equal(0)
+	//     Expect().Body().Int8().GreaterThan(5)
+	Int8() IExpectInt8
+
+	// Int16 expects the body to be equal the specified int16.
 	//
-	// Example:
-	//     MustDo(
-	//         Get("https://example.com"),
-	//         Expect().Body().NotContains("Hello World"),
-	//     )
-	NotContains(value interface{}) IStep
+	// Usage:
+	//     Expect().Body().Int16().Equal(0)
+	//     Expect().Body().Int16().GreaterThan(5)
+	Int16() IExpectInt16
+
+	// Int32 expects the body to be equal the specified int32.
+	//
+	// Usage:
+	//     Expect().Body().Int32().Equal(0)
+	//     Expect().Body().Int32().GreaterThan(5)
+	Int32() IExpectInt32
+
+	// Int64 expects the body to be equal the specified int64.
+	//
+	// Usage:
+	//     Expect().Body().Int64().Equal(0)
+	//     Expect().Body().Int64().GreaterThan(5)
+	Int64() IExpectInt64
+
+	// JSON provides assertions for the body in the JSON format
+	//
+	// Usage:
+	//     Expect().Body().JSON().Equal([]int{1, 2, 3})
+	//     Expect().Body().JSON().Contains(1)
+	//     Expect().Body().JSON().JQ(".Name").Equal("Joe")
+	JSON() IExpectBodyJSON
+
+	// String expects the body to be equal the specified string.
+	//
+	// Usage:
+	//     Expect().Body().String().Equal("Hello World")
+	//     Expect().Body().String().Contains("Hello")
+	String() IExpectString
+
+	// Uint expects the body to be equal the specified uint.
+	//
+	// Usage:
+	//     Expect().Body().Uint().Equal(0)
+	//     Expect().Body().Uint().GreaterThan(5)
+	Uint() IExpectUint
+
+	// Uint8 expects the body to be equal the specified uint8.
+	//
+	// Usage:
+	//     Expect().Body().Uint8().Equal(0)
+	//     Expect().Body().Uint8().GreaterThan(5)
+	Uint8() IExpectUint8
+
+	// Uint16 expects the body to be equal the specified uint16.
+	//
+	// Usage:
+	//     Expect().Body().Uint16().Equal(0)
+	//     Expect().Body().Uint16().GreaterThan(5)
+	Uint16() IExpectUint16
+
+	// Uint32 expects the body to be equal the specified uint32.
+	//
+	// Usage:
+	//     Expect().Body().Uint32().Equal(0)
+	//     Expect().Body().Uint32().GreaterThan(5)
+	Uint32() IExpectUint32
+
+	// Uint64 expects the body to be equal the specified uint64.
+	//
+	// Usage:
+	//     Expect().Body().Uint64().Equal(0)
+	//     Expect().Body().Uint64().GreaterThan(5)
+	Uint64() IExpectUint64
 }
 
 type expectBody struct {
 	expect    IExpect
-	cleanPath clearPath
-	trace     *errortrace.ErrorTrace
+	cleanPath callPath
 }
 
-func newExpectBody(expect IExpect, cleanPath clearPath, params []interface{}) IExpectBody {
-	body := &expectBody{
+func newExpectBody(expect IExpect, cleanPath callPath) IExpectBody {
+	return &expectBody{
 		expect:    expect,
 		cleanPath: cleanPath,
-		trace:     ett.Prepare(),
-	}
-
-	if param, ok := internal.GetLastArgument(params); ok {
-		// default action is Equal()
-		return &finalExpectBody{
-			&hitStep{
-				Trace:     body.trace,
-				When:      ExpectStep,
-				ClearPath: cleanPath,
-				Exec:      body.Interface(param).exec,
-			},
-			"only usable with Expect().Body() not with Expect().Body(value)",
-		}
-	}
-
-	return body
-}
-
-func (body *expectBody) exec(hit Hit) error {
-	return body.trace.Format(hit.Description(), "unable to run Expect().Body() without an argument or without a chain. Please use Expect().Body(something) or Expect().Body().Something")
-}
-
-func (*expectBody) when() StepTime {
-	return ExpectStep
-}
-
-func (body *expectBody) clearPath() clearPath {
-	return body.cleanPath
-}
-
-func (body *expectBody) JSON(value ...interface{}) IExpectBodyJSON {
-	return newExpectBodyJSON(body, body.clearPath().Push("JSON", value), value)
-}
-
-func (body *expectBody) Interface(value interface{}) IStep {
-	switch x := value.(type) {
-	case func(e Hit):
-		return &hitStep{
-			Trace:     ett.Prepare(),
-			When:      ExpectStep,
-			ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
-			Exec: func(hit Hit) error {
-				x(hit)
-				return nil
-			},
-		}
-	case func(e Hit) error:
-		return &hitStep{
-			Trace:     ett.Prepare(),
-			When:      ExpectStep,
-			ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
-			Exec:      x,
-		}
-	default:
-		if f := internal.GetGenericFunc(value); f.IsValid() {
-			return &hitStep{
-				Trace:     ett.Prepare(),
-				When:      ExpectStep,
-				ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
-				Exec: func(hit Hit) error {
-					internal.CallGenericFunc(f)
-					return nil
-				},
-			}
-		}
-		return &hitStep{
-			Trace:     ett.Prepare(),
-			When:      ExpectStep,
-			ClearPath: body.clearPath().Push("Interface", []interface{}{value}),
-			Exec:      body.Equal(value).exec,
-		}
 	}
 }
 
-func (body *expectBody) Equal(value interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: body.clearPath().Push("Equal", []interface{}{value}),
-		Exec: func(hit Hit) error {
-			if hit.Response().body.equalOnlyNativeTypes(value, true) {
-				return nil
-			}
-			return Expect().Body().JSON().Equal("", value).exec(hit)
-		},
-	}
+func (body *expectBody) Bytes() IExpectBytes {
+	return newExpectBytes(body.cleanPath.Push("Bytes", nil), func(hit Hit) []byte {
+		return hit.Response().Body().MustBytes()
+	})
 }
 
-func (body *expectBody) NotEqual(value interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: body.clearPath().Push("NotEqual", []interface{}{value}),
-		Exec: func(hit Hit) error {
-			if hit.Response().body.equalOnlyNativeTypes(value, false) {
-				return nil
-			}
-			return Expect().Body().JSON().NotEqual("", value).exec(hit)
-		},
-	}
+func (body *expectBody) FormValues(name string) IExpectFormValues {
+	return newExpectFormValues(body.cleanPath.Push("FormValues", []interface{}{name}), func(hit Hit) []string {
+		return hit.Response().Body().MustFormValues().Values(name)
+	})
 }
 
-func (body *expectBody) Contains(value interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: body.clearPath().Push("Contains", []interface{}{value}),
-		Exec: func(hit Hit) error {
-			if hit.Response().body.containsOnlyNativeTypes(value, true) {
-				return nil
-			}
-			return Expect().Body().JSON().Contains("", value).exec(hit)
-		},
-	}
+func (body *expectBody) Float32() IExpectFloat32 {
+	return newExpectFloat32(body.cleanPath.Push("Float32", nil), func(hit Hit) float32 {
+		return hit.Response().Body().MustFloat32()
+	})
 }
 
-func (body *expectBody) NotContains(value interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: body.clearPath().Push("NotContains", []interface{}{value}),
-		Exec: func(hit Hit) error {
-			if hit.Response().body.containsOnlyNativeTypes(value, false) {
-				return nil
-			}
-			return Expect().Body().JSON().NotContains("", value).exec(hit)
-		},
-	}
+func (body *expectBody) Float64() IExpectFloat64 {
+	return newExpectFloat64(body.cleanPath.Push("Float64", nil), func(hit Hit) float64 {
+		return hit.Response().Body().MustFloat64()
+	})
 }
 
-type finalExpectBody struct {
-	IStep
-	message string
+func (body *expectBody) Int() IExpectInt {
+	return newExpectInt(body.cleanPath.Push("Int", nil), func(hit Hit) int {
+		return hit.Response().Body().MustInt()
+	})
 }
 
-func (body *finalExpectBody) fail() IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(body.message)
-		},
-	}
+func (body *expectBody) Int8() IExpectInt8 {
+	return newExpectInt8(body.cleanPath.Push("Int8", nil), func(hit Hit) int8 {
+		return hit.Response().Body().MustInt8()
+	})
 }
 
-func (body *finalExpectBody) JSON(...interface{}) IExpectBodyJSON {
-	return &finalExpectBodyJSON{
-		body.fail(),
-		body.message,
-	}
+func (body *expectBody) Int16() IExpectInt16 {
+	return newExpectInt16(body.cleanPath.Push("Int16", nil), func(hit Hit) int16 {
+		return hit.Response().Body().MustInt16()
+	})
 }
-func (body *finalExpectBody) Interface(interface{}) IStep {
-	return body.fail()
+
+func (body *expectBody) Int32() IExpectInt32 {
+	return newExpectInt32(body.cleanPath.Push("Int32", nil), func(hit Hit) int32 {
+		return hit.Response().Body().MustInt32()
+	})
 }
-func (body *finalExpectBody) Equal(interface{}) IStep {
-	return body.fail()
+
+func (body *expectBody) Int64() IExpectInt64 {
+	return newExpectInt64(body.cleanPath.Push("Int64", nil), func(hit Hit) int64 {
+		return hit.Response().Body().MustInt64()
+	})
 }
-func (body *finalExpectBody) NotEqual(interface{}) IStep {
-	return body.fail()
+
+func (body *expectBody) JSON() IExpectBodyJSON {
+	return newExpectBodyJSON(body, body.cleanPath.Push("JSON", nil))
 }
-func (body *finalExpectBody) Contains(interface{}) IStep {
-	return body.fail()
+
+func (body *expectBody) String() IExpectString {
+	return newExpectString(body.cleanPath.Push("String", nil), func(hit Hit) string {
+		return hit.Response().Body().MustString()
+	})
 }
-func (body *finalExpectBody) NotContains(interface{}) IStep {
-	return body.fail()
+
+func (body *expectBody) Uint() IExpectUint {
+	return newExpectUint(body.cleanPath.Push("Uint", nil), func(hit Hit) uint {
+		return hit.Response().Body().MustUint()
+	})
+}
+
+func (body *expectBody) Uint8() IExpectUint8 {
+	return newExpectUint8(body.cleanPath.Push("Uint8", nil), func(hit Hit) uint8 {
+		return hit.Response().Body().MustUint8()
+	})
+}
+
+func (body *expectBody) Uint16() IExpectUint16 {
+	return newExpectUint16(body.cleanPath.Push("Uint16", nil), func(hit Hit) uint16 {
+		return hit.Response().Body().MustUint16()
+	})
+}
+
+func (body *expectBody) Uint32() IExpectUint32 {
+	return newExpectUint32(body.cleanPath.Push("Uint32", nil), func(hit Hit) uint32 {
+		return hit.Response().Body().MustUint32()
+	})
+}
+
+func (body *expectBody) Uint64() IExpectUint64 {
+	return newExpectUint64(body.cleanPath.Push("Uint64", nil), func(hit Hit) uint64 {
+		return hit.Response().Body().MustUint64()
+	})
 }

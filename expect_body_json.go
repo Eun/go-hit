@@ -1,226 +1,142 @@
 package hit
 
 import (
-	"github.com/Eun/go-hit/errortrace"
-	"github.com/Eun/go-hit/internal"
-	"github.com/Eun/go-hit/internal/minitest"
+	"reflect"
+
 	"golang.org/x/xerrors"
+
+	"github.com/Eun/go-hit/internal/minitest"
 )
 
-// IExpectBodyJSON provides assertions on the http response json body
+// IExpectBodyJSON provides assertions on the http response json body.
 type IExpectBodyJSON interface {
-	IStep
 	// Equal expects the json body to be equal to the specified value.
 	//
-	// The first argument can be used to narrow down the compare path
-	//
 	// given the following response: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
 	// Usage:
-	//     Expect().Body().JSON().Equal("", map[string]interface{}{"ID": 10, "Name": "Joe", "Roles": []string{"Admin", "User"}})
-	//     Expect().Body().JSON().Equal("ID", 10)
-	//     Expect().Body().JSON().Equal("Name", "Joe")
-	//     Expect().Body().JSON().Equal("Roles", []string{"Admin", "User"}),
-	//     Expect().Body().JSON().Equal("Roles.0", "Admin"),
-	//
-	// Example:
-	//     // given the following response: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
-	//     MustDo(
-	//         Get("https://example.com"),
-	//         Expect().Body().JSON().Equal("Name", "Joe"),
-	//         Expect().Body().JSON().Equal("Roles", []string{"Admin", "User"}),
-	//         Expect().Body().JSON().Equal("Roles.0", "Admin"),
-	//     )
-	Equal(expression string, data interface{}) IStep
+	//     Expect().Body().JSON().Equal(map[string]interface{}{"ID": 10, "Name": "Joe", "Roles": []string{"Admin", "User"}})
+	Equal(data interface{}) IStep
 
-	// NotEqual expects the json body to be equal to the specified value.
-	//
-	// The first argument can be used to narrow down the compare path
+	// NotEqual expects the json body to be not equal to the specified value.
 	//
 	// see Equal() for usage and examples
-	NotEqual(expression string, data interface{}) IStep
+	NotEqual(data ...interface{}) IStep
 
-	// Contains expects the json body to be equal to the specified value.
-	//
-	// The first argument can be used to narrow down the compare path
+	// Contains expects the json body to contain the specified value.
 	//
 	// given the following response: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
 	// Usage:
-	//     Expect().Body().JSON().Contains("", "ID")
-	//     Expect().Body().JSON().Contains("Name", "J")
-	//     Expect().Body().JSON().Contains("Roles", "Admin"),
-	//
-	// Example:
-	//     // given the following response: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
-	//     MustDo(
-	//         Get("https://example.com"),
-	//         Expect().Body().JSON().Contains("", "ID"),
-	//     )
-	Contains(expression string, data interface{}) IStep
+	//     Expect().Body().JSON().Contains("ID")
+	Contains(data ...interface{}) IStep
 
-	// NotContains expects the json body to be equal to the specified value.
-	//
-	// The first argument can be used to narrow down the compare path
+	// NotContains expects the json body to not contain the specified value.
 	//
 	// see Contains() for usage and examples
-	NotContains(expression string, data interface{}) IStep
+	NotContains(data ...interface{}) IStep
+
+	// JQ runs an jq expression on the JSON body, the result can be asserted
+	//
+	// given the following response: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
+	// Usage:
+	//     Expect().Body().JSON().JQ(".Name").Equal("Joe")
+	//     Expect().Body().JSON().JQ(".Roles").Equal([]string{"Admin", "User"})
+	//     Expect().Body().JSON().JQ(".Roles.[0]").Equal("Admin")
+	JQ(expression ...string) IExpectBodyJSONJQ
+
+	// Len provides assertions to the json body size
+	//
+	// Usage:
+	//     Expect().Body().JSON().Len().Equal(10)
+	Len() IExpectInt
 }
 
 type expectBodyJSON struct {
 	expectBody IExpectBody
-	cleanPath  clearPath
-	trace      *errortrace.ErrorTrace
+	cleanPath  callPath
 }
 
-func newExpectBodyJSON(expectBody IExpectBody, cleanPath clearPath, params []interface{}) IExpectBodyJSON {
-	jsn := &expectBodyJSON{
+func newExpectBodyJSON(expectBody IExpectBody, cleanPath callPath) IExpectBodyJSON {
+	return &expectBodyJSON{
 		expectBody: expectBody,
 		cleanPath:  cleanPath,
-		trace:      ett.Prepare(),
 	}
-
-	if param, ok := internal.GetLastArgument(params); ok {
-		return &finalExpectBodyJSON{
-			&hitStep{
-				Trace:     jsn.trace,
-				When:      ExpectStep,
-				ClearPath: jsn.cleanPath,
-				Exec:      jsn.Equal("", param).exec,
-			},
-			"only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)",
-		}
-	}
-	return jsn
 }
 
-func (jsn *expectBodyJSON) exec(hit Hit) error {
-	return jsn.trace.Format(hit.Description(), "unable to run Expect().Body().JSON() without an argument or without a chain. Please use Expect().Body().JSON(something) or Expect().Body().JSON().Something")
-}
-
-func (*expectBodyJSON) when() StepTime {
-	return ExpectStep
-}
-
-func (jsn *expectBodyJSON) clearPath() clearPath {
-	return jsn.cleanPath
-}
-
-func (jsn *expectBodyJSON) Equal(expression string, data interface{}) IStep {
+func (v *expectBodyJSON) Equal(data interface{}) IStep {
 	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: jsn.clearPath().Push("Equal", []interface{}{expression, data}),
-		Exec: func(hit Hit) error {
-			v := hit.Response().body.JSON().Get(expression)
-			if v == nil && data == nil {
-				return nil
-			}
-
-			if v == nil || data == nil {
-				// will fail
-				minitest.Equal(data, v)
-			}
-
-			compareData, err := makeCompareable(v, data)
-			if err != nil {
-				return nil
-			}
-			minitest.Equal(data, compareData)
-			return nil
-		},
-	}
-}
-
-func (jsn *expectBodyJSON) NotEqual(expression string, data interface{}) IStep {
-	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: jsn.clearPath().Push("NotEqual", []interface{}{expression, data}),
-		Exec: func(hit Hit) error {
-			v := hit.Response().body.JSON().Get(expression)
-			if v == nil && data == nil {
-				minitest.Errorf("should not be %s", minitest.PrintValue(v))
-			}
-
-			if v == nil || data == nil {
-				minitest.NotEqual(data, v)
-			}
-
-			compareData, err := makeCompareable(v, data)
-			if err != nil {
+		Trace:    ett.Prepare(),
+		When:     ExpectStep,
+		CallPath: v.cleanPath.Push("Equal", []interface{}{data}),
+		Exec: func(hit *hitImpl) error {
+			var obj interface{}
+			if err := hit.Response().body.JSON().Decode(&obj); err != nil {
 				return err
 			}
-			minitest.NotEqual(data, compareData)
-			return nil
+
+			return minitest.Error.Equal(obj, data)
 		},
 	}
 }
 
-func (jsn *expectBodyJSON) Contains(expression string, data interface{}) IStep {
+func (v *expectBodyJSON) NotEqual(data ...interface{}) IStep {
 	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: jsn.clearPath().Push("Contains", []interface{}{expression, data}),
-		Exec: func(hit Hit) error {
-			v := hit.Response().body.JSON().Get(expression)
-			if v == nil && data == nil {
-				return nil
+		Trace:    ett.Prepare(),
+		When:     ExpectStep,
+		CallPath: v.cleanPath.Push("NotEqual", data),
+		Exec: func(hit *hitImpl) error {
+			var obj interface{}
+			if err := hit.Response().body.JSON().Decode(&obj); err != nil {
+				return err
 			}
-
-			if !internal.Contains(v, data) {
-				minitest.Errorf("%s does not contain %s", minitest.PrintValue(v), minitest.PrintValue(data))
-			}
-			return nil
+			return minitest.Error.NotEqual(obj, data...)
 		},
 	}
 }
 
-func (jsn *expectBodyJSON) NotContains(expression string, data interface{}) IStep {
+func (v *expectBodyJSON) Contains(data ...interface{}) IStep {
 	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      ExpectStep,
-		ClearPath: jsn.clearPath().Push("NotContains", []interface{}{expression, data}),
-		Exec: func(hit Hit) error {
-			v := hit.Response().body.JSON().Get(expression)
-			if v == nil && data == nil {
-				minitest.Errorf("%s does contain %s", minitest.PrintValue(v), minitest.PrintValue(data))
+		Trace:    ett.Prepare(),
+		When:     ExpectStep,
+		CallPath: v.cleanPath.Push("Contains", data),
+		Exec: func(hit *hitImpl) error {
+			var obj interface{}
+			if err := hit.Response().body.JSON().Decode(&obj); err != nil {
+				return err
 			}
-
-			if internal.Contains(v, data) {
-				minitest.Errorf("%s does contain %s", minitest.PrintValue(v), minitest.PrintValue(data))
-			}
-			return nil
+			return minitest.Error.Contains(obj, data...)
 		},
 	}
 }
 
-type finalExpectBodyJSON struct {
-	IStep
-	message string
-}
-
-func (jsn *finalExpectBodyJSON) fail() IStep {
+func (v *expectBodyJSON) NotContains(data ...interface{}) IStep {
 	return &hitStep{
-		Trace:     ett.Prepare(),
-		When:      CleanStep,
-		ClearPath: nil,
-		Exec: func(hit Hit) error {
-			return xerrors.New(jsn.message)
+		Trace:    ett.Prepare(),
+		When:     ExpectStep,
+		CallPath: v.cleanPath.Push("NotContains", data),
+		Exec: func(hit *hitImpl) error {
+			var obj interface{}
+			if err := hit.Response().body.JSON().Decode(&obj); err != nil {
+				return err
+			}
+			return minitest.Error.NotContains(obj, data...)
 		},
 	}
 }
 
-func (jsn *finalExpectBodyJSON) Equal(string, interface{}) IStep {
-	return jsn.fail()
+func (v *expectBodyJSON) JQ(expression ...string) IExpectBodyJSONJQ {
+	return newExpectBodyJSONJQ(v.expectBody, v.cleanPath.Push("JQ", stringSliceToInterfaceSlice(expression)), expression)
 }
 
-func (jsn *finalExpectBodyJSON) NotEqual(string, interface{}) IStep {
-	return jsn.fail()
-}
-
-func (jsn *finalExpectBodyJSON) Contains(string, interface{}) IStep {
-	return jsn.fail()
-}
-
-func (jsn *finalExpectBodyJSON) NotContains(string, interface{}) IStep {
-	return jsn.fail()
+func (v *expectBodyJSON) Len() IExpectInt {
+	return newExpectInt(v.cleanPath.Push("Len", nil), func(hit Hit) int {
+		var obj interface{}
+		hit.Response().body.JSON().MustDecode(&obj)
+		rv := reflect.ValueOf(obj)
+		switch rv.Kind() {
+		case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:
+			return rv.Len()
+		default:
+			panic(xerrors.Errorf("cannot get len for %#v", obj))
+		}
+	})
 }

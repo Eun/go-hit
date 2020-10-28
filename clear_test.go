@@ -6,67 +6,35 @@ import (
 	. "github.com/Eun/go-hit"
 )
 
-func TestClearSend(t *testing.T) {
+func TestClear_Send(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
-	t.Run("all", func(t *testing.T) {
-		ExpectError(t,
-			Do(
-				Post(s.URL),
-				Send("Hello World"),
-				Clear().Send(),
-				Send("Hello Earth"),
-				Expect("Hello World"),
-			),
-			PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), nil, nil, nil, nil, nil,
-		)
-	})
-
-	t.Run("specific", func(t *testing.T) {
-		ExpectError(t,
-			Do(
-				Post(s.URL),
-				Send("Hello World"),
-				Clear().Send("Hello World"),
-				Send("Hello Earth"),
-				Expect("Hello World"),
-			),
-			PtrStr("Not equal"), PtrStr(`expected: "Hello World"`), nil, nil, nil, nil, nil,
-		)
-	})
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Send().Body().String("Hello World"),
+			Clear().Send(),
+			Expect().Body().String().Equal("Hello World"),
+		),
+		PtrStr("not equal"), PtrStr(`expected: "Hello World"`), nil, nil, nil, nil, nil,
+	)
 }
 
-func TestClearExpect(t *testing.T) {
+func TestClear_Expect(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
-	t.Run("all", func(t *testing.T) {
-		ExpectError(t,
-			Do(
-				Post(s.URL),
-				Send().Body("Hello World"),
-				Expect("Hello Universe"),
-				Expect("Hello Earth"),
-				Clear().Expect(),
-				Expect("Hello Nature"),
-			),
-			PtrStr("Not equal"), PtrStr(`expected: "Hello Nature"`), nil, nil, nil, nil, nil,
-		)
-	})
-
-	t.Run("specific", func(t *testing.T) {
-		ExpectError(t,
-			Do(
-				Post(s.URL),
-				Send().Body("Hello World"),
-				Expect("Hello Universe"),
-				Expect("Hello Earth"),
-				Clear().Expect("Hello Universe"),
-			),
-			PtrStr("Not equal"), PtrStr(`expected: "Hello Earth"`), nil, nil, nil, nil, nil,
-		)
-	})
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Send().Body().String("Hello World"),
+			Expect().Body().String().Equal("Hello World"),
+			Clear().Expect(),
+			Expect().Body().String().Equal("Hello Nature"),
+		),
+		PtrStr("not equal"), PtrStr(`expected: "Hello Nature"`), nil, nil, nil, nil, nil,
+	)
 }
 
 func TestClear_CombineSteps(t *testing.T) {
@@ -77,12 +45,37 @@ func TestClear_CombineSteps(t *testing.T) {
 		Do(
 			CombineSteps(
 				Post(s.URL),
-				Send("Hello"),
-				Expect("World"),
+				Send().Body().String("Hello"),
+				Expect().Body().String().Equal("World"),
 			),
 			Clear().Expect(),
-			Expect("Nature"),
+			Expect().Body().String().Equal("Nature"),
 		),
-		PtrStr("Not equal"), PtrStr(`expected: "Nature"`), nil, nil, nil, nil, nil,
+		PtrStr("not equal"), PtrStr(`expected: "Nature"`), nil, nil, nil, nil, nil,
 	)
+}
+
+func TestClear_NotExistentStep(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+
+	t.Run("Send", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Clear().Send(),
+			),
+			PtrStr(`unable to find a step with Send()`), PtrStr("got these steps:"), PtrStr("Post()"),
+		)
+	})
+
+	t.Run("Expect", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Clear().Expect(),
+			),
+			PtrStr(`unable to find a step with Expect()`), PtrStr("got these steps:"), PtrStr("Post()"),
+		)
+	})
 }

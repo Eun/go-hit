@@ -5,6 +5,8 @@ import (
 
 	"strings"
 
+	"io"
+
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -13,9 +15,9 @@ type pathPart struct {
 	Arguments []interface{}
 }
 
-type clearPath []pathPart
+type callPath []pathPart
 
-func (cleanPath clearPath) Push(name string, arguments []interface{}) clearPath {
+func (cleanPath callPath) Push(name string, arguments []interface{}) callPath {
 	if arguments == nil {
 		arguments = []interface{}{}
 	}
@@ -25,7 +27,7 @@ func (cleanPath clearPath) Push(name string, arguments []interface{}) clearPath 
 	})
 }
 
-func newClearPath(name string, arguments []interface{}) clearPath {
+func newCallPath(name string, arguments []interface{}) callPath {
 	if arguments == nil {
 		arguments = []interface{}{}
 	}
@@ -38,11 +40,14 @@ func newClearPath(name string, arguments []interface{}) clearPath {
 }
 
 func funcComparer(x, y func(Hit)) bool {
-	// return runtime.FuncForPC(reflect.ValueOf(x).Pointer()).Name() == runtime.FuncForPC(reflect.ValueOf(y).Pointer()).Name()
 	return fmt.Sprintf("%p", x) == fmt.Sprintf("%p", y)
 }
 
-func (cleanPath clearPath) Contains(needle clearPath) bool {
+func ioReaderComparer(x, y io.Reader) bool {
+	return fmt.Sprintf("%p", x) == fmt.Sprintf("%p", y)
+}
+
+func (cleanPath callPath) Contains(needle callPath) bool {
 	haySize := len(cleanPath)
 	needleSize := len(needle)
 	if needleSize > haySize {
@@ -61,27 +66,36 @@ func (cleanPath clearPath) Contains(needle clearPath) bool {
 		if hayArgSize > needleArgSize {
 			hayArgSize = needleArgSize
 		}
-		if !cmp.Equal(cleanPath[i].Arguments[:hayArgSize], needle[i].Arguments, cmp.Comparer(funcComparer)) {
+		if !cmp.Equal(cleanPath[i].Arguments[:hayArgSize], needle[i].Arguments,
+			cmp.Comparer(funcComparer),
+			cmp.Comparer(ioReaderComparer),
+		) {
 			return false
 		}
 	}
 	return true
 }
 
-func (cleanPath clearPath) String() string {
+func (cleanPath callPath) CallString(withArguments bool) string {
 	parts := make([]string, len(cleanPath))
 	for i := range cleanPath {
-		parts[i] = cleanPath[i].Func
-	}
-	return strings.Join(parts, ".")
-}
-
-func (cleanPath clearPath) CallString() string {
-	parts := make([]string, len(cleanPath))
-	for i := range cleanPath {
-		args := make([]string, len(cleanPath[i].Arguments))
-		for i, argument := range cleanPath[i].Arguments {
-			args[i] = fmt.Sprintf("%#v", argument)
+		var args []string
+		if withArguments {
+			args = make([]string, len(cleanPath[i].Arguments))
+			for i, argument := range cleanPath[i].Arguments {
+				switch v := argument.(type) {
+				case []byte:
+					values := make([]string, len(v))
+					for j, b := range v {
+						values[j] = fmt.Sprintf("%#v", b)
+					}
+					args[i] = fmt.Sprintf("[]uint8{%s}", strings.Join(values, ", "))
+				case float32, float64:
+					args[i] = fmt.Sprintf("%#f", argument)
+				default:
+					args[i] = fmt.Sprintf("%#v", argument)
+				}
+			}
 		}
 		parts[i] = fmt.Sprintf("%s(%s)", cleanPath[i].Func, strings.Join(args, ", "))
 	}

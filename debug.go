@@ -1,55 +1,116 @@
 package hit
 
 import (
-	"encoding/json"
-	"net/http"
+	"fmt"
 	"time"
 
-	"github.com/Eun/go-hit/expr"
-	"github.com/Eun/go-hit/internal"
+	"io"
+
+	"reflect"
+
+	"os"
+
 	"github.com/gookit/color"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/tidwall/pretty"
+
+	"github.com/Eun/go-hit/errortrace"
 )
 
-type debug struct {
-	expression []string
+// IDebug provides a debug functionality for the Request and Response.
+type IDebug interface {
+	IStep
+	// Time prints the current Time
+	Time() IStep
+	// Request prints the Request
+	//
+	// Usage:
+	//     Debug().Request()                           // print the whole Request
+	//     Debug().Request().Body()                    // print the body
+	//     Debug().Request().Body().JSON().JQ(".Name") // print the Name value of the JSON body
+	//     Debug().Request().Headers()                  // print all headers
+	//     Debug().Request().Headers("Content-Type")    // print the Content-Type header
+	Request() IDebugRequest
+
+	// Response prints the Response
+	//
+	// Usage:
+	//     Debug().Response()                           // print the whole Response
+	//     Debug().Response().Body()                    // print only the body
+	//     Debug().Response().Body().JSON().JQ(".Name") // print the Name value of the JSON body
+	//     Debug().Response().Headers()                  // print all headers
+	//     Debug().Response().Headers("Content-Type")    // print the Content-Type header
+	Response() IDebugResponse
 }
 
-func newDebug(expression []string) IStep {
+type debug struct {
+	cp callPath
+	w  io.Writer
+}
+
+func newDebug(cp callPath, w io.Writer) IDebug {
 	return &debug{
-		expression: expression,
+		cp: cp,
+		w:  w,
 	}
 }
 
+func (d *debug) out(*hitImpl) io.Writer {
+	if d.w == nil {
+		return os.Stdout
+	}
+	return d.w
+}
+func (*debug) trace() *errortrace.ErrorTrace {
+	return nil
+}
 func (*debug) when() StepTime {
 	return BeforeExpectStep
 }
 
-func (*debug) getBody(body *HTTPBody) interface{} {
-	reader := body.JSON().body.Reader()
-	// if there is a json reader
-	if reader != nil {
-		var container interface{}
-		if err := json.NewDecoder(reader).Decode(&container); err == nil {
-			return container
-		}
-	}
-	s := body.String()
-	if len(s) == 0 {
-		return nil
-	}
-	return s
-}
-
-func (*debug) getHeader(header http.Header) map[string]interface{} {
-	m := make(map[string]interface{})
+func (*debug) getMap(header map[string][]string) map[string]string {
+	m := make(map[string]string)
 	for key := range header {
-		m[key] = header.Get(key)
+		// skip empty fields
+		if s := header[key]; len(s) > 0 && s[0] != "" {
+			m[key] = s[0]
+		}
 	}
 	return m
 }
 
-func (d *debug) exec(hit Hit) error {
+func (d *debug) print(out io.Writer, v interface{}) error {
+	if v == nil {
+		_, err := io.WriteString(out, "<nil>")
+		return err
+	}
+
+	// if v is struct, map, or slice, use json
+	// if not print directly
+
+	rv := reflect.TypeOf(v)
+	for rv.Kind() == reflect.Ptr {
+		rv = rv.Elem()
+	}
+	if rv.Kind() != reflect.Struct && rv.Kind() != reflect.Slice && rv.Kind() != reflect.Map {
+		_, err := fmt.Fprintf(out, "%v", v)
+		return err
+	}
+
+	bytes, err := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	bytes = pretty.Pretty(bytes)
+	if color.IsSupportColor() {
+		bytes = pretty.Color(bytes, nil)
+	}
+	_, err = out.Write(bytes)
+	return err
+}
+
+func (d *debug) exec(hit *hitImpl) error {
 	type M map[string]interface{}
 
 	m := M{
@@ -57,58 +118,36 @@ func (d *debug) exec(hit Hit) error {
 	}
 
 	if hit.Request() != nil {
-		m["Request"] = M{
-			"Header":           d.getHeader(hit.Request().Header),
-			"Trailer":          d.getHeader(hit.Request().Trailer),
-			"Method":           hit.Request().Method,
-			"URL":              hit.Request().URL,
-			"Proto":            hit.Request().Proto,
-			"ProtoMajor":       hit.Request().ProtoMajor,
-			"ProtoMinor":       hit.Request().ProtoMinor,
-			"ContentLength":    hit.Request().ContentLength,
-			"TransferEncoding": hit.Request().TransferEncoding,
-			"Host":             hit.Request().Host,
-			"Form":             hit.Request().Form,
-			"PostForm":         hit.Request().PostForm,
-			"MultipartForm":    hit.Request().MultipartForm,
-			"RemoteAddr":       hit.Request().RemoteAddr,
-			"RequestURI":       hit.Request().RequestURI,
-			"Body":             d.getBody(hit.Request().Body()),
-		}
+		m["Request"] = newDebugRequest(d.cp, d).data(hit)
 	}
 
 	if hit.Response() != nil {
-		m["Response"] = M{
-			"Header":           d.getHeader(hit.Response().Header),
-			"Trailer":          d.getHeader(hit.Response().Trailer),
-			"Proto":            hit.Response().Proto,
-			"ProtoMajor":       hit.Response().ProtoMajor,
-			"ProtoMinor":       hit.Response().ProtoMinor,
-			"ContentLength":    hit.Response().ContentLength,
-			"TransferEncoding": hit.Response().TransferEncoding,
-			"Body":             d.getBody(hit.Response().body),
-			"Status":           hit.Response().Status,
-			"StatusCode":       hit.Response().StatusCode,
-		}
+		m["Response"] = newDebugResponse(d.cp, d).data(hit)
 	}
 
-	var v interface{} = m
-	if expression, ok := internal.GetLastStringArgument(d.expression); ok {
-		v = expr.MustGetValue(m, expression, expr.IgnoreError, expr.IgnoreNotFound)
-	}
-
-	bytes, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-	bytes = pretty.Pretty(bytes)
-	if color.IsSupportColor() {
-		bytes = pretty.Color(bytes, nil)
-	}
-	_, err = hit.Stdout().Write(bytes)
-	return err
+	return d.print(d.out(hit), m)
 }
 
-func (*debug) clearPath() clearPath {
-	return nil // not clearable
+func (d *debug) callPath() callPath {
+	return d.cp
+}
+
+func (d *debug) Time() IStep {
+	return &hitStep{
+		Trace:    ett.Prepare(),
+		When:     BeforeExpectStep,
+		CallPath: nil,
+		Exec: func(hit *hitImpl) error {
+			_, err := io.WriteString(d.out(hit), time.Now().String())
+			return err
+		},
+	}
+}
+
+func (d *debug) Request() IDebugRequest {
+	return newDebugRequest(d.cp.Push("Request", nil), d)
+}
+
+func (d *debug) Response() IDebugResponse {
+	return newDebugResponse(d.cp.Push("Response", nil), d)
 }

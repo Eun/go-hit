@@ -3,8 +3,9 @@ package hit_test
 import (
 	"testing"
 
-	. "github.com/Eun/go-hit"
 	"github.com/stretchr/testify/require"
+
+	. "github.com/Eun/go-hit"
 )
 
 func TestExpectBodyJSON_Equal(t *testing.T) {
@@ -14,107 +15,125 @@ func TestExpectBodyJSON_Equal(t *testing.T) {
 	t.Run("string", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`"Hello World"`),
-			Expect().Body().JSON("Hello World"),
+			Send().Body().String(`"Hello World"`),
+			Expect().Body().JSON().Equal("Hello World"),
 		)
 
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`"Hello Universe"`),
-				Expect().Body().JSON("Hello World"),
+				Send().Body().String(`"Hello Universe"`),
+				Expect().Body().JSON().Equal("Hello World"),
 			),
-			PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+			PtrStr("not equal"), nil, nil, nil, nil, nil, nil,
 		)
 
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`"Hello Universe"`),
+				Send().Body().String(`"Hello Universe"`),
 				Expect().Custom(func(hit Hit) {
-					hit.MustDo(Expect().Body().JSON("Hello World"))
+					hit.MustDo(Expect().Body().JSON().Equal("Hello World"))
 				}),
 			),
-			PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+			PtrStr("not equal"), nil, nil, nil, nil, nil, nil,
 		)
 	})
 	t.Run("slice", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`["A","B"]`),
-			Expect().Body().JSON([]interface{}{"A", "B"}),
+			Send().Body().String(`["A","B"]`),
+			Expect().Body().JSON().Equal([]interface{}{"A", "B"}),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`["A","B","C"]`),
-				Expect().Body().JSON().Equal("", []interface{}{"A", "B"}),
+				Send().Body().String(`["A","B","C"]`),
+				Expect().Body().JSON().Equal([]interface{}{"A", "B"}),
 			),
-			PtrStr("Not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+			PtrStr("not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		)
+
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Body().String(`"Hello World"`),
+				Expect().Body().JSON().Equal([]interface{}{"Hello World"}),
+			),
+			PtrStr("not equal"), nil, nil, nil, nil, nil, nil, nil, nil,
+		)
+
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Body().String(`["A","B","C"]`),
+				Expect().Body().JSON().Equal("Hello World"),
+			),
+			PtrStr("not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 		)
 	})
 
 	t.Run("slice of string", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`["A","B"]`),
-			Expect().Body().JSON([]string{"A", "B"}),
+			Send().Body().String(`["A","B"]`),
+			Expect().Body().JSON().Equal([]string{"A", "B"}),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`["A","B","C"]`),
-				Expect().Body().JSON([]string{"A", "B"}),
+				Send().Body().String(`["A","B","C"]`),
+				Expect().Body().JSON().Equal([]string{"A", "B"}),
 			),
-			PtrStr("Not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+			PtrStr("not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 		)
 	})
 
-	t.Run("object", func(t *testing.T) {
+	t.Run("map interface", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`{"A":"1","B":"2"}`),
-			Expect().Body().JSON(map[string]interface{}{"A": "1", "B": "2"}),
+			Send().Body().String(`{"A":"1","B":"2"}`),
+			Expect().Body().JSON().Equal(map[string]interface{}{"A": "1", "B": "2"}),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`{"A":"1","B":"2","C":"3"}`),
-				Expect().Body().JSON(map[string]interface{}{"A": "1", "B": "2"}),
+				Send().Body().String(`{"A":"1","B":"2","C":"3"}`),
+				Expect().Body().JSON().Equal(map[string]interface{}{"A": "1", "B": "2"}),
 			),
-			PtrStr("Not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+			PtrStr("not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 		)
 	})
 
-	t.Run("object", func(t *testing.T) {
+	t.Run("map string", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`{"A":"1","B":"2"}`),
-			Expect().Body().JSON(map[string]string{"A": "1", "B": "2"}),
+			Send().Body().String(`{"A":"1","B":"2"}`),
+			Expect().Body().JSON().Equal(map[string]string{"A": "1", "B": "2"}),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`{"A":"1","B":"2","C": "3"}`),
-				Expect().Body().JSON(map[string]string{"A": "1", "B": "2"}),
+				Send().Body().String(`{"A":"1","B":"2","C": "3"}`),
+				Expect().Body().JSON().Equal(map[string]string{"A": "1", "B": "2"}),
 			),
-			PtrStr("Not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+			PtrStr("not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 		)
 	})
 
 	t.Run("int", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`8`),
-			Expect().Body().JSON(8),
+			Send().Body().String("8"),
+			Expect().Body().JSON().Equal(8),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`6`),
-				Expect().Body().JSON(8),
+				Send().Body().String("6"),
+				Expect().Body().JSON().Equal(8),
 			),
-			PtrStr("Not equal"), nil, nil, nil, nil, nil, nil,
+			PtrStr("not equal"), nil, nil, nil, nil, nil, nil,
 		)
 	})
 
@@ -130,16 +149,27 @@ func TestExpectBodyJSON_Equal(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			Test(t,
 				Post(s.URL),
-				Send().Body(`{"Name":"Joe", "ID": 10}`),
-				Expect().Body().JSON(user),
+				Send().Body().String(`{"Name":"Joe", "ID": 10}`),
+				Expect().Body().JSON().Equal(user),
 			)
 			ExpectError(t,
 				Do(
 					Post(s.URL),
-					Send().Body(`{"Name":"Joe", "ID": 11}`),
-					Expect().Body().JSON(user),
+					Send().Body().String(`{"Name":"Joe", "ID": 11}`),
+					Expect().Body().JSON().Equal(user),
 				),
-				PtrStr("Not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+				PtrStr("not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+			)
+		})
+
+		t.Run("not all fields", func(t *testing.T) {
+			ExpectError(t,
+				Do(
+					Post(s.URL),
+					Send().Body().String(`{"Name":"Joe"}`),
+					Expect().Body().JSON().Equal(user),
+				),
+				PtrStr("not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 			)
 		})
 
@@ -147,16 +177,16 @@ func TestExpectBodyJSON_Equal(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			Test(t,
 				Post(s.URL),
-				Send().Body(`{"Name":"Joe", "ID": 10}`),
-				Expect().Body().JSON(&user),
+				Send().Body().String(`{"Name":"Joe", "ID": 10}`),
+				Expect().Body().JSON().Equal(&user),
 			)
 			ExpectError(t,
 				Do(
 					Post(s.URL),
-					Send().Body(`{"Name":"Joe", "ID": 11}`),
-					Expect().Body().JSON(&user),
+					Send().Body().String(`{"Name":"Joe", "ID": 11}`),
+					Expect().Body().JSON().Equal(&user),
 				),
-				PtrStr("Not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+				PtrStr("not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 			)
 		})
 
@@ -165,16 +195,16 @@ func TestExpectBodyJSON_Equal(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			Test(t,
 				Post(s.URL),
-				Send().Body(`{"Name":"Joe", "ID": 10}`),
-				Expect().Body().JSON(&puser),
+				Send().Body().String(`{"Name":"Joe", "ID": 10}`),
+				Expect().Body().JSON().Equal(&puser),
 			)
 			ExpectError(t,
 				Do(
 					Post(s.URL),
-					Send().Body(`{"Name":"Joe", "ID": 11}`),
-					Expect().Body().JSON(&puser),
+					Send().Body().String(`{"Name":"Joe", "ID": 11}`),
+					Expect().Body().JSON().Equal(&puser),
 				),
-				PtrStr("Not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+				PtrStr("not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 			)
 		})
 
@@ -198,32 +228,32 @@ func TestExpectBodyJSON_Equal(t *testing.T) {
 			}
 			Test(t,
 				Post(s.URL),
-				Send().Body(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 1"}]`),
-				Expect().Body().JSON(expect),
+				Send().Body().String(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 1"}]`),
+				Expect().Body().JSON().Equal(expect),
 			)
 			ExpectError(t,
 				Do(
 					Post(s.URL),
-					Send().Body(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 2"}]`),
-					Expect().Body().JSON(expect),
+					Send().Body().String(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 2"}]`),
+					Expect().Body().JSON().Equal(expect),
 				),
-				PtrStr("Not equal"), nil, nil, nil,
+				PtrStr("not equal"), nil, nil, nil,
 				nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 				nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 			)
 
 			Test(t,
 				Post(s.URL),
-				Send().Body(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 1"}]`),
-				Expect().Body().JSON(&expect),
+				Send().Body().String(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 1"}]`),
+				Expect().Body().JSON().Equal(&expect),
 			)
 			ExpectError(t,
 				Do(
 					Post(s.URL),
-					Send().Body(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 2"}]`),
-					Expect().Body().JSON(&expect),
+					Send().Body().String(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 2"}]`),
+					Expect().Body().JSON().Equal(&expect),
 				),
-				PtrStr("Not equal"), nil, nil, nil,
+				PtrStr("not equal"), nil, nil, nil,
 				nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 				nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 			)
@@ -247,16 +277,16 @@ func TestExpectBodyJSON_Equal(t *testing.T) {
 	t.Run("nil", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(nil),
-			Expect().Body().JSON().Equal("", nil),
+			Send().Body().String("null"),
+			Expect().Body().JSON().Equal(nil),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(8),
-				Expect().Body().JSON().Equal("", nil),
+				Send().Body().String("8"),
+				Expect().Body().JSON().Equal(nil),
 			),
-			PtrStr("Not equal"), nil, nil, nil, nil, nil,
+			PtrStr("not equal"), nil, nil, nil, nil, nil,
 		)
 	})
 }
@@ -268,15 +298,15 @@ func TestExpectBodyJSON_NotEqual(t *testing.T) {
 	t.Run("string", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`"Hello World"`),
-			Expect().Body().JSON().NotEqual("", "Hello Universe"),
+			Send().Body().String(`"Hello World"`),
+			Expect().Body().JSON().NotEqual("Hello Universe"),
 		)
 
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`"Hello World"`),
-				Expect().Body().JSON().NotEqual("", "Hello World"),
+				Send().Body().String(`"Hello World"`),
+				Expect().Body().JSON().NotEqual("Hello World"),
 			),
 			PtrStr(`should not be "Hello World"`),
 		)
@@ -284,9 +314,9 @@ func TestExpectBodyJSON_NotEqual(t *testing.T) {
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`"Hello World"`),
+				Send().Body().String(`"Hello World"`),
 				Expect().Custom(func(hit Hit) {
-					hit.MustDo(Expect().Body().JSON().NotEqual("", "Hello World"))
+					hit.MustDo(Expect().Body().JSON().NotEqual("Hello World"))
 				}),
 			),
 			PtrStr(`should not be "Hello World"`),
@@ -295,14 +325,14 @@ func TestExpectBodyJSON_NotEqual(t *testing.T) {
 	t.Run("slice", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`["A","B","C"]`),
-			Expect().Body().JSON().NotEqual("", []interface{}{"A", "B"}),
+			Send().Body().String(`["A","B","C"]`),
+			Expect().Body().JSON().NotEqual([]interface{}{"A", "B"}),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`["A","B"]`),
-				Expect().Body().JSON().NotEqual("", []interface{}{"A", "B"}),
+				Send().Body().String(`["A","B"]`),
+				Expect().Body().JSON().NotEqual([]interface{}{"A", "B"}),
 			),
 			PtrStr("should not be []interface {}{"), nil, nil, nil,
 		)
@@ -311,14 +341,14 @@ func TestExpectBodyJSON_NotEqual(t *testing.T) {
 	t.Run("slice of string", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`["A","B"]`),
-			Expect().Body().JSON().NotEqual("", []string{"A", "B", "C"}),
+			Send().Body().String(`["A","B"]`),
+			Expect().Body().JSON().NotEqual([]string{"A", "B", "C"}),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`["A","B"]`),
-				Expect().Body().JSON().NotEqual("", []string{"A", "B"}),
+				Send().Body().String(`["A","B"]`),
+				Expect().Body().JSON().NotEqual([]string{"A", "B"}),
 			),
 			PtrStr("should not be []string{"), nil, nil, nil,
 		)
@@ -327,14 +357,14 @@ func TestExpectBodyJSON_NotEqual(t *testing.T) {
 	t.Run("object", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`{"A":"1","B":"2","C":"3"}`),
-			Expect().Body().JSON().NotEqual("", map[string]interface{}{"A": "1", "B": "2"}),
+			Send().Body().String(`{"A":"1","B":"2","C":"3"}`),
+			Expect().Body().JSON().NotEqual(map[string]interface{}{"A": "1", "B": "2"}),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`{"A":"1","B":"2"}`),
-				Expect().Body().JSON().NotEqual("", map[string]interface{}{"A": "1", "B": "2"}),
+				Send().Body().String(`{"A":"1","B":"2"}`),
+				Expect().Body().JSON().NotEqual(map[string]interface{}{"A": "1", "B": "2"}),
 			),
 			PtrStr("should not be map[string]interface {}{"), nil, nil, nil,
 		)
@@ -343,14 +373,14 @@ func TestExpectBodyJSON_NotEqual(t *testing.T) {
 	t.Run("object", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`{"A":"1","B":"2","C": "3"}`),
-			Expect().Body().JSON().NotEqual("", map[string]string{"A": "1", "B": "2"}),
+			Send().Body().String(`{"A":"1","B":"2","C": "3"}`),
+			Expect().Body().JSON().NotEqual(map[string]string{"A": "1", "B": "2"}),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`{"A":"1","B":"2"}`),
-				Expect().Body().JSON().NotEqual("", map[string]string{"A": "1", "B": "2"}),
+				Send().Body().String(`{"A":"1","B":"2"}`),
+				Expect().Body().JSON().NotEqual(map[string]string{"A": "1", "B": "2"}),
 			),
 			PtrStr("should not be map[string]string{"), nil, nil, nil,
 		)
@@ -359,14 +389,14 @@ func TestExpectBodyJSON_NotEqual(t *testing.T) {
 	t.Run("int", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`6`),
-			Expect().Body().JSON().NotEqual("", 8),
+			Send().Body().String("6"),
+			Expect().Body().JSON().NotEqual(8),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`8`),
-				Expect().Body().JSON().NotEqual("", 8),
+				Send().Body().String("8"),
+				Expect().Body().JSON().NotEqual(8),
 			),
 			PtrStr("should not be 8"),
 		)
@@ -384,14 +414,14 @@ func TestExpectBodyJSON_NotEqual(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			Test(t,
 				Post(s.URL),
-				Send().Body(`{"Name":"Joe", "ID": 11}`),
-				Expect().Body().JSON().NotEqual("", user),
+				Send().Body().String(`{"Name":"Joe", "ID": 11}`),
+				Expect().Body().JSON().NotEqual(user),
 			)
 			ExpectError(t,
 				Do(
 					Post(s.URL),
-					Send().Body(`{"Name":"Joe", "ID": 10}`),
-					Expect().Body().JSON().NotEqual("", user),
+					Send().Body().String(`{"Name":"Joe", "ID": 10}`),
+					Expect().Body().JSON().NotEqual(user),
 				),
 				PtrStr("should not be struct { Name string; ID int }{"), nil, nil, nil,
 			)
@@ -401,14 +431,14 @@ func TestExpectBodyJSON_NotEqual(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			Test(t,
 				Post(s.URL),
-				Send().Body(`{"Name":"Joe", "ID": 11}`),
-				Expect().Body().JSON().NotEqual("", &user),
+				Send().Body().String(`{"Name":"Joe", "ID": 11}`),
+				Expect().Body().JSON().NotEqual(&user),
 			)
 			ExpectError(t,
 				Do(
 					Post(s.URL),
-					Send().Body(`{"Name":"Joe", "ID": 10}`),
-					Expect().Body().JSON().NotEqual("", &user),
+					Send().Body().String(`{"Name":"Joe", "ID": 10}`),
+					Expect().Body().JSON().NotEqual(&user),
 				),
 				PtrStr("should not be &struct { Name string; ID int }{"), nil, nil, nil,
 			)
@@ -419,14 +449,14 @@ func TestExpectBodyJSON_NotEqual(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			Test(t,
 				Post(s.URL),
-				Send().Body(`{"Name":"Joe", "ID": 11}`),
-				Expect().Body().JSON().NotEqual("", &puser),
+				Send().Body().String(`{"Name":"Joe", "ID": 11}`),
+				Expect().Body().JSON().NotEqual(&puser),
 			)
 			ExpectError(t,
 				Do(
 					Post(s.URL),
-					Send().Body(`{"Name":"Joe", "ID": 10}`),
-					Expect().Body().JSON().NotEqual("", &puser),
+					Send().Body().String(`{"Name":"Joe", "ID": 10}`),
+					Expect().Body().JSON().NotEqual(&puser),
 				),
 				PtrStr("should not be &&struct { Name string; ID int }{"), nil, nil, nil,
 			)
@@ -452,28 +482,28 @@ func TestExpectBodyJSON_NotEqual(t *testing.T) {
 			}
 			Test(t,
 				Post(s.URL),
-				Send().Body(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 2"}]`),
-				Expect().Body().JSON().NotEqual("", expect),
+				Send().Body().String(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 2"}]`),
+				Expect().Body().JSON().NotEqual(expect),
 			)
 			ExpectError(t,
 				Do(
 					Post(s.URL),
-					Send().Body(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 1"}]`),
-					Expect().Body().JSON().NotEqual("", expect),
+					Send().Body().String(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 1"}]`),
+					Expect().Body().JSON().NotEqual(expect),
 				),
 				PtrStr("should not be []hit_test.Company{"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 			)
 
 			Test(t,
 				Post(s.URL),
-				Send().Body(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 2"}]`),
-				Expect().Body().JSON().NotEqual("", &expect),
+				Send().Body().String(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 2"}]`),
+				Expect().Body().JSON().NotEqual(&expect),
 			)
 			ExpectError(t,
 				Do(
 					Post(s.URL),
-					Send().Body(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 1"}]`),
-					Expect().Body().JSON().NotEqual("", &expect),
+					Send().Body().String(`[{"Name":"Wood Works", "ID": 1}, {"Name":"Steel Mechanix", "ID": 10, "Address": "Steel Road 1"}]`),
+					Expect().Body().JSON().NotEqual(&expect),
 				),
 				PtrStr("should not be &[]hit_test.Company{"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 			)
@@ -496,121 +526,17 @@ func TestExpectBodyJSON_NotEqual(t *testing.T) {
 	t.Run("nil", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(8),
-			Expect().Body().JSON().NotEqual("", nil),
+			Send().Body().JSON(8),
+			Expect().Body().JSON().NotEqual(nil),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(nil),
-				Expect().Body().JSON().NotEqual("", nil),
+				Send().Body().String("null"),
+				Expect().Body().JSON().NotEqual(nil),
 			),
 			PtrStr("should not be nil"),
 		)
-	})
-}
-
-func TestExpectBodyJSON_EqualExpression(t *testing.T) {
-	payload := map[string]interface{}{
-		"Name":   "Joe",
-		"UserID": 10,
-		"Roles":  []string{"Admin", "User"},
-		"Details": map[string]interface{}{
-			"Surname": "Doe",
-			"Email":   "joe@example.com",
-		},
-		"Company": struct {
-			ID   int
-			Name string
-		}{
-			1,
-			"Wood Inc",
-		},
-	}
-	s := PrintJSONServer(payload)
-	defer s.Close()
-
-	t.Run("string", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Expect().Body().JSON().Equal("Name", "Joe"),
-		)
-	})
-	t.Run("slice", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Expect().Body().JSON().Equal("Roles", []interface{}{"Admin", "User"}),
-		)
-	})
-
-	t.Run("slice of string", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Expect().Body().JSON().Equal("Roles", []string{"Admin", "User"}),
-		)
-	})
-
-	t.Run("object", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Expect().Body().JSON().Equal("Details", map[string]interface{}{"Surname": "Doe", "Email": "joe@example.com"}),
-		)
-	})
-
-	t.Run("int", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Expect().Body().JSON().Equal("UserID", 10),
-		)
-	})
-
-	t.Run("struct", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Expect().Body().JSON().Equal("Company", struct {
-				ID   int
-				Name string
-			}{
-				1,
-				"Wood Inc",
-			}),
-		)
-	})
-
-	t.Run("full payload", func(t *testing.T) {
-		Test(t,
-			Post(s.URL),
-			Expect().Body().JSON().Equal("", payload),
-		)
-	})
-
-	t.Run("nil", func(t *testing.T) {
-		t.Run("equal", func(t *testing.T) {
-			Test(t,
-				Post(s.URL),
-				Expect().Body().JSON().Equal("NotExistent", nil),
-			)
-		})
-
-		t.Run("nil in expect", func(t *testing.T) {
-			ExpectError(t,
-				Do(
-					Post(s.URL),
-					Expect().Body().JSON().Equal("UserID", nil),
-				),
-				PtrStr("Not equal"), nil, nil, nil, nil, nil,
-			)
-		})
-
-		t.Run("nil in response", func(t *testing.T) {
-			ExpectError(t,
-				Do(
-					Post(s.URL),
-					Expect().Body().JSON().Equal("NotExistent", "Hello World"),
-				),
-				PtrStr("Not equal"), nil, nil, nil, nil, nil,
-			)
-		})
 	})
 }
 
@@ -621,14 +547,14 @@ func TestExpectBodyJSON_Contains(t *testing.T) {
 	t.Run("object", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`{"Name":"Joe", "ID": 10}`),
-			Expect().Body().JSON().Contains("", "Name"),
+			Send().Body().String(`{"Name":"Joe", "ID": 10}`),
+			Expect().Body().JSON().Contains("Name"),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`{"Name":"Joe", "ID": 10}`),
-				Expect().Body().JSON().Contains("", "Address"),
+				Send().Body().String(`{"Name":"Joe", "ID": 10}`),
+				Expect().Body().JSON().Contains("Address"),
 			),
 			PtrStr("map[string]interface {}{"), nil, nil, PtrStr(`} does not contain "Address"`),
 		)
@@ -637,14 +563,14 @@ func TestExpectBodyJSON_Contains(t *testing.T) {
 	t.Run("slice", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`[1, 2, 3]`),
-			Expect().Body().JSON().Contains("", 2),
+			Send().Body().String(`[1, 2, 3]`),
+			Expect().Body().JSON().Contains(2),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`[1, 2, 3]`),
-				Expect().Body().JSON().Contains("", 4),
+				Send().Body().String(`[1, 2, 3]`),
+				Expect().Body().JSON().Contains(4),
 			),
 			PtrStr("[]interface {}{"), nil, nil, nil, PtrStr("} does not contain 4"),
 		)
@@ -653,14 +579,14 @@ func TestExpectBodyJSON_Contains(t *testing.T) {
 	t.Run("string", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`"Hello World"`),
-			Expect().Body().JSON().Contains("", "W"),
+			Send().Body().String(`"Hello World"`),
+			Expect().Body().JSON().Contains("W"),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`"Hello World"`),
-				Expect().Body().JSON().Contains("", "U"),
+				Send().Body().String(`"Hello World"`),
+				Expect().Body().JSON().Contains("U"),
 			),
 			PtrStr(`"Hello World" does not contain "U"`),
 		)
@@ -669,14 +595,14 @@ func TestExpectBodyJSON_Contains(t *testing.T) {
 	t.Run("nil contains", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`null`),
-			Expect().Body().JSON().Contains("", nil),
+			Send().Body().String("null"),
+			Expect().Body().JSON().Contains(nil),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`"Hello World"`),
-				Expect().Body().JSON().Contains("", nil),
+				Send().Body().String(`"Hello World"`),
+				Expect().Body().JSON().Contains(nil),
 			),
 			PtrStr(`"Hello World" does not contain nil`),
 		)
@@ -690,64 +616,64 @@ func TestExpectBodyJSON_NotContains(t *testing.T) {
 	t.Run("object", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`{"Name":"Joe", "ID": 10}`),
-			Expect().Body().JSON().NotContains("", "Address"),
+			Send().Body().String(`{"Name":"Joe", "ID": 10}`),
+			Expect().Body().JSON().NotContains("Address"),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`{"Name":"Joe", "ID": 10}`),
-				Expect().Body().JSON().NotContains("", "Name"),
+				Send().Body().String(`{"Name":"Joe", "ID": 10}`),
+				Expect().Body().JSON().NotContains("Name"),
 			),
-			PtrStr("map[string]interface {}{"), nil, nil, PtrStr(`} does contain "Name"`),
+			PtrStr("map[string]interface {}{"), nil, nil, PtrStr(`} should not contain "Name"`),
 		)
 	})
 
 	t.Run("slice", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`[1, 2, 3]`),
-			Expect().Body().JSON().NotContains("", 4),
+			Send().Body().String(`[1, 2, 3]`),
+			Expect().Body().JSON().NotContains(4),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`[1, 2, 3]`),
-				Expect().Body().JSON().NotContains("", 2),
+				Send().Body().String(`[1, 2, 3]`),
+				Expect().Body().JSON().NotContains(2),
 			),
-			PtrStr("[]interface {}{"), nil, nil, nil, PtrStr("} does contain 2"),
+			PtrStr("[]interface {}{"), nil, nil, nil, PtrStr("} should not contain 2"),
 		)
 	})
 
 	t.Run("string", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`"Hello World"`),
-			Expect().Body().JSON().NotContains("", "U"),
+			Send().Body().String(`"Hello World"`),
+			Expect().Body().JSON().NotContains("U"),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`"Hello World"`),
-				Expect().Body().JSON().NotContains("", "W"),
+				Send().Body().String(`"Hello World"`),
+				Expect().Body().JSON().NotContains("W"),
 			),
-			PtrStr(`"Hello World" does contain "W"`),
+			PtrStr(`"Hello World" should not contain "W"`),
 		)
 	})
 
 	t.Run("nil contains", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Send().Body(`"Hello World"`),
-			Expect().Body().JSON().NotContains("", nil),
+			Send().Body().String(`"Hello World"`),
+			Expect().Body().JSON().NotContains(nil),
 		)
 		ExpectError(t,
 			Do(
 				Post(s.URL),
-				Send().Body(`null`),
-				Expect().Body().JSON().NotContains("", nil),
+				Send().Body().String("null"),
+				Expect().Body().JSON().NotContains(nil),
 			),
-			PtrStr(`nil does contain nil`),
+			PtrStr(`nil should not contain nil`),
 		)
 	})
 }
@@ -759,14 +685,14 @@ func TestExpectBodyJSON_NilResponse(t *testing.T) {
 	t.Run("", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Expect().Body().JSON(nil),
+			Expect().Body().JSON().Equal(nil),
 		)
 	})
 
 	t.Run("", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Expect().Body().JSON().Equal("", nil),
+			Expect().Body().JSON().Equal(nil),
 		)
 	})
 }
@@ -776,84 +702,43 @@ func TestExpectBodyJSON_NoJSON(t *testing.T) {
 	defer s.Close()
 	ExpectError(t, Do(
 		Head(s.URL),
-		Expect().Body().JSON().Equal("", ""),
+		Expect().Body().JSON().Equal(""),
 	),
 		PtrStr(`EOF`),
 	)
 }
 
-func TestExpectBodyJSON_GetAs(t *testing.T) {
+func TestExpectBodyJSON_Len(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
-	type User struct {
-		ID   int
-		Name string
-	}
-
 	Test(t,
 		Post(s.URL),
-		Send(User{10, "Joe"}),
-		Expect(func(h Hit) {
-			var user User
-			h.Response().Body().JSON().GetAs("", &user)
-			require.Equal(t, User{10, "Joe"}, user)
-		}),
+		Send().Body().String(`["Hello", "World"]`),
+		Expect().Body().JSON().Len().Equal(2),
 	)
 
 	Test(t,
 		Post(s.URL),
-		Send(User{10, "Joe"}),
-		Expect(func(h Hit) {
-			var name string
-			h.Response().Body().JSON().GetAs("Name", &name)
-			require.Equal(t, "Joe", name)
-		}),
+		Send().Body().String(`{"Name":"Joe", "ID": 10}`),
+		Expect().Body().JSON().Len().Equal(2),
 	)
-}
-
-func TestExpectBodyJSON_Final(t *testing.T) {
-	s := EchoServer()
-	defer s.Close()
-
-	t.Run("Expect().Body().JSON(value).Equal()", func(t *testing.T) {
-		ExpectError(t,
-			Do(Expect().Body().JSON("data").Equal("", "")),
-			PtrStr("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)"),
-		)
-	})
-
-	t.Run("Expect().Body().JSON(value).NotEqual()", func(t *testing.T) {
-		ExpectError(t,
-			Do(Expect().Body().JSON("data").NotEqual("", "")),
-			PtrStr("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)"),
-		)
-	})
-
-	t.Run("Expect().Body().JSON(value).Contains()", func(t *testing.T) {
-		ExpectError(t,
-			Do(Expect().Body().JSON("data").Contains("", "")),
-			PtrStr("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)"),
-		)
-	})
-
-	t.Run("Expect().Body().JSON(value).NotContains()", func(t *testing.T) {
-		ExpectError(t,
-			Do(Expect().Body().JSON("data").NotContains("", "")),
-			PtrStr("only usable with Expect().Body().JSON() not with Expect().Body().JSON(value)"),
-		)
-	})
-}
-
-func TestExpectBodyJSON_WithoutArgument(t *testing.T) {
-	s := EchoServer()
-	defer s.Close()
 
 	ExpectError(t,
 		Do(
 			Post(s.URL),
-			Expect().Body().JSON(),
+			Send().Body().String(`"Hello World"`),
+			Expect().Body().JSON().Len().Equal(10),
 		),
-		PtrStr("unable to run Expect().Body().JSON() without an argument or without a chain. Please use Expect().Body().JSON(something) or Expect().Body().JSON().Something"),
+		PtrStr("not equal"), PtrStr("expected: 10"), PtrStr("actual: 11"), nil, nil, nil, nil,
+	)
+
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Send().Body().String(`10`),
+			Expect().Body().JSON().Len().Equal(10),
+		),
+		PtrStr("cannot get len for 10"),
 	)
 }

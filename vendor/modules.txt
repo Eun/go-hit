@@ -2,8 +2,17 @@
 github.com/Eun/go-convert
 # github.com/Eun/go-doppelgangerreader v0.0.0-20190911075941-30f1527f16b2
 github.com/Eun/go-doppelgangerreader
+# github.com/Eun/yaegi-template v1.5.5
+github.com/Eun/yaegi-template/codebuffer
+# github.com/aaw/maybe_tls v0.0.0-20160803104303-89c499bcc6aa
+github.com/aaw/maybe_tls
+# github.com/alecthomas/participle v0.4.2-0.20191220090139-9fbceec1d131
+github.com/alecthomas/participle
+github.com/alecthomas/participle/lexer
 # github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1
 github.com/araddon/dateparse
+# github.com/dave/jennifer v1.4.0
+github.com/dave/jennifer/jen
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/google/go-cmp v0.4.0
@@ -14,37 +23,58 @@ github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
 # github.com/gookit/color v1.2.3
 github.com/gookit/color
+# github.com/itchyny/astgen-go v0.0.0-20200116103543-aaa595cf980e
+github.com/itchyny/astgen-go
+# github.com/itchyny/gojq v0.10.1
+github.com/itchyny/gojq
+# github.com/json-iterator/go v1.1.10
+github.com/json-iterator/go
 # github.com/k0kubun/pp v3.0.1+incompatible
 github.com/k0kubun/pp
+# github.com/lestrrat-go/strftime v1.0.1
+github.com/lestrrat-go/strftime
 # github.com/lunixbochs/vtclean v1.0.0
 github.com/lunixbochs/vtclean
 # github.com/mattn/go-colorable v0.1.6
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.12
 github.com/mattn/go-isatty
-# github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
-github.com/mohae/deepcopy
+# github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
+github.com/modern-go/concurrent
+# github.com/modern-go/reflect2 v1.0.1
+github.com/modern-go/reflect2
+# github.com/pbnjay/strptime v0.0.0-20140226051138-5c05b0d668c9
+github.com/pbnjay/strptime
+# github.com/pkg/errors v0.9.1
+github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
-# github.com/stretchr/testify v1.5.1
-github.com/stretchr/testify/require
+# github.com/stretchr/testify v1.6.1
 github.com/stretchr/testify/assert
+github.com/stretchr/testify/require
 # github.com/tidwall/pretty v1.0.1
 github.com/tidwall/pretty
-# golang.org/x/mod v0.2.0
+# go.uber.org/atomic v1.7.0
+go.uber.org/atomic
+# golang.org/x/mod v0.3.0
 golang.org/x/mod/module
 golang.org/x/mod/semver
-# golang.org/x/sys v0.0.0-20200223170610-d5e6a3e2c0ae
+# golang.org/x/sys v0.0.0-20200930185726-fdedc70b468f
+golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
-# golang.org/x/tools v0.0.0-20200318150045-ba25ddc85566
-golang.org/x/tools/imports
-golang.org/x/tools/internal/imports
+# golang.org/x/tools v0.0.0-20201026223136-e84cfc6dd5ca
 golang.org/x/tools/go/ast/astutil
+golang.org/x/tools/imports
+golang.org/x/tools/internal/event
+golang.org/x/tools/internal/event/core
+golang.org/x/tools/internal/event/keys
+golang.org/x/tools/internal/event/label
+golang.org/x/tools/internal/fastwalk
 golang.org/x/tools/internal/gocommand
 golang.org/x/tools/internal/gopathwalk
-golang.org/x/tools/internal/fastwalk
-# golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
+golang.org/x/tools/internal/imports
+# golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 golang.org/x/xerrors
 golang.org/x/xerrors/internal
-# gopkg.in/yaml.v2 v2.2.8
-gopkg.in/yaml.v2
+# gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+gopkg.in/yaml.v3
