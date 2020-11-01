@@ -1,3 +1,4 @@
+// Package helpers contains some helper functions for the generators.
 package helpers
 
 import (
@@ -13,6 +14,8 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// WriteJenFile writes a generated jen.File to the specified filename, it pretty prints the file and runs goimports
+// afterwards.
 func WriteJenFile(fileName string, file *jen.File) error {
 	var buf bytes.Buffer
 	if err := file.Render(&buf); err != nil {

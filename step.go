@@ -9,19 +9,37 @@ import (
 	"github.com/Eun/go-hit/errortrace"
 )
 
+// StepTime defines when a step should be run.
 type StepTime uint8
 
 const (
+	// CombineStep is a special step that runs before everything else and is used exclusively for the function
+	// CombineSteps().
 	CombineStep StepTime = iota + 1
+
+	// CleanStep is a step that runs during the clean step phase.
 	CleanStep
+
+	// BeforeSendStep runs before the Send() steps.
 	BeforeSendStep
+
+	// SendStep runs during the Send() steps.
 	SendStep
+
+	// AfterSendStep runs after the Send() steps, note that this is still before the actual sending process.
 	AfterSendStep
+
+	// BeforeExpectStep runs before the Expect() steps (this is after we got the data from the server).
 	BeforeExpectStep
+
+	// ExpectStep runs during the Expect() steps.
 	ExpectStep
+
+	// AfterExpectStep runs after the Expect() steps.
 	AfterExpectStep
 )
 
+// String represents the string representation of StepTime.
 func (s StepTime) String() string {
 	switch s {
 	case CleanStep:
@@ -44,6 +62,7 @@ func (s StepTime) String() string {
 	return ""
 }
 
+// IStep defines a hit step.
 type IStep interface {
 	trace() *errortrace.ErrorTrace
 	when() StepTime
@@ -114,6 +133,7 @@ func execStep(hit *hitImpl, step IStep) (err error) {
 	return err
 }
 
+// StepCallPath returns the representation of the step that is passed in.
 func StepCallPath(step IStep, withArguments bool) string {
 	return step.callPath().CallString(withArguments)
 }

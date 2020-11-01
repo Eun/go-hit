@@ -1,3 +1,5 @@
+// Package httpbody contains a http body representation with a reusable body that can be consumed multiple times.
+// It also provides setters and getters for special body formats such as JSON or XML.
 package httpbody
 
 import (
@@ -37,16 +39,17 @@ func NewHTTPBody(body io.Reader, headers http.Header) *HTTPBody {
 }
 
 // setters
+
 // SetReader sets the body to the contents of the specified reader.
 func (body *HTTPBody) SetReader(r io.Reader) {
 	if body.factory != nil {
-		body.factory.Close()
+		_ = body.factory.Close()
 		body.factory = nil
 	}
 	body.factory = doppelgangerreader.NewFactory(r)
 }
 
-// SetString sets the body to the specified byte slice.
+// SetBytes sets the body to the specified byte slice.
 func (body *HTTPBody) SetBytes(b []byte) {
 	body.SetReader(bytes.NewReader(b))
 }
@@ -132,6 +135,7 @@ func (body *HTTPBody) SetBool(b bool) {
 }
 
 // getters
+
 // Reader returns the body as an reader.
 func (body *HTTPBody) Reader() io.ReadCloser {
 	if body.factory == nil {

@@ -5,6 +5,7 @@ import (
 	"github.com/Eun/go-hit/httpbody"
 )
 
+// IDebugBody defines the debug functions that are available for the http request/response body.
 type IDebugBody interface {
 	IStep
 	// Bytes prints the body contents as a byte slice

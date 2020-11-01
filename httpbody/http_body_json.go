@@ -9,6 +9,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// HTTPBodyJSON provides JSON functions for the HTTPBody.
 type HTTPBodyJSON struct { //nolint:golint //ignore type name will be used as httpbody.HTTPBodyJSON by other packages
 	body    func() io.ReadCloser
 	setBody func([]byte)
@@ -86,7 +87,9 @@ func (i *jsonInputIter) Close() error {
 func (jsn *HTTPBodyJSON) JQ(container interface{}, expression ...string) error {
 	var iter gojq.Iter
 	jsonIter := newJSONInputIter(jsn.body())
-	defer jsonIter.Close()
+	defer func() {
+		_ = jsonIter.Close()
+	}()
 	iter = jsonIter
 
 	for _, e := range expression {
@@ -161,6 +164,8 @@ func (jsn *HTTPBodyJSON) JQ(container interface{}, expression ...string) error {
 	}
 }
 
+// MustJQ runs an jq expression on the JSON body the result will be stored into container, if an error occurs it will
+// panic.
 func (jsn *HTTPBodyJSON) MustJQ(container interface{}, expression ...string) {
 	if err := jsn.JQ(container, expression...); err != nil {
 		panic(err)

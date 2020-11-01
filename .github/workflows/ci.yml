@@ -51,8 +51,18 @@ jobs:
         env:
           GO_TEST_COVER_ARGS: -coverprofile="coverage-${{ matrix.platform }}-${{ matrix.go-version }}.txt" -covermode=atomic
       -
-        uses: codecov/codecov-action@v1
+        name: Send coverage
+        uses: shogo82148/actions-goveralls@v1
         with:
-          file: coverage-${{ matrix.platform }}-${{ matrix.go-version }}.txt
-          name: codecov-${{ matrix.platform }}-${{ matrix.go-version }}
-          fail_ci_if_error: true
+          path-to-profile: coverage-${{ matrix.platform }}-${{ matrix.go-version }}.txt
+          flag-name: ${{ matrix.platform }}-${{ matrix.go-version }}
+          parallel: true
+
+  # notifies that all test jobs are finished.
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: shogo82148/actions-goveralls@v1
+        with:
+          parallel-finished: true

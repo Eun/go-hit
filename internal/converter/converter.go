@@ -1,8 +1,7 @@
+// Package converter contains a convert.Converter for the hit package with some standard recipes.
 package converter
 
 import (
-	"reflect"
-
 	"net/url"
 
 	"github.com/Eun/go-convert"
@@ -28,15 +27,7 @@ func init() {
 	})
 }
 
+// Convert converts src to dst using the options, it uses the created converter in the init func.
 func Convert(src, dst interface{}, options ...convert.Options) error {
 	return converter.Convert(src, dst, options...)
-}
-func MustConvert(src, dst interface{}, options ...convert.Options) {
-	converter.MustConvert(src, dst, options...)
-}
-func ConvertReflectValue(src, dst reflect.Value, options ...convert.Options) error {
-	return converter.ConvertReflectValue(src, dst, options...)
-}
-func MustConvertReflectValue(src, dst reflect.Value, options ...convert.Options) {
-	converter.MustConvertReflectValue(src, dst, options...)
 }

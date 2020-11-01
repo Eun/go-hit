@@ -1,3 +1,4 @@
+// Package errortrace provides a method to track function stacktrace and populate it in case of error.
 package errortrace
 
 import (
@@ -80,7 +81,7 @@ func (t *Template) Prepare() *ErrorTrace {
 	return &et
 }
 
-// Format generates an ErrorTraceError on the current position.
+// Error generates an ErrorTrace on the current position.
 func (t *Template) Error(description string, err error, ctx string) error {
 	et := t.Prepare()
 	et.SetDescription(description)
@@ -157,16 +158,22 @@ func (et *ErrorTrace) formatStack(calls []Call) string {
 	return sb.String()
 }
 
+// SetDescription sets the description that should be printed for this error.
 func (et *ErrorTrace) SetDescription(description string) {
 	et.description = description
 }
+
+// SetError sets the error.
 func (et *ErrorTrace) SetError(err error) {
 	et.error = err
 }
+
+// SetContext sets the context information that should be printed for this error.
 func (et *ErrorTrace) SetContext(ctx string) {
 	et.ctx = ctx
 }
 
+// Error returns the string representation for the error. It includes the Stacktrace, Description and Context.
 func (et *ErrorTrace) Error() string {
 	// collect the current trace
 	// skip  runtime.Callers(), ett.currentTraceCalls(...), ett.(*ErrorTrace).Format(...), call to this function
@@ -196,6 +203,7 @@ func (et *ErrorTrace) Error() string {
 	return sb.String()
 }
 
+// ErrorText returns only the error text for the error.
 func (et *ErrorTrace) ErrorText() string {
 	return et.error.Error()
 }

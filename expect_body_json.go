@@ -73,7 +73,7 @@ func (v *expectBodyJSON) Equal(data interface{}) IStep {
 				return err
 			}
 
-			return minitest.Error.Equal(obj, data)
+			return minitest.Equal(obj, data)
 		},
 	}
 }
@@ -88,7 +88,7 @@ func (v *expectBodyJSON) NotEqual(data ...interface{}) IStep {
 			if err := hit.Response().body.JSON().Decode(&obj); err != nil {
 				return err
 			}
-			return minitest.Error.NotEqual(obj, data...)
+			return minitest.NotEqual(obj, data...)
 		},
 	}
 }
@@ -103,7 +103,7 @@ func (v *expectBodyJSON) Contains(data ...interface{}) IStep {
 			if err := hit.Response().body.JSON().Decode(&obj); err != nil {
 				return err
 			}
-			return minitest.Error.Contains(obj, data...)
+			return minitest.Contains(obj, data...)
 		},
 	}
 }
@@ -118,7 +118,7 @@ func (v *expectBodyJSON) NotContains(data ...interface{}) IStep {
 			if err := hit.Response().body.JSON().Decode(&obj); err != nil {
 				return err
 			}
-			return minitest.Error.NotContains(obj, data...)
+			return minitest.NotContains(obj, data...)
 		},
 	}
 }

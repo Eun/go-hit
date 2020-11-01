@@ -8,6 +8,7 @@ import (
 	"github.com/gookit/color"
 )
 
+// Format formats an message by making sure the passed in data is nicely indented.
 func Format(message, data string, colors ...color.Color) string {
 	lines := strings.FieldsFunc(strings.TrimRightFunc(data, unicode.IsSpace), func(r rune) bool {
 		return r == '\n'

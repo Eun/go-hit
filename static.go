@@ -326,7 +326,7 @@ func Trace(url string, a ...interface{}) IStep {
 // Test runs the specified steps and calls t.FailNow() if any error occurs during execution.
 func Test(t TestingT, steps ...IStep) {
 	if err := Do(steps...); err != nil {
-		os.Stderr.WriteString(err.Error())
+		_, _ = os.Stderr.WriteString(err.Error())
 		t.FailNow()
 	}
 }

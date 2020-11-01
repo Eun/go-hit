@@ -58,7 +58,7 @@ func (v *expectBytes) Equal(value []byte) IStep {
 		When:     ExpectStep,
 		CallPath: v.cleanPath.Push("Equal", []interface{}{value}),
 		Exec: func(hit *hitImpl) error {
-			return minitest.Error.Equal(v.valueCallback(hit), value)
+			return minitest.Equal(v.valueCallback(hit), value)
 		},
 	}
 }
@@ -69,7 +69,7 @@ func (v *expectBytes) NotEqual(value []byte) IStep {
 		When:     ExpectStep,
 		CallPath: v.cleanPath.Push("NotEqual", []interface{}{value}),
 		Exec: func(hit *hitImpl) error {
-			return minitest.Error.NotEqual(v.valueCallback(hit), value)
+			return minitest.NotEqual(v.valueCallback(hit), value)
 		},
 	}
 }
@@ -82,7 +82,7 @@ func (v *expectBytes) Contains(value []byte) IStep {
 		Exec: func(hit *hitImpl) error {
 			buf := v.valueCallback(hit)
 			if !bytes.Contains(buf, value) {
-				return minitest.Error.Errorf(`%s does not contain %s`, minitest.PrintValue(buf), minitest.PrintValue(value))
+				return minitest.Errorf(`%s does not contain %s`, minitest.PrintValue(buf), minitest.PrintValue(value))
 			}
 			return nil
 		},
@@ -97,7 +97,7 @@ func (v *expectBytes) NotContains(value []byte) IStep {
 		Exec: func(hit *hitImpl) error {
 			buf := v.valueCallback(hit)
 			if bytes.Contains(buf, value) {
-				return minitest.Error.Errorf(`%s should not contain %s`, minitest.PrintValue(buf), minitest.PrintValue(value))
+				return minitest.Errorf(`%s should not contain %s`, minitest.PrintValue(buf), minitest.PrintValue(value))
 			}
 			return nil
 		},

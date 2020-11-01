@@ -1,3 +1,40 @@
+// Package hit provides an http integration test framework.
+//
+// It is designed to be flexible as possible, but to keep a simple to use interface for developers.
+// Example:
+//
+// package main
+//
+// import (
+//     "net/http"
+//     . "github.com/Eun/go-hit"
+// )
+//
+// func main() {
+//     MustDo(
+//         Description("Post to httpbin.org"),
+//         Get("https://httpbin.org/post"),
+//         Expect().Status().Equal(http.StatusMethodNotAllowed),
+//         Expect().Body().String().Contains("Method Not Allowed"),
+//     )
+// }
+//
+// Or use the `Test()` function:
+// package main_test
+// import (
+//     "testing"
+//     "net/http"
+//     . "github.com/Eun/go-hit"
+// )
+//
+// func TestHttpBin(t *testing.T) {
+//     Test(t,
+//         Description("Post to httpbin.org"),
+//         Get("https://httpbin.org/post"),
+//         Expect().Status().Equal(http.StatusMethodNotAllowed),
+//         Expect().Body().String().Contains("Method Not Allowed"),
+//     )
+// }
 package hit
 
 import (
@@ -10,6 +47,7 @@ import (
 // Callback will be used for Custom() functions.
 type Callback func(hit Hit)
 
+// Hit is the interface that will be passed in for Custom() steps.
 type Hit interface {
 	// Request returns the current request.
 	Request() *HTTPRequest

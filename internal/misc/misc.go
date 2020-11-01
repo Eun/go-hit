@@ -1,3 +1,4 @@
+// Package misc provides some helper functions that are used in hit.
 package misc
 
 import (
@@ -7,6 +8,8 @@ import (
 	"time"
 )
 
+// MakeURL joins two urls safely.
+// example: MakeURL("http://example.com", "%s.html", "index") will return "http://example.com/index.html"
 func MakeURL(base, url string, a ...interface{}) string {
 	if len(a) > 0 { // only format if a is provided
 		url = fmt.Sprintf(url, a...)
@@ -18,23 +21,6 @@ func MakeURL(base, url string, a ...interface{}) string {
 		return base
 	}
 	return strings.TrimRight(base, "/") + "/" + strings.TrimLeft(url, "/")
-}
-
-// StringSliceHasPrefixStringSlice returns true if haystack starts with needle.
-func StringSliceHasPrefixSlice(haystack, needle []string) bool {
-	haySize := len(haystack)
-	needleSize := len(needle)
-	if needleSize > haySize {
-		return false
-	}
-	haySize = needleSize
-
-	for i := 0; i < haySize; i++ {
-		if haystack[i] != needle[i] {
-			return false
-		}
-	}
-	return true
 }
 
 // GetElem follows all pointers and interfaces until it reaches the base value.
@@ -50,17 +36,7 @@ func GetValue(v interface{}) reflect.Value {
 	return GetElem(reflect.ValueOf(v))
 }
 
-func GetGenericFunc(v interface{}) reflect.Value {
-	r := GetValue(v)
-	if !r.IsValid() {
-		return r
-	}
-	if r.Kind() != reflect.Func {
-		return reflect.Value{} // return an invalid func
-	}
-	return r
-}
-
+// MakeTypeCopy creates a copy of src, with the default value(s) for this type.
 func MakeTypeCopy(src interface{}) interface{} {
 	if src == nil {
 		return nil

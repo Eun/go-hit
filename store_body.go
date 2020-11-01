@@ -5,6 +5,7 @@ import (
 	"github.com/Eun/go-hit/internal/converter"
 )
 
+// IStoreBody defines the functions that can be used to store data from the http request/response body.
 type IStoreBody interface {
 	// Bool treats the body contents as Bool data and stores it
 	//

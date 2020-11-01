@@ -8,7 +8,7 @@ import (
 	"github.com/Eun/go-hit/internal/minitest"
 )
 
-// IExpectBodyJSON provides assertions on the http response json body.
+// IExpectBodyJSONJQ provides assertions on the http response json body.
 type IExpectBodyJSONJQ interface {
 	// Equal expects the json body to be equal to the specified value.
 	//
@@ -92,7 +92,7 @@ func (v *expectBodyJSONJQ) Equal(data interface{}) IStep {
 			if err := hit.Response().body.JSON().JQ(&obj, v.expression...); err != nil {
 				return err
 			}
-			return minitest.Error.Equal(obj, data)
+			return minitest.Equal(obj, data)
 		},
 	}
 }
@@ -107,7 +107,7 @@ func (v *expectBodyJSONJQ) NotEqual(data ...interface{}) IStep {
 			if err := hit.Response().body.JSON().JQ(&obj, v.expression...); err != nil {
 				return err
 			}
-			return minitest.Error.NotEqual(obj, data...)
+			return minitest.NotEqual(obj, data...)
 		},
 	}
 }
@@ -122,7 +122,7 @@ func (v *expectBodyJSONJQ) Contains(data ...interface{}) IStep {
 			if err := hit.Response().body.JSON().JQ(&obj, v.expression...); err != nil {
 				return err
 			}
-			return minitest.Error.Contains(obj, data...)
+			return minitest.Contains(obj, data...)
 		},
 	}
 }
@@ -137,7 +137,7 @@ func (v *expectBodyJSONJQ) NotContains(data ...interface{}) IStep {
 			if err := hit.Response().body.JSON().JQ(&obj, v.expression...); err != nil {
 				return err
 			}
-			return minitest.Error.NotContains(obj, data...)
+			return minitest.NotContains(obj, data...)
 		},
 	}
 }

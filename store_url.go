@@ -2,6 +2,7 @@ package hit
 
 import "github.com/Eun/go-hit/internal/converter"
 
+// IStoreURL defines the functions that can be used to store a URL part.
 type IStoreURL interface {
 	IStoreStep
 	// Scheme stores the URL's scheme
