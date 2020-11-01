@@ -50,3 +50,19 @@ jobs:
         run: make test
         env:
           GO_TEST_COVER_ARGS: -coverprofile="coverage-${{ matrix.platform }}-${{ matrix.go-version }}.txt" -covermode=atomic
+      -
+        name: Send coverage
+        uses: shogo82148/actions-goveralls@v1
+        with:
+          path-to-profile: coverage-${{ matrix.platform }}-${{ matrix.go-version }}.txt
+          flag-name: ${{ matrix.platform }}-${{ matrix.go-version }}
+          parallel: true
+
+  # notifies that all test jobs are finished.
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: shogo82148/actions-goveralls@v1
+        with:
+          parallel-finished: true
