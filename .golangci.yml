@@ -71,7 +71,7 @@ linters-settings:
     local-prefixes: github.com/Eun/go-hit
   golint:
     # minimal confidence for issues, default is 0.8
-    min-confidence: 0.8
+    min-confidence: 0
   gomnd:
     settings:
       mnd:
