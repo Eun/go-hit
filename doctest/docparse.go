@@ -1,3 +1,4 @@
+// Package doctest provides helper functions to test a documentation block of a function.
 package doctest
 
 import (
@@ -6,11 +7,31 @@ import (
 	"strings"
 )
 
+// Doc represents an documentation block.
 type Doc struct {
 	Description string
 	Fields      map[string]string
 }
 
+// ParseDoc parses an documentation block and returns an instance to Doc.
+// It will parse Sections separated by a colon and populate them in the Doc.Fields field.
+// Example:
+// Take following input:
+// Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+//
+// Field1:
+//     Hello World
+//
+// Field2:
+//    Good Bye World
+// Will return
+// Doc{
+//    Description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+//    Fields: map[string]string{
+//        "Field1": "Hello World",
+//        "Field2": "Good Bye World",
+//    },
+// }.
 func ParseDoc(s string) (*Doc, error) {
 	var d Doc
 

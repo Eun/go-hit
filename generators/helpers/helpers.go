@@ -1,3 +1,4 @@
+// Package helpers contains some helper functions for the generators.
 package helpers
 
 import (

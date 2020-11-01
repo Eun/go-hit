@@ -14,10 +14,12 @@ import (
 	"github.com/Eun/go-hit/internal/misc"
 )
 
+// Errorf returns an error with the format and the specified message and args.
 func Errorf(format string, messageAndArgs ...interface{}) error {
 	return xerrors.New(strings.TrimSpace(fmt.Sprintf(format, messageAndArgs...)))
 }
 
+// NoError returns an error if err is an error.
 func NoError(err error) error {
 	if err != nil {
 		return xerrors.New(err.Error())
@@ -25,6 +27,7 @@ func NoError(err error) error {
 	return nil
 }
 
+// Equal returns an error when the passed in object is equal to the expected value.
 func Equal(object, expected interface{}) error {
 	// shortcuts
 	if expected == nil && object == nil {
@@ -48,6 +51,7 @@ func Equal(object, expected interface{}) error {
 	return nil
 }
 
+// NotEqual returns an error when the passed in object is not equal to the expected value.
 func NotEqual(object interface{}, values ...interface{}) error {
 	for _, value := range values {
 		// shortcuts
@@ -71,6 +75,7 @@ func NotEqual(object interface{}, values ...interface{}) error {
 	return nil
 }
 
+// Contains returns an error when the passed in object does not not contain the expected values.
 func Contains(object interface{}, values ...interface{}) error {
 	for _, value := range values {
 		ok, err := contains.Contains(object, value)
@@ -93,10 +98,12 @@ func Contains(object interface{}, values ...interface{}) error {
 	return nil
 }
 
+// NotContains returns an error when the passed in object contains the expected values.
 func NotContains(object interface{}, values ...interface{}) error {
 	return NotOneOf(object, values...)
 }
 
+// OneOf returns an error when the passed in object contains one of the specified values.
 func OneOf(object interface{}, values ...interface{}) error {
 	for _, value := range values {
 		ok, err := contains.Contains(object, value)
@@ -119,6 +126,7 @@ func OneOf(object interface{}, values ...interface{}) error {
 	return xerrors.New(fmt.Sprintf(`%s should be one of %s`, PrintValue(object), PrintValue(values)))
 }
 
+// NotOneOf returns an error when the passed in object does not contain one of the specified values.
 func NotOneOf(object interface{}, values ...interface{}) error {
 	for _, value := range values {
 		ok, err := contains.Contains(object, value)
@@ -141,6 +149,7 @@ func NotOneOf(object interface{}, values ...interface{}) error {
 	return nil
 }
 
+// Empty returns an error when the passed in object is not empty.
 func Empty(object interface{}) error {
 	v := misc.GetValue(object)
 	switch v.Kind() {
@@ -155,6 +164,7 @@ func Empty(object interface{}) error {
 	}
 }
 
+// NotEmpty returns an error when the passed in object is empty.
 func NotEmpty(object interface{}) error {
 	v := misc.GetValue(object)
 	switch v.Kind() {
@@ -168,6 +178,7 @@ func NotEmpty(object interface{}) error {
 	}
 }
 
+// Len returns an error when the passed in object is not matching the passed in length.
 func Len(object interface{}, length int) error {
 	v := misc.GetValue(object)
 	switch v.Kind() {
@@ -182,6 +193,7 @@ func Len(object interface{}, length int) error {
 	}
 }
 
+// True returns an error when the passed in object is false.
 func True(value bool) error {
 	if !value {
 		return xerrors.New(`Expected bool to be true but is false`)
@@ -189,6 +201,7 @@ func True(value bool) error {
 	return nil
 }
 
+// False returns an error when the passed in object is true.
 func False(value bool) error {
 	if value {
 		return xerrors.New(`Expected bool to be false but is true`)

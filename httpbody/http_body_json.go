@@ -164,6 +164,8 @@ func (jsn *HTTPBodyJSON) JQ(container interface{}, expression ...string) error {
 	}
 }
 
+// MustJQ runs an jq expression on the JSON body the result will be stored into container, if an error occurs it will
+// panic.
 func (jsn *HTTPBodyJSON) MustJQ(container interface{}, expression ...string) {
 	if err := jsn.JQ(container, expression...); err != nil {
 		panic(err)

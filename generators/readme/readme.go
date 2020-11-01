@@ -24,7 +24,9 @@ func doit() error {
 	if err != nil {
 		return err
 	}
-	defer fl.Close()
+	defer func() {
+		_ = fl.Close()
+	}()
 	cb := codebuffer.New(fl, []rune("```go"), []rune("```"))
 	it, err := cb.Iterator()
 	if err != nil {

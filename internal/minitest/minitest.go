@@ -1,3 +1,4 @@
+// Package minitest provides some testing functions for the hit package.
 package minitest
 
 import (

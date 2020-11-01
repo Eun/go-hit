@@ -20,6 +20,7 @@ func (v *URLValues) Get(key string) string {
 	return v.values.Get(key)
 }
 
+// Values returns all the values associated with the given key.
 func (v *URLValues) Values(key string) []string {
 	if v.values == nil {
 		return nil
@@ -59,6 +60,7 @@ func (v *URLValues) ConvertRecipes() []convert.Recipe {
 	})
 }
 
+// ParseURLValues takes a HTTPBody and parses the url.Values, it returns a pointer to URLValues.
 func ParseURLValues(body *HTTPBody) (*URLValues, error) {
 	s, err := body.String()
 	if err != nil {

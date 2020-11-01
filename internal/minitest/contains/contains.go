@@ -1,3 +1,4 @@
+// Package contains provides functions to check if a needle is in an haystack.
 package contains
 
 import (

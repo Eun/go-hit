@@ -59,31 +59,6 @@ func TestMakeURL(t *testing.T) {
 	}
 }
 
-func TestStringSliceHasPrefixSlice(t *testing.T) {
-	tests := []struct {
-		haystack []string
-		needle   []string
-		want     bool
-	}{
-		{[]string{"a", "b", "c"}, []string{"a"}, true},
-		{[]string{"a", "b", "c"}, []string{"a", "b"}, true},
-		{[]string{"a", "b", "c"}, []string{"a", "b", "c"}, true},
-		{[]string{"a", "b", "c"}, []string{"b"}, false},
-		{[]string{"a", "b", "c"}, []string{"b", "b"}, false},
-		{[]string{"a", "b", "c"}, []string{"b", "b", "c"}, false},
-		{[]string{"a", "b", "c"}, []string{"a", "b", "c", "d"}, false},
-		{[]string{"a", "b", "c"}, []string{}, true},
-		{[]string{}, []string{}, true},
-	}
-	for _, tt := range tests {
-		t.Run("", func(t *testing.T) {
-			if got := StringSliceHasPrefixSlice(tt.haystack, tt.needle); got != tt.want {
-				t.Errorf("StringSliceHasPrefixSlice() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestGetValue(t *testing.T) {
 	ptrString := func(v string) *string {
 		return &v

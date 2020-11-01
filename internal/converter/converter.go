@@ -1,3 +1,4 @@
+// Package converter contains a convert.Converter for the hit package with some standard recipes.
 package converter
 
 import (

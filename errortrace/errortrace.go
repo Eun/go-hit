@@ -1,3 +1,4 @@
+// Package errortrace provides a method to track function stacktrace and populate it in case of error.
 package errortrace
 
 import (
@@ -80,7 +81,7 @@ func (t *Template) Prepare() *ErrorTrace {
 	return &et
 }
 
-// Format generates an ErrorTraceError on the current position.
+// Error generates an ErrorTrace on the current position.
 func (t *Template) Error(description string, err error, ctx string) error {
 	et := t.Prepare()
 	et.SetDescription(description)

@@ -13,13 +13,29 @@ import (
 type StepTime uint8
 
 const (
+	// CombineStep is a special step that runs before everything else and is used exclusively for the function
+	// CombineSteps().
 	CombineStep StepTime = iota + 1
+
+	// CleanStep is a step that runs during the clean step phase.
 	CleanStep
+
+	// BeforeSendStep runs before the Send() steps.
 	BeforeSendStep
+
+	// SendStep runs during the Send() steps.
 	SendStep
+
+	// AfterSendStep runs after the Send() steps, note that this is still before the actual sending process.
 	AfterSendStep
+
+	// BeforeExpectStep runs before the Expect() steps (this is after we got the data from the server).
 	BeforeExpectStep
+
+	// ExpectStep runs during the Expect() steps.
 	ExpectStep
+
+	// AfterExpectStep runs after the Expect() steps.
 	AfterExpectStep
 )
 

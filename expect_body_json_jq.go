@@ -8,7 +8,7 @@ import (
 	"github.com/Eun/go-hit/internal/minitest"
 )
 
-// IExpectBodyJSON provides assertions on the http response json body.
+// IExpectBodyJSONJQ provides assertions on the http response json body.
 type IExpectBodyJSONJQ interface {
 	// Equal expects the json body to be equal to the specified value.
 	//
