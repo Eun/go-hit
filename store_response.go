@@ -7,6 +7,7 @@ import (
 	"github.com/Eun/go-hit/internal/converter"
 )
 
+// IStoreResponse defines the functions that can be used to store data from the http response.
 type IStoreResponse interface {
 	// Status stores the Response's Status
 	Status() IStoreStep

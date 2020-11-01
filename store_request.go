@@ -4,6 +4,7 @@ import (
 	"github.com/Eun/go-hit/internal/converter"
 )
 
+// IStoreRequest defines the functions that can be used to store data from the http request.
 type IStoreRequest interface {
 	// Method stores the Request's Method
 	Method() IStoreStep

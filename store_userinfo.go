@@ -2,6 +2,7 @@ package hit
 
 import "github.com/Eun/go-hit/internal/converter"
 
+// IStoreUserInfo defines the functions that can be used to store a user part.
 type IStoreUserInfo interface {
 	IStoreStep
 	// Username stores the UserInfo's username

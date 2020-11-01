@@ -61,6 +61,7 @@ func (*store) Response() IStoreResponse {
 
 type storeFunc func(Hit, interface{}) error
 
+// IStoreStep defines the In function for the Store() functionality.
 type IStoreStep interface {
 	// In can be used to to store the result into an existing variable
 	//
