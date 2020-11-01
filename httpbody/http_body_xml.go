@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 )
 
+// HTTPBodyXML provides XML functions for the HTTPBody.
 type HTTPBodyXML struct { //nolint:golint //ignore type name will be used as httpbody.HTTPBodyXML by other packages
 	body *HTTPBody
 }

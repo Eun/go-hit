@@ -7,6 +7,7 @@ import (
 	"github.com/Eun/go-hit/errortrace"
 )
 
+// IDebugRequest defines the debug functions that are available for the http request.
 type IDebugRequest interface {
 	IStep
 

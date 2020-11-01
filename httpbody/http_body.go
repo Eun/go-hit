@@ -37,6 +37,7 @@ func NewHTTPBody(body io.Reader, headers http.Header) *HTTPBody {
 }
 
 // setters
+
 // SetReader sets the body to the contents of the specified reader.
 func (body *HTTPBody) SetReader(r io.Reader) {
 	if body.factory != nil {
@@ -132,6 +133,7 @@ func (body *HTTPBody) SetBool(b bool) {
 }
 
 // getters
+
 // Reader returns the body as an reader.
 func (body *HTTPBody) Reader() io.ReadCloser {
 	if body.factory == nil {

@@ -5,6 +5,7 @@ import (
 	"github.com/Eun/go-hit/httpbody"
 )
 
+// IDebugBodyJSON defines the debug functions that are available for the http request/response body in JSON format.
 type IDebugBodyJSON interface {
 	IStep
 	// JQ runs an jq expression on the JSON body and prints the result

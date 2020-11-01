@@ -9,6 +9,7 @@ import (
 	"github.com/Eun/go-hit/errortrace"
 )
 
+// StepTime defines when a step should be run.
 type StepTime uint8
 
 const (
@@ -22,6 +23,7 @@ const (
 	AfterExpectStep
 )
 
+// String represents the string representation of StepTime.
 func (s StepTime) String() string {
 	switch s {
 	case CleanStep:
@@ -44,6 +46,7 @@ func (s StepTime) String() string {
 	return ""
 }
 
+// IStep defines a hit step.
 type IStep interface {
 	trace() *errortrace.ErrorTrace
 	when() StepTime
@@ -114,6 +117,7 @@ func execStep(hit *hitImpl, step IStep) (err error) {
 	return err
 }
 
+// StepCallPath returns the representation of the step that is passed in.
 func StepCallPath(step IStep, withArguments bool) string {
 	return step.callPath().CallString(withArguments)
 }
