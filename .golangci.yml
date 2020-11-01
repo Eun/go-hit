@@ -71,7 +71,7 @@ linters-settings:
     local-prefixes: github.com/Eun/go-hit
   golint:
     # minimal confidence for issues, default is 0.8
-    min-confidence: 0
+    min-confidence: 0.8
   gomnd:
     settings:
       mnd:
@@ -178,6 +178,11 @@ linters:
 
 
 issues:
+  # Independently from option `exclude` we use default exclude patterns,
+  # it can be disabled by this option. To list all
+  # excluded by default patterns execute `golangci-lint run --help`.
+  # Default value for this option is true.
+  exclude-use-default: false
   # Maximum issues count per one linter. Set to 0 to disable. Default is 50.
   max-issues-per-linter: 0
   # Maximum count of issues with the same text. Set to 0 to disable. Default is 3.
