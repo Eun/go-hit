@@ -87,7 +87,9 @@ func (i *jsonInputIter) Close() error {
 func (jsn *HTTPBodyJSON) JQ(container interface{}, expression ...string) error {
 	var iter gojq.Iter
 	jsonIter := newJSONInputIter(jsn.body())
-	defer jsonIter.Close()
+	defer func() {
+		_ = jsonIter.Close()
+	}()
 	iter = jsonIter
 
 	for _, e := range expression {

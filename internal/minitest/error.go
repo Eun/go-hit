@@ -14,20 +14,18 @@ import (
 	"github.com/Eun/go-hit/internal/misc"
 )
 
-type ReturnError struct{}
-
-func (ReturnError) Errorf(format string, messageAndArgs ...interface{}) error {
+func Errorf(format string, messageAndArgs ...interface{}) error {
 	return xerrors.New(strings.TrimSpace(fmt.Sprintf(format, messageAndArgs...)))
 }
 
-func (ReturnError) NoError(err error) error {
+func NoError(err error) error {
 	if err != nil {
 		return xerrors.New(err.Error())
 	}
 	return nil
 }
 
-func (ReturnError) Equal(object, expected interface{}) error {
+func Equal(object, expected interface{}) error {
 	// shortcuts
 	if expected == nil && object == nil {
 		return nil
@@ -50,7 +48,7 @@ func (ReturnError) Equal(object, expected interface{}) error {
 	return nil
 }
 
-func (ReturnError) NotEqual(object interface{}, values ...interface{}) error {
+func NotEqual(object interface{}, values ...interface{}) error {
 	for _, value := range values {
 		// shortcuts
 		if value == nil && object == nil {
@@ -73,13 +71,13 @@ func (ReturnError) NotEqual(object interface{}, values ...interface{}) error {
 	return nil
 }
 
-func (ReturnError) Contains(object interface{}, values ...interface{}) error {
+func Contains(object interface{}, values ...interface{}) error {
 	for _, value := range values {
 		ok, err := contains.Contains(object, value)
 		if err != nil {
 			if _, isRecipeNotFoundError := err.(contains.NoRecipeFoundError); isRecipeNotFoundError {
 				// is it equal?
-				if equalErr := Error.Equal(object, value); equalErr != nil {
+				if equalErr := Equal(object, value); equalErr != nil {
 					// its not equal
 					return xerrors.New(fmt.Sprintf(`%s does not contain %s`, PrintValue(object), PrintValue(value)))
 				}
@@ -95,17 +93,17 @@ func (ReturnError) Contains(object interface{}, values ...interface{}) error {
 	return nil
 }
 
-func (ReturnError) NotContains(object interface{}, values ...interface{}) error {
-	return Error.NotOneOf(object, values...)
+func NotContains(object interface{}, values ...interface{}) error {
+	return NotOneOf(object, values...)
 }
 
-func (ReturnError) OneOf(object interface{}, values ...interface{}) error {
+func OneOf(object interface{}, values ...interface{}) error {
 	for _, value := range values {
 		ok, err := contains.Contains(object, value)
 		if err != nil {
 			if _, isRecipeNotFoundError := err.(contains.NoRecipeFoundError); isRecipeNotFoundError {
 				// is it equal?
-				if equalErr := Error.NotEqual(object, value); equalErr != nil {
+				if equalErr := NotEqual(object, value); equalErr != nil {
 					// its equal so return no error
 					return nil
 				}
@@ -121,13 +119,13 @@ func (ReturnError) OneOf(object interface{}, values ...interface{}) error {
 	return xerrors.New(fmt.Sprintf(`%s should be one of %s`, PrintValue(object), PrintValue(values)))
 }
 
-func (ReturnError) NotOneOf(object interface{}, values ...interface{}) error {
+func NotOneOf(object interface{}, values ...interface{}) error {
 	for _, value := range values {
 		ok, err := contains.Contains(object, value)
 		if err != nil {
 			if _, isRecipeNotFoundError := err.(contains.NoRecipeFoundError); isRecipeNotFoundError {
 				// is it equal?
-				if equalErr := Error.NotEqual(object, value); equalErr != nil {
+				if equalErr := NotEqual(object, value); equalErr != nil {
 					// its equal
 					return xerrors.New(fmt.Sprintf(`%s should not contain %s`, PrintValue(object), PrintValue(value)))
 				}
@@ -143,7 +141,7 @@ func (ReturnError) NotOneOf(object interface{}, values ...interface{}) error {
 	return nil
 }
 
-func (ReturnError) Empty(object interface{}) error {
+func Empty(object interface{}) error {
 	v := misc.GetValue(object)
 	switch v.Kind() {
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:
@@ -157,7 +155,7 @@ func (ReturnError) Empty(object interface{}) error {
 	}
 }
 
-func (ReturnError) NotEmpty(object interface{}) error {
+func NotEmpty(object interface{}) error {
 	v := misc.GetValue(object)
 	switch v.Kind() {
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:
@@ -170,7 +168,7 @@ func (ReturnError) NotEmpty(object interface{}) error {
 	}
 }
 
-func (ReturnError) Len(object interface{}, length int) error {
+func Len(object interface{}, length int) error {
 	v := misc.GetValue(object)
 	switch v.Kind() {
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:
@@ -184,14 +182,14 @@ func (ReturnError) Len(object interface{}, length int) error {
 	}
 }
 
-func (ReturnError) True(value bool) error {
+func True(value bool) error {
 	if !value {
 		return xerrors.New(`Expected bool to be true but is false`)
 	}
 	return nil
 }
 
-func (ReturnError) False(value bool) error {
+func False(value bool) error {
 	if value {
 		return xerrors.New(`Expected bool to be false but is true`)
 	}

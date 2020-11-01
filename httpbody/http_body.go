@@ -41,7 +41,7 @@ func NewHTTPBody(body io.Reader, headers http.Header) *HTTPBody {
 // SetReader sets the body to the contents of the specified reader.
 func (body *HTTPBody) SetReader(r io.Reader) {
 	if body.factory != nil {
-		body.factory.Close()
+		_ = body.factory.Close()
 		body.factory = nil
 	}
 	body.factory = doppelgangerreader.NewFactory(r)

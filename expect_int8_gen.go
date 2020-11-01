@@ -49,29 +49,29 @@ func newExpectInt8(cp callPath, valueCallback expectInt8ValueCallback) IExpectIn
 }
 func (v *expectInt8) Equal(value int8) IStep {
 	return &hitStep{Trace: ett.Prepare(), When: ExpectStep, CallPath: v.cp.Push("Equal", []interface{}{value}), Exec: func(hit *hitImpl) error {
-		return minitest.Error.Equal(v.valueCallback(hit), value)
+		return minitest.Equal(v.valueCallback(hit), value)
 	}}
 }
 func (v *expectInt8) NotEqual(values ...int8) IStep {
 	return &hitStep{Trace: ett.Prepare(), When: ExpectStep, CallPath: v.cp.Push("NotEqual", int8SliceToInterfaceSlice(values)), Exec: func(hit *hitImpl) error {
-		return minitest.Error.NotEqual(v.valueCallback(hit), int8SliceToInterfaceSlice(values)...)
+		return minitest.NotEqual(v.valueCallback(hit), int8SliceToInterfaceSlice(values)...)
 	}}
 }
 func (v *expectInt8) OneOf(values ...int8) IStep {
 	return &hitStep{Trace: ett.Prepare(), When: ExpectStep, CallPath: v.cp.Push("OneOf", int8SliceToInterfaceSlice(values)), Exec: func(hit *hitImpl) error {
-		return minitest.Error.OneOf(v.valueCallback(hit), int8SliceToInterfaceSlice(values)...)
+		return minitest.OneOf(v.valueCallback(hit), int8SliceToInterfaceSlice(values)...)
 	}}
 }
 func (v *expectInt8) NotOneOf(values ...int8) IStep {
 	return &hitStep{Trace: ett.Prepare(), When: ExpectStep, CallPath: v.cp.Push("NotOneOf", int8SliceToInterfaceSlice(values)), Exec: func(hit *hitImpl) error {
-		return minitest.Error.NotOneOf(v.valueCallback(hit), int8SliceToInterfaceSlice(values)...)
+		return minitest.NotOneOf(v.valueCallback(hit), int8SliceToInterfaceSlice(values)...)
 	}}
 }
 func (v *expectInt8) GreaterThan(value int8) IStep {
 	return &hitStep{Trace: ett.Prepare(), When: ExpectStep, CallPath: v.cp.Push("GreaterThan", []interface{}{value}), Exec: func(hit *hitImpl) error {
 		l := v.valueCallback(hit)
 		if l <= value {
-			return minitest.Error.Errorf("expected %d to be greater than %d", l, value)
+			return minitest.Errorf("expected %d to be greater than %d", l, value)
 		}
 		return nil
 	}}
@@ -80,7 +80,7 @@ func (v *expectInt8) LessThan(value int8) IStep {
 	return &hitStep{Trace: ett.Prepare(), When: ExpectStep, CallPath: v.cp.Push("LessThan", []interface{}{value}), Exec: func(hit *hitImpl) error {
 		l := v.valueCallback(hit)
 		if l >= value {
-			return minitest.Error.Errorf("expected %d to be less than %d", l, value)
+			return minitest.Errorf("expected %d to be less than %d", l, value)
 		}
 		return nil
 	}}
@@ -89,7 +89,7 @@ func (v *expectInt8) GreaterOrEqualThan(value int8) IStep {
 	return &hitStep{Trace: ett.Prepare(), When: ExpectStep, CallPath: v.cp.Push("GreaterOrEqualThan", []interface{}{value}), Exec: func(hit *hitImpl) error {
 		l := v.valueCallback(hit)
 		if l < value {
-			return minitest.Error.Errorf("expected %d to be greater or equal than %d", l, value)
+			return minitest.Errorf("expected %d to be greater or equal than %d", l, value)
 		}
 		return nil
 	}}
@@ -98,7 +98,7 @@ func (v *expectInt8) LessOrEqualThan(value int8) IStep {
 	return &hitStep{Trace: ett.Prepare(), When: ExpectStep, CallPath: v.cp.Push("LessOrEqualThan", []interface{}{value}), Exec: func(hit *hitImpl) error {
 		l := v.valueCallback(hit)
 		if l > value {
-			return minitest.Error.Errorf("expected %d to be less or equal than %d", l, value)
+			return minitest.Errorf("expected %d to be less or equal than %d", l, value)
 		}
 		return nil
 	}}
@@ -107,7 +107,7 @@ func (v *expectInt8) Between(min, max int8) IStep {
 	return &hitStep{Trace: ett.Prepare(), When: ExpectStep, CallPath: v.cp.Push("Between", []interface{}{min, max}), Exec: func(hit *hitImpl) error {
 		l := v.valueCallback(hit)
 		if l < min || l > max {
-			return minitest.Error.Errorf("expected %d to be between %d and %d", l, min, max)
+			return minitest.Errorf("expected %d to be between %d and %d", l, min, max)
 		}
 		return nil
 	}}
@@ -116,7 +116,7 @@ func (v *expectInt8) NotBetween(min, max int8) IStep {
 	return &hitStep{Trace: ett.Prepare(), When: ExpectStep, CallPath: v.cp.Push("NotBetween", []interface{}{min, max}), Exec: func(hit *hitImpl) error {
 		l := v.valueCallback(hit)
 		if l >= min && l <= max {
-			return minitest.Error.Errorf("expected %d not to be between %d and %d", l, min, max)
+			return minitest.Errorf("expected %d not to be between %d and %d", l, min, max)
 		}
 		return nil
 	}}

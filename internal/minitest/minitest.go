@@ -29,6 +29,3 @@ func actualExpectedDiff(actual, expected interface{}) string {
 func PrintValue(v interface{}) string {
 	return vtclean.Clean(pp.Sprint(v), false)
 }
-
-// Error provides functions that will return the error in an error case.
-var Error ReturnError

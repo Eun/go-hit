@@ -105,11 +105,15 @@ func generateTestBlock(fileName string, pos int, funcPrefix string, expectReques
 func buildName(typ *ast.Ident, names []*ast.Ident) string {
 	var sb strings.Builder
 	fset := token.NewFileSet()
-	printer.Fprint(&sb, fset, typ)
+	if err := printer.Fprint(&sb, fset, typ); err != nil {
+		panic(err)
+	}
 
 	for _, name := range names {
 		fset := token.NewFileSet()
-		printer.Fprint(&sb, fset, name)
+		if err := printer.Fprint(&sb, fset, name); err != nil {
+			panic(err)
+		}
 	}
 
 	return sb.String()

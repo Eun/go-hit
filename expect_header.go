@@ -144,7 +144,7 @@ func (hdr *expectHeader) Contains(values ...interface{}) IStep {
 		When:     ExpectStep,
 		CallPath: hdr.cleanPath.Push("Contains", values),
 		Exec: func(hit *hitImpl) error {
-			return minitest.Error.Contains(hdr.valueCallback(hit), values...)
+			return minitest.Contains(hdr.valueCallback(hit), values...)
 		},
 	}
 }
@@ -155,7 +155,7 @@ func (hdr *expectHeader) NotContains(values ...interface{}) IStep {
 		When:     ExpectStep,
 		CallPath: hdr.cleanPath.Push("NotContains", values),
 		Exec: func(hit *hitImpl) error {
-			return minitest.Error.NotContains(hdr.valueCallback(hit), values...)
+			return minitest.NotContains(hdr.valueCallback(hit), values...)
 		},
 	}
 }
@@ -166,7 +166,7 @@ func (hdr *expectHeader) OneOf(values ...interface{}) IStep {
 		When:     ExpectStep,
 		CallPath: hdr.cleanPath.Push("OneOf", values),
 		Exec: func(hit *hitImpl) error {
-			return minitest.Error.OneOf(hdr.valueCallback(hit), values...)
+			return minitest.OneOf(hdr.valueCallback(hit), values...)
 		},
 	}
 }
@@ -177,7 +177,7 @@ func (hdr *expectHeader) NotOneOf(values ...interface{}) IStep {
 		When:     ExpectStep,
 		CallPath: hdr.cleanPath.Push("NotOneOf", values),
 		Exec: func(hit *hitImpl) error {
-			return minitest.Error.NotOneOf(hdr.valueCallback(hit), values...)
+			return minitest.NotOneOf(hdr.valueCallback(hit), values...)
 		},
 	}
 }
@@ -188,7 +188,7 @@ func (hdr *expectHeader) Empty() IStep {
 		When:     ExpectStep,
 		CallPath: hdr.cleanPath.Push("Empty", nil),
 		Exec: func(hit *hitImpl) error {
-			return minitest.Error.Empty(hdr.valueCallback(hit))
+			return minitest.Empty(hdr.valueCallback(hit))
 		},
 	}
 }
@@ -199,7 +199,7 @@ func (hdr *expectHeader) NotEmpty() IStep {
 		When:     ExpectStep,
 		CallPath: hdr.cleanPath.Push("NotEmpty", nil),
 		Exec: func(hit *hitImpl) error {
-			return minitest.Error.NotEmpty(hdr.valueCallback(hit))
+			return minitest.NotEmpty(hdr.valueCallback(hit))
 		},
 	}
 }
@@ -216,7 +216,7 @@ func (hdr *expectHeader) Equal(values ...interface{}) IStep {
 		When:     ExpectStep,
 		CallPath: hdr.cleanPath.Push("Equal", values),
 		Exec: func(hit *hitImpl) error {
-			return minitest.Error.Equal(hdr.valueCallback(hit), values)
+			return minitest.Equal(hdr.valueCallback(hit), values)
 		},
 	}
 }
@@ -227,7 +227,7 @@ func (hdr *expectHeader) NotEqual(values ...interface{}) IStep {
 		When:     ExpectStep,
 		CallPath: hdr.cleanPath.Push("NotEqual", values),
 		Exec: func(hit *hitImpl) error {
-			return minitest.Error.NotEqual(hdr.valueCallback(hit), values)
+			return minitest.NotEqual(hdr.valueCallback(hit), values)
 		},
 	}
 }

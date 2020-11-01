@@ -11,8 +11,12 @@ import (
 	"github.com/Eun/go-hit/internal/misc"
 )
 
+// NoRecipeFoundError is an error that will be returned when there is no recipe found to check if needle is in an
+// haystack.
 type NoRecipeFoundError error
 
+// Contains returns true if needle is in haystack, it returns NoRecipeFoundError as an error if it cannot determinate
+// how it can test if needle is in haystack.
 func Contains(haystack, needle interface{}) (bool, error) {
 	if haystack == nil && needle == nil {
 		return true, nil

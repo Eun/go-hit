@@ -146,8 +146,8 @@ func RunTest(expectRequest bool, test func()) {
 
 	test()
 
-	srv.Close()
-	listener.Close()
+	_ = srv.Close()
+	_ = listener.Close()
 
 	if expectRequest && !gotRequest {
 		panic("expected at least one request")

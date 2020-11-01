@@ -47,7 +47,7 @@ func (v *expectString) Equal(value string) IStep {
 		When:     ExpectStep,
 		CallPath: v.cleanPath.Push("Equal", []interface{}{value}),
 		Exec: func(hit *hitImpl) error {
-			return minitest.Error.Equal(v.valueCallback(hit), value)
+			return minitest.Equal(v.valueCallback(hit), value)
 		},
 	}
 }
@@ -58,7 +58,7 @@ func (v *expectString) NotEqual(value string) IStep {
 		When:     ExpectStep,
 		CallPath: v.cleanPath.Push("NotEqual", []interface{}{value}),
 		Exec: func(hit *hitImpl) error {
-			return minitest.Error.NotEqual(v.valueCallback(hit), value)
+			return minitest.NotEqual(v.valueCallback(hit), value)
 		},
 	}
 }
@@ -69,7 +69,7 @@ func (v *expectString) Contains(value string) IStep {
 		When:     ExpectStep,
 		CallPath: v.cleanPath.Push("Contains", []interface{}{value}),
 		Exec: func(hit *hitImpl) error {
-			return minitest.Error.Contains(v.valueCallback(hit), value)
+			return minitest.Contains(v.valueCallback(hit), value)
 		},
 	}
 }
@@ -80,7 +80,7 @@ func (v *expectString) NotContains(value string) IStep {
 		When:     ExpectStep,
 		CallPath: v.cleanPath.Push("NotContains", []interface{}{value}),
 		Exec: func(hit *hitImpl) error {
-			return minitest.Error.NotContains(v.valueCallback(hit), value)
+			return minitest.NotContains(v.valueCallback(hit), value)
 		},
 	}
 }
@@ -97,7 +97,7 @@ func (v *expectString) OneOf(values ...string) IStep {
 		When:     ExpectStep,
 		CallPath: v.cleanPath.Push("OneOf", stringSliceToInterfaceSlice(values)),
 		Exec: func(hit *hitImpl) error {
-			return minitest.Error.OneOf(v.valueCallback(hit), stringSliceToInterfaceSlice(values)...)
+			return minitest.OneOf(v.valueCallback(hit), stringSliceToInterfaceSlice(values)...)
 		}}
 }
 func (v *expectString) NotOneOf(values ...string) IStep {
@@ -106,6 +106,6 @@ func (v *expectString) NotOneOf(values ...string) IStep {
 		When:     ExpectStep,
 		CallPath: v.cleanPath.Push("NotOneOf", stringSliceToInterfaceSlice(values)),
 		Exec: func(hit *hitImpl) error {
-			return minitest.Error.NotOneOf(v.valueCallback(hit), stringSliceToInterfaceSlice(values)...)
+			return minitest.NotOneOf(v.valueCallback(hit), stringSliceToInterfaceSlice(values)...)
 		}}
 }

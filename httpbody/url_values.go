@@ -6,7 +6,7 @@ import (
 	"github.com/Eun/go-convert"
 )
 
-// URLValues is a wrapper for url.Values but it works with HTTPBody
+// URLValues is a wrapper for url.Values but it works with HTTPBody.
 type URLValues struct {
 	body   *HTTPBody
 	values url.Values

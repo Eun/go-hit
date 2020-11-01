@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// Call represents a call on the stack
+// Call represents a call on the stack.
 type Call struct {
 	PackageName  string
 	FunctionPath string
