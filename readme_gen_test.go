@@ -33,7 +33,7 @@ func TestReadmeCodePart2(t *testing.T) {
 	MustDo(
 		Post("https://httpbin.org/post"),
 		Send().Headers("Content-Type").Add("application/json"),
-		Send().Body().JSON(map[string][]string{"Foo": []string{"Bar", "Baz"}}),
+		Send().Body().JSON(map[string][]string{"Foo": {"Bar", "Baz"}}),
 		Expect().Status().Equal(http.StatusOK),
 		Expect().Body().JSON().JQ(".json.Foo[1]").Equal("Baz"),
 	)
