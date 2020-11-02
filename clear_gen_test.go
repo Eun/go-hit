@@ -35,6 +35,15 @@ func TestGenClear_Generic_Send(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send()),
+		PtrStr("unable to find a step with Send()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_SendBody(t *testing.T) {
 	s := EchoServer()
@@ -50,6 +59,15 @@ func TestGenClear_Generic_SendBody(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body()),
+		PtrStr("unable to find a step with Send().Body()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_SendBodyBool(t *testing.T) {
 	s := EchoServer()
@@ -64,6 +82,15 @@ func TestGenClear_Generic_SendBodyBool(t *testing.T) {
 			Clear().Send().Body().Bool(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().Bool()),
+		PtrStr("unable to find a step with Send().Body().Bool()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_SendBodyBool(t *testing.T) {
@@ -95,6 +122,15 @@ func TestGenClear_Generic_SendBodyBytes(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().Bytes()),
+		PtrStr("unable to find a step with Send().Body().Bytes()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_SendBodyBytes(t *testing.T) {
 	s := EchoServer()
@@ -124,6 +160,15 @@ func TestGenClear_Generic_SendBodyFloat32(t *testing.T) {
 			Clear().Send().Body().Float32(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().Float32()),
+		PtrStr("unable to find a step with Send().Body().Float32()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_SendBodyFloat32(t *testing.T) {
@@ -155,6 +200,15 @@ func TestGenClear_Generic_SendBodyFloat64(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().Float64()),
+		PtrStr("unable to find a step with Send().Body().Float64()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_SendBodyFloat64(t *testing.T) {
 	s := EchoServer()
@@ -185,6 +239,15 @@ func TestGenClear_Generic_SendBodyFormValues(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().FormValues()),
+		PtrStr("unable to find a step with Send().Body().FormValues()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_SendBodyFormValuesAdd(t *testing.T) {
 	s := EchoServer()
@@ -199,6 +262,15 @@ func TestGenClear_Generic_SendBodyFormValuesAdd(t *testing.T) {
 			Clear().Send().Body().FormValues().Add(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().FormValues().Add()),
+		PtrStr("unable to find a step with Send().Body().FormValues().Add()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_SendBodyFormValuesAdd(t *testing.T) {
@@ -230,6 +302,15 @@ func TestGenClear_Generic_SendBodyInt(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().Int()),
+		PtrStr("unable to find a step with Send().Body().Int()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_SendBodyInt(t *testing.T) {
 	s := EchoServer()
@@ -259,6 +340,15 @@ func TestGenClear_Generic_SendBodyInt16(t *testing.T) {
 			Clear().Send().Body().Int16(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().Int16()),
+		PtrStr("unable to find a step with Send().Body().Int16()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_SendBodyInt16(t *testing.T) {
@@ -290,6 +380,15 @@ func TestGenClear_Generic_SendBodyInt32(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().Int32()),
+		PtrStr("unable to find a step with Send().Body().Int32()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_SendBodyInt32(t *testing.T) {
 	s := EchoServer()
@@ -319,6 +418,15 @@ func TestGenClear_Generic_SendBodyInt64(t *testing.T) {
 			Clear().Send().Body().Int64(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().Int64()),
+		PtrStr("unable to find a step with Send().Body().Int64()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_SendBodyInt64(t *testing.T) {
@@ -350,6 +458,15 @@ func TestGenClear_Generic_SendBodyInt8(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().Int8()),
+		PtrStr("unable to find a step with Send().Body().Int8()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_SendBodyInt8(t *testing.T) {
 	s := EchoServer()
@@ -379,6 +496,15 @@ func TestGenClear_Generic_SendBodyJSON(t *testing.T) {
 			Clear().Send().Body().JSON(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().JSON()),
+		PtrStr("unable to find a step with Send().Body().JSON()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_SendBodyJSON(t *testing.T) {
@@ -410,6 +536,15 @@ func TestGenClear_Generic_SendBodyString(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().String()),
+		PtrStr("unable to find a step with Send().Body().String()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_SendBodyString(t *testing.T) {
 	s := EchoServer()
@@ -439,6 +574,15 @@ func TestGenClear_Generic_SendBodyUint(t *testing.T) {
 			Clear().Send().Body().Uint(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().Uint()),
+		PtrStr("unable to find a step with Send().Body().Uint()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_SendBodyUint(t *testing.T) {
@@ -470,6 +614,15 @@ func TestGenClear_Generic_SendBodyUint16(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().Uint16()),
+		PtrStr("unable to find a step with Send().Body().Uint16()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_SendBodyUint16(t *testing.T) {
 	s := EchoServer()
@@ -499,6 +652,15 @@ func TestGenClear_Generic_SendBodyUint32(t *testing.T) {
 			Clear().Send().Body().Uint32(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().Uint32()),
+		PtrStr("unable to find a step with Send().Body().Uint32()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_SendBodyUint32(t *testing.T) {
@@ -530,6 +692,15 @@ func TestGenClear_Generic_SendBodyUint64(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().Uint64()),
+		PtrStr("unable to find a step with Send().Body().Uint64()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_SendBodyUint64(t *testing.T) {
 	s := EchoServer()
@@ -559,6 +730,15 @@ func TestGenClear_Generic_SendBodyUint8(t *testing.T) {
 			Clear().Send().Body().Uint8(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().Uint8()),
+		PtrStr("unable to find a step with Send().Body().Uint8()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_SendBodyUint8(t *testing.T) {
@@ -590,6 +770,15 @@ func TestGenClear_Generic_SendBodyXML(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Body().XML()),
+		PtrStr("unable to find a step with Send().Body().XML()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_SendBodyXML(t *testing.T) {
 	s := EchoServer()
@@ -620,6 +809,15 @@ func TestGenClear_Generic_SendHeaders(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Headers()),
+		PtrStr("unable to find a step with Send().Headers()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_SendHeadersAdd(t *testing.T) {
 	s := EchoServer()
@@ -634,6 +832,15 @@ func TestGenClear_Generic_SendHeadersAdd(t *testing.T) {
 			Clear().Send().Headers().Add(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Headers().Add()),
+		PtrStr("unable to find a step with Send().Headers().Add()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_SendHeadersAdd(t *testing.T) {
@@ -665,6 +872,15 @@ func TestGenClear_Generic_SendTrailers(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Trailers()),
+		PtrStr("unable to find a step with Send().Trailers()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_SendTrailersAdd(t *testing.T) {
 	s := EchoServer()
@@ -679,6 +895,15 @@ func TestGenClear_Generic_SendTrailersAdd(t *testing.T) {
 			Clear().Send().Trailers().Add(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Send().Trailers().Add()),
+		PtrStr("unable to find a step with Send().Trailers().Add()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_SendTrailersAdd(t *testing.T) {
@@ -710,6 +935,15 @@ func TestGenClear_Generic_Expect(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect()),
+		PtrStr("unable to find a step with Expect()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBody(t *testing.T) {
 	s := EchoServer()
@@ -724,6 +958,15 @@ func TestGenClear_Generic_ExpectBody(t *testing.T) {
 			Clear().Expect().Body(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body()),
+		PtrStr("unable to find a step with Expect().Body()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Generic_ExpectBodyBytes(t *testing.T) {
@@ -740,6 +983,15 @@ func TestGenClear_Generic_ExpectBodyBytes(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Bytes()),
+		PtrStr("unable to find a step with Expect().Body().Bytes()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyBytesContains(t *testing.T) {
 	s := EchoServer()
@@ -754,6 +1006,15 @@ func TestGenClear_Generic_ExpectBodyBytesContains(t *testing.T) {
 			Clear().Expect().Body().Bytes().Contains(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Bytes().Contains()),
+		PtrStr("unable to find a step with Expect().Body().Bytes().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyBytesContains(t *testing.T) {
@@ -785,6 +1046,15 @@ func TestGenClear_Generic_ExpectBodyBytesEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Bytes().Equal()),
+		PtrStr("unable to find a step with Expect().Body().Bytes().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyBytesEqual(t *testing.T) {
 	s := EchoServer()
@@ -815,6 +1085,15 @@ func TestGenClear_Generic_ExpectBodyBytesLen(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Bytes().Len()),
+		PtrStr("unable to find a step with Expect().Body().Bytes().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyBytesLenBetween(t *testing.T) {
 	s := EchoServer()
@@ -829,6 +1108,15 @@ func TestGenClear_Generic_ExpectBodyBytesLenBetween(t *testing.T) {
 			Clear().Expect().Body().Bytes().Len().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Bytes().Len().Between()),
+		PtrStr("unable to find a step with Expect().Body().Bytes().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyBytesLenBetween(t *testing.T) {
@@ -860,6 +1148,15 @@ func TestGenClear_Generic_ExpectBodyBytesLenEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Bytes().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Body().Bytes().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyBytesLenEqual(t *testing.T) {
 	s := EchoServer()
@@ -889,6 +1186,15 @@ func TestGenClear_Generic_ExpectBodyBytesLenGreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Bytes().Len().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Bytes().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Bytes().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyBytesLenGreaterOrEqualThan(t *testing.T) {
@@ -920,6 +1226,15 @@ func TestGenClear_Generic_ExpectBodyBytesLenGreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Bytes().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().Bytes().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyBytesLenGreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -949,6 +1264,15 @@ func TestGenClear_Generic_ExpectBodyBytesLenLessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Bytes().Len().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Bytes().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Bytes().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyBytesLenLessOrEqualThan(t *testing.T) {
@@ -980,6 +1304,15 @@ func TestGenClear_Generic_ExpectBodyBytesLenLessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Bytes().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().Bytes().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyBytesLenLessThan(t *testing.T) {
 	s := EchoServer()
@@ -1009,6 +1342,15 @@ func TestGenClear_Generic_ExpectBodyBytesLenNotBetween(t *testing.T) {
 			Clear().Expect().Body().Bytes().Len().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Bytes().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().Bytes().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyBytesLenNotBetween(t *testing.T) {
@@ -1040,6 +1382,15 @@ func TestGenClear_Generic_ExpectBodyBytesLenNotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Bytes().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().Bytes().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyBytesLenNotEqual(t *testing.T) {
 	s := EchoServer()
@@ -1069,6 +1420,15 @@ func TestGenClear_Generic_ExpectBodyBytesLenNotOneOf(t *testing.T) {
 			Clear().Expect().Body().Bytes().Len().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Bytes().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().Bytes().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyBytesLenNotOneOf(t *testing.T) {
@@ -1100,6 +1460,15 @@ func TestGenClear_Generic_ExpectBodyBytesLenOneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Bytes().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().Bytes().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyBytesLenOneOf(t *testing.T) {
 	s := EchoServer()
@@ -1129,6 +1498,15 @@ func TestGenClear_Generic_ExpectBodyBytesNotContains(t *testing.T) {
 			Clear().Expect().Body().Bytes().NotContains(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Bytes().NotContains()),
+		PtrStr("unable to find a step with Expect().Body().Bytes().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyBytesNotContains(t *testing.T) {
@@ -1160,6 +1538,15 @@ func TestGenClear_Generic_ExpectBodyBytesNotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Bytes().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().Bytes().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyBytesNotEqual(t *testing.T) {
 	s := EchoServer()
@@ -1190,6 +1577,15 @@ func TestGenClear_Generic_ExpectBodyFloat32(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float32()),
+		PtrStr("unable to find a step with Expect().Body().Float32()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyFloat32Between(t *testing.T) {
 	s := EchoServer()
@@ -1204,6 +1600,15 @@ func TestGenClear_Generic_ExpectBodyFloat32Between(t *testing.T) {
 			Clear().Expect().Body().Float32().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float32().Between()),
+		PtrStr("unable to find a step with Expect().Body().Float32().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFloat32Between(t *testing.T) {
@@ -1235,6 +1640,15 @@ func TestGenClear_Generic_ExpectBodyFloat32Equal(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float32().Equal()),
+		PtrStr("unable to find a step with Expect().Body().Float32().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFloat32Equal(t *testing.T) {
 	s := EchoServer()
@@ -1264,6 +1678,15 @@ func TestGenClear_Generic_ExpectBodyFloat32GreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Float32().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float32().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Float32().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFloat32GreaterOrEqualThan(t *testing.T) {
@@ -1295,6 +1718,15 @@ func TestGenClear_Generic_ExpectBodyFloat32GreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float32().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().Float32().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFloat32GreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -1324,6 +1756,15 @@ func TestGenClear_Generic_ExpectBodyFloat32LessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Float32().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float32().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Float32().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFloat32LessOrEqualThan(t *testing.T) {
@@ -1355,6 +1796,15 @@ func TestGenClear_Generic_ExpectBodyFloat32LessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float32().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().Float32().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFloat32LessThan(t *testing.T) {
 	s := EchoServer()
@@ -1384,6 +1834,15 @@ func TestGenClear_Generic_ExpectBodyFloat32NotBetween(t *testing.T) {
 			Clear().Expect().Body().Float32().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float32().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().Float32().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFloat32NotBetween(t *testing.T) {
@@ -1415,6 +1874,15 @@ func TestGenClear_Generic_ExpectBodyFloat32NotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float32().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().Float32().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFloat32NotEqual(t *testing.T) {
 	s := EchoServer()
@@ -1444,6 +1912,15 @@ func TestGenClear_Generic_ExpectBodyFloat32NotOneOf(t *testing.T) {
 			Clear().Expect().Body().Float32().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float32().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().Float32().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFloat32NotOneOf(t *testing.T) {
@@ -1475,6 +1952,15 @@ func TestGenClear_Generic_ExpectBodyFloat32OneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float32().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().Float32().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFloat32OneOf(t *testing.T) {
 	s := EchoServer()
@@ -1505,6 +1991,15 @@ func TestGenClear_Generic_ExpectBodyFloat64(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float64()),
+		PtrStr("unable to find a step with Expect().Body().Float64()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyFloat64Between(t *testing.T) {
 	s := EchoServer()
@@ -1519,6 +2014,15 @@ func TestGenClear_Generic_ExpectBodyFloat64Between(t *testing.T) {
 			Clear().Expect().Body().Float64().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float64().Between()),
+		PtrStr("unable to find a step with Expect().Body().Float64().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFloat64Between(t *testing.T) {
@@ -1550,6 +2054,15 @@ func TestGenClear_Generic_ExpectBodyFloat64Equal(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float64().Equal()),
+		PtrStr("unable to find a step with Expect().Body().Float64().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFloat64Equal(t *testing.T) {
 	s := EchoServer()
@@ -1579,6 +2092,15 @@ func TestGenClear_Generic_ExpectBodyFloat64GreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Float64().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float64().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Float64().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFloat64GreaterOrEqualThan(t *testing.T) {
@@ -1610,6 +2132,15 @@ func TestGenClear_Generic_ExpectBodyFloat64GreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float64().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().Float64().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFloat64GreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -1639,6 +2170,15 @@ func TestGenClear_Generic_ExpectBodyFloat64LessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Float64().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float64().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Float64().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFloat64LessOrEqualThan(t *testing.T) {
@@ -1670,6 +2210,15 @@ func TestGenClear_Generic_ExpectBodyFloat64LessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float64().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().Float64().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFloat64LessThan(t *testing.T) {
 	s := EchoServer()
@@ -1699,6 +2248,15 @@ func TestGenClear_Generic_ExpectBodyFloat64NotBetween(t *testing.T) {
 			Clear().Expect().Body().Float64().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float64().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().Float64().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFloat64NotBetween(t *testing.T) {
@@ -1730,6 +2288,15 @@ func TestGenClear_Generic_ExpectBodyFloat64NotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float64().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().Float64().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFloat64NotEqual(t *testing.T) {
 	s := EchoServer()
@@ -1759,6 +2326,15 @@ func TestGenClear_Generic_ExpectBodyFloat64NotOneOf(t *testing.T) {
 			Clear().Expect().Body().Float64().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float64().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().Float64().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFloat64NotOneOf(t *testing.T) {
@@ -1790,6 +2366,15 @@ func TestGenClear_Generic_ExpectBodyFloat64OneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Float64().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().Float64().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFloat64OneOf(t *testing.T) {
 	s := EchoServer()
@@ -1820,6 +2405,15 @@ func TestGenClear_Generic_ExpectBodyFormValues(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues()),
+		PtrStr("unable to find a step with Expect().Body().FormValues()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyFormValuesContains(t *testing.T) {
 	s := EchoServer()
@@ -1834,6 +2428,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesContains(t *testing.T) {
 			Clear().Expect().Body().FormValues().Contains(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Contains()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesContains(t *testing.T) {
@@ -1865,6 +2468,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesEmpty(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Empty()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Empty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesEmpty(t *testing.T) {
 	s := EchoServer()
@@ -1894,6 +2506,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesEqual(t *testing.T) {
 			Clear().Expect().Body().FormValues().Equal(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Equal()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesEqual(t *testing.T) {
@@ -1925,6 +2546,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesLen(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Len()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyFormValuesLenBetween(t *testing.T) {
 	s := EchoServer()
@@ -1939,6 +2569,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesLenBetween(t *testing.T) {
 			Clear().Expect().Body().FormValues().Len().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Len().Between()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesLenBetween(t *testing.T) {
@@ -1970,6 +2609,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesLenEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesLenEqual(t *testing.T) {
 	s := EchoServer()
@@ -1999,6 +2647,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesLenGreaterOrEqualThan(t *testing.T
 			Clear().Expect().Body().FormValues().Len().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesLenGreaterOrEqualThan(t *testing.T) {
@@ -2030,6 +2687,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesLenGreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesLenGreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -2059,6 +2725,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesLenLessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().FormValues().Len().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesLenLessOrEqualThan(t *testing.T) {
@@ -2090,6 +2765,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesLenLessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesLenLessThan(t *testing.T) {
 	s := EchoServer()
@@ -2119,6 +2803,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesLenNotBetween(t *testing.T) {
 			Clear().Expect().Body().FormValues().Len().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesLenNotBetween(t *testing.T) {
@@ -2150,6 +2843,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesLenNotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesLenNotEqual(t *testing.T) {
 	s := EchoServer()
@@ -2179,6 +2881,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesLenNotOneOf(t *testing.T) {
 			Clear().Expect().Body().FormValues().Len().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesLenNotOneOf(t *testing.T) {
@@ -2210,6 +2921,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesLenOneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesLenOneOf(t *testing.T) {
 	s := EchoServer()
@@ -2239,6 +2959,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesNotContains(t *testing.T) {
 			Clear().Expect().Body().FormValues().NotContains(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().NotContains()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesNotContains(t *testing.T) {
@@ -2270,6 +2999,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesNotEmpty(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().NotEmpty()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().NotEmpty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesNotEmpty(t *testing.T) {
 	s := EchoServer()
@@ -2299,6 +3037,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesNotEqual(t *testing.T) {
 			Clear().Expect().Body().FormValues().NotEqual(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesNotEqual(t *testing.T) {
@@ -2330,6 +3077,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesNotOneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesNotOneOf(t *testing.T) {
 	s := EchoServer()
@@ -2359,6 +3115,15 @@ func TestGenClear_Generic_ExpectBodyFormValuesOneOf(t *testing.T) {
 			Clear().Expect().Body().FormValues().OneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyFormValuesOneOf(t *testing.T) {
@@ -2390,6 +3155,15 @@ func TestGenClear_Generic_ExpectBodyInt(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int()),
+		PtrStr("unable to find a step with Expect().Body().Int()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyIntBetween(t *testing.T) {
 	s := EchoServer()
@@ -2404,6 +3178,15 @@ func TestGenClear_Generic_ExpectBodyIntBetween(t *testing.T) {
 			Clear().Expect().Body().Int().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int().Between()),
+		PtrStr("unable to find a step with Expect().Body().Int().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyIntBetween(t *testing.T) {
@@ -2435,6 +3218,15 @@ func TestGenClear_Generic_ExpectBodyIntEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int().Equal()),
+		PtrStr("unable to find a step with Expect().Body().Int().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyIntEqual(t *testing.T) {
 	s := EchoServer()
@@ -2464,6 +3256,15 @@ func TestGenClear_Generic_ExpectBodyIntGreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Int().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Int().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyIntGreaterOrEqualThan(t *testing.T) {
@@ -2495,6 +3296,15 @@ func TestGenClear_Generic_ExpectBodyIntGreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().Int().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyIntGreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -2524,6 +3334,15 @@ func TestGenClear_Generic_ExpectBodyIntLessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Int().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Int().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyIntLessOrEqualThan(t *testing.T) {
@@ -2555,6 +3374,15 @@ func TestGenClear_Generic_ExpectBodyIntLessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().Int().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyIntLessThan(t *testing.T) {
 	s := EchoServer()
@@ -2584,6 +3412,15 @@ func TestGenClear_Generic_ExpectBodyIntNotBetween(t *testing.T) {
 			Clear().Expect().Body().Int().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().Int().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyIntNotBetween(t *testing.T) {
@@ -2615,6 +3452,15 @@ func TestGenClear_Generic_ExpectBodyIntNotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().Int().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyIntNotEqual(t *testing.T) {
 	s := EchoServer()
@@ -2644,6 +3490,15 @@ func TestGenClear_Generic_ExpectBodyIntNotOneOf(t *testing.T) {
 			Clear().Expect().Body().Int().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().Int().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyIntNotOneOf(t *testing.T) {
@@ -2675,6 +3530,15 @@ func TestGenClear_Generic_ExpectBodyIntOneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().Int().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyIntOneOf(t *testing.T) {
 	s := EchoServer()
@@ -2705,6 +3569,15 @@ func TestGenClear_Generic_ExpectBodyInt16(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int16()),
+		PtrStr("unable to find a step with Expect().Body().Int16()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyInt16Between(t *testing.T) {
 	s := EchoServer()
@@ -2719,6 +3592,15 @@ func TestGenClear_Generic_ExpectBodyInt16Between(t *testing.T) {
 			Clear().Expect().Body().Int16().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int16().Between()),
+		PtrStr("unable to find a step with Expect().Body().Int16().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt16Between(t *testing.T) {
@@ -2750,6 +3632,15 @@ func TestGenClear_Generic_ExpectBodyInt16Equal(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int16().Equal()),
+		PtrStr("unable to find a step with Expect().Body().Int16().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt16Equal(t *testing.T) {
 	s := EchoServer()
@@ -2779,6 +3670,15 @@ func TestGenClear_Generic_ExpectBodyInt16GreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Int16().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int16().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Int16().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt16GreaterOrEqualThan(t *testing.T) {
@@ -2810,6 +3710,15 @@ func TestGenClear_Generic_ExpectBodyInt16GreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int16().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().Int16().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt16GreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -2839,6 +3748,15 @@ func TestGenClear_Generic_ExpectBodyInt16LessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Int16().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int16().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Int16().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt16LessOrEqualThan(t *testing.T) {
@@ -2870,6 +3788,15 @@ func TestGenClear_Generic_ExpectBodyInt16LessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int16().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().Int16().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt16LessThan(t *testing.T) {
 	s := EchoServer()
@@ -2899,6 +3826,15 @@ func TestGenClear_Generic_ExpectBodyInt16NotBetween(t *testing.T) {
 			Clear().Expect().Body().Int16().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int16().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().Int16().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt16NotBetween(t *testing.T) {
@@ -2930,6 +3866,15 @@ func TestGenClear_Generic_ExpectBodyInt16NotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int16().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().Int16().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt16NotEqual(t *testing.T) {
 	s := EchoServer()
@@ -2959,6 +3904,15 @@ func TestGenClear_Generic_ExpectBodyInt16NotOneOf(t *testing.T) {
 			Clear().Expect().Body().Int16().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int16().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().Int16().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt16NotOneOf(t *testing.T) {
@@ -2990,6 +3944,15 @@ func TestGenClear_Generic_ExpectBodyInt16OneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int16().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().Int16().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt16OneOf(t *testing.T) {
 	s := EchoServer()
@@ -3020,6 +3983,15 @@ func TestGenClear_Generic_ExpectBodyInt32(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int32()),
+		PtrStr("unable to find a step with Expect().Body().Int32()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyInt32Between(t *testing.T) {
 	s := EchoServer()
@@ -3034,6 +4006,15 @@ func TestGenClear_Generic_ExpectBodyInt32Between(t *testing.T) {
 			Clear().Expect().Body().Int32().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int32().Between()),
+		PtrStr("unable to find a step with Expect().Body().Int32().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt32Between(t *testing.T) {
@@ -3065,6 +4046,15 @@ func TestGenClear_Generic_ExpectBodyInt32Equal(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int32().Equal()),
+		PtrStr("unable to find a step with Expect().Body().Int32().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt32Equal(t *testing.T) {
 	s := EchoServer()
@@ -3094,6 +4084,15 @@ func TestGenClear_Generic_ExpectBodyInt32GreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Int32().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int32().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Int32().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt32GreaterOrEqualThan(t *testing.T) {
@@ -3125,6 +4124,15 @@ func TestGenClear_Generic_ExpectBodyInt32GreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int32().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().Int32().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt32GreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -3154,6 +4162,15 @@ func TestGenClear_Generic_ExpectBodyInt32LessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Int32().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int32().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Int32().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt32LessOrEqualThan(t *testing.T) {
@@ -3185,6 +4202,15 @@ func TestGenClear_Generic_ExpectBodyInt32LessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int32().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().Int32().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt32LessThan(t *testing.T) {
 	s := EchoServer()
@@ -3214,6 +4240,15 @@ func TestGenClear_Generic_ExpectBodyInt32NotBetween(t *testing.T) {
 			Clear().Expect().Body().Int32().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int32().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().Int32().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt32NotBetween(t *testing.T) {
@@ -3245,6 +4280,15 @@ func TestGenClear_Generic_ExpectBodyInt32NotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int32().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().Int32().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt32NotEqual(t *testing.T) {
 	s := EchoServer()
@@ -3274,6 +4318,15 @@ func TestGenClear_Generic_ExpectBodyInt32NotOneOf(t *testing.T) {
 			Clear().Expect().Body().Int32().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int32().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().Int32().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt32NotOneOf(t *testing.T) {
@@ -3305,6 +4358,15 @@ func TestGenClear_Generic_ExpectBodyInt32OneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int32().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().Int32().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt32OneOf(t *testing.T) {
 	s := EchoServer()
@@ -3335,6 +4397,15 @@ func TestGenClear_Generic_ExpectBodyInt64(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int64()),
+		PtrStr("unable to find a step with Expect().Body().Int64()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyInt64Between(t *testing.T) {
 	s := EchoServer()
@@ -3349,6 +4420,15 @@ func TestGenClear_Generic_ExpectBodyInt64Between(t *testing.T) {
 			Clear().Expect().Body().Int64().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int64().Between()),
+		PtrStr("unable to find a step with Expect().Body().Int64().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt64Between(t *testing.T) {
@@ -3380,6 +4460,15 @@ func TestGenClear_Generic_ExpectBodyInt64Equal(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int64().Equal()),
+		PtrStr("unable to find a step with Expect().Body().Int64().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt64Equal(t *testing.T) {
 	s := EchoServer()
@@ -3409,6 +4498,15 @@ func TestGenClear_Generic_ExpectBodyInt64GreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Int64().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int64().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Int64().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt64GreaterOrEqualThan(t *testing.T) {
@@ -3440,6 +4538,15 @@ func TestGenClear_Generic_ExpectBodyInt64GreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int64().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().Int64().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt64GreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -3469,6 +4576,15 @@ func TestGenClear_Generic_ExpectBodyInt64LessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Int64().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int64().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Int64().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt64LessOrEqualThan(t *testing.T) {
@@ -3500,6 +4616,15 @@ func TestGenClear_Generic_ExpectBodyInt64LessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int64().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().Int64().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt64LessThan(t *testing.T) {
 	s := EchoServer()
@@ -3529,6 +4654,15 @@ func TestGenClear_Generic_ExpectBodyInt64NotBetween(t *testing.T) {
 			Clear().Expect().Body().Int64().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int64().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().Int64().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt64NotBetween(t *testing.T) {
@@ -3560,6 +4694,15 @@ func TestGenClear_Generic_ExpectBodyInt64NotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int64().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().Int64().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt64NotEqual(t *testing.T) {
 	s := EchoServer()
@@ -3589,6 +4732,15 @@ func TestGenClear_Generic_ExpectBodyInt64NotOneOf(t *testing.T) {
 			Clear().Expect().Body().Int64().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int64().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().Int64().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt64NotOneOf(t *testing.T) {
@@ -3620,6 +4772,15 @@ func TestGenClear_Generic_ExpectBodyInt64OneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int64().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().Int64().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt64OneOf(t *testing.T) {
 	s := EchoServer()
@@ -3650,6 +4811,15 @@ func TestGenClear_Generic_ExpectBodyInt8(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int8()),
+		PtrStr("unable to find a step with Expect().Body().Int8()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyInt8Between(t *testing.T) {
 	s := EchoServer()
@@ -3664,6 +4834,15 @@ func TestGenClear_Generic_ExpectBodyInt8Between(t *testing.T) {
 			Clear().Expect().Body().Int8().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int8().Between()),
+		PtrStr("unable to find a step with Expect().Body().Int8().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt8Between(t *testing.T) {
@@ -3695,6 +4874,15 @@ func TestGenClear_Generic_ExpectBodyInt8Equal(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int8().Equal()),
+		PtrStr("unable to find a step with Expect().Body().Int8().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt8Equal(t *testing.T) {
 	s := EchoServer()
@@ -3724,6 +4912,15 @@ func TestGenClear_Generic_ExpectBodyInt8GreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Int8().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int8().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Int8().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt8GreaterOrEqualThan(t *testing.T) {
@@ -3755,6 +4952,15 @@ func TestGenClear_Generic_ExpectBodyInt8GreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int8().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().Int8().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt8GreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -3784,6 +4990,15 @@ func TestGenClear_Generic_ExpectBodyInt8LessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Int8().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int8().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Int8().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt8LessOrEqualThan(t *testing.T) {
@@ -3815,6 +5030,15 @@ func TestGenClear_Generic_ExpectBodyInt8LessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int8().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().Int8().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt8LessThan(t *testing.T) {
 	s := EchoServer()
@@ -3844,6 +5068,15 @@ func TestGenClear_Generic_ExpectBodyInt8NotBetween(t *testing.T) {
 			Clear().Expect().Body().Int8().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int8().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().Int8().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt8NotBetween(t *testing.T) {
@@ -3875,6 +5108,15 @@ func TestGenClear_Generic_ExpectBodyInt8NotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int8().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().Int8().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt8NotEqual(t *testing.T) {
 	s := EchoServer()
@@ -3904,6 +5146,15 @@ func TestGenClear_Generic_ExpectBodyInt8NotOneOf(t *testing.T) {
 			Clear().Expect().Body().Int8().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int8().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().Int8().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyInt8NotOneOf(t *testing.T) {
@@ -3935,6 +5186,15 @@ func TestGenClear_Generic_ExpectBodyInt8OneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Int8().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().Int8().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyInt8OneOf(t *testing.T) {
 	s := EchoServer()
@@ -3965,6 +5225,15 @@ func TestGenClear_Generic_ExpectBodyJSON(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON()),
+		PtrStr("unable to find a step with Expect().Body().JSON()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyJSONContains(t *testing.T) {
 	s := EchoServer()
@@ -3979,6 +5248,15 @@ func TestGenClear_Generic_ExpectBodyJSONContains(t *testing.T) {
 			Clear().Expect().Body().JSON().Contains(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Contains()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyJSONContains(t *testing.T) {
@@ -4010,6 +5288,15 @@ func TestGenClear_Generic_ExpectBodyJSONEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Equal()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyJSONEqual(t *testing.T) {
 	s := EchoServer()
@@ -4040,6 +5327,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQ(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyJSONJQContains(t *testing.T) {
 	s := EchoServer()
@@ -4054,6 +5350,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQContains(t *testing.T) {
 			Clear().Expect().Body().JSON().JQ().Contains(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Contains()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQContains(t *testing.T) {
@@ -4085,6 +5390,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Equal()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQEqual(t *testing.T) {
 	s := EchoServer()
@@ -4115,6 +5429,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQJQ(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().JQ()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().JQ()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyJSONJQJQContains(t *testing.T) {
 	s := EchoServer()
@@ -4129,6 +5452,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQJQContains(t *testing.T) {
 			Clear().Expect().Body().JSON().JQ().JQ().Contains(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().JQ().Contains()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().JQ().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQJQContains(t *testing.T) {
@@ -4160,6 +5492,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQJQEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().JQ().Equal()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().JQ().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQJQEqual(t *testing.T) {
 	s := EchoServer()
@@ -4190,6 +5531,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQJQJQ(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().JQ().JQ()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().JQ().JQ()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyJSONJQJQLen(t *testing.T) {
 	s := EchoServer()
@@ -4205,6 +5555,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQJQLen(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().JQ().Len()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().JQ().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyJSONJQJQNotContains(t *testing.T) {
 	s := EchoServer()
@@ -4219,6 +5578,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQJQNotContains(t *testing.T) {
 			Clear().Expect().Body().JSON().JQ().JQ().NotContains(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().JQ().NotContains()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().JQ().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQJQNotContains(t *testing.T) {
@@ -4250,6 +5618,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQJQNotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().JQ().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().JQ().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQJQNotEqual(t *testing.T) {
 	s := EchoServer()
@@ -4280,6 +5657,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQLen(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Len()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyJSONJQLenBetween(t *testing.T) {
 	s := EchoServer()
@@ -4294,6 +5680,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQLenBetween(t *testing.T) {
 			Clear().Expect().Body().JSON().JQ().Len().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Len().Between()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQLenBetween(t *testing.T) {
@@ -4325,6 +5720,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQLenEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQLenEqual(t *testing.T) {
 	s := EchoServer()
@@ -4354,6 +5758,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQLenGreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().JSON().JQ().Len().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQLenGreaterOrEqualThan(t *testing.T) {
@@ -4385,6 +5798,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQLenGreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQLenGreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -4414,6 +5836,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQLenLessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().JSON().JQ().Len().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQLenLessOrEqualThan(t *testing.T) {
@@ -4445,6 +5876,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQLenLessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQLenLessThan(t *testing.T) {
 	s := EchoServer()
@@ -4474,6 +5914,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQLenNotBetween(t *testing.T) {
 			Clear().Expect().Body().JSON().JQ().Len().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQLenNotBetween(t *testing.T) {
@@ -4505,6 +5954,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQLenNotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQLenNotEqual(t *testing.T) {
 	s := EchoServer()
@@ -4534,6 +5992,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQLenNotOneOf(t *testing.T) {
 			Clear().Expect().Body().JSON().JQ().Len().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQLenNotOneOf(t *testing.T) {
@@ -4565,6 +6032,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQLenOneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQLenOneOf(t *testing.T) {
 	s := EchoServer()
@@ -4594,6 +6070,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQNotContains(t *testing.T) {
 			Clear().Expect().Body().JSON().JQ().NotContains(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().NotContains()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQNotContains(t *testing.T) {
@@ -4625,6 +6110,15 @@ func TestGenClear_Generic_ExpectBodyJSONJQNotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyJSONJQNotEqual(t *testing.T) {
 	s := EchoServer()
@@ -4655,6 +6149,15 @@ func TestGenClear_Generic_ExpectBodyJSONLen(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Len()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyJSONLenBetween(t *testing.T) {
 	s := EchoServer()
@@ -4669,6 +6172,15 @@ func TestGenClear_Generic_ExpectBodyJSONLenBetween(t *testing.T) {
 			Clear().Expect().Body().JSON().Len().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Len().Between()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyJSONLenBetween(t *testing.T) {
@@ -4700,6 +6212,15 @@ func TestGenClear_Generic_ExpectBodyJSONLenEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyJSONLenEqual(t *testing.T) {
 	s := EchoServer()
@@ -4729,6 +6250,15 @@ func TestGenClear_Generic_ExpectBodyJSONLenGreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().JSON().Len().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyJSONLenGreaterOrEqualThan(t *testing.T) {
@@ -4760,6 +6290,15 @@ func TestGenClear_Generic_ExpectBodyJSONLenGreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyJSONLenGreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -4789,6 +6328,15 @@ func TestGenClear_Generic_ExpectBodyJSONLenLessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().JSON().Len().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyJSONLenLessOrEqualThan(t *testing.T) {
@@ -4820,6 +6368,15 @@ func TestGenClear_Generic_ExpectBodyJSONLenLessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyJSONLenLessThan(t *testing.T) {
 	s := EchoServer()
@@ -4849,6 +6406,15 @@ func TestGenClear_Generic_ExpectBodyJSONLenNotBetween(t *testing.T) {
 			Clear().Expect().Body().JSON().Len().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyJSONLenNotBetween(t *testing.T) {
@@ -4880,6 +6446,15 @@ func TestGenClear_Generic_ExpectBodyJSONLenNotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyJSONLenNotEqual(t *testing.T) {
 	s := EchoServer()
@@ -4909,6 +6484,15 @@ func TestGenClear_Generic_ExpectBodyJSONLenNotOneOf(t *testing.T) {
 			Clear().Expect().Body().JSON().Len().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyJSONLenNotOneOf(t *testing.T) {
@@ -4940,6 +6524,15 @@ func TestGenClear_Generic_ExpectBodyJSONLenOneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyJSONLenOneOf(t *testing.T) {
 	s := EchoServer()
@@ -4969,6 +6562,15 @@ func TestGenClear_Generic_ExpectBodyJSONNotContains(t *testing.T) {
 			Clear().Expect().Body().JSON().NotContains(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().NotContains()),
+		PtrStr("unable to find a step with Expect().Body().JSON().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyJSONNotContains(t *testing.T) {
@@ -5000,6 +6602,15 @@ func TestGenClear_Generic_ExpectBodyJSONNotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().JSON().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyJSONNotEqual(t *testing.T) {
 	s := EchoServer()
@@ -5030,6 +6641,15 @@ func TestGenClear_Generic_ExpectBodyString(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String()),
+		PtrStr("unable to find a step with Expect().Body().String()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyStringContains(t *testing.T) {
 	s := EchoServer()
@@ -5044,6 +6664,15 @@ func TestGenClear_Generic_ExpectBodyStringContains(t *testing.T) {
 			Clear().Expect().Body().String().Contains(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().Contains()),
+		PtrStr("unable to find a step with Expect().Body().String().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyStringContains(t *testing.T) {
@@ -5075,6 +6704,15 @@ func TestGenClear_Generic_ExpectBodyStringEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().Equal()),
+		PtrStr("unable to find a step with Expect().Body().String().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyStringEqual(t *testing.T) {
 	s := EchoServer()
@@ -5105,6 +6743,15 @@ func TestGenClear_Generic_ExpectBodyStringLen(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().Len()),
+		PtrStr("unable to find a step with Expect().Body().String().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyStringLenBetween(t *testing.T) {
 	s := EchoServer()
@@ -5119,6 +6766,15 @@ func TestGenClear_Generic_ExpectBodyStringLenBetween(t *testing.T) {
 			Clear().Expect().Body().String().Len().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().Len().Between()),
+		PtrStr("unable to find a step with Expect().Body().String().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyStringLenBetween(t *testing.T) {
@@ -5150,6 +6806,15 @@ func TestGenClear_Generic_ExpectBodyStringLenEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Body().String().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyStringLenEqual(t *testing.T) {
 	s := EchoServer()
@@ -5179,6 +6844,15 @@ func TestGenClear_Generic_ExpectBodyStringLenGreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().String().Len().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().String().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyStringLenGreaterOrEqualThan(t *testing.T) {
@@ -5210,6 +6884,15 @@ func TestGenClear_Generic_ExpectBodyStringLenGreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().String().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyStringLenGreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -5239,6 +6922,15 @@ func TestGenClear_Generic_ExpectBodyStringLenLessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().String().Len().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().String().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyStringLenLessOrEqualThan(t *testing.T) {
@@ -5270,6 +6962,15 @@ func TestGenClear_Generic_ExpectBodyStringLenLessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().String().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyStringLenLessThan(t *testing.T) {
 	s := EchoServer()
@@ -5299,6 +7000,15 @@ func TestGenClear_Generic_ExpectBodyStringLenNotBetween(t *testing.T) {
 			Clear().Expect().Body().String().Len().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().String().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyStringLenNotBetween(t *testing.T) {
@@ -5330,6 +7040,15 @@ func TestGenClear_Generic_ExpectBodyStringLenNotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().String().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyStringLenNotEqual(t *testing.T) {
 	s := EchoServer()
@@ -5359,6 +7078,15 @@ func TestGenClear_Generic_ExpectBodyStringLenNotOneOf(t *testing.T) {
 			Clear().Expect().Body().String().Len().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().String().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyStringLenNotOneOf(t *testing.T) {
@@ -5390,6 +7118,15 @@ func TestGenClear_Generic_ExpectBodyStringLenOneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().String().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyStringLenOneOf(t *testing.T) {
 	s := EchoServer()
@@ -5419,6 +7156,15 @@ func TestGenClear_Generic_ExpectBodyStringNotContains(t *testing.T) {
 			Clear().Expect().Body().String().NotContains(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().NotContains()),
+		PtrStr("unable to find a step with Expect().Body().String().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyStringNotContains(t *testing.T) {
@@ -5450,6 +7196,15 @@ func TestGenClear_Generic_ExpectBodyStringNotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().String().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyStringNotEqual(t *testing.T) {
 	s := EchoServer()
@@ -5479,6 +7234,15 @@ func TestGenClear_Generic_ExpectBodyStringNotOneOf(t *testing.T) {
 			Clear().Expect().Body().String().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().String().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyStringNotOneOf(t *testing.T) {
@@ -5510,6 +7274,15 @@ func TestGenClear_Generic_ExpectBodyStringOneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().String().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().String().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyStringOneOf(t *testing.T) {
 	s := EchoServer()
@@ -5540,6 +7313,15 @@ func TestGenClear_Generic_ExpectBodyUint(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint()),
+		PtrStr("unable to find a step with Expect().Body().Uint()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyUintBetween(t *testing.T) {
 	s := EchoServer()
@@ -5554,6 +7336,15 @@ func TestGenClear_Generic_ExpectBodyUintBetween(t *testing.T) {
 			Clear().Expect().Body().Uint().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint().Between()),
+		PtrStr("unable to find a step with Expect().Body().Uint().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUintBetween(t *testing.T) {
@@ -5585,6 +7376,15 @@ func TestGenClear_Generic_ExpectBodyUintEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint().Equal()),
+		PtrStr("unable to find a step with Expect().Body().Uint().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUintEqual(t *testing.T) {
 	s := EchoServer()
@@ -5614,6 +7414,15 @@ func TestGenClear_Generic_ExpectBodyUintGreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Uint().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUintGreaterOrEqualThan(t *testing.T) {
@@ -5645,6 +7454,15 @@ func TestGenClear_Generic_ExpectBodyUintGreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUintGreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -5674,6 +7492,15 @@ func TestGenClear_Generic_ExpectBodyUintLessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Uint().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUintLessOrEqualThan(t *testing.T) {
@@ -5705,6 +7532,15 @@ func TestGenClear_Generic_ExpectBodyUintLessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUintLessThan(t *testing.T) {
 	s := EchoServer()
@@ -5734,6 +7570,15 @@ func TestGenClear_Generic_ExpectBodyUintNotBetween(t *testing.T) {
 			Clear().Expect().Body().Uint().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().Uint().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUintNotBetween(t *testing.T) {
@@ -5765,6 +7610,15 @@ func TestGenClear_Generic_ExpectBodyUintNotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().Uint().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUintNotEqual(t *testing.T) {
 	s := EchoServer()
@@ -5794,6 +7648,15 @@ func TestGenClear_Generic_ExpectBodyUintNotOneOf(t *testing.T) {
 			Clear().Expect().Body().Uint().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().Uint().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUintNotOneOf(t *testing.T) {
@@ -5825,6 +7688,15 @@ func TestGenClear_Generic_ExpectBodyUintOneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().Uint().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUintOneOf(t *testing.T) {
 	s := EchoServer()
@@ -5855,6 +7727,15 @@ func TestGenClear_Generic_ExpectBodyUint16(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint16()),
+		PtrStr("unable to find a step with Expect().Body().Uint16()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyUint16Between(t *testing.T) {
 	s := EchoServer()
@@ -5869,6 +7750,15 @@ func TestGenClear_Generic_ExpectBodyUint16Between(t *testing.T) {
 			Clear().Expect().Body().Uint16().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint16().Between()),
+		PtrStr("unable to find a step with Expect().Body().Uint16().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint16Between(t *testing.T) {
@@ -5900,6 +7790,15 @@ func TestGenClear_Generic_ExpectBodyUint16Equal(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint16().Equal()),
+		PtrStr("unable to find a step with Expect().Body().Uint16().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint16Equal(t *testing.T) {
 	s := EchoServer()
@@ -5929,6 +7828,15 @@ func TestGenClear_Generic_ExpectBodyUint16GreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Uint16().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint16().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint16().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint16GreaterOrEqualThan(t *testing.T) {
@@ -5960,6 +7868,15 @@ func TestGenClear_Generic_ExpectBodyUint16GreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint16().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint16().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint16GreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -5989,6 +7906,15 @@ func TestGenClear_Generic_ExpectBodyUint16LessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Uint16().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint16().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint16().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint16LessOrEqualThan(t *testing.T) {
@@ -6020,6 +7946,15 @@ func TestGenClear_Generic_ExpectBodyUint16LessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint16().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint16().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint16LessThan(t *testing.T) {
 	s := EchoServer()
@@ -6049,6 +7984,15 @@ func TestGenClear_Generic_ExpectBodyUint16NotBetween(t *testing.T) {
 			Clear().Expect().Body().Uint16().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint16().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().Uint16().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint16NotBetween(t *testing.T) {
@@ -6080,6 +8024,15 @@ func TestGenClear_Generic_ExpectBodyUint16NotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint16().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().Uint16().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint16NotEqual(t *testing.T) {
 	s := EchoServer()
@@ -6109,6 +8062,15 @@ func TestGenClear_Generic_ExpectBodyUint16NotOneOf(t *testing.T) {
 			Clear().Expect().Body().Uint16().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint16().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().Uint16().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint16NotOneOf(t *testing.T) {
@@ -6140,6 +8102,15 @@ func TestGenClear_Generic_ExpectBodyUint16OneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint16().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().Uint16().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint16OneOf(t *testing.T) {
 	s := EchoServer()
@@ -6170,6 +8141,15 @@ func TestGenClear_Generic_ExpectBodyUint32(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint32()),
+		PtrStr("unable to find a step with Expect().Body().Uint32()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyUint32Between(t *testing.T) {
 	s := EchoServer()
@@ -6184,6 +8164,15 @@ func TestGenClear_Generic_ExpectBodyUint32Between(t *testing.T) {
 			Clear().Expect().Body().Uint32().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint32().Between()),
+		PtrStr("unable to find a step with Expect().Body().Uint32().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint32Between(t *testing.T) {
@@ -6215,6 +8204,15 @@ func TestGenClear_Generic_ExpectBodyUint32Equal(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint32().Equal()),
+		PtrStr("unable to find a step with Expect().Body().Uint32().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint32Equal(t *testing.T) {
 	s := EchoServer()
@@ -6244,6 +8242,15 @@ func TestGenClear_Generic_ExpectBodyUint32GreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Uint32().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint32().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint32().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint32GreaterOrEqualThan(t *testing.T) {
@@ -6275,6 +8282,15 @@ func TestGenClear_Generic_ExpectBodyUint32GreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint32().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint32().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint32GreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -6304,6 +8320,15 @@ func TestGenClear_Generic_ExpectBodyUint32LessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Uint32().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint32().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint32().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint32LessOrEqualThan(t *testing.T) {
@@ -6335,6 +8360,15 @@ func TestGenClear_Generic_ExpectBodyUint32LessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint32().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint32().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint32LessThan(t *testing.T) {
 	s := EchoServer()
@@ -6364,6 +8398,15 @@ func TestGenClear_Generic_ExpectBodyUint32NotBetween(t *testing.T) {
 			Clear().Expect().Body().Uint32().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint32().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().Uint32().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint32NotBetween(t *testing.T) {
@@ -6395,6 +8438,15 @@ func TestGenClear_Generic_ExpectBodyUint32NotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint32().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().Uint32().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint32NotEqual(t *testing.T) {
 	s := EchoServer()
@@ -6424,6 +8476,15 @@ func TestGenClear_Generic_ExpectBodyUint32NotOneOf(t *testing.T) {
 			Clear().Expect().Body().Uint32().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint32().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().Uint32().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint32NotOneOf(t *testing.T) {
@@ -6455,6 +8516,15 @@ func TestGenClear_Generic_ExpectBodyUint32OneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint32().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().Uint32().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint32OneOf(t *testing.T) {
 	s := EchoServer()
@@ -6485,6 +8555,15 @@ func TestGenClear_Generic_ExpectBodyUint64(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint64()),
+		PtrStr("unable to find a step with Expect().Body().Uint64()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyUint64Between(t *testing.T) {
 	s := EchoServer()
@@ -6499,6 +8578,15 @@ func TestGenClear_Generic_ExpectBodyUint64Between(t *testing.T) {
 			Clear().Expect().Body().Uint64().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint64().Between()),
+		PtrStr("unable to find a step with Expect().Body().Uint64().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint64Between(t *testing.T) {
@@ -6530,6 +8618,15 @@ func TestGenClear_Generic_ExpectBodyUint64Equal(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint64().Equal()),
+		PtrStr("unable to find a step with Expect().Body().Uint64().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint64Equal(t *testing.T) {
 	s := EchoServer()
@@ -6559,6 +8656,15 @@ func TestGenClear_Generic_ExpectBodyUint64GreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Uint64().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint64().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint64().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint64GreaterOrEqualThan(t *testing.T) {
@@ -6590,6 +8696,15 @@ func TestGenClear_Generic_ExpectBodyUint64GreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint64().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint64().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint64GreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -6619,6 +8734,15 @@ func TestGenClear_Generic_ExpectBodyUint64LessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Uint64().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint64().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint64().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint64LessOrEqualThan(t *testing.T) {
@@ -6650,6 +8774,15 @@ func TestGenClear_Generic_ExpectBodyUint64LessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint64().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint64().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint64LessThan(t *testing.T) {
 	s := EchoServer()
@@ -6679,6 +8812,15 @@ func TestGenClear_Generic_ExpectBodyUint64NotBetween(t *testing.T) {
 			Clear().Expect().Body().Uint64().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint64().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().Uint64().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint64NotBetween(t *testing.T) {
@@ -6710,6 +8852,15 @@ func TestGenClear_Generic_ExpectBodyUint64NotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint64().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().Uint64().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint64NotEqual(t *testing.T) {
 	s := EchoServer()
@@ -6739,6 +8890,15 @@ func TestGenClear_Generic_ExpectBodyUint64NotOneOf(t *testing.T) {
 			Clear().Expect().Body().Uint64().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint64().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().Uint64().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint64NotOneOf(t *testing.T) {
@@ -6770,6 +8930,15 @@ func TestGenClear_Generic_ExpectBodyUint64OneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint64().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().Uint64().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint64OneOf(t *testing.T) {
 	s := EchoServer()
@@ -6800,6 +8969,15 @@ func TestGenClear_Generic_ExpectBodyUint8(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint8()),
+		PtrStr("unable to find a step with Expect().Body().Uint8()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectBodyUint8Between(t *testing.T) {
 	s := EchoServer()
@@ -6814,6 +8992,15 @@ func TestGenClear_Generic_ExpectBodyUint8Between(t *testing.T) {
 			Clear().Expect().Body().Uint8().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint8().Between()),
+		PtrStr("unable to find a step with Expect().Body().Uint8().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint8Between(t *testing.T) {
@@ -6845,6 +9032,15 @@ func TestGenClear_Generic_ExpectBodyUint8Equal(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint8().Equal()),
+		PtrStr("unable to find a step with Expect().Body().Uint8().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint8Equal(t *testing.T) {
 	s := EchoServer()
@@ -6874,6 +9070,15 @@ func TestGenClear_Generic_ExpectBodyUint8GreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Uint8().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint8().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint8().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint8GreaterOrEqualThan(t *testing.T) {
@@ -6905,6 +9110,15 @@ func TestGenClear_Generic_ExpectBodyUint8GreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint8().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint8().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint8GreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -6934,6 +9148,15 @@ func TestGenClear_Generic_ExpectBodyUint8LessOrEqualThan(t *testing.T) {
 			Clear().Expect().Body().Uint8().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint8().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint8().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint8LessOrEqualThan(t *testing.T) {
@@ -6965,6 +9188,15 @@ func TestGenClear_Generic_ExpectBodyUint8LessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint8().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().Uint8().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint8LessThan(t *testing.T) {
 	s := EchoServer()
@@ -6994,6 +9226,15 @@ func TestGenClear_Generic_ExpectBodyUint8NotBetween(t *testing.T) {
 			Clear().Expect().Body().Uint8().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint8().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().Uint8().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint8NotBetween(t *testing.T) {
@@ -7025,6 +9266,15 @@ func TestGenClear_Generic_ExpectBodyUint8NotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint8().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().Uint8().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint8NotEqual(t *testing.T) {
 	s := EchoServer()
@@ -7054,6 +9304,15 @@ func TestGenClear_Generic_ExpectBodyUint8NotOneOf(t *testing.T) {
 			Clear().Expect().Body().Uint8().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint8().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().Uint8().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectBodyUint8NotOneOf(t *testing.T) {
@@ -7085,6 +9344,15 @@ func TestGenClear_Generic_ExpectBodyUint8OneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().Uint8().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().Uint8().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectBodyUint8OneOf(t *testing.T) {
 	s := EchoServer()
@@ -7115,6 +9383,15 @@ func TestGenClear_Generic_ExpectHeaders(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers()),
+		PtrStr("unable to find a step with Expect().Headers()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectHeadersContains(t *testing.T) {
 	s := EchoServer()
@@ -7129,6 +9406,15 @@ func TestGenClear_Generic_ExpectHeadersContains(t *testing.T) {
 			Clear().Expect().Headers().Contains(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Contains()),
+		PtrStr("unable to find a step with Expect().Headers().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectHeadersContains(t *testing.T) {
@@ -7160,6 +9446,15 @@ func TestGenClear_Generic_ExpectHeadersEmpty(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Empty()),
+		PtrStr("unable to find a step with Expect().Headers().Empty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectHeadersEmpty(t *testing.T) {
 	s := EchoServer()
@@ -7189,6 +9484,15 @@ func TestGenClear_Generic_ExpectHeadersEqual(t *testing.T) {
 			Clear().Expect().Headers().Equal(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Equal()),
+		PtrStr("unable to find a step with Expect().Headers().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectHeadersEqual(t *testing.T) {
@@ -7220,6 +9524,15 @@ func TestGenClear_Generic_ExpectHeadersLen(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Len()),
+		PtrStr("unable to find a step with Expect().Headers().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectHeadersLenBetween(t *testing.T) {
 	s := EchoServer()
@@ -7234,6 +9547,15 @@ func TestGenClear_Generic_ExpectHeadersLenBetween(t *testing.T) {
 			Clear().Expect().Headers().Len().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Len().Between()),
+		PtrStr("unable to find a step with Expect().Headers().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectHeadersLenBetween(t *testing.T) {
@@ -7265,6 +9587,15 @@ func TestGenClear_Generic_ExpectHeadersLenEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Headers().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectHeadersLenEqual(t *testing.T) {
 	s := EchoServer()
@@ -7294,6 +9625,15 @@ func TestGenClear_Generic_ExpectHeadersLenGreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Headers().Len().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Headers().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectHeadersLenGreaterOrEqualThan(t *testing.T) {
@@ -7325,6 +9665,15 @@ func TestGenClear_Generic_ExpectHeadersLenGreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Headers().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectHeadersLenGreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -7354,6 +9703,15 @@ func TestGenClear_Generic_ExpectHeadersLenLessOrEqualThan(t *testing.T) {
 			Clear().Expect().Headers().Len().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Headers().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectHeadersLenLessOrEqualThan(t *testing.T) {
@@ -7385,6 +9743,15 @@ func TestGenClear_Generic_ExpectHeadersLenLessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Headers().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectHeadersLenLessThan(t *testing.T) {
 	s := EchoServer()
@@ -7414,6 +9781,15 @@ func TestGenClear_Generic_ExpectHeadersLenNotBetween(t *testing.T) {
 			Clear().Expect().Headers().Len().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Headers().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectHeadersLenNotBetween(t *testing.T) {
@@ -7445,6 +9821,15 @@ func TestGenClear_Generic_ExpectHeadersLenNotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Headers().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectHeadersLenNotEqual(t *testing.T) {
 	s := EchoServer()
@@ -7474,6 +9859,15 @@ func TestGenClear_Generic_ExpectHeadersLenNotOneOf(t *testing.T) {
 			Clear().Expect().Headers().Len().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Headers().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectHeadersLenNotOneOf(t *testing.T) {
@@ -7505,6 +9899,15 @@ func TestGenClear_Generic_ExpectHeadersLenOneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Headers().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectHeadersLenOneOf(t *testing.T) {
 	s := EchoServer()
@@ -7534,6 +9937,15 @@ func TestGenClear_Generic_ExpectHeadersNotContains(t *testing.T) {
 			Clear().Expect().Headers().NotContains(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().NotContains()),
+		PtrStr("unable to find a step with Expect().Headers().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectHeadersNotContains(t *testing.T) {
@@ -7565,6 +9977,15 @@ func TestGenClear_Generic_ExpectHeadersNotEmpty(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().NotEmpty()),
+		PtrStr("unable to find a step with Expect().Headers().NotEmpty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectHeadersNotEmpty(t *testing.T) {
 	s := EchoServer()
@@ -7594,6 +10015,15 @@ func TestGenClear_Generic_ExpectHeadersNotEqual(t *testing.T) {
 			Clear().Expect().Headers().NotEqual(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().NotEqual()),
+		PtrStr("unable to find a step with Expect().Headers().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectHeadersNotEqual(t *testing.T) {
@@ -7625,6 +10055,15 @@ func TestGenClear_Generic_ExpectHeadersNotOneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Headers().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectHeadersNotOneOf(t *testing.T) {
 	s := EchoServer()
@@ -7654,6 +10093,15 @@ func TestGenClear_Generic_ExpectHeadersOneOf(t *testing.T) {
 			Clear().Expect().Headers().OneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().OneOf()),
+		PtrStr("unable to find a step with Expect().Headers().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectHeadersOneOf(t *testing.T) {
@@ -7685,6 +10133,15 @@ func TestGenClear_Generic_ExpectStatus(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Status()),
+		PtrStr("unable to find a step with Expect().Status()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectStatusBetween(t *testing.T) {
 	s := EchoServer()
@@ -7699,6 +10156,15 @@ func TestGenClear_Generic_ExpectStatusBetween(t *testing.T) {
 			Clear().Expect().Status().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Status().Between()),
+		PtrStr("unable to find a step with Expect().Status().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectStatusBetween(t *testing.T) {
@@ -7730,6 +10196,15 @@ func TestGenClear_Generic_ExpectStatusEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Status().Equal()),
+		PtrStr("unable to find a step with Expect().Status().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectStatusEqual(t *testing.T) {
 	s := EchoServer()
@@ -7759,6 +10234,15 @@ func TestGenClear_Generic_ExpectStatusGreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Status().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Status().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Status().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectStatusGreaterOrEqualThan(t *testing.T) {
@@ -7790,6 +10274,15 @@ func TestGenClear_Generic_ExpectStatusGreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Status().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Status().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectStatusGreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -7819,6 +10312,15 @@ func TestGenClear_Generic_ExpectStatusLessOrEqualThan(t *testing.T) {
 			Clear().Expect().Status().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Status().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Status().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectStatusLessOrEqualThan(t *testing.T) {
@@ -7850,6 +10352,15 @@ func TestGenClear_Generic_ExpectStatusLessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Status().LessThan()),
+		PtrStr("unable to find a step with Expect().Status().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectStatusLessThan(t *testing.T) {
 	s := EchoServer()
@@ -7879,6 +10390,15 @@ func TestGenClear_Generic_ExpectStatusNotBetween(t *testing.T) {
 			Clear().Expect().Status().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Status().NotBetween()),
+		PtrStr("unable to find a step with Expect().Status().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectStatusNotBetween(t *testing.T) {
@@ -7910,6 +10430,15 @@ func TestGenClear_Generic_ExpectStatusNotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Status().NotEqual()),
+		PtrStr("unable to find a step with Expect().Status().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectStatusNotEqual(t *testing.T) {
 	s := EchoServer()
@@ -7939,6 +10468,15 @@ func TestGenClear_Generic_ExpectStatusNotOneOf(t *testing.T) {
 			Clear().Expect().Status().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Status().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Status().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectStatusNotOneOf(t *testing.T) {
@@ -7970,6 +10508,15 @@ func TestGenClear_Generic_ExpectStatusOneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Status().OneOf()),
+		PtrStr("unable to find a step with Expect().Status().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectStatusOneOf(t *testing.T) {
 	s := EchoServer()
@@ -8000,6 +10547,15 @@ func TestGenClear_Generic_ExpectTrailers(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers()),
+		PtrStr("unable to find a step with Expect().Trailers()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectTrailersContains(t *testing.T) {
 	s := EchoServer()
@@ -8014,6 +10570,15 @@ func TestGenClear_Generic_ExpectTrailersContains(t *testing.T) {
 			Clear().Expect().Trailers().Contains(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Contains()),
+		PtrStr("unable to find a step with Expect().Trailers().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectTrailersContains(t *testing.T) {
@@ -8045,6 +10610,15 @@ func TestGenClear_Generic_ExpectTrailersEmpty(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Empty()),
+		PtrStr("unable to find a step with Expect().Trailers().Empty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectTrailersEmpty(t *testing.T) {
 	s := EchoServer()
@@ -8074,6 +10648,15 @@ func TestGenClear_Generic_ExpectTrailersEqual(t *testing.T) {
 			Clear().Expect().Trailers().Equal(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Equal()),
+		PtrStr("unable to find a step with Expect().Trailers().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectTrailersEqual(t *testing.T) {
@@ -8105,6 +10688,15 @@ func TestGenClear_Generic_ExpectTrailersLen(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Len()),
+		PtrStr("unable to find a step with Expect().Trailers().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Generic_ExpectTrailersLenBetween(t *testing.T) {
 	s := EchoServer()
@@ -8119,6 +10711,15 @@ func TestGenClear_Generic_ExpectTrailersLenBetween(t *testing.T) {
 			Clear().Expect().Trailers().Len().Between(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Len().Between()),
+		PtrStr("unable to find a step with Expect().Trailers().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectTrailersLenBetween(t *testing.T) {
@@ -8150,6 +10751,15 @@ func TestGenClear_Generic_ExpectTrailersLenEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Trailers().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectTrailersLenEqual(t *testing.T) {
 	s := EchoServer()
@@ -8179,6 +10789,15 @@ func TestGenClear_Generic_ExpectTrailersLenGreaterOrEqualThan(t *testing.T) {
 			Clear().Expect().Trailers().Len().GreaterOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Trailers().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectTrailersLenGreaterOrEqualThan(t *testing.T) {
@@ -8210,6 +10829,15 @@ func TestGenClear_Generic_ExpectTrailersLenGreaterThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Trailers().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectTrailersLenGreaterThan(t *testing.T) {
 	s := EchoServer()
@@ -8239,6 +10867,15 @@ func TestGenClear_Generic_ExpectTrailersLenLessOrEqualThan(t *testing.T) {
 			Clear().Expect().Trailers().Len().LessOrEqualThan(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Trailers().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectTrailersLenLessOrEqualThan(t *testing.T) {
@@ -8270,6 +10907,15 @@ func TestGenClear_Generic_ExpectTrailersLenLessThan(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Trailers().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectTrailersLenLessThan(t *testing.T) {
 	s := EchoServer()
@@ -8299,6 +10945,15 @@ func TestGenClear_Generic_ExpectTrailersLenNotBetween(t *testing.T) {
 			Clear().Expect().Trailers().Len().NotBetween(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Trailers().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectTrailersLenNotBetween(t *testing.T) {
@@ -8330,6 +10985,15 @@ func TestGenClear_Generic_ExpectTrailersLenNotEqual(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Trailers().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectTrailersLenNotEqual(t *testing.T) {
 	s := EchoServer()
@@ -8359,6 +11023,15 @@ func TestGenClear_Generic_ExpectTrailersLenNotOneOf(t *testing.T) {
 			Clear().Expect().Trailers().Len().NotOneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Trailers().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectTrailersLenNotOneOf(t *testing.T) {
@@ -8390,6 +11063,15 @@ func TestGenClear_Generic_ExpectTrailersLenOneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Trailers().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectTrailersLenOneOf(t *testing.T) {
 	s := EchoServer()
@@ -8419,6 +11101,15 @@ func TestGenClear_Generic_ExpectTrailersNotContains(t *testing.T) {
 			Clear().Expect().Trailers().NotContains(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().NotContains()),
+		PtrStr("unable to find a step with Expect().Trailers().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectTrailersNotContains(t *testing.T) {
@@ -8450,6 +11141,15 @@ func TestGenClear_Generic_ExpectTrailersNotEmpty(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().NotEmpty()),
+		PtrStr("unable to find a step with Expect().Trailers().NotEmpty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectTrailersNotEmpty(t *testing.T) {
 	s := EchoServer()
@@ -8479,6 +11179,15 @@ func TestGenClear_Generic_ExpectTrailersNotEqual(t *testing.T) {
 			Clear().Expect().Trailers().NotEqual(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().NotEqual()),
+		PtrStr("unable to find a step with Expect().Trailers().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectTrailersNotEqual(t *testing.T) {
@@ -8510,6 +11219,15 @@ func TestGenClear_Generic_ExpectTrailersNotOneOf(t *testing.T) {
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
 	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Trailers().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
 }
 func TestGenClear_Specific_ExpectTrailersNotOneOf(t *testing.T) {
 	s := EchoServer()
@@ -8539,6 +11257,15 @@ func TestGenClear_Generic_ExpectTrailersOneOf(t *testing.T) {
 			Clear().Expect().Trailers().OneOf(),
 			expectSteps(t, &steps, 2)),
 		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().OneOf()),
+		PtrStr("unable to find a step with Expect().Trailers().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Specific_ExpectTrailersOneOf(t *testing.T) {

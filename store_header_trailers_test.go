@@ -57,6 +57,29 @@ func TestStoreHeadersTrailers(t *testing.T) {
 					"X-Mixed":   []string{"3.0", "4", "Foo"},
 				}, v)
 			})
+
+			t.Run("nil", func(t *testing.T) {
+				ExpectError(t,
+					Do(
+						Get(s.URL),
+						mockHeadersAndTrailers(),
+						store().In(nil),
+					),
+					PtrStr("destination type cannot be nil"),
+				)
+			})
+
+			t.Run("not a pointer", func(t *testing.T) {
+				var v map[string]interface{}
+				ExpectError(t,
+					Do(
+						Get(s.URL),
+						mockHeadersAndTrailers(),
+						store().In(v),
+					),
+					PtrStr("destination must be a pointer"),
+				)
+			})
 		})
 
 		t.Run("specific header", func(t *testing.T) {
@@ -124,6 +147,29 @@ func TestStoreHeadersTrailers(t *testing.T) {
 						store("X-Strings").In(&v),
 					),
 					PtrStr(`could not put []string{"Hello", "World"} into *string`),
+				)
+			})
+
+			t.Run("nil", func(t *testing.T) {
+				ExpectError(t,
+					Do(
+						Get(s.URL),
+						mockHeadersAndTrailers(),
+						store("X-Strings").In(nil),
+					),
+					PtrStr("destination type cannot be nil"),
+				)
+			})
+
+			t.Run("not a pointer", func(t *testing.T) {
+				var v []string
+				ExpectError(t,
+					Do(
+						Get(s.URL),
+						mockHeadersAndTrailers(),
+						store("X-Strings").In(v),
+					),
+					PtrStr("destination must be a pointer"),
 				)
 			})
 		})

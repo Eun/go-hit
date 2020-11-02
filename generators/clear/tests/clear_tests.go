@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"log"
 	"reflect"
@@ -162,10 +163,16 @@ func generateForStruct(f *jen.File, options generateOpts) error {
 	var defaultStmtLine *jen.Statement
 	var sampleStmtLine *jen.Statement
 
+	var genericLine *jen.Statement
 	clearGenericLine := jen.Id("Clear").Call()
 	clearDefaultLine := jen.Id("Clear").Call()
 
 	for _, s := range options.CallPath {
+		if genericLine == nil {
+			genericLine = jen.Id(s.Name).Call()
+		} else {
+			genericLine = genericLine.Dot(s.Name).Call()
+		}
 		clearGenericLine = clearGenericLine.Dot(s.Name).Call()
 		clearDefaultLine = clearDefaultLine.Dot(s.Name).Call(s.Args...)
 		if defaultStmtLine == nil {
@@ -220,6 +227,11 @@ func generateForStruct(f *jen.File, options generateOpts) error {
 		}
 	}
 
+	var genericLineRepresentation bytes.Buffer
+	if err := genericLine.Render(&genericLineRepresentation); err != nil {
+		return err
+	}
+
 	f.Func().
 		Id(fmt.Sprintf("TestGenClear_Generic_%s", options.CallPath.Join(""))).
 		Params(jen.Id("t").Op("*").Qual("testing", "T")).
@@ -238,6 +250,19 @@ func generateForStruct(f *jen.File, options generateOpts) error {
 					jen.Line().Id("expectSteps").Call(jen.Id("t"), jen.Op("&").Id("steps"), jen.Id("2")),
 				),
 				jen.Line().Id("PtrStr").Call(jen.Lit("TestOK")),
+				jen.Line(),
+			),
+
+			jen.Comment("test unable to find a step"),
+			jen.Id("ExpectError").Call(
+				jen.Id("t"),
+				jen.Line().Id("Do").Call(
+					jen.Line().Id("Post").Call(jen.Id("s").Dot("URL")),
+					jen.Line().Add(clearGenericLine),
+				),
+				jen.Line().Id("PtrStr").Call(jen.Lit("unable to find a step with "+genericLineRepresentation.String())),
+				jen.Line().Id("PtrStr").Call(jen.Lit("got these steps:")),
+				jen.Line().Id("PtrStr").Call(jen.Lit("Post()")),
 				jen.Line(),
 			),
 		)
