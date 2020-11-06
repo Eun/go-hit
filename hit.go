@@ -38,8 +38,11 @@
 package hit
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+
+	"github.com/Eun/go-hit/errortrace"
 
 	"golang.org/x/xerrors"
 )
@@ -53,7 +56,7 @@ type Hit interface {
 	Request() *HTTPRequest
 
 	// SetRequest sets the request for the current instance.
-	SetRequest(request *http.Request)
+	SetRequest(request *http.Request) error
 
 	// Response returns the current Response.
 	Response() *HTTPResponse
@@ -62,7 +65,7 @@ type Hit interface {
 	HTTPClient() *http.Client
 
 	// SetHTTPClient sets the http client for the request.
-	SetHTTPClient(client *http.Client)
+	SetHTTPClient(client *http.Client) error
 
 	// BaseURL returns the current base url.
 	BaseURL() string
@@ -120,6 +123,9 @@ type Hit interface {
 	// SetDescription sets a custom description for this test.
 	// The description will be printed in an error case
 	SetDescription(string)
+
+	// Context returns the current request context
+	Context() context.Context
 }
 
 type hitImpl struct {
@@ -131,14 +137,24 @@ type hitImpl struct {
 	state       StepTime
 	baseURL     string
 	description string
+	context     context.Context
+	method      string
+	fullURL     string
 }
 
 func (hit *hitImpl) Request() *HTTPRequest {
 	return hit.request
 }
 
-func (hit *hitImpl) SetRequest(request *http.Request) {
+func (hit *hitImpl) SetRequest(request *http.Request) error {
+	if request == nil {
+		return xerrors.New("request cannot be nil")
+	}
 	hit.request = newHTTPRequest(hit, request)
+	hit.context = hit.request.Context()
+	hit.method = hit.request.Method
+	hit.fullURL = hit.request.URL.String()
+	return nil
 }
 
 func (hit *hitImpl) Response() *HTTPResponse {
@@ -149,8 +165,12 @@ func (hit *hitImpl) HTTPClient() *http.Client {
 	return hit.client
 }
 
-func (hit *hitImpl) SetHTTPClient(client *http.Client) {
+func (hit *hitImpl) SetHTTPClient(client *http.Client) error {
+	if client == nil {
+		return xerrors.New("client cannot be nil")
+	}
 	hit.client = client
+	return nil
 }
 
 func (hit *hitImpl) BaseURL() string {
@@ -172,7 +192,7 @@ func (hit *hitImpl) collectSteps(state StepTime) []IStep {
 	return collectedSteps
 }
 
-func (hit *hitImpl) runSteps(state StepTime) error {
+func (hit *hitImpl) runSteps(state StepTime) *errortrace.ErrorTrace {
 	// find all steps we want to run
 	stepsToRun := hit.collectSteps(state)
 	size := len(stepsToRun)
@@ -288,4 +308,8 @@ func (hit *hitImpl) Description() string {
 
 func (hit *hitImpl) SetDescription(description string) {
 	hit.description = description
+}
+
+func (hit *hitImpl) Context() context.Context {
+	return hit.context
 }

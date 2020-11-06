@@ -6,10 +6,11 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/Eun/go-hit/internal/misc"
+
 	"golang.org/x/xerrors"
 
 	"github.com/Eun/go-hit/errortrace"
-	"github.com/Eun/go-hit/internal/misc"
 )
 
 //nolint:gochecknoglobals
@@ -124,11 +125,10 @@ func Store() IStore {
 func HTTPClient(client *http.Client) IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     BeforeSendStep,
+		When:     beforeRequestCreateStep,
 		CallPath: newCallPath("HTTPClient", nil),
 		Exec: func(hit *hitImpl) error {
-			hit.SetHTTPClient(client)
-			return nil
+			return hit.SetHTTPClient(client)
 		},
 	}
 }
@@ -148,7 +148,7 @@ func HTTPClient(client *http.Client) IStep {
 func BaseURL(url string, a ...interface{}) IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     BeforeSendStep,
+		When:     beforeRequestCreateStep,
 		CallPath: newCallPath("BaseURL", nil),
 		Exec: func(hit *hitImpl) error {
 			hit.SetBaseURL(url, a...)
@@ -167,11 +167,10 @@ func BaseURL(url string, a ...interface{}) IStep {
 func Request(request *http.Request) IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     BeforeSendStep,
+		When:     beforeRequestCreateStep,
 		CallPath: newCallPath("Request", nil),
 		Exec: func(hit *hitImpl) error {
-			hit.SetRequest(request)
-			return nil
+			return hit.SetRequest(request)
 		},
 	}
 }
@@ -193,17 +192,11 @@ func Method(method, url string, a ...interface{}) IStep {
 func makeMethodStep(fnName, method, url string, a ...interface{}) IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     BeforeSendStep,
+		When:     beforeRequestCreateStep,
 		CallPath: newCallPath(fnName, nil),
 		Exec: func(hit *hitImpl) error {
-			request, err := http.NewRequestWithContext(context.Background(), method, misc.MakeURL(hit.BaseURL(), url, a...), nil)
-			if err != nil {
-				return err
-			}
-
-			// remove some standard headers
-			request.Header.Set("User-Agent", "")
-			hit.SetRequest(request)
+			hit.fullURL = misc.MakeURL(hit.BaseURL(), url, a...)
+			hit.method = method
 			return nil
 		},
 	}
@@ -331,8 +324,8 @@ func Test(t TestingT, steps ...IStep) {
 	}
 }
 
-// Do runs the specified steps and returns error if something was wrong.
-func Do(steps ...IStep) error {
+// do func that ensures we always return an *ErrorTrace.
+func do(steps ...IStep) *errortrace.ErrorTrace {
 	hit := &hitImpl{
 		client: http.DefaultClient,
 		steps:  steps,
@@ -345,12 +338,35 @@ func Do(steps ...IStep) error {
 	if err := hit.runSteps(CleanStep); err != nil {
 		return err
 	}
+
+	hit.state = beforeRequestCreateStep
+	if err := hit.runSteps(beforeRequestCreateStep); err != nil {
+		return err
+	}
+
+	// user did not specify a request with Request()
+	if hit.request == nil {
+		if hit.context == nil {
+			hit.context = context.Background()
+		}
+		if hit.method == "" || hit.fullURL == "" {
+			return wrapError(hit, xerrors.New("unable to create a request: did you called Post(), Get(), ...?"))
+		}
+		request, err := http.NewRequestWithContext(hit.context, hit.method, hit.fullURL, nil)
+		if err != nil {
+			return wrapError(hit, err)
+		}
+
+		// remove some standard headers
+		request.Header.Set("User-Agent", "")
+		if err := hit.SetRequest(request); err != nil {
+			return wrapError(hit, err)
+		}
+	}
+
 	hit.state = BeforeSendStep
 	if err := hit.runSteps(BeforeSendStep); err != nil {
 		return err
-	}
-	if hit.request == nil {
-		return xerrors.New("unable to perform request: no request set, did you called Post(), Get(), ...?")
 	}
 	hit.state = SendStep
 	if err := hit.runSteps(SendStep); err != nil {
@@ -363,11 +379,11 @@ func Do(steps ...IStep) error {
 	hit.request.Request.Body = hit.request.Body().Reader()
 	res, err := hit.client.Do(hit.request.Request)
 	if err != nil {
-		return xerrors.Errorf("unable to perform request: %w", err)
+		return wrapError(hit, xerrors.Errorf("unable to perform request: %w", err))
 	}
 	hit.request.Request.ContentLength, err = hit.request.Body().Length()
 	if err != nil {
-		return xerrors.Errorf("unable to get body length: %w", err)
+		return wrapError(hit, xerrors.Errorf("unable to get body length: %w", err))
 	}
 
 	hit.response = newHTTPResponse(hit, res)
@@ -385,10 +401,25 @@ func Do(steps ...IStep) error {
 	}
 	if hit.request.Request.Body != nil {
 		if err := hit.request.Request.Body.Close(); err != nil {
-			return err
+			return wrapError(hit, err)
 		}
 	}
-	return err
+	return nil
+}
+
+func wrapError(hit Hit, err error) *errortrace.ErrorTrace {
+	t := ett.Prepare()
+	t.SetError(err)
+	t.SetDescription(hit.Description())
+	return t
+}
+
+// Do runs the specified steps and returns error if something was wrong.
+func Do(steps ...IStep) error {
+	if err := do(steps...); err != nil {
+		return err
+	}
+	return nil
 }
 
 // MustDo runs the specified steps and panics with the error if something was wrong.
@@ -431,7 +462,7 @@ func CombineSteps(steps ...IStep) IStep {
 func Description(description string) IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     BeforeSendStep,
+		When:     beforeRequestCreateStep,
 		CallPath: newCallPath("Description", nil),
 		Exec: func(hit *hitImpl) error {
 			hit.SetDescription(description)
@@ -517,6 +548,29 @@ func Return() IStep {
 				}
 			}
 			hit.RemoveSteps(stepsToRemove...)
+			return nil
+		},
+	}
+}
+
+// Context sets the context for the request.
+//
+// Example:
+//     ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+//     defer cancel()
+//     MustDo(
+//         Context(ctx),
+//         Get("https://example.com"),
+//         Return(),
+//         Expect().Body().String().Equal("Hello World"), // will never be executed
+//     )
+func Context(ctx context.Context) IStep {
+	return &hitStep{
+		Trace:    ett.Prepare(),
+		When:     beforeRequestCreateStep,
+		CallPath: nil,
+		Exec: func(hit *hitImpl) error {
+			hit.context = ctx
 			return nil
 		},
 	}

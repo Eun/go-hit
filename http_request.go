@@ -85,7 +85,7 @@ func newHTTPRequest(hit Hit, req *http.Request) *HTTPRequest {
 
 	return &HTTPRequest{
 		Hit:     hit,
-		Request: newRequest,
+		Request: newRequest.WithContext(req.Context()),
 		body:    body,
 	}
 }
