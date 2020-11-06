@@ -324,7 +324,7 @@ func Test(t TestingT, steps ...IStep) {
 	}
 }
 
-// internal do func that ensures we return an *ErrorTrace
+// do func that ensures we always return an *ErrorTrace.
 func do(steps ...IStep) *errortrace.ErrorTrace {
 	hit := &hitImpl{
 		client: http.DefaultClient,

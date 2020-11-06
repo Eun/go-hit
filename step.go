@@ -20,7 +20,7 @@ const (
 	// CleanStep is a step that runs during the clean step phase.
 	CleanStep
 
-	// beforeRequestCreateStep will be run before the actual http request will be created
+	// beforeRequestCreateStep will be run before the actual http request will be created.
 	beforeRequestCreateStep
 
 	// BeforeSendStep runs before the Send() steps.
