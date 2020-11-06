@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/lunixbochs/vtclean"
 	"github.com/stretchr/testify/require"
@@ -23,12 +25,75 @@ func TestRequest(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
-	req, err := http.NewRequestWithContext(context.Background(), "POST", s.URL, bytes.NewReader([]byte("Hello World")))
-	require.NoError(t, err)
-	Test(t,
-		Request(req),
-		Expect().Body().String().Equal("Hello World"),
-	)
+	t.Run("", func(t *testing.T) {
+		req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, s.URL, bytes.NewReader([]byte("Hello World")))
+		require.NoError(t, err)
+		Test(t,
+			Request(req),
+			Send().Body().String("Hello Universe"),
+			Expect().Body().String().Equal("Hello Universe"),
+		)
+	})
+
+	t.Run("overwrite request during send", func(t *testing.T) {
+		Test(t,
+			Get(s.URL),
+			Custom(BeforeSendStep, func(hit Hit) {
+				r, err := http.NewRequestWithContext(context.Background(), http.MethodPost, s.URL, nil)
+				if err != nil {
+					panic(err)
+				}
+				if err := hit.SetRequest(r); err != nil {
+					panic(err)
+				}
+			}),
+			Send().Body().String("Hello Universe"),
+			Expect().Body().String().Equal("Hello Universe"),
+		)
+	})
+
+	t.Run("context with timeout", func(t *testing.T) {
+		mux := http.NewServeMux()
+		mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+			time.Sleep(time.Minute)
+			writer.WriteHeader(http.StatusOK)
+		})
+		s := httptest.NewServer(mux)
+
+		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond)
+		defer cancel()
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, s.URL, bytes.NewReader([]byte("Hello World")))
+		require.NoError(t, err)
+		ExpectError(t,
+			Do(
+				Request(req),
+				Send().Body().String("Hello Universe"),
+				Expect().Body().String().Equal("Hello Universe"),
+			),
+			PtrStr(fmt.Sprintf(`unable to perform request: Post "%s": context deadline exceeded`, s.URL)),
+		)
+	})
+
+	t.Run("context with timeout using regular POST method", func(t *testing.T) {
+		mux := http.NewServeMux()
+		mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+			time.Sleep(time.Minute)
+			writer.WriteHeader(http.StatusOK)
+		})
+		s := httptest.NewServer(mux)
+
+		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond)
+		defer cancel()
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Context(ctx),
+				Send().Body().String("Hello Universe"),
+				Expect().Body().String().Equal("Hello Universe"),
+			),
+			PtrStr(fmt.Sprintf(`unable to perform request: Post "%s": context deadline exceeded`, s.URL)),
+		)
+	})
 }
 
 func TestMultiUse(t *testing.T) {
@@ -558,4 +623,13 @@ func BenchmarkBigPayloads(b *testing.B) {
 			)
 		})
 	}
+}
+
+func TestMissingRequest(t *testing.T) {
+	ExpectError(t,
+		Do(
+			Send().Body().String("Hello World"),
+		),
+		PtrStr("unable to create a request: did you called Post(), Get(), ...?"),
+	)
 }

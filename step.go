@@ -20,6 +20,9 @@ const (
 	// CleanStep is a step that runs during the clean step phase.
 	CleanStep
 
+	// beforeRequestCreateStep will be run before the actual http request will be created
+	beforeRequestCreateStep
+
 	// BeforeSendStep runs before the Send() steps.
 	BeforeSendStep
 
@@ -42,10 +45,12 @@ const (
 // String represents the string representation of StepTime.
 func (s StepTime) String() string {
 	switch s {
-	case CleanStep:
-		return "CleanStep"
 	case CombineStep:
 		return "CombineStep"
+	case CleanStep:
+		return "CleanStep"
+	case beforeRequestCreateStep:
+		return "beforeRequestCreateStep"
 	case BeforeSendStep:
 		return "BeforeSendStep"
 	case SendStep:
@@ -96,7 +101,7 @@ func (step *hitStep) exec(hit *hitImpl) (err error) {
 	return step.Exec(hit)
 }
 
-func execStep(hit *hitImpl, step IStep) (err error) {
+func execStep(hit *hitImpl, step IStep) (err *errortrace.ErrorTrace) {
 	setError := func(r interface{}) {
 		if r == nil {
 			return
