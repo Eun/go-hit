@@ -3,6 +3,8 @@ package hit_test
 import (
 	"testing"
 
+	"errors"
+
 	. "github.com/Eun/go-hit"
 	"github.com/stretchr/testify/require"
 )
@@ -18,8 +20,7 @@ func storeSteps(steps *[]IStep) IStep {
 func expectSteps(t *testing.T, expectSteps *[]IStep, removedStepsCount int) IStep {
 	return Custom(BeforeExpectStep, func(hit Hit) error {
 		require.Len(t, hit.Steps(), len(*expectSteps)-removedStepsCount)
-		panic("TestOK")
-		return nil
+		return errors.New("TestOK")
 	})
 }
 
