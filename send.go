@@ -95,8 +95,7 @@ func (snd *send) Custom(fn Callback) IStep {
 		When:     SendStep,
 		CallPath: snd.cleanPath.Push("Custom", []interface{}{fn}),
 		Exec: func(hit *hitImpl) error {
-			fn(hit)
-			return nil
+			return fn(hit)
 		},
 	}
 }

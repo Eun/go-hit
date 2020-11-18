@@ -207,3 +207,18 @@ func (et *ErrorTrace) Error() string {
 func (et *ErrorTrace) ErrorText() string {
 	return et.error.Error()
 }
+
+// Implement xerrors
+
+//
+func (et *ErrorTrace) Is(err error) bool {
+	return et.error == err
+}
+
+func (et *ErrorTrace) As(err error) bool {
+	return et.error == err
+}
+
+func (et *ErrorTrace) Unwrap() error {
+	return et.error
+}

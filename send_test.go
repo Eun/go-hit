@@ -16,9 +16,10 @@ func TestSend_Custom(t *testing.T) {
 		calledFunc := false
 		Test(t,
 			Post(s.URL),
-			Send().Custom(func(hit Hit) {
+			Send().Custom(func(hit Hit) error {
 				calledFunc = true
 				hit.Request().Body().SetString("Hello World")
+				return nil
 			}),
 			Expect().Body().String().Equal(`Hello World`),
 		)
@@ -28,9 +29,10 @@ func TestSend_Custom(t *testing.T) {
 		calledFunc := false
 		Test(t,
 			Post(s.URL),
-			Send().Custom(func(hit Hit) {
+			Send().Custom(func(hit Hit) error {
 				calledFunc = true
 				hit.MustDo(Send().Body().String("Hello World"))
+				return nil
 			}),
 			Expect().Body().String().Equal(`Hello World`),
 		)

@@ -113,8 +113,9 @@ func TestDebug(t *testing.T) {
 		Test(t,
 			Post(s.URL),
 			Send().Body().String("Hello World"),
-			Custom(BeforeExpectStep, func(hit Hit) {
+			Custom(BeforeExpectStep, func(hit Hit) error {
 				hit.MustDo(Fdebug(buf).Request())
+				return nil
 			}),
 		)
 

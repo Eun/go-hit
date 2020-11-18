@@ -94,8 +94,7 @@ func (exp *expect) Custom(fn Callback) IStep {
 		When:     ExpectStep,
 		CallPath: exp.cleanPath.Push("Custom", []interface{}{fn}),
 		Exec: func(hit *hitImpl) error {
-			fn(hit)
-			return nil
+			return fn(hit)
 		},
 	}
 }

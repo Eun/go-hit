@@ -515,8 +515,7 @@ func Custom(when StepTime, exec Callback) IStep {
 		When:     when,
 		CallPath: newCallPath("Custom", []interface{}{when, exec}),
 		Exec: func(hit *hitImpl) error {
-			exec(hit)
-			return nil
+			return exec(hit)
 		},
 	}
 }

@@ -9,7 +9,7 @@ import (
 // for convenience we test headers and trailers here
 
 func mockHeadersAndTrailers() IStep {
-	return Custom(BeforeExpectStep, func(hit Hit) {
+	return Custom(BeforeExpectStep, func(hit Hit) error {
 		m := map[string][]string{
 			"X-String":  {"Foo"},
 			"X-Strings": {"Hello", "World"},
@@ -19,6 +19,7 @@ func mockHeadersAndTrailers() IStep {
 		}
 		hit.Response().Header, hit.Response().Trailer = m, m
 		hit.Request().Header, hit.Request().Trailer = m, m
+		return nil
 	})
 }
 

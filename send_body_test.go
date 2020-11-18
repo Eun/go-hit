@@ -89,8 +89,9 @@ func TestSendBody_ModifyPreviousBody(t *testing.T) {
 	Test(t,
 		Post(s.URL),
 		Send().Body().String("Hello"),
-		Send().Custom(func(hit Hit) {
+		Send().Custom(func(hit Hit) error {
 			hit.Request().Body().SetString(fmt.Sprintf("%s World", hit.Request().Body().MustString()))
+			return nil
 		}),
 		Expect().Body().String().Equal("Hello World"),
 	)
@@ -102,8 +103,9 @@ func TestSendBody_EmptyBody(t *testing.T) {
 
 	Test(t,
 		Get(s.URL),
-		Send().Custom(func(hit Hit) {
+		Send().Custom(func(hit Hit) error {
 			require.Empty(t, hit.Request().Body().MustString())
+			return nil
 		}),
 	)
 }

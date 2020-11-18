@@ -48,7 +48,7 @@ import (
 )
 
 // Callback will be used for Custom() functions.
-type Callback func(hit Hit)
+type Callback func(hit Hit) error
 
 // Hit is the interface that will be passed in for Custom() steps.
 type Hit interface {

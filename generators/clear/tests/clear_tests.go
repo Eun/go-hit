@@ -61,7 +61,7 @@ func getDefaultValueRepresentation(t reflect.Type, isVariadic bool) string {
 		}
 		return fmt.Sprintf(`%s{1.000000, 2.000000}`, v.Type().String())
 	case hit.Callback:
-		return `func(hit Hit){}`
+		return `func(hit Hit)error{return nil}`
 	case []interface{}:
 		if isVariadic {
 			return `"Foo", "Baz"`
@@ -113,7 +113,7 @@ func getSampleValueRepresentation(t reflect.Type, isVariadic bool) string {
 		}
 		return fmt.Sprintf(`%s{3.000000, 4.000000}`, v.Type().String())
 	case hit.Callback:
-		return `func(hit Hit){panic("Err")}`
+		return `func(hit Hit)error{panic("Err")}`
 	case []interface{}:
 		if isVariadic {
 			return `"Hello", "Earth"`
@@ -418,14 +418,16 @@ func main() {
 
 	f.Op(`
 func storeSteps(steps *[]IStep) IStep {
-	return Custom(CleanStep, func(hit Hit) {
+	return Custom(CleanStep, func(hit Hit) error {
 		*steps = hit.Steps()
+		return nil
 	})
 }
 func expectSteps(t *testing.T, expectSteps *[]IStep, removedStepsCount int) IStep {
-	return Custom(BeforeExpectStep, func(hit Hit) {
+	return Custom(BeforeExpectStep, func(hit Hit) error {
 		require.Len(t, hit.Steps(), len(*expectSteps)-removedStepsCount)
 		panic("TestOK")
+		return nil
 	})
 }
 `)
