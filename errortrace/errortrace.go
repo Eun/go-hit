@@ -220,7 +220,7 @@ func (et *ErrorTrace) As(err error) bool {
 	return et.error == err
 }
 
-// Is implements the xerrors.Wrapper interface.
+// Unwrap implements the xerrors.Wrapper interface.
 func (et *ErrorTrace) Unwrap() error {
 	return et.error
 }
