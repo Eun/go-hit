@@ -210,17 +210,17 @@ func (et *ErrorTrace) ErrorText() string {
 
 // Implement xerrors
 
-// Is implements the xerrors interface so we can use the xerrors.Is() function
+// Is implements the xerrors interface so we can use the xerrors.Is() function.
 func (et *ErrorTrace) Is(err error) bool {
 	return et.error == err
 }
 
-// As implements the xerrors interface so we can use the xerrors.As() function
+// As implements the xerrors interface so we can use the xerrors.As() function.
 func (et *ErrorTrace) As(err error) bool {
 	return et.error == err
 }
 
-// Is implements the xerrors.Wrapper interface
+// Is implements the xerrors.Wrapper interface.
 func (et *ErrorTrace) Unwrap() error {
 	return et.error
 }
