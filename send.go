@@ -50,8 +50,9 @@ type ISend interface {
 	// Example:
 	//     MustDo(
 	//         Get("https://example.com"),
-	//         Send().Custom(func(hit Hit) {
+	//         Send().Custom(func(hit Hit) error {
 	//                hit.Request().Body().SetString("Hello World")
+	//                return nil
 	//         }),
 	//     )
 	Custom(fn Callback) IStep

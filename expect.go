@@ -12,10 +12,11 @@ type IExpect interface {
 	// Example:
 	//     MustDo(
 	//         Get("https://example.com"),
-	//         Expect().Custom(func(hit Hit) {
+	//         Expect().Custom(func(hit Hit) error {
 	//               if hit.Response().StatusCode != 200 {
-	//                   panic("Expected 200")
+	//                   return errors.New("Expected 200")
 	//               }
+	//               return nil
 	//         }),
 	//     )
 	Custom(fn Callback) IStep

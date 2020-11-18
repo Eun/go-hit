@@ -503,10 +503,11 @@ func Clear() IClear {
 // Example:
 //     MustDo(
 //         Get("https://example.com"),
-//         Custom(ExpectStep, func(hit Hit) {
+//         Custom(ExpectStep, func(hit Hit) error {
 //             if hit.Response().Body().MustString() != "Hello World" {
-//                 panic("Expected Hello World")
+//                 return errors.New("Expected Hello World")
 //             }
+//             return nil
 //         }),
 //     )
 func Custom(when StepTime, exec Callback) IStep {

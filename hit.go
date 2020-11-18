@@ -93,13 +93,10 @@ type Hit interface {
 	// Example:
 	//     MustDo(
 	//         Get("https://example.com"),
-	//         Expect().Custom(func(hit Hit) {
-	//             err := hit.Do(
+	//         Expect().Custom(func(hit Hit) error {
+	//             return hit.Do(
 	//                 Expect().Status().Equal(http.StatusOK),
 	//             )
-	//             if err != nil {
-	//                 panic(err)
-	//             }
 	//         }),
 	//     )
 	Do(steps ...IStep) error
@@ -109,10 +106,11 @@ type Hit interface {
 	// Example:
 	//    MustDo(
 	//         Get("https://example.com"),
-	//         Expect().Custom(func(hit Hit) {
+	//         Expect().Custom(func(hit Hit) error {
 	//             hit.MustDo(
 	//                 Expect().Status().Equal(http.StatusOK),
 	//             )
+	//             return nil
 	//         }),
 	//    )
 	MustDo(steps ...IStep)
