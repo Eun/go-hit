@@ -215,11 +215,6 @@ func (et *ErrorTrace) Is(err error) bool {
 	return et.error == err
 }
 
-// As implements the xerrors interface so we can use the xerrors.As() function.
-func (et *ErrorTrace) As(err error) bool {
-	return et.error == err
-}
-
 // Unwrap implements the xerrors.Wrapper interface.
 func (et *ErrorTrace) Unwrap() error {
 	return et.error
