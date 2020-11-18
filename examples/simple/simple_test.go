@@ -6,8 +6,11 @@ import (
 	"net/http/cookiejar"
 	"testing"
 
-	. "github.com/Eun/go-hit"
+	"golang.org/x/xerrors"
+
 	"github.com/stretchr/testify/require"
+
+	. "github.com/Eun/go-hit"
 )
 
 func TestHead(t *testing.T) {
@@ -30,12 +33,13 @@ func TestPost(t *testing.T) {
 func TestStatusCode(t *testing.T) {
 	Test(t,
 		Head("https://google.com"),
-		Expect().Custom(func(e Hit) {
+		Expect().Custom(func(e Hit) error {
 			if e.Response().StatusCode > 400 {
 				// hit will catch errors
 				// so feel free to panic here
-				panic("Expected StatusCode to be less than 400")
+				return xerrors.New("Expected StatusCode to be less than 400")
 			}
+			return nil
 		}),
 	)
 }
