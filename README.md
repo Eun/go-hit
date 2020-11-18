@@ -1,3 +1,4 @@
+
 # go-hit [![Actions Status](https://github.com/Eun/go-hit/workflows/CI/badge.svg)](https://github.com/Eun/go-hit/actions) [![Coverage Status](https://coveralls.io/repos/github/Eun/go-hit/badge.svg?branch=master)](https://coveralls.io/github/Eun/go-hit?branch=master) [![PkgGoDev](https://img.shields.io/badge/pkg.go.dev-reference-blue)](https://pkg.go.dev/github.com/Eun/go-hit) [![GoDoc](https://godoc.org/github.com/Eun/go-hit?status.svg)](https://godoc.org/github.com/Eun/go-hit) [![go-report](https://goreportcard.com/badge/github.com/Eun/go-hit)](https://goreportcard.com/report/github.com/Eun/go-hit)
 hit is an **h**ttp **i**ntegration **t**est framework written in golang.
 
@@ -116,16 +117,19 @@ MustDo(
 ```go
 MustDo(
     Get("https://httpbin.org/get"),
-    Send().Custom(func(hit Hit) {
+    Send().Custom(func(hit Hit) error {
         hit.Request().Body().SetStringf("Hello %s", "World")
+        return nil
     }),
-    Expect().Custom(func(hit Hit) {
+    Expect().Custom(func(hit Hit) error {
         if len(hit.Response().Body().MustString()) <= 0 {
-            t.FailNow()
+            return errors.New("expected the body to be not empty")
         }
+        return nil
     }),
-    Custom(AfterExpectStep, func(Hit) {
+    Custom(AfterExpectStep, func(Hit) error {
         fmt.Println("everything done")
+        return nil
     }),
 )
 ```
