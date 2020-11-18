@@ -9,7 +9,7 @@ import (
 )
 
 func mockFormValues() IStep {
-	return Custom(BeforeExpectStep, func(hit Hit) {
+	return Custom(BeforeExpectStep, func(hit Hit) error {
 		s := url.Values{
 			"X-String":  {"Foo"},
 			"X-Strings": {"Hello", "World"},
@@ -19,6 +19,7 @@ func mockFormValues() IStep {
 		}.Encode()
 		hit.Request().Body().SetString(s)
 		hit.Response().Body().SetString(s)
+		return nil
 	})
 }
 

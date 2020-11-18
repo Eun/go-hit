@@ -15,8 +15,9 @@ func TestExpect_Custom(t *testing.T) {
 	Test(t,
 		Post(s.URL),
 		Send().Body().String("Hello World"),
-		Expect().Custom(func(hit Hit) {
+		Expect().Custom(func(hit Hit) error {
 			require.Equal(t, "Hello World", hit.Response().Body().MustString())
+			return nil
 		}),
 	)
 }
@@ -42,13 +43,16 @@ func TestExpect_DeepFunc(t *testing.T) {
 		Do(
 			Post(s.URL),
 			Send().Body().String("Hello World"),
-			Expect().Custom(func(h1 Hit) {
-				h1.MustDo(Expect().Custom(func(h2 Hit) {
-					h2.MustDo(Expect().Custom(func(h3 Hit) {
+			Expect().Custom(func(h1 Hit) error {
+				h1.MustDo(Expect().Custom(func(h2 Hit) error {
+					h2.MustDo(Expect().Custom(func(h3 Hit) error {
 						calledFunc = true
 						h3.MustDo(Expect().Body().String().Equal("Hello Universe"))
+						return nil
 					}))
+					return nil
 				}))
+				return nil
 			}),
 		),
 		PtrStr("not equal"), nil, nil, nil, nil, nil, nil,

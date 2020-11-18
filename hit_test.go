@@ -4,16 +4,20 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
+
+	"golang.org/x/xerrors"
 
 	"github.com/lunixbochs/vtclean"
 	"github.com/stretchr/testify/require"
@@ -38,14 +42,15 @@ func TestRequest(t *testing.T) {
 	t.Run("overwrite request during send", func(t *testing.T) {
 		Test(t,
 			Get(s.URL),
-			Custom(BeforeSendStep, func(hit Hit) {
+			Custom(BeforeSendStep, func(hit Hit) error {
 				r, err := http.NewRequestWithContext(context.Background(), http.MethodPost, s.URL, nil)
 				if err != nil {
-					panic(err)
+					return err
 				}
 				if err := hit.SetRequest(r); err != nil {
-					panic(err)
+					return err
 				}
+				return nil
 			}),
 			Send().Body().String("Hello Universe"),
 			Expect().Body().String().Equal("Hello Universe"),
@@ -122,17 +127,19 @@ func TestMultiUse(t *testing.T) {
 
 		Test(t,
 			Request(req),
-			Custom(AfterSendStep, func(hit Hit) {
+			Custom(AfterSendStep, func(hit Hit) error {
 				require.Equal(t, []string{"Foo"}, hit.Request().Header["X-Header"])
 				require.Equal(t, []string{"Bar"}, hit.Request().Trailer["X-Trailer"])
+				return nil
 			}),
 		)
 
 		Test(t,
 			Request(req),
-			Custom(AfterSendStep, func(hit Hit) {
+			Custom(AfterSendStep, func(hit Hit) error {
 				require.Equal(t, []string{"Foo"}, hit.Request().Header["X-Header"])
 				require.Equal(t, []string{"Bar"}, hit.Request().Trailer["X-Trailer"])
+				return nil
 			}),
 		)
 	})
@@ -156,17 +163,19 @@ func TestMultiUse(t *testing.T) {
 
 		Test(t,
 			Request(req),
-			Custom(AfterSendStep, func(hit Hit) {
+			Custom(AfterSendStep, func(hit Hit) error {
 				require.Equal(t, []string{"1", "2", "banana"}, hit.Request().Form["a"])
 				require.Equal(t, []string{"1", "2", "banana"}, hit.Request().PostForm["a"])
+				return nil
 			}),
 		)
 
 		Test(t,
 			Request(req),
-			Custom(AfterSendStep, func(hit Hit) {
+			Custom(AfterSendStep, func(hit Hit) error {
 				require.Equal(t, []string{"1", "2", "banana"}, hit.Request().Form["a"])
 				require.Equal(t, []string{"1", "2", "banana"}, hit.Request().PostForm["a"])
+				return nil
 			}),
 		)
 	})
@@ -189,8 +198,9 @@ func TestMultiUse(t *testing.T) {
 
 		Test(t,
 			Request(req),
-			Custom(AfterSendStep, func(hit Hit) {
+			Custom(AfterSendStep, func(hit Hit) error {
 				require.Equal(t, []string{"bar"}, hit.Request().MultipartForm.Value["foo"])
+				return nil
 			}),
 		)
 
@@ -198,8 +208,9 @@ func TestMultiUse(t *testing.T) {
 
 		Test(t,
 			Request(req),
-			Custom(AfterSendStep, func(hit Hit) {
+			Custom(AfterSendStep, func(hit Hit) error {
 				require.Equal(t, "file1", hit.Request().MultipartForm.File["file1"][0].Filename)
+				return nil
 			}),
 		)
 		f, err := req.MultipartForm.File["file1"][0].Open()
@@ -212,7 +223,7 @@ func TestMultiUse(t *testing.T) {
 
 		Test(t,
 			Request(req),
-			Custom(AfterSendStep, func(hit Hit) {
+			Custom(AfterSendStep, func(hit Hit) error {
 				require.Len(t, hit.Request().MultipartForm.File["file1"], 1)
 				require.Equal(t, "file1", hit.Request().MultipartForm.File["file1"][0].Filename)
 				f, err = hit.Request().MultipartForm.File["file1"][0].Open()
@@ -221,6 +232,7 @@ func TestMultiUse(t *testing.T) {
 				buf, err = ioutil.ReadAll(f)
 				require.NoError(t, err)
 				require.Equal(t, "baz", string(buf))
+				return nil
 			}),
 		)
 	})
@@ -239,8 +251,9 @@ func TestMultiUse(t *testing.T) {
 
 		Test(t,
 			Request(req),
-			Custom(AfterSendStep, func(hit Hit) {
+			Custom(AfterSendStep, func(hit Hit) error {
 				require.Equal(t, []string{"a", "b"}, hit.Request().TransferEncoding)
+				return nil
 			}),
 		)
 	})
@@ -307,8 +320,9 @@ func TestHTTPClient(t *testing.T) {
 	Test(t,
 		Post(s.URL),
 		HTTPClient(client),
-		Custom(AfterSendStep, func(hit Hit) {
+		Custom(AfterSendStep, func(hit Hit) error {
 			require.Equal(t, client, hit.HTTPClient())
+			return nil
 		}),
 	)
 }
@@ -340,8 +354,9 @@ func TestCombineSteps_DoubleExecution(t *testing.T) {
 			t,
 			Post(s.URL),
 			CombineSteps(
-				Send().Custom(func(hit Hit) {
+				Send().Custom(func(hit Hit) error {
 					calls++
+					return nil
 				}),
 			),
 		)
@@ -353,8 +368,9 @@ func TestCombineSteps_DoubleExecution(t *testing.T) {
 			t,
 			Post(s.URL),
 			CombineSteps(
-				Expect().Custom(func(hit Hit) {
+				Expect().Custom(func(hit Hit) error {
 					calls++
+					return nil
 				}),
 			),
 		)
@@ -366,8 +382,9 @@ func TestCombineSteps_DoubleExecution(t *testing.T) {
 			t,
 			Post(s.URL),
 			CombineSteps(
-				Custom(BeforeSendStep, func(hit Hit) {
+				Custom(BeforeSendStep, func(hit Hit) error {
 					calls++
+					return nil
 				}),
 			),
 		)
@@ -381,10 +398,11 @@ func TestDescription(t *testing.T) {
 
 	err := Do(
 		Description("Test #1"),
-		Custom(BeforeSendStep, func(hit Hit) {
+		Custom(BeforeSendStep, func(hit Hit) error {
 			require.Equal(t, "Test #1", hit.Description())
 			hit.SetDescription("Test #A")
 			require.Equal(t, "Test #A", hit.Description())
+			return nil
 		}),
 		Post(s.URL),
 		Send().Body().String("Hello"),
@@ -398,15 +416,56 @@ func TestCustomError(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 
-	ExpectError(t,
-		Do(
+	t.Run("panic", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Custom(func(hit Hit) error {
+					panic("some error")
+				}),
+			),
+			PtrStr("some error"),
+		)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Custom(func(hit Hit) error {
+					return errors.New("some error")
+				}),
+			),
+			PtrStr("some error"),
+		)
+	})
+
+	t.Run("errors is", func(t *testing.T) {
+		myError := errors.New("some error")
+		err := Do(
 			Post(s.URL),
-			Send().Custom(func(hit Hit) {
-				panic("some error")
+			Send().Custom(func(hit Hit) error {
+				return myError
 			}),
-		),
-		PtrStr("some error"),
-	)
+		)
+		require.True(t, xerrors.Is(err, myError))
+	})
+
+	t.Run("errors as", func(t *testing.T) {
+		err := Do(
+			Post(s.URL),
+			Send().Custom(func(hit Hit) error {
+				return &os.SyscallError{
+					Syscall: "test",
+					Err:     xerrors.New("go away"),
+				}
+			}),
+		)
+		var sysCallErr *os.SyscallError
+		require.True(t, xerrors.As(err, &sysCallErr))
+		require.Equal(t, sysCallErr.Syscall, "test")
+		require.Equal(t, sysCallErr.Err.Error(), "go away")
+	})
 }
 
 func TestDo(t *testing.T) {
@@ -419,11 +478,12 @@ func TestDo(t *testing.T) {
 			Do(
 				Post(s.URL),
 				Send().Body().String("Hello World"),
-				Custom(ExpectStep, func(hit Hit) {
+				Custom(ExpectStep, func(hit Hit) error {
 					hit.MustDo(
 						Expect().Body().String().Equal("Hello Universe"),
 					)
 					shouldNotRun = true
+					return nil
 				}),
 			),
 			PtrStr("not equal"), nil, nil, nil, nil, nil, nil,
@@ -437,11 +497,12 @@ func TestDo(t *testing.T) {
 			Do(
 				Post(s.URL),
 				Send().Body().String("Hello World"),
-				Custom(SendStep, func(hit Hit) {
+				Custom(SendStep, func(hit Hit) error {
 					hit.MustDo(
 						Expect().Body().String().Equal("Hello Universe"),
 					)
 					shouldNotRun = true
+					return nil
 				}),
 			),
 			PtrStr(`unable to execute Expect().Body().String().Equal("Hello Universe") during SendStep, can only be run during ExpectStep`),
@@ -457,11 +518,13 @@ func TestOutOfContext(t *testing.T) {
 		Post(s.URL),
 		Send().Body().String("World"),
 		Expect().Body().String().Equal("World"),
-		Send().Custom(func(hit Hit) {
+		Send().Custom(func(hit Hit) error {
 			Send().Body().String("Hello Universe") // this will never be run, because you need to wrap this with hit.Do()/MustDo()
+			return nil
 		}),
-		Expect().Custom(func(hit Hit) {
+		Expect().Custom(func(hit Hit) error {
 			Expect().Body().String().Equal("Hello Universe") // this will never be run, because you need to wrap this with hit.Do()/MustDo()
+			return nil
 		}),
 	)
 }
@@ -472,16 +535,19 @@ func TestAddSteps(t *testing.T) {
 	var callOrder []int
 	Test(t,
 		Post(s.URL),
-		Custom(BeforeSendStep, func(hit Hit) {
+		Custom(BeforeSendStep, func(hit Hit) error {
 			callOrder = append(callOrder, 1)
 			hit.AddSteps(
-				Custom(BeforeSendStep, func(hit Hit) {
+				Custom(BeforeSendStep, func(hit Hit) error {
 					callOrder = append(callOrder, 2)
+					return nil
 				}),
 			)
+			return nil
 		}),
-		Custom(BeforeSendStep, func(hit Hit) {
+		Custom(BeforeSendStep, func(hit Hit) error {
 			callOrder = append(callOrder, 3)
+			return nil
 		}),
 	)
 
@@ -494,16 +560,19 @@ func TestInsertSteps(t *testing.T) {
 	var callOrder []int
 	Test(t,
 		Post(s.URL),
-		Custom(BeforeSendStep, func(hit Hit) {
+		Custom(BeforeSendStep, func(hit Hit) error {
 			callOrder = append(callOrder, 1)
 			hit.InsertSteps(
-				Custom(BeforeSendStep, func(hit Hit) {
+				Custom(BeforeSendStep, func(hit Hit) error {
 					callOrder = append(callOrder, 2)
+					return nil
 				}),
 			)
+			return nil
 		}),
-		Custom(BeforeSendStep, func(hit Hit) {
+		Custom(BeforeSendStep, func(hit Hit) error {
 			callOrder = append(callOrder, 3)
+			return nil
 		}),
 	)
 
@@ -514,21 +583,24 @@ func TestAddAndRemoveSteps(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
 	var callOrder []int
-	someStep := Custom(BeforeSendStep, func(hit Hit) {})
+	someStep := Custom(BeforeSendStep, func(hit Hit) error { return nil })
 	Test(t,
 		Post(s.URL),
 		someStep,
-		Custom(BeforeSendStep, func(hit Hit) {
+		Custom(BeforeSendStep, func(hit Hit) error {
 			callOrder = append(callOrder, 1)
 			hit.AddSteps(
-				Custom(BeforeSendStep, func(hit Hit) {
+				Custom(BeforeSendStep, func(hit Hit) error {
 					callOrder = append(callOrder, 2)
+					return nil
 				}),
 			)
 			hit.RemoveSteps(someStep)
+			return nil
 		}),
-		Custom(BeforeSendStep, func(hit Hit) {
+		Custom(BeforeSendStep, func(hit Hit) error {
 			callOrder = append(callOrder, 3)
+			return nil
 		}),
 	)
 
@@ -573,8 +645,9 @@ func TestReturn(t *testing.T) {
 	Test(t,
 		Post(s.URL),
 		Send().Body().String("Hello World"),
-		Expect().Custom(func(hit Hit) {
+		Expect().Custom(func(hit Hit) error {
 			executed = true
+			return nil
 		}),
 		Expect().Body().String().Equal("Hello World"),
 		Return(),

@@ -21,17 +21,19 @@ import (
 
 func TestHash(t *testing.T) {
 	// hashes the payload with md5 and puts the value into the Content-Signature header
-	hashBody := func(hit Hit) {
+	hashBody := func(hit Hit) error {
 		hash := md5.Sum(hit.Request().Body().MustBytes())
 		hit.Request().Header.Set("Content-Signature", hex.EncodeToString(hash[:]))
+		return nil
 	}
 
 	// expectsInnerText
-	expectInnerText := func(text string) func(hit Hit) {
-		return func(hit Hit) {
+	expectInnerText := func(text string) func(hit Hit) error {
+		return func(hit Hit) error {
 			if !strings.Contains(hit.Response().Body().MustString(), text) {
 				t.Error(fmt.Sprintf("expected %s", text))
 			}
+			return nil
 		}
 	}
 

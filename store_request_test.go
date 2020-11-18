@@ -240,8 +240,9 @@ func TestStoreRequest_TransferEncoding(t *testing.T) {
 	Test(t,
 		Post(s.URL),
 		Send().Body().String("Hello World"),
-		Custom(BeforeExpectStep, func(hit Hit) {
+		Custom(BeforeExpectStep, func(hit Hit) error {
 			hit.Request().TransferEncoding = []string{"gzip", "chunked"}
+			return nil
 		}),
 		Store().Request().TransferEncoding().In(&transferEncoding),
 	)
