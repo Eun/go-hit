@@ -52,7 +52,7 @@ github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.6.1
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/require
-# github.com/tidwall/pretty v1.0.1
+# github.com/tidwall/pretty v1.0.2
 github.com/tidwall/pretty
 # go.uber.org/atomic v1.7.0
 go.uber.org/atomic
