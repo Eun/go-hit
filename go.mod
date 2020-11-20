@@ -10,7 +10,7 @@ require (
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1 // indirect
 	github.com/dave/jennifer v1.4.0
 	github.com/google/go-cmp v0.4.0
-	github.com/gookit/color v1.2.3
+	github.com/gookit/color v1.3.2
 	github.com/itchyny/gojq v0.10.1
 	github.com/json-iterator/go v1.1.10
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect

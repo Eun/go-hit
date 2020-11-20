@@ -1,5 +1,7 @@
 # CLI Color
 
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/gookit/color?style=flat-square)
+[![Actions Status](https://github.com/gookit/color/workflows/action-tests/badge.svg)](https://github.com/gookit/color/actions)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/51b28c5f7ffe4cc2b0f12ecf25ed247f)](https://app.codacy.com/app/inhere/color)
 [![GoDoc](https://godoc.org/github.com/gookit/color?status.svg)](https://pkg.go.dev/github.com/gookit/color?tab=overview)
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/gookit/color)](https://github.com/gookit/color)
@@ -13,14 +15,19 @@ Golang下的命令行色彩使用库, 拥有丰富的色彩渲染输出，通用
 
 基本颜色预览：
 
-![basic-color](_examples/images/basic-color.png)
+![basic-color](_examples/images/basic-color2.png)
+
+现在，256色和RGB色彩也已经支持windows CMD和PowerShell中工作：
+
+![color-on-cmd-pwsh](_examples/images/color-on-cmd-pwsh.jpg)
 
 ## 功能特色
 
   - 使用简单方便，无其他依赖
-  - 支持丰富的颜色输出, 16色(4bit)，256色(8bit)，RGB色彩(24bit)
+  - 支持丰富的颜色输出, 16色(4bit)，256色(8bit)，RGB色彩(24bit, RGB)
     - 16色(4bit)是最常用和支持最广的，支持Windows `cmd.exe`
-    - 另外两种支持 `linux` `mac` 和 Windows下的 `ConEmu` `git-bash` `mintty` 等部分终端
+    - 自 `v1.2.4` 起 **256色(8bit)，RGB色彩(24bit)均支持windows CMD和PowerShell终端**
+    - 请查看 [this gist](https://gist.github.com/XVilka/8346728) 了解支持RGB色彩的终端
   - 通用的API方法：`Print` `Printf` `Println` `Sprint` `Sprintf`
   - 同时支持html标签式的颜色渲染. eg: `<green>message</>`
   - 基础色彩: `Bold` `Black` `White` `Gray` `Red` `Green` `Yellow` `Blue` `Magenta` `Cyan`
@@ -32,17 +39,15 @@ Golang下的命令行色彩使用库, 拥有丰富的色彩渲染输出，通用
   - [godoc for gopkg](https://pkg.go.dev/gopkg.in/gookit/color.v1)
   - [godoc for github](https://pkg.go.dev/github.com/gookit/color)
 
+## 安装
+
+```bash
+go get github.com/gookit/color
+```
+
 ## 快速开始
 
 如下，引入当前包就可以快速的使用
-
-```bash
-import "gopkg.in/gookit/color.v1" // 推荐
-// or
-import "github.com/gookit/color"
-```
-
-### 如何使用
 
 ```go
 package main
@@ -178,7 +183,7 @@ color.Success.Println("Success message")
 
 Run demo: `go run ./_examples/theme_basic.go`
 
-![theme-basic](_examples/images/theme-basic.jpg)
+![theme-basic](_examples/images/theme-basic.png)
 
 ### 简约提示风格
 
@@ -189,7 +194,7 @@ color.Warn.Tips("tips style message")
 
 Run demo: `go run ./_examples/theme_tips.go`
 
-![theme-tips](_examples/images/theme-tips.jpg)
+![theme-tips](_examples/images/theme-tips.png)
 
 ### 着重提示风格
 
@@ -200,7 +205,7 @@ color.Warn.Prompt("prompt style message")
 
 Run demo: `go run ./_examples/theme_prompt.go`
 
-![theme-prompt](_examples/images/theme-prompt.jpg)
+![theme-prompt](_examples/images/theme-prompt.png)
 
 ### 强调提示风格
 
@@ -211,7 +216,7 @@ color.Warn.Block("prompt style message")
 
 Run demo: `go run ./_examples/theme_block.go`
 
-![theme-block](_examples/images/theme-block.jpg)
+![theme-block](_examples/images/theme-block.png)
 
 ### 使用颜色标签
 
@@ -243,9 +248,11 @@ color.Tag("info").Println("info style text")
 
 > 运行 demo: `go run ./_examples/colortag.go`
 
-![color-tags](_examples/images/color-tags.jpg)
+![color-tags](_examples/images/color-tags.png)
 
 ## 256色使用
+
+> 256色彩在 `v1.2.4` 后支持Windows CMD,PowerShell 环境
 
 ### 使用前景或后景色
  
@@ -275,9 +282,29 @@ s.Printf("format %s", "message")
 
 > 运行 demo: `go run ./_examples/color256.go`
 
-![color-tags](_examples/images/256-color.jpg)
+![color-tags](_examples/images/color-256.png)
 
 ## RGB色彩使用
+
+> RGB色彩在 `v1.2.4` 后支持 Windows `CMD`, `PowerShell` 环境
+
+**效果预览:**
+
+> 运行 demo: `Run demo: go run ./_examples/color_rgb.go`
+
+![color-rgb](_examples/images/color-rgb.png)
+
+代码示例：
+
+```go
+color.RGB(30, 144, 255).Println("message. use RGB number")
+
+color.HEX("#1976D2").Println("blue-darken")
+color.HEX("#D50000", true).Println("red-accent. use HEX style")
+
+color.RGBStyleFromString("213,0,0").Println("red-accent. use RGB number")
+color.HEXStyle("eee", "D50000").Println("deep-purple color")
+```
 
 ### 使用前景或后景色 
 
@@ -296,11 +323,11 @@ c.Printf("format %s", "message")
   - `color.HEX(hex string, isBg ...bool) RGBColor` 从16进制颜色创建
 
 ```go
-c := HEX("ccc") // 也可以写为: "cccccc" "#cccccc"
+c := color.HEX("ccc") // 也可以写为: "cccccc" "#cccccc"
 c.Println("message")
 c.Printf("format %s", "message")
 
-c = HEX("aabbcc", true) // as bg color
+c = color.HEX("aabbcc", true) // as bg color
 c.Println("message")
 c.Printf("format %s", "message")
 ```
@@ -312,18 +339,31 @@ c.Printf("format %s", "message")
   - `color.NewRGBStyle(fg RGBColor, bg ...RGBColor) *RGBStyle`
 
 ```go
-s := NewRGBStyle(RGB(20, 144, 234), RGB(234, 78, 23))
+s := color.NewRGBStyle(RGB(20, 144, 234), RGB(234, 78, 23))
 s.Println("message")
 s.Printf("format %s", "message")
 ```
 
-  - `color.HEXStyle(fg string, bg ...string) *RGBStyle` 从16进制颜色创建
+- `color.HEXStyle(fg string, bg ...string) *RGBStyle` 从16进制颜色创建
 
 ```go
-s := HEXStyle("11aa23", "eee")
+s := color.HEXStyle("11aa23", "eee")
 s.Println("message")
 s.Printf("format %s", "message")
 ```
+
+## 方法参考
+
+一些有用的工具方法参考
+
+- `Disable()` disable color render
+- `SetOutput(io.Writer)` custom set the colored text output writer
+- `ForceOpenColor()` force open color render
+- `ClearCode(str string) string` Use for clear color codes
+- `ClearTag(s string) string` clear all color html-tag for a string
+- `IsConsole(w io.Writer)` Determine whether w is one of stderr, stdout, stdin
+- `HexToRgb(hex string) (rgb []int)` Convert hex color string to RGB numbers
+- `RgbToHex(rgb []int) string` Convert RGB to hex code
 
 ## Gookit 工具包
 
