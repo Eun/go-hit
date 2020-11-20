@@ -1,7 +1,6 @@
 def not: if . then false else true end;
 def in(xs): . as $x | xs | has($x);
 def map(f): [.[] | f];
-def add: reduce .[] as $x (null; . + $x);
 def to_entries: [keys[] as $k | {key: $k, value: .[$k]}];
 def from_entries:
   map({ (.key // .Key // .name // .Name): (if has("value") then .value else .Value end) })
@@ -42,31 +41,14 @@ def flatten($x):
   else _flatten($x) end;
 def flatten: _flatten(-1);
 def min: min_by(.);
-def min_by(f): reduce .[1:][] as $x (.[0]; if (.|f) > ($x|f) then $x end);
+def min_by(f): _min_by(map([f]));
 def max: max_by(.);
-def max_by(f): reduce .[1:][] as $x (.[0]; if (.|f) <= ($x|f) then $x end);
+def max_by(f): _max_by(map([f]));
 def sort: sort_by(.);
-def sort_by(f):
-  def _sort_by:
-    if length > 1 then
-      .[0] as $x | .[1:] as $xs | ($x|[f]) as $fx
-        | ([$xs[] | select([f] < $fx)] | _sort_by)
-        + [$x]
-        + ([$xs[] | select([f] >= $fx)] | _sort_by)
-    end;
-  _sort_by;
-def group_by(f):
-  def _group_by:
-    if length > 0 then
-      .[0] as $x | .[1:] as $xs | ($x|[f]) as $fx
-        | [$x, $xs[] | select([f] == $fx)],
-          ([$xs[] | select([f] != $fx)] | _group_by)
-    else
-      empty
-    end;
-  sort_by(f) | [_group_by];
-def unique: group_by(.) | map(.[0]);
-def unique_by(f): group_by(f) | map(.[0]);
+def sort_by(f): _sort_by(map([f]));
+def group_by(f): _group_by(map([f]));
+def unique: unique_by(.);
+def unique_by(f): _unique_by(map([f]));
 
 def arrays: select(type == "array");
 def objects: select(type == "object");
@@ -81,7 +63,6 @@ def values: select(. != null);
 def scalars: select(type |. != "array" and . != "object");
 def leaf_paths: paths(scalars);
 
-def reverse: [.[length - 1 - range(0;length)]];
 def indices($x):
   if type == "array" and ($x|type) == "array" then .[$x]
   elif type == "array" then .[[$x]]
@@ -207,7 +188,7 @@ def _assign(ps; $v):
   reduce path(ps) as $p (.; setpath($p; $v));
 def _modify(ps; f):
   reduce path(ps) as $p
-    ([., []]; label $out | ([0] + $p as $q | setpath($q; getpath($q) | f) | ., break $out), .[1] += [$p])
+    ([., []]; label $out | (([0] + $p) as $q | setpath($q; getpath($q) | f) | ., break $out), .[1] += [$p])
       | . as $x | $x[0] | delpaths($x[1]);
 def map_values(f): .[] |= f;
 def del(f): delpaths([path(f)]);
@@ -217,43 +198,15 @@ def paths:
 def paths(f):
   . as $x | paths | select(. as $p | $x | getpath($p) | f);
 
-def bsearch($target):
-  if length == 0 then
-    -1
-  elif length == 1 then
-    if $target == .[0] then 0 elif $target < .[0] then -1 else -2 end
-  else . as $in
-    # state variable: [start, end, answer]
-    # where start and end are the upper and lower offsets to use.
-    | [0, length-1, null]
-    | until(.[0] > .[1];
-      if .[2] != null then (.[1] = -1) # i.e. break
-      else
-        (((.[1] + .[0]) / 2) | floor) as $mid
-        | $in[$mid] as $monkey
-        | if $monkey == $target then (.[2] = $mid) # success
-          elif .[0] == .[1] then (.[1] = -1) # failure
-          elif $monkey < $target then (.[0] = ($mid + 1))
-          else (.[1] = ($mid - 1))
-          end
-      end)
-    | if .[2] == null then # compute the insertion point
-        if $in[.[0]] < $target then (-2 -.[0])
-        else (-1 -.[0])
-        end
-      else .[2]
-      end
-  end;
-
 def fromdateiso8601: strptime("%Y-%m-%dT%H:%M:%SZ") | mktime;
 def todateiso8601: strftime("%Y-%m-%dT%H:%M:%SZ");
 def fromdate: fromdateiso8601;
 def todate: todateiso8601;
 
 def match($re): match($re; null);
-def match($re; $flags): _match_impl($re; $flags; false) | .[];
+def match($re; $flags): _match($re; $flags; false) | .[];
 def test($re): test($re; null);
-def test($re; $flags): _match_impl($re; $flags; true);
+def test($re; $flags): _match($re; $flags; true);
 def capture($re): capture($re; null);
 def capture($re; $flags):
   match($re; $flags)

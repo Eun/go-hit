@@ -63,7 +63,7 @@ func (b *builder) build(v reflect.Value) (ast.Node, error) {
 		}
 		prevType = bv.typ
 		params = append(params, &ast.Field{
-			Names: []*ast.Ident{&ast.Ident{Name: bv.name}},
+			Names: []*ast.Ident{{Name: bv.name}},
 			Type:  bv.typ,
 		})
 	}
@@ -74,7 +74,7 @@ func (b *builder) build(v reflect.Value) (ast.Node, error) {
 					Params: &ast.FieldList{List: params},
 					Results: &ast.FieldList{
 						List: []*ast.Field{
-							&ast.Field{Type: t},
+							{Type: t},
 						},
 					},
 				},

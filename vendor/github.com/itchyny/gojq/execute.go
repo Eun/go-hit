@@ -20,9 +20,8 @@ func (env *env) execute(bc *Code, v interface{}, vars ...interface{}) Iter {
 func (env *env) Next() (interface{}, bool) {
 	var err error
 	pc, callpc, index := env.pc, len(env.codes)-1, -1
-	backtrack := env.backtrack > 0
-	hasCtx := env.ctx != nil
-	defer func() { env.pc, env.backtrack = pc, pc }()
+	backtrack, hasCtx := env.backtrack, env.ctx != nil
+	defer func() { env.pc, env.backtrack = pc, true }()
 loop:
 	for ; pc < len(env.codes); pc++ {
 		env.debugState(pc, backtrack)
@@ -78,31 +77,47 @@ loop:
 			} else {
 				env.pushfork(code.op, pc)
 			}
-		case opforkopt:
-			fallthrough
-		case opforkalt:
+		case opforktrybegin:
 			if backtrack {
 				if err == nil {
 					break loop
 				}
-				if code.op == opforkopt {
-					if env.backtrack <= code.v.(int) {
-						env.pop()
-						if er, ok := err.(*exitCodeError); ok {
-							env.push(er.value)
-							if er.halt {
-								break loop
-							}
-							if er.value == nil {
-								backtrack, err = true, nil
-								break loop
-							}
-						} else {
-							env.push(err.Error())
-						}
-					} else {
+				switch er := err.(type) {
+				case *tryEndError:
+					err = er.err
+					break loop
+				case *exitCodeError:
+					env.pop()
+					env.push(er.value)
+					if er.halt {
 						break loop
 					}
+					if er.value == nil {
+						err = nil
+						break loop
+					}
+				default:
+					env.pop()
+					env.push(err.Error())
+				}
+				pc, backtrack, err = code.v.(int), false, nil
+				goto loop
+			} else {
+				env.pushfork(code.op, pc)
+			}
+		case opforktryend:
+			if backtrack {
+				if err != nil {
+					err = &tryEndError{err}
+				}
+				break loop
+			} else {
+				env.pushfork(code.op, pc)
+			}
+		case opforkalt:
+			if backtrack {
+				if err == nil {
+					break loop
 				}
 				pc, backtrack, err = code.v.(int), false, nil
 				goto loop
@@ -273,9 +288,6 @@ loop:
 		}
 	}
 	if len(env.forks) > 0 {
-		if !backtrack {
-			env.backtrack = pc
-		}
 		pc, backtrack = env.popfork().pc, true
 		goto loop
 	}
