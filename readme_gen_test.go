@@ -4,6 +4,7 @@ package hit_test
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -69,16 +70,19 @@ func TestReadmeCodePart5(t *testing.T) {
 func TestReadmeCodePart6(t *testing.T) {
 	MustDo(
 		Get("https://httpbin.org/get"),
-		Send().Custom(func(hit Hit) {
+		Send().Custom(func(hit Hit) error {
 			hit.Request().Body().SetStringf("Hello %s", "World")
+			return nil
 		}),
-		Expect().Custom(func(hit Hit) {
+		Expect().Custom(func(hit Hit) error {
 			if len(hit.Response().Body().MustString()) <= 0 {
-				t.FailNow()
+				return errors.New("expected the body to be not empty")
 			}
+			return nil
 		}),
-		Custom(AfterExpectStep, func(Hit) {
+		Custom(AfterExpectStep, func(Hit) error {
 			fmt.Println("everything done")
+			return nil
 		}),
 	)
 }

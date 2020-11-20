@@ -125,7 +125,9 @@ func (i *liveIterator) readTextBlock() (*Part, bool, error) {
 			if err := writeSeqBuffer(); err != nil {
 				return nil, true, err
 			}
-			return constructTextPart(contentBuffer.Bytes(), i.stripLeadingWhiteSpaces), true, nil
+			stripLeadingWhiteSpaces := i.stripLeadingWhiteSpaces
+			i.stripLeadingWhiteSpaces = false // reset strip leading whitespaces
+			return constructTextPart(contentBuffer.Bytes(), stripLeadingWhiteSpaces), true, nil
 		}
 
 		if r == i.startSequence[pos] { //nolint:nestif
@@ -154,7 +156,9 @@ func (i *liveIterator) readTextBlock() (*Part, bool, error) {
 			}
 
 			i.inCodeBlock = true
-			return constructTextPart(content, i.stripLeadingWhiteSpaces), false, nil
+			stripLeadingWhiteSpaces := i.stripLeadingWhiteSpaces
+			i.stripLeadingWhiteSpaces = false // reset strip leading whitespaces
+			return constructTextPart(content, stripLeadingWhiteSpaces), false, nil
 		}
 		if err := writeSeqBuffer(); err != nil {
 			return nil, true, err

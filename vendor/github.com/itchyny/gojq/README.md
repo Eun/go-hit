@@ -1,5 +1,13 @@
-# gojq [![CI Status](https://github.com/itchyny/gojq/workflows/CI/badge.svg)](https://github.com/itchyny/gojq/actions)
-Pure Go implementation of [jq](https://github.com/stedolan/jq).
+# gojq
+[![CI Status](https://github.com/itchyny/gojq/workflows/CI/badge.svg)](https://github.com/itchyny/gojq/actions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/itchyny/gojq)](https://goreportcard.com/report/github.com/itchyny/gojq)
+[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/itchyny/gojq/blob/master/LICENSE)
+[![release](https://img.shields.io/github/release/itchyny/gojq/all.svg)](https://github.com/itchyny/gojq/releases)
+[![pkg.go.dev](https://pkg.go.dev/badge/github.com/itchyny/gojq)](https://pkg.go.dev/github.com/itchyny/gojq)
+
+### Pure Go implementation of [jq](https://github.com/stedolan/jq)
+This is an implementation of jq command written in Go language.
+You can also embed gojq as a library to your Go products.
 
 ## Usage
 ```sh
@@ -49,8 +57,13 @@ brew install itchyny/tap/gojq
 ```
 
 ### Build from source
-```bash
-go get -u github.com/itchyny/gojq/cmd/gojq
+```sh
+go get github.com/itchyny/gojq/cmd/gojq
+```
+
+### Docker
+```sh
+docker run -i --rm itchyny/gojq
 ```
 
 ## Difference to jq
@@ -102,7 +115,7 @@ func main() {
 
 [`gojq.Compile`](https://pkg.go.dev/github.com/itchyny/gojq?tab=doc#Compile) allows to configure the following compiler options.
 
-- [`gojq.WithModuleLoader`](https://pkg.go.dev/github.com/itchyny/gojq?tab=doc#WithModuleLoader) allows to load modules. By default, the module feature is disabled.
+- [`gojq.WithModuleLoader`](https://pkg.go.dev/github.com/itchyny/gojq?tab=doc#WithModuleLoader) allows to load modules. By default, the module feature is disabled. If you want to load modules from the filesystem, use [`gojq.NewModuleLoader`](https://pkg.go.dev/github.com/itchyny/gojq?tab=doc#NewModuleLoader).
 - [`gojq.WithEnvironLoader`](https://pkg.go.dev/github.com/itchyny/gojq?tab=doc#WithEnvironLoader) allows to configure the environment variables referenced by `env` and `$ENV`. By default, OS environment variables are not accessible due to security reason. You can use `gojq.WithEnvironLoader(os.Environ)` if you want.
 - [`gojq.WithVariables`](https://pkg.go.dev/github.com/itchyny/gojq?tab=doc#WithVariables) allows to configure the variables which can be used in the query. Pass the values of the variables to [`code.Run`](https://pkg.go.dev/github.com/itchyny/gojq?tab=doc#Code.Run) in the same order.
 - [`gojq.WithInputIter`](https://pkg.go.dev/github.com/itchyny/gojq?tab=doc#WithInputIter) allows to use `input` and `inputs` functions. By default, these functions are disabled.

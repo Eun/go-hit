@@ -2,7 +2,6 @@ package gojq
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"math/big"
 	"reflect"
@@ -30,6 +29,14 @@ type iteratorError struct {
 
 func (err *iteratorError) Error() string {
 	return fmt.Sprintf("cannot iterate over: %s", typeErrorPreview(err.v))
+}
+
+type arrayIndexTooLargeError struct {
+	v interface{}
+}
+
+func (err *arrayIndexTooLargeError) Error() string {
+	return fmt.Sprintf("array index too large: %s", previewValue(err.v))
 }
 
 type objectKeyNotStringError struct {
@@ -115,7 +122,7 @@ type hasKeyTypeError struct {
 }
 
 func (err *hasKeyTypeError) Error() string {
-	return fmt.Sprintf("cannot check wether %s has a key: %s", typeErrorPreview(err.l), typeErrorPreview(err.r))
+	return fmt.Sprintf("cannot check whether %s has a key: %s", typeErrorPreview(err.l), typeErrorPreview(err.r))
 }
 
 type unaryTypeError struct {
@@ -177,7 +184,11 @@ func (err *formatShError) Error() string {
 	return fmt.Sprintf("cannot escape for shell: %s", typeErrorPreview(err.v))
 }
 
-var errTooManyVariableValues = errors.New("too many variable values provided")
+type tooManyVariableValuesError struct{}
+
+func (err *tooManyVariableValuesError) Error() string {
+	return "too many variable values provided"
+}
 
 type expectedVariableError struct {
 	n string
@@ -219,17 +230,12 @@ func (err *stringLiteralError) Error() string {
 	return fmt.Sprintf("expected a string but got: %s", err.s)
 }
 
-type stringQueryError struct {
-	s   string
+type tryEndError struct {
 	err error
 }
 
-func (err *stringQueryError) Error() string {
-	return fmt.Sprintf("invalid query in string interpolation %s: %s", err.s, err.err)
-}
-
-func (err *stringQueryError) QueryParseError() (string, string, string, error) {
-	return "query in string interpolation", "<string>", err.s, err.err
+func (err *tryEndError) Error() string {
+	return err.err.Error()
 }
 
 type invalidPathError struct {
@@ -254,6 +260,32 @@ type getpathError struct {
 
 func (err *getpathError) Error() string {
 	return fmt.Sprintf("cannot getpath with %s against: %s", previewValue(err.path), typeErrorPreview(err.v))
+}
+
+type queryParseError struct {
+	typ, fname, contents string
+	err                  error
+}
+
+func (err *queryParseError) QueryParseError() (string, string, string, error) {
+	return err.typ, err.fname, err.contents, err.err
+}
+
+func (err *queryParseError) Error() string {
+	return fmt.Sprintf("invalid %s: %s: %s", err.typ, err.fname, err.err)
+}
+
+type jsonParseError struct {
+	fname, contents string
+	err             error
+}
+
+func (err *jsonParseError) JSONParseError() (string, string, error) {
+	return err.fname, err.contents, err.err
+}
+
+func (err *jsonParseError) Error() string {
+	return fmt.Sprintf("invalid json: %s: %s", err.fname, err.err)
 }
 
 func typeErrorPreview(v interface{}) string {

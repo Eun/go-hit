@@ -3,6 +3,7 @@ package gojq
 import (
 	"math"
 	"math/big"
+	"reflect"
 	"strings"
 )
 
@@ -11,7 +12,9 @@ type Operator int
 
 // Operators ...
 const (
-	OpAdd Operator = iota
+	OpPipe Operator = iota + 1
+	OpComma
+	OpAdd
 	OpSub
 	OpMul
 	OpDiv
@@ -35,44 +38,13 @@ const (
 	OpUpdateAlt
 )
 
-var operatorMap = map[string]Operator{
-	"+":   OpAdd,
-	"-":   OpSub,
-	"*":   OpMul,
-	"/":   OpDiv,
-	"%":   OpMod,
-	"==":  OpEq,
-	"!=":  OpNe,
-	">":   OpGt,
-	"<":   OpLt,
-	">=":  OpGe,
-	"<=":  OpLe,
-	"and": OpAnd,
-	"or":  OpOr,
-	"//":  OpAlt,
-	"=":   OpAssign,
-	"|=":  OpModify,
-	"+=":  OpUpdateAdd,
-	"-=":  OpUpdateSub,
-	"*=":  OpUpdateMul,
-	"/=":  OpUpdateDiv,
-	"%=":  OpUpdateMod,
-	"//=": OpUpdateAlt,
-}
-
-// Capture implements  participle.Capture.
-func (op *Operator) Capture(s []string) error {
-	var ok bool
-	*op, ok = operatorMap[s[0]]
-	if !ok {
-		panic("operator: " + s[0])
-	}
-	return nil
-}
-
 // String implements Stringer.
 func (op Operator) String() string {
 	switch op {
+	case OpPipe:
+		return "|"
+	case OpComma:
+		return ","
 	case OpAdd:
 		return "+"
 	case OpSub:
@@ -125,6 +97,10 @@ func (op Operator) String() string {
 // GoString implements GoStringer.
 func (op Operator) GoString() string {
 	switch op {
+	case OpPipe:
+		return "OpPipe"
+	case OpComma:
+		return "OpComma"
 	case OpAdd:
 		return "OpAdd"
 	case OpSub:
@@ -176,6 +152,10 @@ func (op Operator) GoString() string {
 
 func (op Operator) getFunc() string {
 	switch op {
+	case OpPipe:
+		panic("unreachable")
+	case OpComma:
+		panic("unreachable")
 	case OpAdd:
 		return "_add"
 	case OpSub:
@@ -369,7 +349,7 @@ func funcOpSub(_, l, r interface{}) interface{} {
 			for _, v := range l {
 				var found bool
 				for _, w := range r {
-					if deepEqual(v, w) {
+					if reflect.DeepEqual(normalizeNumbers(v), normalizeNumbers(w)) {
 						found = true
 						break
 					}
@@ -395,7 +375,7 @@ func funcOpMul(_, l, r interface{}) interface{} {
 		deepMergeObjects,
 		func(l, r interface{}) interface{} {
 			multiplyString := func(s string, cnt float64) interface{} {
-				if cnt <= 0.0 {
+				if cnt <= 0.0 || int(cnt) < 0 || int(cnt) > maxHalfInt/(16*(len(s)+1)) {
 					return nil
 				}
 				if cnt < 1.0 {
@@ -510,7 +490,7 @@ func funcOpMod(_, l, r interface{}) interface{} {
 			return l % r
 		},
 		func(l, r float64) interface{} {
-			if r == 0.0 {
+			if int(r) == 0 {
 				return &zeroModuloError{l, r}
 			}
 			return int(l) % int(r)

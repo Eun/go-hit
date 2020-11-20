@@ -59,17 +59,17 @@ func (s Style) Sprintf(format string, a ...interface{}) string {
 
 // Print render and Print text
 func (s Style) Print(a ...interface{}) {
-	doPrint(s.String(), s, fmt.Sprint(a...))
+	doPrintV2(s.String(), fmt.Sprint(a...))
 }
 
 // Printf render and print text
 func (s Style) Printf(format string, a ...interface{}) {
-	doPrint(s.Code(), s, fmt.Sprintf(format, a...))
+	doPrintV2(s.Code(), fmt.Sprintf(format, a...))
 }
 
 // Println render and print text line
 func (s Style) Println(a ...interface{}) {
-	doPrintln(s.String(), s, a)
+	doPrintlnV2(s.String(), a)
 }
 
 // Code convert to code string. returns like "32;45;3"
@@ -157,7 +157,7 @@ var (
 	// Notice color style
 	Notice = &Theme{"notice", Style{OpBold, FgCyan}}
 	// Comment color style
-	Comment = &Theme{"comment", Style{OpReset, FgLightYellow}}
+	Comment = &Theme{"comment", Style{OpReset, FgYellow}}
 	// Success color style
 	Success = &Theme{"success", Style{OpBold, FgGreen}}
 	// Primary color style
@@ -248,4 +248,38 @@ func GetStyle(name string) Style {
 
 	// empty style
 	return New()
+}
+
+/*************************************************************
+ * quick use style print message
+ *************************************************************/
+
+// Infof print message with Info style
+func Infof(format string, a ...interface{}) {
+	Info.Printf(format, a...)
+}
+
+// Infoln print message with Info style
+func Infoln(a ...interface{}) {
+	Info.Println(a...)
+}
+
+// Errorf print message with Error style
+func Errorf(format string, a ...interface{}) {
+	Error.Printf(format, a...)
+}
+
+// Errorln print message with Error style
+func Errorln(a ...interface{}) {
+	Error.Println(a...)
+}
+
+// Warnf print message with Warn style
+func Warnf(format string, a ...interface{}) {
+	Warn.Printf(format, a...)
+}
+
+// Warnln print message with Warn style
+func Warnln(a ...interface{}) {
+	Warn.Println(a...)
 }
