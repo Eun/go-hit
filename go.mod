@@ -8,7 +8,7 @@ require (
 	github.com/Eun/yaegi-template v1.5.5
 	github.com/aaw/maybe_tls v0.0.0-20160803104303-89c499bcc6aa
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1 // indirect
-	github.com/dave/jennifer v1.4.0
+	github.com/dave/jennifer v1.4.1
 	github.com/google/go-cmp v0.4.0
 	github.com/gookit/color v1.2.3
 	github.com/itchyny/gojq v0.10.1
