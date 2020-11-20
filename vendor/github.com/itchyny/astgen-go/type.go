@@ -61,7 +61,7 @@ func buildType(t reflect.Type) (ast.Expr, error) {
 				tag = &ast.BasicLit{Value: "`" + string(sf.Tag) + "`"}
 			}
 			fs = append(fs, &ast.Field{
-				Names: []*ast.Ident{&ast.Ident{Name: sf.Name}},
+				Names: []*ast.Ident{{Name: sf.Name}},
 				Type:  t,
 				Tag:   tag,
 			})

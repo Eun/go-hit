@@ -7,25 +7,40 @@ GOBIN ?= $(shell go env GOPATH)/bin
 export GO111MODULE=on
 
 .PHONY: all
-all: clean build
+all: build
 
 .PHONY: build
-build: builtin.go string.go
+build:
+	go build -ldflags=$(BUILD_LDFLAGS) -o $(BIN) ./cmd/$(BIN)
+
+.PHONY: build-dev
+build-dev: parser.go builtin.go
 	go build -ldflags=$(BUILD_LDFLAGS) -o $(BIN) ./cmd/$(BIN)
 
 .PHONY: build-debug
-build-debug: builtin.go string.go
+build-debug: parser.go builtin.go
 	go build -tags debug -ldflags=$(BUILD_LDFLAGS) -o $(BIN) ./cmd/$(BIN)
 
-builtin.go string.go: builtin.jq parser.go query.go operator.go _tools/*
+builtin.go: builtin.jq parser.go.y parser.go query.go operator.go _tools/*
 	GOOS= GOARCH= go generate
 
+.SUFFIXES:
+parser.go: parser.go.y lexer.go $(GOBIN)/goyacc
+	goyacc -o $@ $<
+
+$(GOBIN)/goyacc:
+	@cd && go get golang.org/x/tools/cmd/goyacc
+
 .PHONY: install
-install: builtin.go string.go
+install:
+	go install -ldflags=$(BUILD_LDFLAGS) ./...
+
+.PHONY: install-dev
+install-dev: parser.go builtin.go
 	go install -ldflags=$(BUILD_LDFLAGS) ./...
 
 .PHONY: install-debug
-install-debug: builtin.go string.go
+install-debug: parser.go builtin.go
 	go install -tags debug -ldflags=$(BUILD_LDFLAGS) ./...
 
 .PHONY: show-version
@@ -36,11 +51,18 @@ $(GOBIN)/gobump:
 	@cd && go get github.com/x-motemen/gobump/cmd/gobump
 
 .PHONY: cross
-cross: $(GOBIN)/goxz
+cross: $(GOBIN)/goxz CREDITS
 	goxz -n $(BIN) -pv=v$(VERSION) -include _$(BIN) -build-ldflags=$(BUILD_LDFLAGS) ./cmd/$(BIN)
 
 $(GOBIN)/goxz:
 	cd && go get github.com/Songmu/goxz/cmd/goxz
+
+CREDITS: $(GOBIN)/gocredits go.sum
+	go mod tidy
+	gocredits -w .
+
+$(GOBIN)/gocredits:
+	cd && go get github.com/Songmu/gocredits/cmd/gocredits
 
 .PHONY: test
 test: build
@@ -48,6 +70,7 @@ test: build
 
 .PHONY: lint
 lint: $(GOBIN)/golint
+	go vet ./...
 	golint -set_exit_status ./...
 
 $(GOBIN)/golint:
@@ -66,7 +89,7 @@ check-tools:
 
 .PHONY: clean
 clean:
-	rm -rf $(BIN) goxz
+	rm -rf $(BIN) goxz CREDITS
 	go clean
 
 .PHONY: bump
