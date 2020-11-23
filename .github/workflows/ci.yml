@@ -57,6 +57,10 @@ jobs:
           path-to-profile: coverage-${{ matrix.platform }}-${{ matrix.go-version }}.txt
           flag-name: ${{ matrix.platform }}-${{ matrix.go-version }}
           parallel: true
+      -
+        name: Test Integrity
+        run: |
+          [[ -z $(git status -s) ]] || echo 'modified and/or untracked' && exit 1
 
   # notifies that all test jobs are finished.
   finish:
