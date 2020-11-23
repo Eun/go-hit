@@ -1,5 +1,3 @@
-// +build test
-
 package hit
 
 // This file exposes functionality that should only be accessible during tests
