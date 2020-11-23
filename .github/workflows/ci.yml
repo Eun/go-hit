@@ -60,7 +60,7 @@ jobs:
       -
         name: Test Integrity
         run: |
-          [[ -z $(git status -s) ]] || echo 'modified and/or untracked' && exit 1
+          [[ -z $(git status -s) ]] || echo 'modified and/or untracked' && git status --short && exit 1
 
   # notifies that all test jobs are finished.
   finish:
