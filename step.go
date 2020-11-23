@@ -63,8 +63,9 @@ func (s StepTime) String() string {
 		return "ExpectStep"
 	case AfterExpectStep:
 		return "AfterExpectStep"
+	default:
+		return ""
 	}
-	return ""
 }
 
 // IStep defines a hit step.
