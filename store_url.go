@@ -41,7 +41,7 @@ type IStoreURL interface {
 	//
 	// Usage:
 	//     var values url.Values
-	//     Store().Request().URL().Query().In(&headers)
+	//     Store().Request().URL().Query().In(&values)
 	//     var user string
 	//     Store().Request().URL().Query("user").In(&user)
 	Query(name ...string) IStoreStep
