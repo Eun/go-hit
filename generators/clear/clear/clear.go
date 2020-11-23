@@ -225,7 +225,7 @@ func generateForStruct(generatedFiles *[]string, options generateOpts) error {
 
 	// when func
 	f.Func().Params(jen.Op("*").Id(name)).Id("when").Params().Id("StepTime").Block(
-		jen.Return(jen.Id("CleanStep")),
+		jen.Return(jen.Id("cleanStep")),
 	)
 
 	// callPath func

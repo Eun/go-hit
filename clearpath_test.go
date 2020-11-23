@@ -1,29 +1,31 @@
-package hit
+package hit_test
 
 import (
 	"bytes"
 	"crypto/rand"
 	"io"
 	"testing"
+
+	. "github.com/Eun/go-hit"
 )
 
 func TestClearPath_Contains(t *testing.T) {
 	tests := []struct {
-		haystack callPath
-		needle   callPath
+		haystack CallPath
+		needle   CallPath
 		want     bool
 	}{
-		{newCallPath("Foo", nil).Push("Bar", nil), newCallPath("Foo", nil).Push("Bar", nil), true},
-		{newCallPath("Foo", nil).Push("Bar", nil), newCallPath("Foo", nil), true},
-		{newCallPath("Foo", nil).Push("Bar", nil), newCallPath("Foo", []interface{}{1}), false},
-		{newCallPath("Foo", []interface{}{1}).Push("Bar", nil), newCallPath("Foo", nil), true},
-		{newCallPath("Foo", []interface{}{1}).Push("Bar", nil), newCallPath("Foo", nil).Push("Bar", nil), true},
-		{newCallPath("Foo", []interface{}{1}).Push("Bar", nil), newCallPath("Foo", []interface{}{1}), true},
-		{newCallPath("Foo", []interface{}{1}).Push("Bar", nil), newCallPath("Foo", []interface{}{1}).Push("Bar", nil), true},
-		{newCallPath("Foo", []interface{}{1}).Push("Bar", []interface{}{1}), newCallPath("Foo", []interface{}{1}).Push("Bar", []interface{}{1}), true},
-		{newCallPath("Foo", []interface{}{1}).Push("Bar", nil), newCallPath("Foo", []interface{}{2}), false},
-		{newCallPath("Foo", []interface{}{1, 2}).Push("Bar", nil), newCallPath("Foo", []interface{}{1}), true},
-		{newCallPath("Foo", []interface{}{1}).Push("Bar", nil), newCallPath("Foo", []interface{}{1, 2}), false},
+		{NewCallPath("Foo", nil).Push("Bar", nil), NewCallPath("Foo", nil).Push("Bar", nil), true},
+		{NewCallPath("Foo", nil).Push("Bar", nil), NewCallPath("Foo", nil), true},
+		{NewCallPath("Foo", nil).Push("Bar", nil), NewCallPath("Foo", []interface{}{1}), false},
+		{NewCallPath("Foo", []interface{}{1}).Push("Bar", nil), NewCallPath("Foo", nil), true},
+		{NewCallPath("Foo", []interface{}{1}).Push("Bar", nil), NewCallPath("Foo", nil).Push("Bar", nil), true},
+		{NewCallPath("Foo", []interface{}{1}).Push("Bar", nil), NewCallPath("Foo", []interface{}{1}), true},
+		{NewCallPath("Foo", []interface{}{1}).Push("Bar", nil), NewCallPath("Foo", []interface{}{1}).Push("Bar", nil), true},
+		{NewCallPath("Foo", []interface{}{1}).Push("Bar", []interface{}{1}), NewCallPath("Foo", []interface{}{1}).Push("Bar", []interface{}{1}), true},
+		{NewCallPath("Foo", []interface{}{1}).Push("Bar", nil), NewCallPath("Foo", []interface{}{2}), false},
+		{NewCallPath("Foo", []interface{}{1, 2}).Push("Bar", nil), NewCallPath("Foo", []interface{}{1}), true},
+		{NewCallPath("Foo", []interface{}{1}).Push("Bar", nil), NewCallPath("Foo", []interface{}{1, 2}), false},
 	}
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
@@ -38,12 +40,12 @@ func TestClearPath_ContainsFunc(t *testing.T) {
 	f1 := func(Hit) {}
 	f2 := func(Hit) {}
 	tests := []struct {
-		haystack callPath
-		needle   callPath
+		haystack CallPath
+		needle   CallPath
 		want     bool
 	}{
-		{newCallPath("Foo", []interface{}{f1}), newCallPath("Foo", []interface{}{f1}), true},
-		{newCallPath("Foo", []interface{}{f2}), newCallPath("Foo", []interface{}{f1}), false},
+		{NewCallPath("Foo", []interface{}{f1}), NewCallPath("Foo", []interface{}{f1}), true},
+		{NewCallPath("Foo", []interface{}{f2}), NewCallPath("Foo", []interface{}{f1}), false},
 	}
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
@@ -58,12 +60,12 @@ func TestClearPath_ContainsReader(t *testing.T) {
 	var r1 io.Reader = bytes.NewReader(nil)
 	r2 := rand.Reader
 	tests := []struct {
-		haystack callPath
-		needle   callPath
+		haystack CallPath
+		needle   CallPath
 		want     bool
 	}{
-		{newCallPath("Foo", []interface{}{r1}), newCallPath("Foo", []interface{}{r1}), true},
-		{newCallPath("Foo", []interface{}{r2}), newCallPath("Foo", []interface{}{r1}), false},
+		{NewCallPath("Foo", []interface{}{r1}), NewCallPath("Foo", []interface{}{r1}), true},
+		{NewCallPath("Foo", []interface{}{r2}), NewCallPath("Foo", []interface{}{r1}), false},
 	}
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {

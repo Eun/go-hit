@@ -40,7 +40,7 @@ func (v *clearExpectFormValues) trace() *errortrace.ErrorTrace {
 	return v.tr
 }
 func (*clearExpectFormValues) when() StepTime {
-	return CleanStep
+	return cleanStep
 }
 func (v *clearExpectFormValues) callPath() callPath {
 	return v.cp

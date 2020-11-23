@@ -125,7 +125,7 @@ func removeSteps(hit Hit, path callPath) error {
 func removeStep(cleanPath callPath) *hitStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     CleanStep,
+		When:     cleanStep,
 		CallPath: cleanPath,
 		Exec: func(hit *hitImpl) error {
 			return removeSteps(hit, cleanPath)

@@ -329,13 +329,13 @@ func do(steps ...IStep) *errortrace.ErrorTrace {
 	hit := &hitImpl{
 		client: http.DefaultClient,
 		steps:  steps,
-		state:  CombineStep,
+		state:  combineStep,
 	}
-	if err := hit.runSteps(CombineStep); err != nil {
+	if err := hit.runSteps(combineStep); err != nil {
 		return err
 	}
-	hit.state = CleanStep
-	if err := hit.runSteps(CleanStep); err != nil {
+	hit.state = cleanStep
+	if err := hit.runSteps(cleanStep); err != nil {
 		return err
 	}
 
@@ -442,7 +442,7 @@ func MustDo(steps ...IStep) {
 func CombineSteps(steps ...IStep) IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     CombineStep,
+		When:     combineStep,
 		CallPath: newCallPath("CombineSteps", nil),
 		Exec: func(hit *hitImpl) error {
 			hit.InsertSteps(steps...)
@@ -532,7 +532,7 @@ func Custom(when StepTime, exec Callback) IStep {
 func Return() IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     CleanStep,
+		When:     cleanStep,
 		CallPath: nil,
 		Exec: func(hit *hitImpl) error {
 			currentStep := hit.CurrentStep()

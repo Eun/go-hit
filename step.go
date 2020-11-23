@@ -13,12 +13,12 @@ import (
 type StepTime uint8
 
 const (
-	// CombineStep is a special step that runs before everything else and is used exclusively for the function
+	// combineStep is a special step that runs before everything else and is used exclusively for the function
 	// CombineSteps().
-	CombineStep StepTime = iota + 1
+	combineStep StepTime = iota + 1
 
-	// CleanStep is a step that runs during the clean step phase.
-	CleanStep
+	// cleanStep is a step that runs during the clean step phase.
+	cleanStep
 
 	// beforeRequestCreateStep will be run before the actual http request will be created.
 	beforeRequestCreateStep
@@ -45,10 +45,10 @@ const (
 // String represents the string representation of StepTime.
 func (s StepTime) String() string {
 	switch s {
-	case CombineStep:
-		return "CombineStep"
-	case CleanStep:
-		return "CleanStep"
+	case combineStep:
+		return "combineStep"
+	case cleanStep:
+		return "cleanStep"
 	case beforeRequestCreateStep:
 		return "beforeRequestCreateStep"
 	case BeforeSendStep:
@@ -63,8 +63,9 @@ func (s StepTime) String() string {
 		return "ExpectStep"
 	case AfterExpectStep:
 		return "AfterExpectStep"
+	default:
+		return ""
 	}
-	return ""
 }
 
 // IStep defines a hit step.

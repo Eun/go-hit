@@ -419,7 +419,7 @@ func main() {
 
 	f.Op(`
 func storeSteps(steps *[]IStep) IStep {
-	return Custom(CleanStep, func(hit Hit) error {
+	return Custom(StepTime(CleanStep), func(hit Hit) error {
 		*steps = hit.Steps()
 		return nil
 	})

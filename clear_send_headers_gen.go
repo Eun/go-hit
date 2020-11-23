@@ -24,7 +24,7 @@ func (v *clearSendHeaders) trace() *errortrace.ErrorTrace {
 	return v.tr
 }
 func (*clearSendHeaders) when() StepTime {
-	return CleanStep
+	return cleanStep
 }
 func (v *clearSendHeaders) callPath() callPath {
 	return v.cp

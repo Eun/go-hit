@@ -30,7 +30,7 @@ func (v *clearSend) trace() *errortrace.ErrorTrace {
 	return v.tr
 }
 func (*clearSend) when() StepTime {
-	return CleanStep
+	return cleanStep
 }
 func (v *clearSend) callPath() callPath {
 	return v.cp

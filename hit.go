@@ -280,7 +280,7 @@ func (hit *hitImpl) RemoveSteps(steps ...IStep) {
 
 func (hit *hitImpl) Do(steps ...IStep) error {
 	for _, step := range steps {
-		if step.when() != hit.state && step.when() != CleanStep {
+		if step.when() != hit.state && step.when() != cleanStep {
 			return xerrors.Errorf(
 				"unable to execute %s during %s, can only be run during %s",
 				step.callPath().CallString(true),
