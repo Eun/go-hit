@@ -5,32 +5,70 @@ import "github.com/Eun/go-hit/internal/converter"
 // IStoreURL defines the functions that can be used to store a URL part.
 type IStoreURL interface {
 	IStoreStep
-	// Scheme stores the URL's scheme
+	// Scheme stores the URLs scheme
 	Scheme() IStoreStep
 
-	// Scheme stores the URL's opaque status
+	// Scheme stores the URLs opaque status
 	Opaque() IStoreStep
 
-	// Scheme stores the URL's UserInfo
+	// Scheme stores the URLs UserInfo
 	User() IStoreUserInfo
 
-	// Host stores the URL's host
+	// Host stores the URLs host
 	Host() IStoreStep
 
-	// Path stores the URL's path
+	// Hostname stores the URLs host, stripping any valid port number if present.
+	//
+	// If the result is enclosed in square brackets, as literal IPv6 addresses are,
+	// the square brackets are removed from the result.
+	Hostname() IStoreStep
+
+	// Port stores the port part of the URLs host, without the leading colon.
+	//
+	// If URLs Host doesn't contain a valid numeric port, Port stores an empty string.
+	Port() IStoreStep
+
+	// Path stores the URLs path.
 	Path() IStoreStep
 
-	// RawPath stores the URL's RawPath value
+	// EscapedPath stores the URLs path.
+	EscapedPath() IStoreStep
+
+	// RawPath stores the URLs RawPath value.
 	RawPath() IStoreStep
 
-	// ForceQuery stores the URL's ForceQuery value
+	// Query stores the URLs Query value.
+	//
+	// Usage:
+	//     var values url.Values
+	//     Store().Request().URL().Query().In(&headers)
+	//     var user string
+	//     Store().Request().URL().Query("user").In(&user)
+	Query(name ...string) IStoreStep
+
+	// ForceQuery stores the URLs ForceQuery value.
 	ForceQuery() IStoreStep
 
-	// RawQuery stores the URL's RawQuery value
+	// RawQuery stores the URLs RawQuery value.
 	RawQuery() IStoreStep
 
-	// Fragment stores the URL's fragment value
+	// Fragment stores the URLs Fragment value.
 	Fragment() IStoreStep
+
+	// EscapedFragment stores URLs EscapedFragment value.
+	EscapedFragment() IStoreStep
+
+	// EscapedFragment stores URLs IsAbs value.
+	IsAbs() IStoreStep
+
+	// Redacted stores the URLs Redacted value.
+	Redacted() IStoreStep
+
+	// RequestURI stores the URLs RequestURI value.
+	RequestURI() IStoreStep
+
+	// String stores the URLs String value.
+	String() IStoreStep
 }
 
 type storeURL struct{}
@@ -67,15 +105,44 @@ func (s *storeURL) Host() IStoreStep {
 	})
 }
 
+func (s *storeURL) Hostname() IStoreStep {
+	return newStoreStep(func(hit Hit, v interface{}) error {
+		return converter.Convert(hit.Request().URL.Hostname(), v)
+	})
+}
+
+func (s *storeURL) Port() IStoreStep {
+	return newStoreStep(func(hit Hit, v interface{}) error {
+		return converter.Convert(hit.Request().URL.Port(), v)
+	})
+}
+
 func (s *storeURL) Path() IStoreStep {
 	return newStoreStep(func(hit Hit, v interface{}) error {
 		return converter.Convert(hit.Request().URL.Path, v)
 	})
 }
 
+func (s *storeURL) EscapedPath() IStoreStep {
+	return newStoreStep(func(hit Hit, v interface{}) error {
+		return converter.Convert(hit.Request().URL.EscapedPath(), v)
+	})
+}
+
 func (s *storeURL) RawPath() IStoreStep {
 	return newStoreStep(func(hit Hit, v interface{}) error {
 		return converter.Convert(hit.Request().URL.RawPath, v)
+	})
+}
+
+func (s *storeURL) Query(name ...string) IStoreStep {
+	if header, ok := getLastStringArgument(name); ok {
+		return newStoreStep(func(hit Hit, v interface{}) error {
+			return storeStringSlice(hit.Request().URL.Query()[header], v)
+		})
+	}
+	return newStoreStep(func(hit Hit, v interface{}) error {
+		return converter.Convert(hit.Request().URL.Query(), v)
 	})
 }
 
@@ -94,5 +161,35 @@ func (s *storeURL) RawQuery() IStoreStep {
 func (s *storeURL) Fragment() IStoreStep {
 	return newStoreStep(func(hit Hit, v interface{}) error {
 		return converter.Convert(hit.Request().URL.Fragment, v)
+	})
+}
+
+func (s *storeURL) EscapedFragment() IStoreStep {
+	return newStoreStep(func(hit Hit, v interface{}) error {
+		return converter.Convert(hit.Request().URL.EscapedFragment(), v)
+	})
+}
+
+func (s *storeURL) IsAbs() IStoreStep {
+	return newStoreStep(func(hit Hit, v interface{}) error {
+		return converter.Convert(hit.Request().URL.IsAbs(), v)
+	})
+}
+
+func (s *storeURL) Redacted() IStoreStep {
+	return newStoreStep(func(hit Hit, v interface{}) error {
+		return converter.Convert(hit.Request().URL.Redacted(), v)
+	})
+}
+
+func (s *storeURL) RequestURI() IStoreStep {
+	return newStoreStep(func(hit Hit, v interface{}) error {
+		return converter.Convert(hit.Request().URL.RequestURI(), v)
+	})
+}
+
+func (s *storeURL) String() IStoreStep {
+	return newStoreStep(func(hit Hit, v interface{}) error {
+		return converter.Convert(hit.Request().URL.String(), v)
 	})
 }

@@ -1,6 +1,8 @@
 package hit_test
 
 import (
+	"fmt"
+	"net"
 	"testing"
 
 	. "github.com/Eun/go-hit"
@@ -28,10 +30,10 @@ func TestStoreRequest_URL(t *testing.T) {
 	defer s.Close()
 
 	t.Run("all", func(t *testing.T) {
-		var u url.URL
+		var v url.URL
 		Test(t,
 			Post("http://joe:secret@%s", s.Listener.Addr().String()),
-			Store().Request().URL().In(&u),
+			Store().Request().URL().In(&v),
 		)
 
 		require.Equal(t, url.URL{
@@ -44,95 +46,129 @@ func TestStoreRequest_URL(t *testing.T) {
 			ForceQuery: false,
 			RawQuery:   "",
 			Fragment:   "",
-		}, u)
+		}, v)
 	})
 
 	t.Run("scheme", func(t *testing.T) {
-		var scheme string
+		var v string
 		Test(t,
 			Post("http://joe:secret@%s", s.Listener.Addr().String()),
-			Store().Request().URL().Scheme().In(&scheme),
+			Store().Request().URL().Scheme().In(&v),
 		)
 
-		require.Equal(t, "http", scheme)
+		require.Equal(t, "http", v)
 	})
 
 	t.Run("opaque", func(t *testing.T) {
-		var opaque string
+		var v string
 		Test(t,
 			Post(s.URL),
-			Store().Request().URL().Opaque().In(&opaque),
+			Store().Request().URL().Opaque().In(&v),
 		)
 
-		require.Equal(t, "", opaque)
+		require.Equal(t, "", v)
 	})
 
 	t.Run("user", func(t *testing.T) {
 		t.Run("all", func(t *testing.T) {
-			var u url.Userinfo
+			var v url.Userinfo
 			Test(t,
 				Post("http://joe:secret@%s", s.Listener.Addr().String()),
-				Store().Request().URL().User().In(&u),
+				Store().Request().URL().User().In(&v),
 			)
 
-			require.Equal(t, url.UserPassword("joe", "secret"), &u)
+			require.Equal(t, url.UserPassword("joe", "secret"), &v)
 		})
 
 		t.Run("username", func(t *testing.T) {
-			var u string
+			var v string
 			Test(t,
 				Post("http://joe:secret@%s", s.Listener.Addr().String()),
-				Store().Request().URL().User().Username().In(&u),
+				Store().Request().URL().User().Username().In(&v),
 			)
 
-			require.Equal(t, "joe", u)
+			require.Equal(t, "joe", v)
 		})
 		t.Run("password", func(t *testing.T) {
-			var p string
+			var v string
 			Test(t,
 				Post("http://joe:secret@%s", s.Listener.Addr().String()),
-				Store().Request().URL().User().Password().In(&p),
+				Store().Request().URL().User().Password().In(&v),
 			)
 
-			require.Equal(t, "secret", p)
+			require.Equal(t, "secret", v)
 		})
 
 		t.Run("string", func(t *testing.T) {
-			var p string
+			var v string
 			Test(t,
 				Post("http://joe:secret@%s", s.Listener.Addr().String()),
-				Store().Request().URL().User().String().In(&p),
+				Store().Request().URL().User().String().In(&v),
 			)
 
-			require.Equal(t, "joe:secret", p)
+			require.Equal(t, "joe:secret", v)
 		})
 
 		t.Run("nil password", func(t *testing.T) {
-			var u string
+			var v string
 			Test(t,
 				Post(s.URL),
-				Store().Request().URL().User().Password().In(&u),
+				Store().Request().URL().User().Password().In(&v),
 			)
 
-			require.Equal(t, "", u)
+			require.Equal(t, "", v)
 		})
 	})
 
-	t.Run("host", func(t *testing.T) {
-		var host string
+	t.Run("Host", func(t *testing.T) {
+		var v string
 		Test(t,
 			Post(s.URL),
-			Store().Request().URL().Host().In(&host),
+			Store().Request().URL().Host().In(&v),
 		)
 
-		require.Equal(t, s.Listener.Addr().String(), host)
+		require.Equal(t, s.Listener.Addr().String(), v)
 	})
 
-	t.Run("path", func(t *testing.T) {
+	t.Run("Hostname", func(t *testing.T) {
+		var v string
+		Test(t,
+			Post(s.URL),
+			Store().Request().URL().Hostname().In(&v),
+		)
+
+		host, _, err := net.SplitHostPort(s.Listener.Addr().String())
+		require.NoError(t, err)
+		require.Equal(t, host, v)
+	})
+
+	t.Run("Port", func(t *testing.T) {
+		var v string
+		Test(t,
+			Post(s.URL),
+			Store().Request().URL().Port().In(&v),
+		)
+
+		_, port, err := net.SplitHostPort(s.Listener.Addr().String())
+		require.NoError(t, err)
+		require.Equal(t, port, v)
+	})
+
+	t.Run("Path", func(t *testing.T) {
+		var v string
+		Test(t,
+			Post("http://%s/foo/bar", s.Listener.Addr().String()),
+			Store().Request().URL().Path().In(&v),
+		)
+
+		require.Equal(t, "/foo/bar", v)
+	})
+
+	t.Run("EscapedPath", func(t *testing.T) {
 		var path string
 		Test(t,
 			Post("http://%s/foo/bar", s.Listener.Addr().String()),
-			Store().Request().URL().Path().In(&path),
+			Store().Request().URL().EscapedPath().In(&path),
 		)
 
 		require.Equal(t, "/foo/bar", path)
@@ -146,6 +182,38 @@ func TestStoreRequest_URL(t *testing.T) {
 		)
 
 		require.Equal(t, "", rawPath)
+	})
+
+	t.Run("Query", func(t *testing.T) {
+		t.Run("all", func(t *testing.T) {
+			var v url.Values
+			Test(t,
+				Post("http://%s?foo=bar", s.Listener.Addr().String()),
+				Store().Request().URL().Query().In(&v),
+			)
+
+			require.Equal(t, v, url.Values{
+				"foo": []string{"bar"},
+			})
+		})
+		t.Run("specific", func(t *testing.T) {
+			var v string
+			Test(t,
+				Post("http://%s?foo=bar", s.Listener.Addr().String()),
+				Store().Request().URL().Query("foo").In(&v),
+			)
+
+			require.Equal(t, v, "bar")
+		})
+		t.Run("specific invalid", func(t *testing.T) {
+			var v string
+			Test(t,
+				Post("http://%s?foo=bar", s.Listener.Addr().String()),
+				Store().Request().URL().Query("foo2").In(&v),
+			)
+
+			require.Equal(t, v, "")
+		})
 	})
 
 	t.Run("ForceQuery", func(t *testing.T) {
@@ -176,6 +244,56 @@ func TestStoreRequest_URL(t *testing.T) {
 		)
 
 		require.Equal(t, "hash", v)
+	})
+
+	t.Run("EscapedFragment", func(t *testing.T) {
+		var v string
+		Test(t,
+			Post("http://%s/foo/bar#hash", s.Listener.Addr().String()),
+			Store().Request().URL().EscapedFragment().In(&v),
+		)
+
+		require.Equal(t, "hash", v)
+	})
+
+	t.Run("IsAbs", func(t *testing.T) {
+		var v bool
+		Test(t,
+			Post("http://%s/foo/bar#hash", s.Listener.Addr().String()),
+			Store().Request().URL().IsAbs().In(&v),
+		)
+
+		require.True(t, v)
+	})
+
+	t.Run("Redacted", func(t *testing.T) {
+		var v string
+		Test(t,
+			Post("http://%s/foo/bar#hash", s.Listener.Addr().String()),
+			Store().Request().URL().Redacted().In(&v),
+		)
+
+		require.Equal(t, fmt.Sprintf("http://%s/foo/bar#hash", s.Listener.Addr().String()), v)
+	})
+
+	t.Run("RequestURI", func(t *testing.T) {
+		var v string
+		Test(t,
+			Post("http://%s/foo/bar#hash", s.Listener.Addr().String()),
+			Store().Request().URL().RequestURI().In(&v),
+		)
+
+		require.Equal(t, "/foo/bar", v)
+	})
+
+	t.Run("String", func(t *testing.T) {
+		var v string
+		Test(t,
+			Post("http://%s/foo/bar#hash", s.Listener.Addr().String()),
+			Store().Request().URL().String().In(&v),
+		)
+
+		require.Equal(t, fmt.Sprintf("http://%s/foo/bar#hash", s.Listener.Addr().String()), v)
 	})
 }
 
