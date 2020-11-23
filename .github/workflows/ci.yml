@@ -58,13 +58,16 @@ jobs:
           flag-name: ${{ matrix.platform }}-${{ matrix.go-version }}
           parallel: true
       -
-        name: Test Integrity
+        name: Check if there are changes
+        id: changes
+        uses: UnicornGlobal/has-changes-action@v1.0.11
+      -
+        name: Process changes
+        if: steps.changes.outputs.changed == 1
         run: |
-          if [ -n $(git status -s) ]; then
-            echo 'modified and/or untracked'
-            git status --short
-            exit 1
-          fi
+          echo 'changes exist'
+          git status --short
+          exit 1
 
   # notifies that all test jobs are finished.
   finish:
