@@ -32,7 +32,7 @@ func (v *clearExpectBytes) trace() *errortrace.ErrorTrace {
 	return v.tr
 }
 func (*clearExpectBytes) when() StepTime {
-	return CleanStep
+	return cleanStep
 }
 func (v *clearExpectBytes) callPath() callPath {
 	return v.cp

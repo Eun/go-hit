@@ -42,7 +42,7 @@ func (v *clearExpectInt16) trace() *errortrace.ErrorTrace {
 	return v.tr
 }
 func (*clearExpectInt16) when() StepTime {
-	return CleanStep
+	return cleanStep
 }
 func (v *clearExpectInt16) callPath() callPath {
 	return v.cp

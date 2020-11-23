@@ -40,7 +40,7 @@ func (v *clearExpectHeaders) trace() *errortrace.ErrorTrace {
 	return v.tr
 }
 func (*clearExpectHeaders) when() StepTime {
-	return CleanStep
+	return cleanStep
 }
 func (v *clearExpectHeaders) callPath() callPath {
 	return v.cp

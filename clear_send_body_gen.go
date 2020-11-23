@@ -64,7 +64,7 @@ func (v *clearSendBody) trace() *errortrace.ErrorTrace {
 	return v.tr
 }
 func (*clearSendBody) when() StepTime {
-	return CleanStep
+	return cleanStep
 }
 func (v *clearSendBody) callPath() callPath {
 	return v.cp

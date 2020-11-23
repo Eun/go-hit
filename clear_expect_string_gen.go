@@ -36,7 +36,7 @@ func (v *clearExpectString) trace() *errortrace.ErrorTrace {
 	return v.tr
 }
 func (*clearExpectString) when() StepTime {
-	return CleanStep
+	return cleanStep
 }
 func (v *clearExpectString) callPath() callPath {
 	return v.cp

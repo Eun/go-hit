@@ -24,7 +24,7 @@ func (v *clearSendFormValues) trace() *errortrace.ErrorTrace {
 	return v.tr
 }
 func (*clearSendFormValues) when() StepTime {
-	return CleanStep
+	return cleanStep
 }
 func (v *clearSendFormValues) callPath() callPath {
 	return v.cp

@@ -34,7 +34,7 @@ func (v *clearExpectBodyJSONJQ) trace() *errortrace.ErrorTrace {
 	return v.tr
 }
 func (*clearExpectBodyJSONJQ) when() StepTime {
-	return CleanStep
+	return cleanStep
 }
 func (v *clearExpectBodyJSONJQ) callPath() callPath {
 	return v.cp
