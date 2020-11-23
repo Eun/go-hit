@@ -102,7 +102,7 @@ func (step *hitStep) exec(hit *hitImpl) (err error) {
 	return step.Exec(hit)
 }
 
-func execStep(hit *hitImpl, step IStep) (err *errortrace.ErrorTrace) {
+func execStep(hit *hitImpl, step IStep) (err *Error) {
 	setError := func(r interface{}) {
 		if r == nil {
 			return
@@ -117,18 +117,23 @@ func execStep(hit *hitImpl, step IStep) (err *errortrace.ErrorTrace) {
 		}
 
 		switch v := r.(type) {
-		case *errortrace.ErrorTrace:
-			// this is already a errortrace
+		// this is already a hit.Error
+		case *Error:
 			err = v
-			return
 		case error:
 			step.trace().SetError(v)
 			setMeta()
-			err = step.trace()
+			err = &Error{
+				callPath: step.callPath(),
+				et:       step.trace(),
+			}
 		default:
 			step.trace().SetError(xerrors.New(fmt.Sprint(r)))
 			setMeta()
-			err = step.trace()
+			err = &Error{
+				callPath: step.callPath(),
+				et:       step.trace(),
+			}
 		}
 	}
 

@@ -45,7 +45,7 @@ func TestHttpBin(t *testing.T) {
 }
 ``` 
 
-## expect, expect, expect, ....
+## Expect, Expect, Expect, ....
 ```go
 MustDo(
     Get("https://httpbin.org/post"),
@@ -55,7 +55,7 @@ MustDo(
 )
 ``` 
 
-## Sending some data
+## Sending Data
 ```go
 MustDo(
     Post("https://httpbin.org/post"),
@@ -66,7 +66,7 @@ MustDo(
 ``` 
 
 
-### Sending and expecting JSON
+### Sending And Expecting JSON
 ```go
 MustDo(
     Post("https://httpbin.org/post"),
@@ -78,7 +78,7 @@ MustDo(
 ``` 
 
 
-## Storing data from the Response
+## Storing Data From The Response
 ```go
 var name string
 var roles []string
@@ -102,6 +102,25 @@ MustDo(
 )
 ```
 
+## Handling Errors
+It is possible to handle errors in a custom way.
+```go //ignore
+func login(username, password string) error {
+    err := Do(
+         Get("https://httpbin.org/basic-auth/joe/secret"),
+         Send().Headers("Authorization").Add("Basic " + base64.StdEncoding.EncodeToString([]byte(username + ":" + password))),
+         Expect().Status().Equal(http.StatusOK),
+    )
+    var hitError *Error
+    if errors.As(err, &hitError) {
+        if hitError.FailingStepIs(Expect().Status().Equal(http.StatusOK)) {
+            return errors.New("login failed")
+        }
+    }
+    return err
+}
+```
+
 ## Twisted!
 Although the following is hard to read it is possible to do!
 ```go
@@ -113,7 +132,7 @@ MustDo(
 )
 ```
 
-## Custom Send and Expects
+## Custom Send And Expects
 ```go
 MustDo(
     Get("https://httpbin.org/get"),

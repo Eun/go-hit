@@ -325,7 +325,7 @@ func Test(t TestingT, steps ...IStep) {
 }
 
 // do func that ensures we always return an *ErrorTrace.
-func do(steps ...IStep) *errortrace.ErrorTrace {
+func do(steps ...IStep) *Error {
 	hit := &hitImpl{
 		client: http.DefaultClient,
 		steps:  steps,
@@ -405,13 +405,6 @@ func do(steps ...IStep) *errortrace.ErrorTrace {
 		}
 	}
 	return nil
-}
-
-func wrapError(hit Hit, err error) *errortrace.ErrorTrace {
-	t := ett.Prepare()
-	t.SetError(err)
-	t.SetDescription(hit.Description())
-	return t
 }
 
 // Do runs the specified steps and returns error if something was wrong.
