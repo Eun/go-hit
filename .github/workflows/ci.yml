@@ -62,7 +62,7 @@ jobs:
         run: |
           if [ -z $(git status -s) ]; then
             echo 'modified and/or untracked'
-            git status --short
+            git status
             exit 1
           fi
 
