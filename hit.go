@@ -42,8 +42,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Eun/go-hit/errortrace"
-
 	"golang.org/x/xerrors"
 )
 
@@ -190,7 +188,7 @@ func (hit *hitImpl) collectSteps(state StepTime) []IStep {
 	return collectedSteps
 }
 
-func (hit *hitImpl) runSteps(state StepTime) *errortrace.ErrorTrace {
+func (hit *hitImpl) runSteps(state StepTime) *Error {
 	// find all steps we want to run
 	stepsToRun := hit.collectSteps(state)
 	size := len(stepsToRun)

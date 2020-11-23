@@ -76,6 +76,33 @@ func (cleanPath callPath) Contains(needle callPath) bool {
 	return true
 }
 
+func (cleanPath callPath) Equal(b callPath) bool {
+	aSize := len(cleanPath)
+	bSize := len(b)
+	if bSize != aSize {
+		return false
+	}
+	for i := 0; i < aSize; i++ {
+		if cleanPath[i].Func != b[i].Func {
+			return false
+		}
+
+		aArgSize := len(cleanPath[i].Arguments)
+		bArgSize := len(b[i].Arguments)
+
+		if aArgSize > bArgSize {
+			aArgSize = bArgSize
+		}
+		if !cmp.Equal(cleanPath[i].Arguments[:aArgSize], b[i].Arguments,
+			cmp.Comparer(funcComparer),
+			cmp.Comparer(ioReaderComparer),
+		) {
+			return false
+		}
+	}
+	return true
+}
+
 func (cleanPath callPath) CallString(withArguments bool) string {
 	parts := make([]string, len(cleanPath))
 	for i := range cleanPath {

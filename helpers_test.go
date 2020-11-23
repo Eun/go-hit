@@ -9,9 +9,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Eun/go-hit/errortrace"
+
+	"github.com/Eun/go-hit"
+
 	"github.com/stretchr/testify/require"
 
-	"github.com/Eun/go-hit/errortrace"
 	"github.com/Eun/go-hit/internal/minitest"
 )
 
@@ -52,7 +55,11 @@ var whiteSpaceRegex = regexp.MustCompile(`\s+`)
 func ExpectError(t *testing.T, err error, equalLines ...*string) {
 	require.NotNil(t, err)
 
-	etError, ok := err.(*errortrace.ErrorTrace)
+	hitErr, ok := err.(*hit.Error)
+	if !ok {
+		require.FailNow(t, "err is not *hit.Error")
+	}
+	etError, ok := hitErr.Unwrap().(*errortrace.ErrorTrace)
 	if !ok {
 		require.FailNow(t, "err is not *errortrace.ErrorTrace")
 	}
