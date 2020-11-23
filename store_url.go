@@ -55,14 +55,8 @@ type IStoreURL interface {
 	// Fragment stores the URLs Fragment value.
 	Fragment() IStoreStep
 
-	// EscapedFragment stores URLs EscapedFragment value.
-	EscapedFragment() IStoreStep
-
-	// EscapedFragment stores URLs IsAbs value.
+	// IsAbs stores URLs IsAbs value.
 	IsAbs() IStoreStep
-
-	// Redacted stores the URLs Redacted value.
-	Redacted() IStoreStep
 
 	// RequestURI stores the URLs RequestURI value.
 	RequestURI() IStoreStep
@@ -164,21 +158,9 @@ func (s *storeURL) Fragment() IStoreStep {
 	})
 }
 
-func (s *storeURL) EscapedFragment() IStoreStep {
-	return newStoreStep(func(hit Hit, v interface{}) error {
-		return converter.Convert(hit.Request().URL.EscapedFragment(), v)
-	})
-}
-
 func (s *storeURL) IsAbs() IStoreStep {
 	return newStoreStep(func(hit Hit, v interface{}) error {
 		return converter.Convert(hit.Request().URL.IsAbs(), v)
-	})
-}
-
-func (s *storeURL) Redacted() IStoreStep {
-	return newStoreStep(func(hit Hit, v interface{}) error {
-		return converter.Convert(hit.Request().URL.Redacted(), v)
 	})
 }
 

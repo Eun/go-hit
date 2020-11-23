@@ -246,16 +246,6 @@ func TestStoreRequest_URL(t *testing.T) {
 		require.Equal(t, "hash", v)
 	})
 
-	t.Run("EscapedFragment", func(t *testing.T) {
-		var v string
-		Test(t,
-			Post("http://%s/foo/bar#hash", s.Listener.Addr().String()),
-			Store().Request().URL().EscapedFragment().In(&v),
-		)
-
-		require.Equal(t, "hash", v)
-	})
-
 	t.Run("IsAbs", func(t *testing.T) {
 		var v bool
 		Test(t,
@@ -264,16 +254,6 @@ func TestStoreRequest_URL(t *testing.T) {
 		)
 
 		require.True(t, v)
-	})
-
-	t.Run("Redacted", func(t *testing.T) {
-		var v string
-		Test(t,
-			Post("http://%s/foo/bar#hash", s.Listener.Addr().String()),
-			Store().Request().URL().Redacted().In(&v),
-		)
-
-		require.Equal(t, fmt.Sprintf("http://%s/foo/bar#hash", s.Listener.Addr().String()), v)
 	})
 
 	t.Run("RequestURI", func(t *testing.T) {
