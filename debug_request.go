@@ -164,7 +164,7 @@ func (d *debugRequest) URL() IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
 		When:     BeforeExpectStep,
-		CallPath: d.cp.Push("RequestURL", nil),
+		CallPath: d.cp.Push("URL", nil),
 		Exec: func(hit *hitImpl) error {
 			return d.debug.print(d.debug.out(hit), hit.Request().URL)
 		},
