@@ -153,9 +153,7 @@ func TestHttpBodyJson_JQ(t *testing.T) {
 			if err := body.JSON().JQ(&container, expression); (err != nil) != wantErr {
 				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
 			}
-			if !reflect.DeepEqual(container, want) {
-				t.Errorf("container = %v (%T), want %v (%T)", container, container, want, want)
-			}
+			require.Equal(t, want, container, want)
 		})
 	})
 
@@ -168,9 +166,7 @@ func TestHttpBodyJson_JQ(t *testing.T) {
 			if err := body.JSON().JQ(&container, expression); (err != nil) != wantErr {
 				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
 			}
-			if !reflect.DeepEqual(container, want) {
-				t.Errorf("container = %v (%T), want %v (%T)", container, container, want, want)
-			}
+			require.Equal(t, want, container, want)
 		})
 	})
 
@@ -183,9 +179,7 @@ func TestHttpBodyJson_JQ(t *testing.T) {
 			if err := body.JSON().JQ(&container, expression); (err != nil) != wantErr {
 				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
 			}
-			if !reflect.DeepEqual(container, want) {
-				t.Errorf("container = %v (%T), want %v (%T)", container, container, want, want)
-			}
+			require.Equal(t, want, container, want)
 		})
 	})
 
@@ -198,9 +192,7 @@ func TestHttpBodyJson_JQ(t *testing.T) {
 			if err := body.JSON().JQ(&container, expression); (err != nil) != wantErr {
 				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
 			}
-			if !reflect.DeepEqual(container, want) {
-				t.Errorf("container = %v (%T), want %v (%T)", container, container, want, want)
-			}
+			require.Equal(t, want, container, want)
 		})
 	})
 
@@ -213,9 +205,7 @@ func TestHttpBodyJson_JQ(t *testing.T) {
 			if err := body.JSON().JQ(&container, expression); (err != nil) != wantErr {
 				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
 			}
-			if !reflect.DeepEqual(container, want) {
-				t.Errorf("container = %v (%T), want %v (%T)", container, container, want, want)
-			}
+			require.Equal(t, want, container, want)
 		})
 	})
 
@@ -228,9 +218,7 @@ func TestHttpBodyJson_JQ(t *testing.T) {
 			if err := body.JSON().JQ(&container, expression); (err != nil) != wantErr {
 				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
 			}
-			if !reflect.DeepEqual(container, want) {
-				t.Errorf("container = %v (%T), want %v (%T)", container, container, want, want)
-			}
+			require.Equal(t, want, container, want)
 		})
 	})
 
@@ -243,9 +231,7 @@ func TestHttpBodyJson_JQ(t *testing.T) {
 			if err := body.JSON().JQ(&container, expression); (err != nil) != wantErr {
 				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
 			}
-			if !reflect.DeepEqual(container, want) {
-				t.Errorf("container = %v (%T), want %v (%T)", container, container, want, want)
-			}
+			require.Equal(t, want, container, want)
 		})
 	})
 
@@ -258,9 +244,20 @@ func TestHttpBodyJson_JQ(t *testing.T) {
 			if err := body.JSON().JQ(&container, expression); (err != nil) != wantErr {
 				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
 			}
-			if !reflect.DeepEqual(container, want) {
-				t.Errorf("container = %v (%T), want %v (%T)", container, container, want, want)
+			require.Equal(t, want, container, want)
+		})
+	})
+
+	t.Run("return array", func(t *testing.T) {
+		testServer(`{"users":[{"Name":"Joe","Id":10},{"Name":"Alice","Id":11},{"Name":"Bob","Id":12}]}`, func(body *HTTPBody) {
+			container := []User{}
+			expression := ".users[]"
+			wantErr := false
+			want := []User{{"Joe"}, {"Alice"}, {"Bob"}}
+			if err := body.JSON().JQ(&container, expression); (err != nil) != wantErr {
+				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
 			}
+			require.Equal(t, want, container, want)
 		})
 	})
 }

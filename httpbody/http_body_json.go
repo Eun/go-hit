@@ -161,6 +161,7 @@ func (jsn *HTTPBodyJSON) JQ(container interface{}, expression ...string) error {
 			}
 			return json.NewDecoder(&buf).Decode(container)
 		}
+		col = append(col, v)
 	}
 }
 
