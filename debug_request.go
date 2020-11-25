@@ -112,7 +112,6 @@ func (d *debugRequest) data(hit Hit) map[string]interface{} {
 		urlData["ForceQuery"] = u.ForceQuery
 		urlData["RawQuery"] = u.RawQuery
 		urlData["Fragment"] = u.Fragment
-		urlData["RawFragment"] = u.RawFragment
 		urlData["String"] = u.String()
 
 		if u.User == nil {
