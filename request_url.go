@@ -16,7 +16,7 @@ type IRequestURL interface {
 	//
 	// Example:
 	//     MustDo(
-	//         Get(""),
+	//         Request().Method(http.MethodGet),
 	//         Request().URL().Scheme("https"),
 	//         Request().URL().Host("example.com"),
 	//         Request().URL().Path("/index.html"),
@@ -30,8 +30,7 @@ type IRequestURL interface {
 	//
 	// Example:
 	//     MustDo(
-	//         Get(""),
-	//         Request().URL().Scheme("https"),
+	//         Request().Method(http.MethodGet),
 	//         Request().URL().Host("example.com"),
 	//         Request().URL().Path("/index.html"),
 	//     )
@@ -44,8 +43,7 @@ type IRequestURL interface {
 	//
 	// Example:
 	//     MustDo(
-	//         Get(""),
-	//         Request().URL().Scheme("https"),
+	//         Request().Method(http.MethodGet),
 	//         Request().URL().Host("example.com"),
 	//         Request().URL().Path("/index.html"),
 	//     )
@@ -58,8 +56,7 @@ type IRequestURL interface {
 	//
 	// Example:
 	//     MustDo(
-	//         Get(""),
-	//         Request().URL().Scheme("https"),
+	//         Request().Method(http.MethodGet),
 	//         Request().URL().Host("example.com"),
 	//         Request().URL().RawPath("/index.html"),
 	//     )
@@ -72,8 +69,7 @@ type IRequestURL interface {
 	//
 	// Example:
 	//     MustDo(
-	//         Get(""),
-	//         Request().URL().Scheme("https"),
+	//         Request().Method(http.MethodGet),
 	//         Request().URL().Host("example.com"),
 	//         Request().URL().Path("/index.html"),
 	//         Request().URL().ForceQuery(true),
@@ -87,8 +83,7 @@ type IRequestURL interface {
 	//
 	// Example:
 	//     MustDo(
-	//         Get(""),
-	//         Request().URL().Scheme("https"),
+	//         Request().Method(http.MethodGet),
 	//         Request().URL().Host("example.com"),
 	//         Request().URL().Path("/index.html"),
 	//         Request().URL().Query("page").Add(1),
@@ -102,8 +97,7 @@ type IRequestURL interface {
 	//
 	// Example:
 	//     MustDo(
-	//         Get(""),
-	//         Request().URL().Scheme("https"),
+	//         Request().Method(http.MethodGet),
 	//         Request().URL().Host("example.com"),
 	//         Request().URL().Path("/index.html"),
 	//         Request().URL().RawQuery("x=1&y=2"),
@@ -117,8 +111,7 @@ type IRequestURL interface {
 	//
 	// Example:
 	//     MustDo(
-	//         Get(""),
-	//         Request().URL().Scheme("https"),
+	//         Request().Method(http.MethodGet),
 	//         Request().URL().Host("example.com"),
 	//         Request().URL().Path("/index.html"),
 	//         Request().URL().Fragment("anchor"),
@@ -133,8 +126,7 @@ type IRequestURL interface {
 	//
 	// Example:
 	//     MustDo(
-	//         Get(""),
-	//         Request().URL().Scheme("https"),
+	//         Request().Method(http.MethodGet),
 	//         Request().URL().Host("example.com"),
 	//         Request().URL().Path("/index.html"),
 	//         Request().URL().User().Username("joe"),

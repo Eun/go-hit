@@ -353,9 +353,13 @@ func do(steps ...IStep) *Error {
 		return err
 	}
 
-	// user did not specify a request with Request()
-	if hit.request.Method == "" || hit.request.URL == nil {
+	// user did not specify a request with Request().Set()
+	if hit.request.Method == "" || hit.request.URL == nil || hit.request.URL.Host == "" {
 		return wrapError(hit, xerrors.New("unable to create a request: did you called Post(), Get(), ...?"))
+	}
+
+	if hit.request.URL.Scheme == "" {
+		hit.request.URL.Scheme = "https"
 	}
 
 	hit.state = BeforeSendStep

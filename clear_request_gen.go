@@ -17,6 +17,8 @@ type IClearRequest interface {
 	Headers(value ...string) IClearSendHeaders
 	// Host clears all matching Host steps
 	Host(value ...string) IStep
+	// Method clears all matching Method steps
+	Method(value ...string) IStep
 	// Set clears all matching Set steps
 	Set(value ...*http.Request) IStep
 	// Trailers clears all matching Trailers steps
@@ -52,6 +54,9 @@ func (v *clearRequest) Headers(value ...string) IClearSendHeaders {
 }
 func (v *clearRequest) Host(value ...string) IStep {
 	return removeStep(v.callPath().Push("Host", stringSliceToInterfaceSlice(value)))
+}
+func (v *clearRequest) Method(value ...string) IStep {
+	return removeStep(v.callPath().Push("Method", stringSliceToInterfaceSlice(value)))
 }
 func (v *clearRequest) Set(value ...*http.Request) IStep {
 	return removeStep(v.callPath().Push("Set", requestSliceToInterfaceSlice(value)))

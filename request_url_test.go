@@ -23,7 +23,7 @@ func TestRequestURL_Set(t *testing.T) {
 
 	var v string
 	Test(t,
-		Get(""),
+		Request().Method(http.MethodGet),
 		Request().URL().Set(u),
 		Expect().Status().Equal(http.StatusOK),
 		Store().Request().URL().Scheme().In(&v),

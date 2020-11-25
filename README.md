@@ -124,7 +124,7 @@ func login(username, password string) error {
 ## Build the request url manually
 ```go
 MustDo(
-    Post(""),
+    Request().Method(http.MethodPost),
     Request().URL().Scheme("https"),
     Request().URL().Host("httpbin.org"),
     Request().URL().Path("/post"),

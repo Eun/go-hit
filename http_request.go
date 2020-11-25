@@ -22,6 +22,7 @@ func newHTTPRequest(hit Hit, req *http.Request) *HTTPRequest {
 		Proto:      "HTTP/1.1",
 		ProtoMajor: 1,
 		ProtoMinor: 1,
+		URL:        new(url.URL),
 	}
 
 	if req == nil {

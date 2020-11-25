@@ -61,7 +61,7 @@ func TestReadmeCodePart4(t *testing.T) {
 }
 func TestReadmeCodePart5(t *testing.T) {
 	MustDo(
-		Post(""),
+		Request().Method(http.MethodPost),
 		Request().URL().Scheme("https"),
 		Request().URL().Host("httpbin.org"),
 		Request().URL().Path("/post"),

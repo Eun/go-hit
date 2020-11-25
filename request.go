@@ -49,6 +49,20 @@ type IRequest interface {
 	//         Request().Host("example.com"),
 	//     )
 	Host(name string) IStep
+
+	// Method sets the request method to the specified value.
+	//
+	// Usage:
+	//     Request().Method(http.MethodPost)
+	//
+	// Example:
+	//     MustDo(
+	//         Request().Method(http.MethodPost),
+	//         Request().URL().Scheme("https"),
+	//         Request().URL().Host("example.com"),
+	//         Request().URL().Path("/index.html"),
+	//     )
+	Method(method string) IStep
 }
 
 type request struct {
@@ -95,10 +109,22 @@ func (req *request) Trailers(name string) ISendHeaders {
 func (req *request) Host(name string) IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     SendStep,
+		When:     requestCreateStep,
 		CallPath: req.cleanPath.Push("Host", []interface{}{name}),
 		Exec: func(hit *hitImpl) error {
 			hit.request.Host = name
+			return nil
+		},
+	}
+}
+
+func (req *request) Method(method string) IStep {
+	return &hitStep{
+		Trace:    ett.Prepare(),
+		When:     requestCreateStep,
+		CallPath: req.cleanPath.Push("Method", []interface{}{method}),
+		Exec: func(hit *hitImpl) error {
+			hit.request.Method = method
 			return nil
 		},
 	}
