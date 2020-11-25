@@ -11,6 +11,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/Eun/go-hit/errortrace"
+
+	urlpkg "net/url"
 )
 
 //nolint:gochecknoglobals
@@ -125,7 +127,7 @@ func Store() IStore {
 func HTTPClient(client *http.Client) IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     beforeRequestCreateStep,
+		When:     requestCreateStep,
 		CallPath: newCallPath("HTTPClient", nil),
 		Exec: func(hit *hitImpl) error {
 			return hit.SetHTTPClient(client)
@@ -148,7 +150,7 @@ func HTTPClient(client *http.Client) IStep {
 func BaseURL(url string, a ...interface{}) IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     beforeRequestCreateStep,
+		When:     requestCreateStep,
 		CallPath: newCallPath("BaseURL", nil),
 		Exec: func(hit *hitImpl) error {
 			hit.SetBaseURL(url, a...)
@@ -157,22 +159,15 @@ func BaseURL(url string, a ...interface{}) IStep {
 	}
 }
 
-// Request sets the existing http request.
+// Request provides methods to set request parameters.
 //
 // Example:
 //     request, _ := http.NewRequest(http.MethodGet, "https://example.com", nil)
 //     MustDo(
-//         Request(request),
+//         Request().Set(request),
 //     )
-func Request(request *http.Request) IStep {
-	return &hitStep{
-		Trace:    ett.Prepare(),
-		When:     beforeRequestCreateStep,
-		CallPath: newCallPath("Request", nil),
-		Exec: func(hit *hitImpl) error {
-			return hit.SetRequest(request)
-		},
-	}
+func Request() IRequest {
+	return newRequest(newCallPath("Request", nil))
 }
 
 // Method sets the specified method and url.
@@ -192,11 +187,20 @@ func Method(method, url string, a ...interface{}) IStep {
 func makeMethodStep(fnName, method, url string, a ...interface{}) IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     beforeRequestCreateStep,
+		When:     requestCreateStep,
 		CallPath: newCallPath(fnName, nil),
 		Exec: func(hit *hitImpl) error {
-			hit.fullURL = misc.MakeURL(hit.BaseURL(), url, a...)
-			hit.method = method
+			hit.request.Method = method
+			url = misc.MakeURL(hit.BaseURL(), url, a...)
+			if url == "" {
+				hit.request.URL = new(urlpkg.URL)
+				return nil
+			}
+			var err error
+			hit.request.URL, err = urlpkg.Parse(url)
+			if err != nil {
+				return err
+			}
 			return nil
 		},
 	}
@@ -339,29 +343,23 @@ func do(steps ...IStep) *Error {
 		return err
 	}
 
-	hit.state = beforeRequestCreateStep
-	if err := hit.runSteps(beforeRequestCreateStep); err != nil {
+	hit.request = newHTTPRequest(hit, nil)
+	hit.request.Header = map[string][]string{
+		// remove some standard headers
+		"User-Agent": {""},
+	}
+	hit.state = requestCreateStep
+	if err := hit.runSteps(requestCreateStep); err != nil {
 		return err
 	}
 
-	// user did not specify a request with Request()
-	if hit.request == nil {
-		if hit.context == nil {
-			hit.context = context.Background()
-		}
-		if hit.method == "" || hit.fullURL == "" {
-			return wrapError(hit, xerrors.New("unable to create a request: did you called Post(), Get(), ...?"))
-		}
-		request, err := http.NewRequestWithContext(hit.context, hit.method, hit.fullURL, nil)
-		if err != nil {
-			return wrapError(hit, err)
-		}
+	// user did not specify a request with Request().Set()
+	if hit.request.Method == "" || hit.request.URL == nil || hit.request.URL.Host == "" {
+		return wrapError(hit, xerrors.New("unable to create a request: did you called Post(), Get(), ...?"))
+	}
 
-		// remove some standard headers
-		request.Header.Set("User-Agent", "")
-		if err := hit.SetRequest(request); err != nil {
-			return wrapError(hit, err)
-		}
+	if hit.request.URL.Scheme == "" {
+		hit.request.URL.Scheme = "https"
 	}
 
 	hit.state = BeforeSendStep
@@ -455,7 +453,7 @@ func CombineSteps(steps ...IStep) IStep {
 func Description(description string) IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     beforeRequestCreateStep,
+		When:     requestCreateStep,
 		CallPath: newCallPath("Description", nil),
 		Exec: func(hit *hitImpl) error {
 			hit.SetDescription(description)
@@ -560,10 +558,10 @@ func Return() IStep {
 func Context(ctx context.Context) IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     beforeRequestCreateStep,
+		When:     requestCreateStep,
 		CallPath: nil,
 		Exec: func(hit *hitImpl) error {
-			hit.context = ctx
+			hit.request.Request = hit.request.Request.WithContext(ctx)
 			return nil
 		},
 	}

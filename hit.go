@@ -133,9 +133,6 @@ type hitImpl struct {
 	state       StepTime
 	baseURL     string
 	description string
-	context     context.Context
-	method      string
-	fullURL     string
 }
 
 func (hit *hitImpl) Request() *HTTPRequest {
@@ -147,9 +144,6 @@ func (hit *hitImpl) SetRequest(request *http.Request) error {
 		return xerrors.New("request cannot be nil")
 	}
 	hit.request = newHTTPRequest(hit, request)
-	hit.context = hit.request.Context()
-	hit.method = hit.request.Method
-	hit.fullURL = hit.request.URL.String()
 	return nil
 }
 
@@ -307,5 +301,5 @@ func (hit *hitImpl) SetDescription(description string) {
 }
 
 func (hit *hitImpl) Context() context.Context {
-	return hit.context
+	return hit.request.Context()
 }

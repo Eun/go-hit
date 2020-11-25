@@ -10,7 +10,7 @@ import (
 
 // ISendHeaders provides methods to send header/trailer.
 type ISendHeaders interface {
-	// Add adds the specified value to the specified request header..
+	// Add adds the specified value to the specified request header.
 	//
 	// Usage:
 	//     Send().Headers("Set-Cookie").Add("foo=bar")
@@ -18,7 +18,7 @@ type ISendHeaders interface {
 	Add(value ...interface{}) IStep
 }
 
-type sendHeadersValueCallback func(hit Hit) http.Header
+type sendHeadersValueCallback func(hit *hitImpl) http.Header
 
 type sendHeader struct {
 	cleanPath     callPath

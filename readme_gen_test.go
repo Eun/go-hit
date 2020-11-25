@@ -61,13 +61,25 @@ func TestReadmeCodePart4(t *testing.T) {
 }
 func TestReadmeCodePart5(t *testing.T) {
 	MustDo(
-		Post("https://httpbin.org/post"),
+		Request().Method(http.MethodPost),
+		Request().URL().Scheme("https"),
+		Request().URL().Host("httpbin.org"),
+		Request().URL().Path("/post"),
+		Request().URL().Query("page").Add(1),
 		Expect().Status().Equal(200),
 		Send().Body().String("Hello World"),
 		Expect().Body().String().Contains("Hello"),
 	)
 }
 func TestReadmeCodePart6(t *testing.T) {
+	MustDo(
+		Post("https://httpbin.org/post"),
+		Expect().Status().Equal(200),
+		Send().Body().String("Hello World"),
+		Expect().Body().String().Contains("Hello"),
+	)
+}
+func TestReadmeCodePart7(t *testing.T) {
 	MustDo(
 		Get("https://httpbin.org/get"),
 		Send().Custom(func(hit Hit) error {
@@ -86,7 +98,7 @@ func TestReadmeCodePart6(t *testing.T) {
 		}),
 	)
 }
-func TestReadmeCodePart7(t *testing.T) {
+func TestReadmeCodePart8(t *testing.T) {
 	template := CombineSteps(
 		Post("https://httpbin.org/post"),
 		Send().Headers("Content-Type").Add("application/json"),
@@ -102,7 +114,7 @@ func TestReadmeCodePart7(t *testing.T) {
 		Send().Body().JSON("Hello Universe"),
 	)
 }
-func TestReadmeCodePart8(t *testing.T) {
+func TestReadmeCodePart9(t *testing.T) {
 	template := CombineSteps(
 		Get("https://httpbin.org/basic-auth/joe/secret"),
 		Expect().Status().Equal(http.StatusOK),

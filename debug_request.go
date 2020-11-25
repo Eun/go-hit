@@ -94,9 +94,40 @@ func (*debugRequest) when() StepTime {
 }
 
 func (d *debugRequest) data(hit Hit) map[string]interface{} {
+	var urlData map[string]interface{}
+
+	if u := hit.Request().URL; u != nil {
+		urlData = make(map[string]interface{})
+		urlData["Scheme"] = u.Scheme
+		urlData["Opaque"] = u.Opaque
+
+		urlData["Host"] = u.Host
+		urlData["Path"] = u.Path
+		urlData["Query"] = d.debug.getMap(u.Query())
+		urlData["Hostname"] = u.Hostname()
+		urlData["RequestURI"] = u.RequestURI()
+		urlData["Port"] = u.Port()
+		urlData["RawPath"] = u.RawPath
+		urlData["EscapedPath"] = u.EscapedPath()
+		urlData["ForceQuery"] = u.ForceQuery
+		urlData["RawQuery"] = u.RawQuery
+		urlData["Fragment"] = u.Fragment
+		urlData["String"] = u.String()
+
+		if u.User == nil {
+			urlData["User"] = nil
+		} else {
+			password, _ := u.User.Password()
+			urlData["User"] = map[string]interface{}{
+				"Username": u.User.Username(),
+				"Password": password,
+			}
+		}
+	}
+
 	return map[string]interface{}{
 		"Method":           hit.Request().Method,
-		"URL":              hit.Request().URL,
+		"URL":              urlData,
 		"Proto":            hit.Request().Proto,
 		"ProtoMajor":       hit.Request().ProtoMajor,
 		"ProtoMinor":       hit.Request().ProtoMinor,

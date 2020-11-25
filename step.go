@@ -20,8 +20,8 @@ const (
 	// cleanStep is a step that runs during the clean step phase.
 	cleanStep
 
-	// beforeRequestCreateStep will be run before the actual http request will be created.
-	beforeRequestCreateStep
+	// requestCreateStep will be run before the actual http request will be created.
+	requestCreateStep
 
 	// BeforeSendStep runs before the Send() steps.
 	BeforeSendStep
@@ -49,8 +49,8 @@ func (s StepTime) String() string {
 		return "combineStep"
 	case cleanStep:
 		return "cleanStep"
-	case beforeRequestCreateStep:
-		return "beforeRequestCreateStep"
+	case requestCreateStep:
+		return "requestCreateStep"
 	case BeforeSendStep:
 		return "BeforeSendStep"
 	case SendStep:

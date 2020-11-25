@@ -1,6 +1,7 @@
 package hit
 
 import (
+	"context"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -16,19 +17,32 @@ type HTTPRequest struct {
 }
 
 func newHTTPRequest(hit Hit, req *http.Request) *HTTPRequest {
-	u := *req.URL
-
 	newRequest := &http.Request{
-		Method: req.Method,
-		URL:    &u,
+		Header:     make(http.Header),
+		Proto:      "HTTP/1.1",
+		ProtoMajor: 1,
+		ProtoMinor: 1,
+		URL:        new(url.URL),
 	}
+
+	if req == nil {
+		return &HTTPRequest{
+			Hit:     hit,
+			Request: newRequest.WithContext(context.Background()),
+			body:    httpbody.NewHTTPBody(nil, newRequest.Header),
+		}
+	}
+	u := *req.URL
+	newRequest.URL = &u
+	newRequest.Method = req.Method
+
 	// copy headers
 	if req.Header != nil {
-		newRequest.Header = make(http.Header)
 		for k, v := range req.Header {
 			newRequest.Header[k] = v
 		}
 	}
+	// copy trailers
 	if req.Trailer != nil {
 		newRequest.Trailer = make(http.Header)
 		for k, v := range req.Trailer {
@@ -78,7 +92,6 @@ func newHTTPRequest(hit Hit, req *http.Request) *HTTPRequest {
 	copy(newRequest.TransferEncoding, req.TransferEncoding)
 
 	body := httpbody.NewHTTPBody(req.Body, newRequest.Header)
-
 	if req.Body != nil {
 		req.Body = body.Reader()
 	}

@@ -7,7 +7,7 @@ import (
 
 // ISendFormValues provides methods to send form values.
 type ISendFormValues interface {
-	// Add adds the specified value to the specified request header..
+	// Add adds the specified value to the specified form value.
 	//
 	// Usage:
 	//     Send().Body().FormValues("username").Add("admin")

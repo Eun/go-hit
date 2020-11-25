@@ -33,7 +33,7 @@ func TestRequest(t *testing.T) {
 		req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, s.URL, bytes.NewReader([]byte("Hello World")))
 		require.NoError(t, err)
 		Test(t,
-			Request(req),
+			Request().Set(req),
 			Send().Body().String("Hello Universe"),
 			Expect().Body().String().Equal("Hello Universe"),
 		)
@@ -71,7 +71,7 @@ func TestRequest(t *testing.T) {
 		require.NoError(t, err)
 		ExpectError(t,
 			Do(
-				Request(req),
+				Request().Set(req),
 				Send().Body().String("Hello Universe"),
 				Expect().Body().String().Equal("Hello Universe"),
 			),
@@ -110,12 +110,12 @@ func TestMultiUse(t *testing.T) {
 		require.NoError(t, err)
 
 		Test(t,
-			Request(req),
+			Request().Set(req),
 			Expect().Body().String().Equal("Hello World"),
 		)
 
 		Test(t,
-			Request(req),
+			Request().Set(req),
 			Expect().Body().String().Equal("Hello World"),
 		)
 	})
@@ -126,7 +126,7 @@ func TestMultiUse(t *testing.T) {
 		req.Trailer = map[string][]string{"X-Trailer": {"Bar"}}
 
 		Test(t,
-			Request(req),
+			Request().Set(req),
 			Custom(AfterSendStep, func(hit Hit) error {
 				require.Equal(t, []string{"Foo"}, hit.Request().Header["X-Header"])
 				require.Equal(t, []string{"Bar"}, hit.Request().Trailer["X-Trailer"])
@@ -135,7 +135,7 @@ func TestMultiUse(t *testing.T) {
 		)
 
 		Test(t,
-			Request(req),
+			Request().Set(req),
 			Custom(AfterSendStep, func(hit Hit) error {
 				require.Equal(t, []string{"Foo"}, hit.Request().Header["X-Header"])
 				require.Equal(t, []string{"Bar"}, hit.Request().Trailer["X-Trailer"])
@@ -162,7 +162,7 @@ func TestMultiUse(t *testing.T) {
 		require.Equal(t, []string{"1", "2", "banana"}, req.PostForm["a"])
 
 		Test(t,
-			Request(req),
+			Request().Set(req),
 			Custom(AfterSendStep, func(hit Hit) error {
 				require.Equal(t, []string{"1", "2", "banana"}, hit.Request().Form["a"])
 				require.Equal(t, []string{"1", "2", "banana"}, hit.Request().PostForm["a"])
@@ -171,7 +171,7 @@ func TestMultiUse(t *testing.T) {
 		)
 
 		Test(t,
-			Request(req),
+			Request().Set(req),
 			Custom(AfterSendStep, func(hit Hit) error {
 				require.Equal(t, []string{"1", "2", "banana"}, hit.Request().Form["a"])
 				require.Equal(t, []string{"1", "2", "banana"}, hit.Request().PostForm["a"])
@@ -197,7 +197,7 @@ func TestMultiUse(t *testing.T) {
 		require.Equal(t, []string{"bar"}, req.MultipartForm.Value["foo"])
 
 		Test(t,
-			Request(req),
+			Request().Set(req),
 			Custom(AfterSendStep, func(hit Hit) error {
 				require.Equal(t, []string{"bar"}, hit.Request().MultipartForm.Value["foo"])
 				return nil
@@ -207,7 +207,7 @@ func TestMultiUse(t *testing.T) {
 		require.Len(t, req.MultipartForm.File["file1"], 1)
 
 		Test(t,
-			Request(req),
+			Request().Set(req),
 			Custom(AfterSendStep, func(hit Hit) error {
 				require.Equal(t, "file1", hit.Request().MultipartForm.File["file1"][0].Filename)
 				return nil
@@ -222,7 +222,7 @@ func TestMultiUse(t *testing.T) {
 		require.Equal(t, "baz", string(buf))
 
 		Test(t,
-			Request(req),
+			Request().Set(req),
 			Custom(AfterSendStep, func(hit Hit) error {
 				require.Len(t, hit.Request().MultipartForm.File["file1"], 1)
 				require.Equal(t, "file1", hit.Request().MultipartForm.File["file1"][0].Filename)
@@ -250,7 +250,7 @@ func TestMultiUse(t *testing.T) {
 		require.Equal(t, []string{"a", "b"}, req.TransferEncoding)
 
 		Test(t,
-			Request(req),
+			Request().Set(req),
 			Custom(AfterSendStep, func(hit Hit) error {
 				require.Equal(t, []string{"a", "b"}, hit.Request().TransferEncoding)
 				return nil
@@ -705,4 +705,17 @@ func TestMissingRequest(t *testing.T) {
 		),
 		PtrStr("unable to create a request: did you called Post(), Get(), ...?"),
 	)
+}
+
+func TestNoUserAgent(t *testing.T) {
+	// test if the default is no user agent set
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		require.Empty(t, request.UserAgent())
+	})
+	s := httptest.NewServer(mux)
+	defer s.Close()
+
+	Test(t, Get(s.URL))
 }
