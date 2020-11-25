@@ -403,21 +403,7 @@ func generateClearSend() {
 	}
 }
 
-func generateClearOthers() {
-	generations, err := collectForFunc([]string{"Request"}, reflect.ValueOf(hit.Request), 0)
-	if err != nil {
-		panic(err)
-	}
-	var generatedFiles []string
-	for _, g := range generations {
-		if err := generateForStruct(&generatedFiles, g); err != nil {
-			panic(err)
-		}
-	}
-}
-
 func main() {
 	generateClearSend()
 	generateClearExpect()
-	generateClearOthers()
 }

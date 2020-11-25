@@ -42,7 +42,7 @@ func newHTTPRequest(hit Hit, req *http.Request) *HTTPRequest {
 			newRequest.Header[k] = v
 		}
 	}
-	//copy trailers
+	// copy trailers
 	if req.Trailer != nil {
 		newRequest.Trailer = make(http.Header)
 		for k, v := range req.Trailer {

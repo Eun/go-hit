@@ -706,3 +706,16 @@ func TestMissingRequest(t *testing.T) {
 		PtrStr("unable to create a request: did you called Post(), Get(), ...?"),
 	)
 }
+
+func TestNoUserAgent(t *testing.T) {
+	// test if the default is no user agent set
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		require.Empty(t, request.UserAgent())
+	})
+	s := httptest.NewServer(mux)
+	defer s.Close()
+
+	Test(t, Get(s.URL))
+}

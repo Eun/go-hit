@@ -12,6 +12,9 @@ type IRequest interface {
 	// URL provides methods to set request url parameters.
 	URL() IRequestURL
 
+	// Host sets the request host to the specified value.
+	Host(name string) IStep
+
 	// Method sets the request method to the specified value.
 	//
 	// Usage:

@@ -346,7 +346,7 @@ func do(steps ...IStep) *Error {
 	hit.request = newHTTPRequest(hit, nil)
 	hit.request.Header = map[string][]string{
 		// remove some standard headers
-		"User-Agent": []string{""},
+		"User-Agent": {""},
 	}
 	hit.state = requestCreateStep
 	if err := hit.runSteps(requestCreateStep); err != nil {
