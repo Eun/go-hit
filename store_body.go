@@ -82,7 +82,7 @@ type IStoreBody interface {
 	// JSON treats the body as JSON data and stores it
 	//
 	// Example:
-	//     // given the following body: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
+	//     // given the following body: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "UserName"] }
 	//     var body map[string]interface{}
 	//     var name string
 	//     MustDo(

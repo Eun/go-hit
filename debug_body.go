@@ -40,7 +40,7 @@ type IDebugBody interface {
 
 	// JSON prints the body contents in the JSON format
 	//
-	// given the following body: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
+	// given the following body: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "UserName"] }
 	// Usage:
 	//     Debug().Request().Body().JSON()              // print the whole body
 	//     Debug().Response().Body().JSON().JQ(".Name") // print "Joe"

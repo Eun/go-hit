@@ -107,7 +107,7 @@ func RunTest(expectRequest bool, test func()) {
 
 		n, _ := io.Copy(writer, request.Body)
 		if n == 0 {
-			_, _ = io.WriteString(writer, `{"ID": 10,"Name":"Joe","Roles":["Admin", "User"]}`)
+			_, _ = io.WriteString(writer, `{"ID": 10,"Name":"Joe","Roles":["Admin", "UserName"]}`)
 		}
 
 		for k, v := range request.Trailer {

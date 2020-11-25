@@ -10,7 +10,7 @@ type IDebugBodyJSON interface {
 	IStep
 	// JQ runs an jq expression on the JSON body and prints the result
 	//
-	// given the following body: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
+	// given the following body: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "UserName"] }
 	// Usage:
 	//     Debug().Response().Body().JSON().JQ(".Name") // print "Joe"
 	JQ(expression ...string) IStep

@@ -62,13 +62,13 @@ type IDebugRequest interface {
 	//
 	// The argument can be used to narrow down the print path
 	//
-	// given the following body: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
+	// given the following body: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "UserName"] }
 	// Usage:
 	//     Debug().Request().Body()                         // will print the whole Body
 	//     Debug().Request().Body().JSON()                  // will print the whole Body as JSON data
 	//     Debug().Request().Body().JSON().JQ(".ID")        // will print 10
 	//     Debug().Request().Body().JSON().JQ(".Name")      // will print "Name"
-	//     Debug().Request().Body().JSON().JQ(".Roles")     // will print ["Admin", "User"]
+	//     Debug().Request().Body().JSON().JQ(".Roles")     // will print ["Admin", "UserName"]
 	//     Debug().Request().Body().JSON().JQ(".Roles.0")   // will print "Admin"
 	Body() IDebugBody
 }
@@ -94,9 +94,41 @@ func (*debugRequest) when() StepTime {
 }
 
 func (d *debugRequest) data(hit Hit) map[string]interface{} {
+	var urlData map[string]interface{}
+
+	if u := hit.Request().URL; u != nil {
+		urlData = make(map[string]interface{})
+		urlData["Scheme"] = u.Scheme
+		urlData["Opaque"] = u.Opaque
+
+		urlData["Host"] = u.Host
+		urlData["Path"] = u.Path
+		urlData["Query"] = d.debug.getMap(u.Query())
+		urlData["Hostname"] = u.Hostname()
+		urlData["RequestURI"] = u.RequestURI()
+		urlData["Port"] = u.Port()
+		urlData["RawPath"] = u.RawPath
+		urlData["EscapedPath"] = u.EscapedPath()
+		urlData["ForceQuery"] = u.ForceQuery
+		urlData["RawQuery"] = u.RawQuery
+		urlData["Fragment"] = u.Fragment
+		urlData["RawFragment"] = u.RawFragment
+		urlData["String"] = u.String()
+
+		if u.User == nil {
+			urlData["User"] = nil
+		} else {
+			password, _ := u.User.Password()
+			urlData["User"] = map[string]interface{}{
+				"Username": u.User.Username(),
+				"Password": password,
+			}
+		}
+	}
+
 	return map[string]interface{}{
 		"Method":           hit.Request().Method,
-		"URL":              hit.Request().URL,
+		"URL":              urlData,
 		"Proto":            hit.Request().Proto,
 		"ProtoMajor":       hit.Request().ProtoMajor,
 		"ProtoMinor":       hit.Request().ProtoMinor,
@@ -133,7 +165,7 @@ func (d *debugRequest) URL() IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
 		When:     BeforeExpectStep,
-		CallPath: d.cp.Push("URL", nil),
+		CallPath: d.cp.Push("RequestURL", nil),
 		Exec: func(hit *hitImpl) error {
 			return d.debug.print(d.debug.out(hit), hit.Request().URL)
 		},

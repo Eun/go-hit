@@ -58,7 +58,7 @@ type IStoreResponse interface {
 
 	// Body stores the Response's Body
 	//
-	// given the following body: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
+	// given the following body: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "UserName"] }
 	// Usage:
 	//     var body string
 	//     Store().Response().Body().String().In(&body) // store the whole body as string

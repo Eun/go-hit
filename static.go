@@ -11,6 +11,8 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/Eun/go-hit/errortrace"
+
+	urlpkg "net/url"
 )
 
 //nolint:gochecknoglobals
@@ -195,8 +197,17 @@ func makeMethodStep(fnName, method, url string, a ...interface{}) IStep {
 		When:     beforeRequestCreateStep,
 		CallPath: newCallPath(fnName, nil),
 		Exec: func(hit *hitImpl) error {
-			hit.fullURL = misc.MakeURL(hit.BaseURL(), url, a...)
-			hit.method = method
+			hit.request.Method = method
+			url = misc.MakeURL(hit.BaseURL(), url, a...)
+			if url == "" {
+				hit.request.URL = new(urlpkg.URL)
+				return nil
+			}
+			var err error
+			hit.request.URL, err = urlpkg.Parse(url)
+			if err != nil {
+				return err
+			}
 			return nil
 		},
 	}
@@ -339,29 +350,19 @@ func do(steps ...IStep) *Error {
 		return err
 	}
 
+	hit.request = newHTTPRequest(hit, nil)
+	hit.request.Header = map[string][]string{
+		// remove some standard headers
+		"UserName-Agent": []string{""},
+	}
 	hit.state = beforeRequestCreateStep
 	if err := hit.runSteps(beforeRequestCreateStep); err != nil {
 		return err
 	}
 
 	// user did not specify a request with Request()
-	if hit.request == nil {
-		if hit.context == nil {
-			hit.context = context.Background()
-		}
-		if hit.method == "" || hit.fullURL == "" {
-			return wrapError(hit, xerrors.New("unable to create a request: did you called Post(), Get(), ...?"))
-		}
-		request, err := http.NewRequestWithContext(hit.context, hit.method, hit.fullURL, nil)
-		if err != nil {
-			return wrapError(hit, err)
-		}
-
-		// remove some standard headers
-		request.Header.Set("User-Agent", "")
-		if err := hit.SetRequest(request); err != nil {
-			return wrapError(hit, err)
-		}
+	if hit.request.Method == "" || hit.request.URL == nil {
+		return wrapError(hit, xerrors.New("unable to create a request: did you called Post(), Get(), ...?"))
 	}
 
 	hit.state = BeforeSendStep
@@ -563,8 +564,12 @@ func Context(ctx context.Context) IStep {
 		When:     beforeRequestCreateStep,
 		CallPath: nil,
 		Exec: func(hit *hitImpl) error {
-			hit.context = ctx
+			hit.request.Request = hit.request.Request.WithContext(ctx)
 			return nil
 		},
 	}
+}
+
+func RequestURL() IRequestURL {
+	return newRequestURL(newCallPath("RequestURL", nil))
 }

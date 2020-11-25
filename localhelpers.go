@@ -1,6 +1,9 @@
 package hit
 
-import "io"
+import (
+	"io"
+	"net/url"
+)
 
 //nolint:deadcode,unused
 func boolSliceToInterfaceSlice(params []bool) []interface{} {
@@ -148,6 +151,15 @@ func readerSliceToInterfaceSlice(params []io.Reader) []interface{} {
 
 //nolint:deadcode,unused
 func stringSliceToInterfaceSlice(params []string) []interface{} {
+	iface := make([]interface{}, len(params))
+	for i, v := range params {
+		iface[i] = v
+	}
+	return iface
+}
+
+//nolint:deadcode,unused
+func uRLSliceToInterfaceSlice(params []*url.URL) []interface{} {
 	iface := make([]interface{}, len(params))
 	for i, v := range params {
 		iface[i] = v

@@ -12,9 +12,9 @@ import (
 type IExpectBodyJSON interface {
 	// Equal expects the json body to be equal to the specified value.
 	//
-	// given the following response: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
+	// given the following response: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "UserName"] }
 	// Usage:
-	//     Expect().Body().JSON().Equal(map[string]interface{}{"ID": 10, "Name": "Joe", "Roles": []string{"Admin", "User"}})
+	//     Expect().Body().JSON().Equal(map[string]interface{}{"ID": 10, "Name": "Joe", "Roles": []string{"Admin", "UserName"}})
 	Equal(data interface{}) IStep
 
 	// NotEqual expects the json body to be not equal to the specified value.
@@ -24,7 +24,7 @@ type IExpectBodyJSON interface {
 
 	// Contains expects the json body to contain the specified value.
 	//
-	// given the following response: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
+	// given the following response: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "UserName"] }
 	// Usage:
 	//     Expect().Body().JSON().Contains("ID")
 	Contains(data ...interface{}) IStep
@@ -36,10 +36,10 @@ type IExpectBodyJSON interface {
 
 	// JQ runs an jq expression on the JSON body, the result can be asserted
 	//
-	// given the following response: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
+	// given the following response: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "UserName"] }
 	// Usage:
 	//     Expect().Body().JSON().JQ(".Name").Equal("Joe")
-	//     Expect().Body().JSON().JQ(".Roles").Equal([]string{"Admin", "User"})
+	//     Expect().Body().JSON().JQ(".Roles").Equal([]string{"Admin", "UserName"})
 	//     Expect().Body().JSON().JQ(".Roles.[0]").Equal("Admin")
 	JQ(expression ...string) IExpectBodyJSONJQ
 

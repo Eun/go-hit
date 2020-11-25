@@ -10,7 +10,7 @@ import (
 
 // ISendHeaders provides methods to send header/trailer.
 type ISendHeaders interface {
-	// Add adds the specified value to the specified request header..
+	// Add adds the specified value to the specified request header.
 	//
 	// Usage:
 	//     Send().Headers("Set-Cookie").Add("foo=bar")
