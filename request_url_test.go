@@ -24,7 +24,7 @@ func TestRequestURL_Set(t *testing.T) {
 	var v string
 	Test(t,
 		Get(""),
-		RequestURL().Set(u),
+		Request().URL().Set(u),
 		Expect().Status().Equal(http.StatusOK),
 		Store().Request().URL().Scheme().In(&v),
 	)
@@ -38,7 +38,7 @@ func TestRequestURL_Scheme(t *testing.T) {
 	var v string
 	Test(t,
 		Get(s.URL),
-		RequestURL().Scheme("http"),
+		Request().URL().Scheme("http"),
 		Expect().Status().Equal(http.StatusOK),
 		Store().Request().URL().Scheme().In(&v),
 	)
@@ -54,7 +54,7 @@ func TestRequestURL_Host(t *testing.T) {
 
 	Test(t,
 		Get(s.URL),
-		RequestURL().Host(u.Host),
+		Request().URL().Host(u.Host),
 		Expect().Status().Equal(http.StatusOK),
 	)
 }
@@ -69,7 +69,7 @@ func TestRequestURL_Path(t *testing.T) {
 
 	Test(t,
 		Get(s.URL),
-		RequestURL().Path("/foo"),
+		Request().URL().Path("/foo"),
 		Expect().Status().Equal(http.StatusOK),
 	)
 }
@@ -84,7 +84,7 @@ func TestRequestURL_RawPath(t *testing.T) {
 
 	Test(t,
 		Get(s.URL),
-		RequestURL().RawPath("/foo%2fbar"),
+		Request().URL().RawPath("/foo%2fbar"),
 		Expect().Status().Equal(http.StatusOK),
 	)
 }
@@ -96,7 +96,7 @@ func TestRequestURL_ForceQuery(t *testing.T) {
 	var v string
 	Test(t,
 		Get(s.URL),
-		RequestURL().ForceQuery(true),
+		Request().URL().ForceQuery(true),
 		Expect().Status().Equal(http.StatusOK),
 		Store().Request().URL().String().In(&v),
 	)
@@ -115,8 +115,8 @@ func TestRequestURL_Query(t *testing.T) {
 	t.Run("single value", func(t *testing.T) {
 		Test(t,
 			Get(s.URL),
-			RequestURL().Query("username").Add("joe"),
-			RequestURL().Query("page").Add(1),
+			Request().URL().Query("username").Add("joe"),
+			Request().URL().Query("page").Add(1),
 			Expect().Status().Equal(http.StatusOK),
 			Expect().Body().JSON().Equal(map[string][]string{
 				"username": {"joe"},
@@ -128,9 +128,9 @@ func TestRequestURL_Query(t *testing.T) {
 	t.Run("multiple values", func(t *testing.T) {
 		Test(t,
 			Get(s.URL),
-			RequestURL().Query("usernames").Add("joe"),
-			RequestURL().Query("usernames").Add("alice"),
-			RequestURL().Query("pages").Add(1, 2),
+			Request().URL().Query("usernames").Add("joe"),
+			Request().URL().Query("usernames").Add("alice"),
+			Request().URL().Query("pages").Add(1, 2),
 			Expect().Status().Equal(http.StatusOK),
 			Expect().Body().JSON().Equal(map[string][]string{
 				"usernames": {"joe", "alice"},
@@ -151,7 +151,7 @@ func TestRequestURL_RawQuery(t *testing.T) {
 
 	Test(t,
 		Get(s.URL),
-		RequestURL().RawQuery("x=1&y=2"),
+		Request().URL().RawQuery("x=1&y=2"),
 		Expect().Status().Equal(http.StatusOK),
 		Expect().Body().JSON().Equal(map[string][]string{
 			"x": {"1"},
@@ -167,7 +167,7 @@ func TestRequestURL_Fragment(t *testing.T) {
 	var v string
 	Test(t,
 		Get(s.URL),
-		RequestURL().Fragment("anchor"),
+		Request().URL().Fragment("anchor"),
 		Expect().Status().Equal(http.StatusOK),
 		Store().Request().URL().Fragment().In(&v),
 	)
@@ -192,7 +192,7 @@ func TestRequestURL_User(t *testing.T) {
 	t.Run("only username", func(t *testing.T) {
 		Test(t,
 			Get(s.URL),
-			RequestURL().User().Username("joe"),
+			Request().URL().User().Username("joe"),
 			Expect().Status().Equal(http.StatusOK),
 			Expect().Body().String().Equal("joe:"),
 		)
@@ -201,7 +201,7 @@ func TestRequestURL_User(t *testing.T) {
 	t.Run("only password", func(t *testing.T) {
 		Test(t,
 			Get(s.URL),
-			RequestURL().User().Password("secret"),
+			Request().URL().User().Password("secret"),
 			Expect().Status().Equal(http.StatusOK),
 			Expect().Body().String().Equal(":secret"),
 		)
@@ -210,8 +210,8 @@ func TestRequestURL_User(t *testing.T) {
 	t.Run("username and password", func(t *testing.T) {
 		Test(t,
 			Get(s.URL),
-			RequestURL().User().Username("joe"),
-			RequestURL().User().Password("secret"),
+			Request().URL().User().Username("joe"),
+			Request().URL().User().Password("secret"),
 			Expect().Status().Equal(http.StatusOK),
 			Expect().Body().String().Equal("joe:secret"),
 		)

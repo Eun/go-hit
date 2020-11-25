@@ -125,10 +125,10 @@ func login(username, password string) error {
 ```go
 MustDo(
     Post(""),
-    RequestURL().Scheme("https"),
-    RequestURL().Host("httpbin.org"),
-    RequestURL().Path("/post"),
-    RequestURL().Query("page").Add(1),
+    Request().URL().Scheme("https"),
+    Request().URL().Host("httpbin.org"),
+    Request().URL().Path("/post"),
+    Request().URL().Query("page").Add(1),
     Expect().Status().Equal(200),
     Send().Body().String("Hello World"),
     Expect().Body().String().Contains("Hello"),

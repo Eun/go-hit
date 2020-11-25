@@ -11,7 +11,7 @@ type IRequestURLQuery interface {
 	// Add adds the specified value to the url query.
 	//
 	// Usage:
-	//     RequestURL().Query("page").Add(1)
+	//     Request().URL().Query("page").Add(1)
 	Add(value ...interface{}) IStep
 }
 
@@ -34,7 +34,7 @@ func newRequestURLQuery(clearPath callPath, valueCallback requestURLQueryValueCa
 func (v *requestURLQuery) Add(values ...interface{}) IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     beforeRequestCreateStep,
+		When:     requestCreateStep,
 		CallPath: v.cleanPath.Push("Add", values),
 		Exec: func(hit *hitImpl) error {
 			for _, value := range values {

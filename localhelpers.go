@@ -2,6 +2,7 @@ package hit
 
 import (
 	"io"
+	"net/http"
 	"net/url"
 )
 
@@ -160,6 +161,15 @@ func stringSliceToInterfaceSlice(params []string) []interface{} {
 
 //nolint:deadcode,unused
 func uRLSliceToInterfaceSlice(params []*url.URL) []interface{} {
+	iface := make([]interface{}, len(params))
+	for i, v := range params {
+		iface[i] = v
+	}
+	return iface
+}
+
+//nolint:deadcode,unused
+func requestSliceToInterfaceSlice(params []*http.Request) []interface{} {
 	iface := make([]interface{}, len(params))
 	for i, v := range params {
 		iface[i] = v

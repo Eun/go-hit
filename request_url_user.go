@@ -26,7 +26,7 @@ func newRequestURLUser(clearPath callPath) IRequestURLUser {
 func (v *requestURLUser) Username(name string) IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     beforeRequestCreateStep,
+		When:     requestCreateStep,
 		CallPath: v.cleanPath.Push("Username", []interface{}{name}),
 		Exec: func(hit *hitImpl) error {
 			password, ok := hit.request.URL.User.Password()
@@ -43,7 +43,7 @@ func (v *requestURLUser) Username(name string) IStep {
 func (v *requestURLUser) Password(password string) IStep {
 	return &hitStep{
 		Trace:    ett.Prepare(),
-		When:     beforeRequestCreateStep,
+		When:     requestCreateStep,
 		CallPath: v.cleanPath.Push("Password", []interface{}{password}),
 		Exec: func(hit *hitImpl) error {
 			hit.request.URL.User = url.UserPassword(hit.request.URL.User.Username(), password)

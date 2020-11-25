@@ -18,7 +18,7 @@ type ISendHeaders interface {
 	Add(value ...interface{}) IStep
 }
 
-type sendHeadersValueCallback func(hit Hit) http.Header
+type sendHeadersValueCallback func(hit *hitImpl) http.Header
 
 type sendHeader struct {
 	cleanPath     callPath

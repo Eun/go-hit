@@ -77,16 +77,16 @@ func (snd *send) Body() ISendBody {
 }
 
 func (snd *send) Headers(name string) ISendHeaders {
-	return newSendHeaders(snd.cleanPath.Push("Headers", []interface{}{name}), func(hit Hit) http.Header {
-		return hit.Request().Header
+	return newSendHeaders(snd.cleanPath.Push("Headers", []interface{}{name}), func(hit *hitImpl) http.Header {
+		return hit.request.Header
 	}, name)
 }
 func (snd *send) Trailers(name string) ISendHeaders {
-	return newSendHeaders(snd.cleanPath.Push("Trailers", []interface{}{name}), func(hit Hit) http.Header {
-		if hit.Request().Trailer == nil {
-			hit.Request().Trailer = make(http.Header)
+	return newSendHeaders(snd.cleanPath.Push("Trailers", []interface{}{name}), func(hit *hitImpl) http.Header {
+		if hit.request.Trailer == nil {
+			hit.request.Trailer = make(http.Header)
 		}
-		return hit.Request().Trailer
+		return hit.request.Trailer
 	}, name)
 }
 
