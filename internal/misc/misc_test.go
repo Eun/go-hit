@@ -126,12 +126,12 @@ func TestMakeTypeCopy(t *testing.T) {
 		},
 		{
 			map[string]interface{}{
-				"UserName": map[string]interface{}{
+				"User": map[string]interface{}{
 					"Name": "Joe",
 				},
 			},
 			map[string]interface{}{
-				"UserName": map[string]interface{}{
+				"User": map[string]interface{}{
 					"Name": "",
 				},
 			},
@@ -139,14 +139,14 @@ func TestMakeTypeCopy(t *testing.T) {
 		{
 			map[string]interface{}{
 				"Details": map[string]interface{}{
-					"UserName": map[string]interface{}{
+					"User": map[string]interface{}{
 						"Name": "Joe",
 					},
 				},
 			},
 			map[string]interface{}{
 				"Details": map[string]interface{}{
-					"UserName": map[string]interface{}{
+					"User": map[string]interface{}{
 						"Name": "",
 					},
 				},
@@ -159,14 +159,14 @@ func TestMakeTypeCopy(t *testing.T) {
 		{
 			[]interface{}{
 				map[string]interface{}{
-					"UserName": map[string]interface{}{
+					"User": map[string]interface{}{
 						"Name": "Joe",
 					},
 				},
 			},
 			[]interface{}{
 				map[string]interface{}{
-					"UserName": map[string]interface{}{
+					"User": map[string]interface{}{
 						"Name": "",
 					},
 				},

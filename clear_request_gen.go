@@ -13,16 +13,12 @@ import (
 // IClearRequest provides methods to clear steps.
 type IClearRequest interface {
 	IStep
-	// Headers clears all matching Headers steps
-	Headers(value ...string) IClearSendHeaders
 	// Host clears all matching Host steps
 	Host(value ...string) IStep
 	// Method clears all matching Method steps
 	Method(value ...string) IStep
 	// Set clears all matching Set steps
 	Set(value ...*http.Request) IStep
-	// Trailers clears all matching Trailers steps
-	Trailers(value ...string) IClearSendHeaders
 	// URL clears all matching URL steps
 	URL() IClearRequestURL
 }
@@ -49,9 +45,6 @@ func (v *clearRequest) exec(hit *hitImpl) error {
 	}
 	return nil
 }
-func (v *clearRequest) Headers(value ...string) IClearSendHeaders {
-	return newClearSendHeaders(v.callPath().Push("Headers", stringSliceToInterfaceSlice(value)))
-}
 func (v *clearRequest) Host(value ...string) IStep {
 	return removeStep(v.callPath().Push("Host", stringSliceToInterfaceSlice(value)))
 }
@@ -60,9 +53,6 @@ func (v *clearRequest) Method(value ...string) IStep {
 }
 func (v *clearRequest) Set(value ...*http.Request) IStep {
 	return removeStep(v.callPath().Push("Set", requestSliceToInterfaceSlice(value)))
-}
-func (v *clearRequest) Trailers(value ...string) IClearSendHeaders {
-	return newClearSendHeaders(v.callPath().Push("Trailers", stringSliceToInterfaceSlice(value)))
 }
 func (v *clearRequest) URL() IClearRequestURL {
 	return newClearRequestURL(v.callPath().Push("URL", nil))

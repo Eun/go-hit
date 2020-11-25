@@ -62,13 +62,13 @@ type IDebugRequest interface {
 	//
 	// The argument can be used to narrow down the print path
 	//
-	// given the following body: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "UserName"] }
+	// given the following body: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
 	// Usage:
 	//     Debug().Request().Body()                         // will print the whole Body
 	//     Debug().Request().Body().JSON()                  // will print the whole Body as JSON data
 	//     Debug().Request().Body().JSON().JQ(".ID")        // will print 10
 	//     Debug().Request().Body().JSON().JQ(".Name")      // will print "Name"
-	//     Debug().Request().Body().JSON().JQ(".Roles")     // will print ["Admin", "UserName"]
+	//     Debug().Request().Body().JSON().JQ(".Roles")     // will print ["Admin", "User"]
 	//     Debug().Request().Body().JSON().JQ(".Roles.0")   // will print "Admin"
 	Body() IDebugBody
 }

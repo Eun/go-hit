@@ -10,7 +10,7 @@ func TestExpectBodyJSONJQ_Equal(t *testing.T) {
 	payload := map[string]interface{}{
 		"Name":   "Joe",
 		"UserID": 10,
-		"Roles":  []string{"Admin", "UserName"},
+		"Roles":  []string{"Admin", "User"},
 		"Details": map[string]interface{}{
 			"Surname": "Doe",
 			"Email":   "joe@example.com",
@@ -35,14 +35,14 @@ func TestExpectBodyJSONJQ_Equal(t *testing.T) {
 	t.Run("slice", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Expect().Body().JSON().JQ(".Roles").Equal([]interface{}{"Admin", "UserName"}),
+			Expect().Body().JSON().JQ(".Roles").Equal([]interface{}{"Admin", "User"}),
 		)
 	})
 
 	t.Run("slice of string", func(t *testing.T) {
 		Test(t,
 			Post(s.URL),
-			Expect().Body().JSON().JQ(".Roles").Equal([]string{"Admin", "UserName"}),
+			Expect().Body().JSON().JQ(".Roles").Equal([]string{"Admin", "User"}),
 		)
 	})
 
@@ -169,7 +169,7 @@ func TestExpectBodyJSONJQ_NotEqual(t *testing.T) {
 	payload := map[string]interface{}{
 		"Name":   "Joe",
 		"UserID": 10,
-		"Roles":  []string{"Admin", "UserName"},
+		"Roles":  []string{"Admin", "User"},
 		"Details": map[string]interface{}{
 			"Surname": "Doe",
 			"Email":   "joe@example.com",

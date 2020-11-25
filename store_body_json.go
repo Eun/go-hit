@@ -12,7 +12,7 @@ type IStoreBodyJSON interface {
 	// JQ runs an jq expression on the JSON body the result can than be stored afterwards
 	//
 	// Example:
-	//     // given the following body: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "UserName"] }
+	//     // given the following body: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
 	//     var name string
 	//     MustDo(
 	//         Get("https://example.com/json"),

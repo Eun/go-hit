@@ -64,7 +64,7 @@ type IStoreRequest interface {
 
 	// Body stores the Request's Body
 	//
-	// given the following body: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "UserName"] }
+	// given the following body: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
 	// Usage:
 	//     var body string
 	//     Store().Request().Body().String().In(&body) // store the whole body as string
