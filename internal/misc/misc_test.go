@@ -11,48 +11,68 @@ func TestMakeURL(t *testing.T) {
 	tests := []struct {
 		Base     string
 		URL      string
+		Params   []interface{}
 		Expected string
 	}{
 		{
 			"http://example.com",
 			"index.html",
+			nil,
 			"http://example.com/index.html",
 		},
 		{
 			"http://example.com/",
 			"index.html",
+			nil,
 			"http://example.com/index.html",
 		},
 		{
 			"http://example.com",
 			"/index.html",
+			nil,
 			"http://example.com/index.html",
 		},
 		{
 			"http://example.com",
 			"",
+			nil,
 			"http://example.com",
 		},
 		{
 			"http://example.com/",
 			"",
+			nil,
 			"http://example.com/",
 		},
 		{
 			"",
 			"index.html",
+			nil,
 			"index.html",
 		},
 		{
 			"",
 			"/index.html",
+			nil,
 			"/index.html",
+		},
+		{
+			"http://example.com",
+			"%s.%s",
+			[]interface{}{"index", "html"},
+			"http://example.com/index.html",
+		},
+		{
+			"http://example.com",
+			"%s",
+			nil,
+			"http://example.com/%s",
 		},
 	}
 	for i := range tests {
 		test := tests[i]
 		t.Run("", func(t *testing.T) {
-			if s := MakeURL(test.Base, test.URL); s != test.Expected {
+			if s := MakeURL(test.Base, test.URL, test.Params...); s != test.Expected {
 				t.Errorf("expected `%s' got `%s'", test.Expected, s)
 			}
 		})
