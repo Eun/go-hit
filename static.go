@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/Eun/go-hit/internal/misc"
 
@@ -565,4 +566,44 @@ func Context(ctx context.Context) IStep {
 			return nil
 		},
 	}
+}
+
+// JoinURL joins the specified parts to one url.
+//
+// Example:
+//     JoinURL("https://example.com", "folder", "file") // will return "https://example.com/folder/file"
+//     JoinURL("https://example.com", "index.html")     // will return "https://example.com/index.html"
+//     JoinURL("https://", "example.com", "index.html") // will return "https://example.com/index.html"
+//     JoinURL("example.com", "index.html") // will return "example.com/index.html"
+func JoinURL(parts ...string) string {
+	if len(parts) == 0 {
+		return ""
+	}
+
+	notEmptyParts := make([]string, 0, len(parts))
+	for _, part := range parts {
+		if part == "" {
+			continue
+		}
+		notEmptyParts = append(notEmptyParts, part)
+	}
+	if len(notEmptyParts) == 0 {
+		return ""
+	}
+
+	u, err := urlpkg.Parse(strings.Join(notEmptyParts, "/"))
+	if err != nil {
+		return ""
+	}
+
+	// replace all "double slashes"
+	for {
+		old := u.Path
+		u.Path = strings.ReplaceAll(u.Path, "//", "/")
+		if old == u.Path {
+			break
+		}
+	}
+
+	return strings.TrimRight(strings.ReplaceAll(u.String(), ":///", "://"), "/")
 }

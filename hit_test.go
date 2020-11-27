@@ -719,3 +719,97 @@ func TestNoUserAgent(t *testing.T) {
 
 	Test(t, Get(s.URL))
 }
+
+func TestJoinURL(t *testing.T) {
+	tests := []struct {
+		Params   []string
+		Expected string
+	}{
+		{
+			[]string{
+				"http://example.com",
+				"index.html",
+			},
+			"http://example.com/index.html",
+		},
+		{
+			[]string{
+				"http://example.com/",
+				"index.html",
+			},
+			"http://example.com/index.html",
+		},
+		{
+			[]string{
+				"http://example.com",
+				"/index.html",
+			},
+			"http://example.com/index.html",
+		},
+		{
+			[]string{
+				"http://example.com",
+				"",
+			},
+			"http://example.com",
+		},
+		{
+			[]string{
+				"http://example.com/",
+				"",
+			},
+			"http://example.com",
+		},
+		{
+			[]string{
+				"",
+				"index.html",
+			},
+			"index.html",
+		},
+		{
+			[]string{
+				"",
+				"/index.html",
+			},
+			"/index.html",
+		},
+		{
+			[]string{
+				"/index.html",
+			},
+			"/index.html",
+		},
+		{
+			[]string{
+				"http://",
+				"example.com",
+				"index.html",
+			},
+			"http://example.com/index.html",
+		},
+		{
+			[]string{
+				"http://",
+				"/example.com/",
+				"/index.html/",
+			},
+			"http://example.com/index.html",
+		},
+		{
+			[]string{
+				"example.com",
+				"index.html",
+			},
+			"example.com/index.html",
+		},
+	}
+	for i := range tests {
+		test := tests[i]
+		t.Run("", func(t *testing.T) {
+			if s := JoinURL(test.Params...); s != test.Expected {
+				t.Errorf("expected `%s' got `%s'", test.Expected, s)
+			}
+		})
+	}
+}
