@@ -575,6 +575,9 @@ func Context(ctx context.Context) IStep {
 //     JoinURL("https://example.com", "index.html")     // will return "https://example.com/index.html"
 //     JoinURL("https://", "example.com", "index.html") // will return "https://example.com/index.html"
 //     JoinURL("example.com", "index.html") // will return "example.com/index.html"
+//     MustDo(
+//         Get(JoinURL("https://example.com", "index.html")),
+//     )
 func JoinURL(parts ...string) string {
 	if len(parts) == 0 {
 		return ""
