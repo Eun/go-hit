@@ -39,7 +39,6 @@ package hit
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"golang.org/x/xerrors"
@@ -67,9 +66,6 @@ type Hit interface {
 
 	// BaseURL returns the current base url.
 	BaseURL() string
-
-	// SetBaseURL sets the base url.
-	SetBaseURL(url string, a ...interface{})
 
 	// CurrentStep returns the current working step.
 	CurrentStep() IStep
@@ -165,10 +161,6 @@ func (hit *hitImpl) SetHTTPClient(client *http.Client) error {
 
 func (hit *hitImpl) BaseURL() string {
 	return hit.baseURL
-}
-
-func (hit *hitImpl) SetBaseURL(url string, a ...interface{}) {
-	hit.baseURL = fmt.Sprintf(url, a...)
 }
 
 func (hit *hitImpl) collectSteps(state StepTime) []IStep {

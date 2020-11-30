@@ -2,6 +2,7 @@ package hit
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -154,7 +155,10 @@ func BaseURL(url string, a ...interface{}) IStep {
 		When:     requestCreateStep,
 		CallPath: newCallPath("BaseURL", nil),
 		Exec: func(hit *hitImpl) error {
-			hit.SetBaseURL(url, a...)
+			if len(a) > 0 {
+				url = fmt.Sprintf(url, a...)
+			}
+			hit.baseURL = url
 			return nil
 		},
 	}
@@ -192,7 +196,7 @@ func makeMethodStep(fnName, method, url string, a ...interface{}) IStep {
 		CallPath: newCallPath(fnName, nil),
 		Exec: func(hit *hitImpl) error {
 			hit.request.Method = method
-			url = misc.MakeURL(hit.BaseURL(), url, a...)
+			url = misc.MakeURL(hit.baseURL, url, a...)
 			if url == "" {
 				hit.request.URL = new(urlpkg.URL)
 				return nil
