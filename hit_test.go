@@ -813,3 +813,9 @@ func TestJoinURL(t *testing.T) {
 		})
 	}
 }
+
+func TestNilStep(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	Test(t, nil, Get(s.URL), nil)
+}

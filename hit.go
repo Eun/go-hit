@@ -166,6 +166,9 @@ func (hit *hitImpl) BaseURL() string {
 func (hit *hitImpl) collectSteps(state StepTime) []IStep {
 	var collectedSteps []IStep
 	for i := 0; i < len(hit.steps); i++ {
+		if hit.steps[i] == nil {
+			continue
+		}
 		w := hit.steps[i].when()
 		if w == state {
 			collectedSteps = append(collectedSteps, hit.steps[i])
