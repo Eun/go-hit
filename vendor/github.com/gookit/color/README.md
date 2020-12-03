@@ -24,9 +24,9 @@ Now, 256 colors and RGB colors have also been supported to work in Windows CMD a
 ## Features
 
   - Simple to use, zero dependencies
-  - Supports rich color output: 16-color, 256-color, true color (24-bit, RGB)
+  - Supports rich color output: 16-color (4-bit), 256-color (8-bit), true color (24-bit, RGB)
     - 16-color output is the most commonly used and most widely supported, working on any Windows version
-    - Since `v1.2.4` **the 256-color, true color (24-bit) support windows CMD and PowerShell**
+    - Since `v1.2.4` **the 256-color (8-bit), true color (24-bit) support windows CMD and PowerShell**
     - See [this gist](https://gist.github.com/XVilka/8346728) for information on true color support
   - Generic API methods: `Print`, `Printf`, `Println`, `Sprint`, `Sprintf`
   - Supports HTML tag-style color rendering, such as `<green>message</>`. Support working on windows `cmd` `powerShell`
@@ -43,6 +43,22 @@ Now, 256 colors and RGB colors have also been supported to work in Windows CMD a
 ```bash
 go get github.com/gookit/color
 ```
+
+### NOTICE
+
+If you want print custom colors message on windows, should use `color.PrintX` instead of `fmt.PrintX`
+
+```go
+str := color.Red.Sprint("an colored message string")
+
+// Color will not be output under Windows
+fmt.Println(str)
+
+// Color will be output under Windows
+color.Println(str)
+```
+
+> `color.PrintX` is universal, you can use it directly instead of `fmt.PrintX`
 
 ## Quick start
 
@@ -299,12 +315,22 @@ c.Printf("format %s", "message")
 
 Can be used to set foreground and background colors at the same time.
 
-- `color.S256(fgAndBg ...uint8) *Style256`
+- `S256(fgAndBg ...uint8) *Style256`
 
 ```go
 s := color.S256(32, 203)
 s.Println("message")
 s.Printf("format %s", "message")
+```
+
+with options:
+
+```go
+s := color.S256(32, 203)
+s.SetOpts(color.Opts{color.OpBold})
+
+s.Println("style with options")
+s.Printf("style with %s\n", "options")
 ```
 
 Run demo: `go run ./_examples/color256.go`
@@ -335,7 +361,7 @@ color.HEXStyle("eee", "D50000").Println("deep-purple color")
 
 ### Set the foreground or background color
 
-  - `color.RGB(r, g, b uint8, isBg ...bool) RGBColor`
+- `color.RGB(r, g, b uint8, isBg ...bool) RGBColor`
 
 ```go
 c := color.RGB(30,144,255) // fg color
@@ -347,9 +373,9 @@ c.Println("message")
 c.Printf("format %s", "message")
 ```
 
- Create a style from an hexadecimal color string:
+Create a style from an hexadecimal color string:
 
-  - `color.HEX(hex string, isBg ...bool) RGBColor`
+- `color.HEX(hex string, isBg ...bool) RGBColor`
 
 ```go
 c := color.HEX("ccc") // can also: "cccccc" "#cccccc"
@@ -373,7 +399,7 @@ s.Println("message")
 s.Printf("format %s", "message")
 ```
 
- Create a style from an hexadecimal color string:
+Create a style from an hexadecimal color string:
 
 - `color.HEXStyle(fg string, bg ...string) *RGBStyle`
 
@@ -383,6 +409,16 @@ s.Println("message")
 s.Printf("format %s", "message")
 ```
 
+with options:
+
+```go
+s := color.HEXStyle("11aa23", "eee")
+s.SetOpts(color.Opts{color.OpBold})
+
+s.Println("style with options")
+s.Printf("style with %s\n", "options")
+```
+
 ## Func refer
 
 there are some useful functions reference
@@ -390,6 +426,7 @@ there are some useful functions reference
 - `Disable()` disable color render
 - `SetOutput(io.Writer)` custom set the colored text output writer
 - `ForceOpenColor()` force open color render
+- `Colors2code(colors ...Color) string` Convert colors to code. return like "32;45;3"
 - `ClearCode(str string) string` Use for clear color codes
 - `ClearTag(s string) string` clear all color html-tag for a string
 - `IsConsole(w io.Writer)` Determine whether w is one of stderr, stdout, stdin
@@ -408,7 +445,7 @@ there are some useful functions reference
   - [gookit/filter](https://github.com/gookit/filter) Provide filtering, sanitizing, and conversion of golang data
   - [gookit/validate](https://github.com/gookit/validate) Use for data validation and filtering. support Map, Struct, Form data
   - [gookit/goutil](https://github.com/gookit/goutil) Some utils for the Go: string, array/slice, map, format, cli, env, filesystem, test and more
-  - More please see https://github.com/gookit
+  - More, please see https://github.com/gookit
 
 ## See also
 

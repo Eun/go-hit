@@ -26,6 +26,24 @@ var specialColorTerms = map[string]bool{
 	"rxvt-unicode-256color": true,
 }
 
+/*************************************************************
+ * helper methods
+ *************************************************************/
+
+// Colors2code convert colors to code. return like "32;45;3"
+func Colors2code(colors ...Color) string {
+	if len(colors) == 0 {
+		return ""
+	}
+
+	var codes []string
+	for _, color := range colors {
+		codes = append(codes, color.String())
+	}
+
+	return strings.Join(codes, ";")
+}
+
 // IsConsole Determine whether w is one of stderr, stdout, stdin
 func IsConsole(w io.Writer) bool {
 	o, ok := w.(*os.File)
@@ -153,7 +171,7 @@ func HexToRgb(hex string) (rgb []int) {
 // Rgb2hex alias of the RgbToHex()
 func Rgb2hex(rgb []int) string { return RgbToHex(rgb) }
 
-// RgbToHex convert RGB to hex code
+// RgbToHex convert RGB-code to hex-code
 // Usage:
 //	hex := RgbToHex([]int{170, 187, 204}) // hex: "aabbcc"
 func RgbToHex(rgb []int) string {
@@ -163,6 +181,52 @@ func RgbToHex(rgb []int) string {
 	}
 
 	return strings.Join(hexNodes, "")
+}
+
+// Rgb2ansi alias of the RgbToAnsi()
+func Rgb2ansi(r, g, b uint8, isBg bool) uint8  {
+	return RgbToAnsi(r, g, b, isBg)
+}
+
+// RgbToAnsi convert RGB-code to 16-code
+// refer https://github.com/radareorg/radare2/blob/master/libr/cons/rgb.c#L249-L271
+func RgbToAnsi(r, g, b uint8, isBg bool) uint8  {
+	var bright, c, k uint8
+
+	base := compareVal(isBg, BgBase, FgBase)
+
+	// eco bright-specific
+	if r == 0x80 && g == 0x80 && b == 0x80 { // 0x80=128
+		bright = 53
+	} else if r == 0xff || g == 0xff || b == 0xff { // 0xff=255
+		bright = 60
+	} // else bright = 0
+
+	if r == g && g == b {
+		// 0x7f=127
+		// r = (r > 0x7f) ? 1 : 0;
+		r = compareVal(r > 0x7f, 1, 0)
+		g = compareVal(g > 0x7f, 1, 0)
+		b = compareVal(b > 0x7f, 1, 0)
+	} else {
+		k = (r + g + b) / 3;
+
+		// r = (r >= k) ? 1 : 0;
+		r = compareVal(r >= k, 1, 0)
+		g = compareVal(g >= k, 1, 0)
+		b = compareVal(b >= k, 1, 0)
+	}
+
+	// c = (r ? 1 : 0) + (g ? (b ? 6 : 2) : (b ? 4 : 0))
+	c = compareVal(r > 0, 1, 0)
+
+	if g > 0 {
+		c += compareVal(b > 0, 6, 2)
+	} else {
+		c += compareVal(b > 0, 4, 0)
+	}
+
+	return base + bright + c
 }
 
 /*************************************************************
@@ -258,8 +322,12 @@ func Render(a ...interface{}) string {
 }
 
 // Sprint parse color tags, return rendered string
-func Sprint(args ...interface{}) string {
-	return Render(args...)
+func Sprint(a ...interface{}) string {
+	if len(a) == 0 {
+		return ""
+	}
+
+	return ReplaceTag(fmt.Sprint(a...))
 }
 
 // Sprintf format and return rendered string
@@ -285,6 +353,14 @@ func Text(s string) string {
 // func isWindows() bool {
 // 	return runtime.GOOS == "windows"
 // }
+
+// equals: return ok ? val1 : val2
+func compareVal(ok bool, val1, val2 uint8) uint8 {
+	if ok {
+		return val1
+	}
+	return val2
+}
 
 func saveInternalError(err error) {
 	if err != nil {
