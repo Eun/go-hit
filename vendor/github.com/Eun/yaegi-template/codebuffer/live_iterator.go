@@ -148,7 +148,7 @@ func (i *liveIterator) readTextBlock() (*Part, bool, error) {
 
 			if r == '-' {
 				content = bytes.TrimRightFunc(content, unicode.IsSpace)
-			} else { //nolint:elseif
+			} else { //nolint:elseif,gocritic
 				// its not an "-"
 				if err := i.reader.UnreadRune(); err != nil {
 					return nil, true, err
