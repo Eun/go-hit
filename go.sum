@@ -2,8 +2,8 @@ github.com/Eun/go-convert v0.0.0-20200421145326-bef6c56666ee h1:9oCc9EfVVSuy2WoH
 github.com/Eun/go-convert v0.0.0-20200421145326-bef6c56666ee/go.mod h1:cMqWKb0SQrV+L1Zve08CI1NQGPeRAjXuYTxYE/y6gcU=
 github.com/Eun/go-doppelgangerreader v0.0.0-20190911075941-30f1527f16b2 h1:RfkLLL7sQdxTMWRLo//6CZcAN3j5/laO8BooS9ctG2g=
 github.com/Eun/go-doppelgangerreader v0.0.0-20190911075941-30f1527f16b2/go.mod h1:+o+i8cYK1XYOQo4ocUKNV4R9D5Y7MIAPJk2l5SEh93M=
-github.com/Eun/yaegi-template v1.5.10 h1:QF8IUEdFkAOOe58M6Wc+ihUfdJ92BdA1+CrCV4edyV8=
-github.com/Eun/yaegi-template v1.5.10/go.mod h1:fiXVM1ETDu6jJBPgDjPbJEDX0S6TH7AyrLkX70Opyok=
+github.com/Eun/yaegi-template v1.5.16 h1:R9+BGYE7N69KLWGJI1JAmssLUKuIQ4OKwK2G0CXg0Zg=
+github.com/Eun/yaegi-template v1.5.16/go.mod h1:eyFQ1QHbKLNHKpUvdjt8+99ZR1ji7lVVbduSK1M5N/U=
 github.com/aaw/maybe_tls v0.0.0-20160803104303-89c499bcc6aa h1:6yJyU8MlPBB2enGJdPciPlr8P+PC0nhCFHnSHYMirZI=
 github.com/aaw/maybe_tls v0.0.0-20160803104303-89c499bcc6aa/go.mod h1:I0wzMZvViQzmJjxK+AtfFAnqDCkQV/+r17PO1CCSYnU=
 github.com/araddon/dateparse v0.0.0-20190622164848-0fb0a474d195/go.mod h1:SLqhdZcd+dF3TEVL2RMoob5bBP5R1P1qkox+HtCBgGI=
@@ -57,6 +57,8 @@ github.com/modern-go/reflect2 v1.0.1 h1:9f412s+6RmYXLWZSEzVVgPGK7C2PphHj5RJrvfx9
 github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e h1:fD57ERR4JtEqsWbfPhv4DMiApHyliiK5xCTNVSPiaAs=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
+github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
@@ -66,8 +68,7 @@ github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/tidwall/pretty v1.0.2 h1:Z7S3cePv9Jwm1KwS0513MRaoUe3S01WPbLNV40pwWZU=
 github.com/tidwall/pretty v1.0.2/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
-github.com/traefik/yaegi v0.9.7 h1:CbeKjEhy3DoSC8xC4TQF2Mhmd7u3Cjqluz1//x6Vtcs=
-github.com/traefik/yaegi v0.9.7/go.mod h1:FAYnRlZyuVlEkvnkHq3bvJ1lW5be6XuwgLdkYgYG6Lk=
+github.com/traefik/yaegi v0.9.8/go.mod h1:FAYnRlZyuVlEkvnkHq3bvJ1lW5be6XuwgLdkYgYG6Lk=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 go.uber.org/atomic v1.7.0 h1:ADUqmZGgLDDfbSL9ZmPxKTybcoEYHgpYfELNoN+7hsw=
 go.uber.org/atomic v1.7.0/go.mod h1:fEN4uk6kAWBTFdckzkM89CLk9XfWZrxpCo0nPH17wJc=

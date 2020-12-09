@@ -5,7 +5,7 @@ go 1.12
 require (
 	github.com/Eun/go-convert v0.0.0-20200421145326-bef6c56666ee
 	github.com/Eun/go-doppelgangerreader v0.0.0-20190911075941-30f1527f16b2
-	github.com/Eun/yaegi-template v1.5.10
+	github.com/Eun/yaegi-template v1.5.16
 	github.com/aaw/maybe_tls v0.0.0-20160803104303-89c499bcc6aa
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1 // indirect
 	github.com/dave/jennifer v1.4.1
