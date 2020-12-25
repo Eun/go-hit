@@ -11,7 +11,7 @@ require (
 	github.com/dave/jennifer v1.4.1
 	github.com/google/go-cmp v0.5.4
 	github.com/gookit/color v1.3.2
-	github.com/itchyny/gojq v0.11.2
+	github.com/itchyny/gojq v0.12.0
 	github.com/json-iterator/go v1.1.10
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/k0kubun/pp v3.0.1+incompatible
