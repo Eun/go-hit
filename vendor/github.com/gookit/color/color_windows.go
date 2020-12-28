@@ -25,20 +25,28 @@ var (
 )
 
 func init() {
-	// if at linux, mac, or windows's ConEmu, Cmder, putty
-	if isSupportColor {
+	// if at windows's ConEmu, Cmder, putty ... terminals
+	if supportColor {
 		return
 	}
 
 	isLikeInCmd = true
+
+	// if disabled.
 	if !Enable {
 		return
 	}
 
-	// force open
-	isSupportColor = true
+	// -------- try force enable colors on windows terminal -------
+
 	// init simple color code info
 	// initWinColorsMap()
+
+	outHandle, err := syscall.Open("CONOUT$", syscall.O_RDWR, 0)
+	if err != nil {
+		fmt.Println(53, err)
+		return
+	}
 
 	// load related windows dll
 	// isMSys = utils.IsMSys()
@@ -48,17 +56,16 @@ func init() {
 	procGetConsoleMode = kernel32.NewProc("GetConsoleMode")
 	procSetConsoleMode = kernel32.NewProc("SetConsoleMode")
 
-	outHandle, err := syscall.Open("CONOUT$", syscall.O_RDWR, 0)
-	if err != nil {
-		fmt.Println(53, err)
-		return
-	}
+	// enable colors on windows terminal
 	err = EnableVirtualTerminalProcessing(outHandle, true)
-	saveInternalError(err)
 	if err != nil {
-		fmt.Println(err)
-		// isSupportColor = false
+		fmt.Println("Enable colors error:", err)
+		saveInternalError(err)
+		supportColor = false
 	}
+
+	// NOTICE: update var `supportColor` to TRUE.
+	supportColor = true
 
 	// fetch console screen buffer info
 	// err := getConsoleScreenBufferInfo(uintptr(syscall.Stdout), &defScreenInfo)
@@ -108,26 +115,26 @@ func EnableVirtualTerminalProcessing(stream syscall.Handle, enable bool) error {
 }
 
 // renderColorCodeOnCmd enable cmd color render.
-func renderColorCodeOnCmd(fn func()) {
-	err := EnableVirtualTerminalProcessing(syscall.Stdout, true)
-	// if is not in terminal, will clear color tag.
-	if err != nil {
-		// panic(err)
-		fn()
-		return
-	}
-
-	// force open color render
-	old := ForceOpenColor()
-	fn()
-	// revert color setting
-	isSupportColor = old
-
-	err = EnableVirtualTerminalProcessing(syscall.Stdout, false)
-	if err != nil {
-		panic(err)
-	}
-}
+// func renderColorCodeOnCmd(fn func()) {
+// 	err := EnableVirtualTerminalProcessing(syscall.Stdout, true)
+// 	// if is not in terminal, will clear color tag.
+// 	if err != nil {
+// 		// panic(err)
+// 		fn()
+// 		return
+// 	}
+//
+// 	// force open color render
+// 	old := ForceOpenColor()
+// 	fn()
+// 	// revert color setting
+// 	supportColor = old
+//
+// 	err = EnableVirtualTerminalProcessing(syscall.Stdout, false)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// }
 
 /*************************************************************
  * render simple color code on windows
