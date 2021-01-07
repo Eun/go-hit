@@ -2,7 +2,7 @@
 github.com/Eun/go-convert
 # github.com/Eun/go-doppelgangerreader v0.0.0-20190911075941-30f1527f16b2
 github.com/Eun/go-doppelgangerreader
-# github.com/Eun/yaegi-template v1.5.10
+# github.com/Eun/yaegi-template v1.5.17
 github.com/Eun/yaegi-template/codebuffer
 # github.com/aaw/maybe_tls v0.0.0-20160803104303-89c499bcc6aa
 github.com/aaw/maybe_tls
@@ -40,6 +40,8 @@ github.com/mattn/go-isatty
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
 github.com/modern-go/reflect2
+# github.com/pkg/errors v0.9.1
+github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.6.1
