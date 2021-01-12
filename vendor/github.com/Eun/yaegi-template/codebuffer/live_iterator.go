@@ -85,7 +85,7 @@ func (i *liveIterator) stopProcessing(err error) bool {
 	return false
 }
 
-//nolint:gocognit
+//nolint:gocognit // allow more complex code here
 func (i *liveIterator) readTextBlock() (*Part, bool, error) {
 	sequenceSize := len(i.startSequence)
 	if sequenceSize == 0 {
@@ -130,7 +130,7 @@ func (i *liveIterator) readTextBlock() (*Part, bool, error) {
 			return constructTextPart(contentBuffer.Bytes(), stripLeadingWhiteSpaces), true, nil
 		}
 
-		if r == i.startSequence[pos] { //nolint:nestif
+		if r == i.startSequence[pos] { //nolint:nestif // moving this block into a function would make this more complex
 			// store the rune if this is not the sequence
 			seqBuffer[pos] = r
 			pos++
@@ -148,7 +148,7 @@ func (i *liveIterator) readTextBlock() (*Part, bool, error) {
 
 			if r == '-' {
 				content = bytes.TrimRightFunc(content, unicode.IsSpace)
-			} else { //nolint:elseif
+			} else { //nolint:elseif,gocritic // for better readability keep a nested if
 				// its not an "-"
 				if err := i.reader.UnreadRune(); err != nil {
 					return nil, true, err
@@ -174,7 +174,7 @@ func (i *liveIterator) readTextBlock() (*Part, bool, error) {
 	}
 }
 
-//nolint:gocognit
+//nolint:gocognit  // allow more complex code here
 func (i *liveIterator) readCodeBlock() (*Part, bool, error) {
 	sequenceSize := len(i.endSequence)
 	if sequenceSize == 0 {
@@ -217,7 +217,7 @@ func (i *liveIterator) readCodeBlock() (*Part, bool, error) {
 			return constructCodePath(contentBuffer.Bytes()), true, nil
 		}
 
-		if r == i.endSequence[pos] { //nolint:nestif
+		if r == i.endSequence[pos] {
 			// we found the current needed rune
 			seqBuffer[pos] = r
 			pos++

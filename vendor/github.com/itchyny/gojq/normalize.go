@@ -13,15 +13,15 @@ func normalizeNumbers(v interface{}) interface{} {
 		if i, err := v.Int64(); err == nil && minInt <= i && i <= maxInt {
 			return int(i)
 		}
-		if strings.ContainsAny(string(v), ".eE") {
+		if strings.ContainsAny(v.String(), ".eE") {
 			if f, err := v.Float64(); err == nil {
 				return f
 			}
 		}
-		if bi, ok := new(big.Int).SetString(string(v), 10); ok {
+		if bi, ok := new(big.Int).SetString(v.String(), 10); ok {
 			return bi
 		}
-		if strings.HasPrefix(string(v), "-") {
+		if strings.HasPrefix(v.String(), "-") {
 			return -math.MaxFloat64
 		}
 		return math.MaxFloat64
@@ -33,8 +33,8 @@ func normalizeNumbers(v interface{}) interface{} {
 		}
 		return v
 	case int64:
-		if v > int64(maxInt) {
-			return new(big.Int).SetUint64(uint64(v))
+		if v > maxInt || v < minInt {
+			return new(big.Int).SetInt64(v)
 		}
 		return int(v)
 	case int32:
@@ -44,17 +44,17 @@ func normalizeNumbers(v interface{}) interface{} {
 	case int8:
 		return int(v)
 	case uint:
-		if v > uint(maxInt) {
+		if v > maxInt {
 			return new(big.Int).SetUint64(uint64(v))
 		}
 		return int(v)
 	case uint64:
-		if v > uint64(maxInt) {
+		if v > maxInt {
 			return new(big.Int).SetUint64(v)
 		}
 		return int(v)
 	case uint32:
-		if v > uint32(maxHalfInt) {
+		if uint64(v) > maxInt {
 			return new(big.Int).SetUint64(uint64(v))
 		}
 		return int(v)
@@ -74,33 +74,6 @@ func normalizeNumbers(v interface{}) interface{} {
 			v[i] = normalizeNumbers(x)
 		}
 		return v
-	default:
-		return v
-	}
-}
-
-func normalizeValues(v interface{}) interface{} {
-	switch v := v.(type) {
-	case float64:
-		if math.IsNaN(v) {
-			return nil
-		} else if isinf(v) {
-			return math.Copysign(math.MaxFloat64, v)
-		} else {
-			return v
-		}
-	case map[string]interface{}:
-		u := make(map[string]interface{}, len(v))
-		for k, v := range v {
-			u[k] = normalizeValues(v)
-		}
-		return u
-	case []interface{}:
-		u := make([]interface{}, len(v))
-		for i, v := range v {
-			u[i] = normalizeValues(v)
-		}
-		return u
 	default:
 		return v
 	}

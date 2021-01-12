@@ -66,7 +66,7 @@ $(GOBIN)/gocredits:
 
 .PHONY: test
 test: build
-	go test -v ./...
+	go test -v -race ./...
 
 .PHONY: lint
 lint: $(GOBIN)/golint
@@ -78,7 +78,7 @@ $(GOBIN)/golint:
 
 .PHONY: maligned
 maligned: $(GOBIN)/maligned
-	! maligned *.go | grep ^
+	! maligned . 2>&1 | grep -v pointer | grep ^
 
 $(GOBIN)/maligned:
 	cd && go get github.com/mdempsky/maligned

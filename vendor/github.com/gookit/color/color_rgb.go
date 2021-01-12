@@ -33,6 +33,27 @@ const (
 	AsBg
 )
 
+// values from https://github.com/go-terminfo/terminfo
+// var (
+// RgbaBlack    = image_color.RGBA{0, 0, 0, 255}
+// Red       = color.RGBA{205, 0, 0, 255}
+// Green     = color.RGBA{0, 205, 0, 255}
+// Orange    = color.RGBA{205, 205, 0, 255}
+// Blue      = color.RGBA{0, 0, 238, 255}
+// Magenta   = color.RGBA{205, 0, 205, 255}
+// Cyan      = color.RGBA{0, 205, 205, 255}
+// LightGrey = color.RGBA{229, 229, 229, 255}
+//
+// DarkGrey     = color.RGBA{127, 127, 127, 255}
+// LightRed     = color.RGBA{255, 0, 0, 255}
+// LightGreen   = color.RGBA{0, 255, 0, 255}
+// Yellow       = color.RGBA{255, 255, 0, 255}
+// LightBlue    = color.RGBA{92, 92, 255, 255}
+// LightMagenta = color.RGBA{255, 0, 255, 255}
+// LightCyan    = color.RGBA{0, 255, 255, 255}
+// White        = color.RGBA{255, 255, 255, 255}
+// )
+
 /*************************************************************
  * RGB Color(Bit24Color, TrueColor)
  *************************************************************/
@@ -68,6 +89,17 @@ func RGB(r, g, b uint8, isBg ...bool) RGBColor {
 	return rgb
 }
 
+// Rgb alias of the RGB()
+func Rgb(r, g, b uint8, isBg ...bool) RGBColor { return RGB(r, g, b, isBg...) }
+
+// Bit24 alias of the RGB()
+func Bit24(r, g, b uint8, isBg ...bool) RGBColor { return RGB(r, g, b, isBg...) }
+
+// RGBFromSlice quick RGBColor from slice
+func RGBFromSlice(rgb []uint8, isBg ...bool) RGBColor {
+	return RGB(rgb[0], rgb[1], rgb[2], isBg...)
+}
+
 // HEX create RGB color from a HEX color string.
 // Usage:
 // 	c := HEX("ccc") // rgb: [204 204 204]
@@ -83,6 +115,9 @@ func HEX(hex string, isBg ...bool) RGBColor {
 	// mark is empty
 	return emptyRGBColor
 }
+
+// Hex alias of the HEX()
+func Hex(hex string, isBg ...bool) RGBColor { return HEX(hex, isBg...) }
 
 // RGBFromString create RGB color from a string.
 // Usage:
@@ -169,7 +204,12 @@ func (c RGBColor) IsEmpty() bool {
 
 // C256 returns the closest approximate 256 (8 bit) color
 func (c RGBColor) C256() Color256 {
-	return C256(rgb2short(c[0], c[1], c[2]), c[3] == AsBg)
+	return C256(Rgb2short(c[0], c[1], c[2]), c[3] == AsBg)
+}
+
+// C16 returns the closest approximate 16 (4 bit) color
+func (c RGBColor) C16() Color {
+	return Color(RgbToAnsi(c[0], c[1], c[2], c[3] == AsBg))
 }
 
 /*************************************************************
@@ -232,7 +272,7 @@ func RGBStyleFromString(fg string, bg ...string) *RGBStyle {
 	return s.SetFg(RGBFromString(fg))
 }
 
-// Set fg and bg color
+// Set fg and bg color, can also with color options
 func (s *RGBStyle) Set(fg, bg RGBColor, opts ...Color) *RGBStyle {
 	return s.SetFg(fg).SetBg(bg).SetOpts(opts)
 }
@@ -251,7 +291,7 @@ func (s *RGBStyle) SetBg(bg RGBColor) *RGBStyle {
 	return s
 }
 
-// SetOpts set options
+// SetOpts set color options
 func (s *RGBStyle) SetOpts(opts Opts) *RGBStyle {
 	s.opts = opts
 	return s

@@ -5,13 +5,13 @@ go 1.12
 require (
 	github.com/Eun/go-convert v0.0.0-20200421145326-bef6c56666ee
 	github.com/Eun/go-doppelgangerreader v0.0.0-20190911075941-30f1527f16b2
-	github.com/Eun/yaegi-template v1.5.10
+	github.com/Eun/yaegi-template v1.5.17
 	github.com/aaw/maybe_tls v0.0.0-20160803104303-89c499bcc6aa
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1 // indirect
 	github.com/dave/jennifer v1.4.1
 	github.com/google/go-cmp v0.5.4
-	github.com/gookit/color v1.3.2
-	github.com/itchyny/gojq v0.11.2
+	github.com/gookit/color v1.3.6
+	github.com/itchyny/gojq v0.12.0
 	github.com/json-iterator/go v1.1.10
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/k0kubun/pp v3.0.1+incompatible

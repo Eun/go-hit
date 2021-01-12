@@ -45,6 +45,22 @@ Golang下的命令行色彩使用库, 拥有丰富的色彩渲染输出，通用
 go get github.com/gookit/color
 ```
 
+### 提示
+
+如果要在Windows上打印颜色消息，应使用 `color.PrintX` 而不是 `fmt.PrintX`
+
+```go
+str := color.Red.Sprint("an colored message string")
+
+// Windows 下将不会输出颜色
+fmt.Println(str)
+
+// Windows 也可以输出色彩
+color.Println(str)
+```
+
+> `color.PrintX` 系列方法是通用的，您可以直接使用它们替代 `fmt.PrintX` 方法
+
 ## 快速开始
 
 如下，引入当前包就可以快速的使用
@@ -134,7 +150,7 @@ color.Reset()
 
 ## 基础颜色方法
 
-> 支持在windows `cmd.exe` 使用
+> 支持在windows `cmd.exe`  `powerShell` 等终端使用
 
   - `color.Bold`
   - `color.Black`
@@ -158,7 +174,7 @@ color.Yellow.Println("yellow message")
 
 ## 扩展风格方法 
 
-> 支持在windows `cmd.exe` 使用
+> 支持在windows `cmd.exe`  `powerShell` 等终端使用
 
   - `color.Info`
   - `color.Note`
@@ -272,12 +288,22 @@ c.Printf("format %s", "message")
 
 > 可同时设置前景和背景色
  
-  - `color.S256(fgAndBg ...uint8) *Style256`
+- `color.S256(fgAndBg ...uint8) *Style256`
 
 ```go
 s := color.S256(32, 203)
 s.Println("message")
 s.Printf("format %s", "message")
+```
+
+可以同时添加选项设置:
+
+```go
+s := color.S256(32, 203)
+s.SetOpts(color.Opts{color.OpBold})
+
+s.Println("style with options")
+s.Printf("style with %s\n", "options")
 ```
 
 > 运行 demo: `go run ./_examples/color256.go`
@@ -308,7 +334,7 @@ color.HEXStyle("eee", "D50000").Println("deep-purple color")
 
 ### 使用前景或后景色 
 
-  - `color.RGB(r, g, b uint8, isBg ...bool) RGBColor`
+- `color.RGB(r, g, b uint8, isBg ...bool) RGBColor`
 
 ```go
 c := color.RGB(30,144,255) // fg color
@@ -320,7 +346,7 @@ c.Println("message")
 c.Printf("format %s", "message")
 ```
 
-  - `color.HEX(hex string, isBg ...bool) RGBColor` 从16进制颜色创建
+- `color.HEX(hex string, isBg ...bool) RGBColor` 从16进制颜色创建
 
 ```go
 c := color.HEX("ccc") // 也可以写为: "cccccc" "#cccccc"
@@ -336,7 +362,7 @@ c.Printf("format %s", "message")
 
 > 可同时设置前景和背景色
 
-  - `color.NewRGBStyle(fg RGBColor, bg ...RGBColor) *RGBStyle`
+- `color.NewRGBStyle(fg RGBColor, bg ...RGBColor) *RGBStyle`
 
 ```go
 s := color.NewRGBStyle(RGB(20, 144, 234), RGB(234, 78, 23))
@@ -352,6 +378,16 @@ s.Println("message")
 s.Printf("format %s", "message")
 ```
 
+- 可以同时添加选项设置:
+
+```go
+s := color.HEXStyle("11aa23", "eee")
+s.SetOpts(color.Opts{color.OpBold})
+
+s.Println("style with options")
+s.Printf("style with %s\n", "options")
+```
+
 ## 方法参考
 
 一些有用的工具方法参考
@@ -360,16 +396,19 @@ s.Printf("format %s", "message")
 - `SetOutput(io.Writer)` custom set the colored text output writer
 - `ForceOpenColor()` force open color render
 - `ClearCode(str string) string` Use for clear color codes
+- `Colors2code(colors ...Color) string` Convert colors to code. return like "32;45;3"
 - `ClearTag(s string) string` clear all color html-tag for a string
 - `IsConsole(w io.Writer)` Determine whether w is one of stderr, stdout, stdin
 - `HexToRgb(hex string) (rgb []int)` Convert hex color string to RGB numbers
 - `RgbToHex(rgb []int) string` Convert RGB to hex code
+- 更多请查看文档 https://pkg.go.dev/github.com/gookit/color
 
 ## Gookit 工具包
 
   - [gookit/ini](https://github.com/gookit/ini) INI配置读取管理，支持多文件加载，数据覆盖合并, 解析ENV变量, 解析变量引用
   - [gookit/rux](https://github.com/gookit/rux) Simple and fast request router for golang HTTP 
   - [gookit/gcli](https://github.com/gookit/gcli) Go的命令行应用，工具库，运行CLI命令，支持命令行色彩，用户交互，进度显示，数据格式化显示
+  - [gookit/slog](https://github.com/gookit/slog) 简洁易扩展的go日志库
   - [gookit/event](https://github.com/gookit/event) Go实现的轻量级的事件管理、调度程序库, 支持设置监听器的优先级, 支持对一组事件进行监听
   - [gookit/cache](https://github.com/gookit/cache) 通用的缓存使用包装库，通过包装各种常用的驱动，来提供统一的使用API
   - [gookit/config](https://github.com/gookit/config) Go应用配置管理，支持多种格式（JSON, YAML, TOML, INI, HCL, ENV, Flags），多文件加载，远程文件加载，数据合并
@@ -380,10 +419,11 @@ s.Printf("format %s", "message")
   - 更多请查看 https://github.com/gookit
 
 ## 参考项目
-  
-  - `issue9/term` https://github.com/issue9/term
-  - `beego/bee` https://github.com/beego/bee
-  - `inhere/console` https://github/inhere/php-console
+
+  - [inhere/console](https://github.com/inhere/php-console)
+  - [xo/terminfo](https://github.com/xo/terminfo)
+  - [beego/bee](https://github.com/beego/bee)
+  - [issue9/term](https://github.com/issue9/term)
   - [ANSI转义序列](https://zh.wikipedia.org/wiki/ANSI转义序列)
   - [Standard ANSI color map](https://conemu.github.io/en/AnsiEscapeCodes.html#Standard_ANSI_color_map)
 
