@@ -17,10 +17,12 @@ import (
 	urlpkg "net/url"
 )
 
-//nolint:gochecknoglobals
+//nolint:gochecknoglobals // ett is used to initialize the errortrace, we always want to ignore some packages, so using
+// a global would help to avoid unnecessary initializations.
 var ett *errortrace.Template
 
-//nolint:gochecknoinits
+//nolint:gochecknoinits // ett is used to initialize the errortrace, we always want to ignore some packages, so using
+// a global would help to avoid unnecessary initializations.
 func init() {
 	ett = errortrace.New(
 		"testing",

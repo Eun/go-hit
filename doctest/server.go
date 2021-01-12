@@ -18,7 +18,7 @@ import (
 	maybetls "github.com/aaw/maybe_tls"
 )
 
-//nolint:funlen,gosec
+//nolint:funlen,gosec // keep the test boilerplate compact and ignore security issues since this is for testing only.
 // RunTest mocks an test http server.
 func RunTest(expectRequest bool, test func()) {
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
@@ -136,12 +136,12 @@ func RunTest(expectRequest bool, test func()) {
 			return net.Dial("tcp", listener.Addr().String())
 		},
 		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: true, //nolint:gosec
+			InsecureSkipVerify: true, //nolint:gosec // this is a test server so allow insecure TLS connections.
 		},
-		MaxIdleConns:          30,               //nolint:gomnd
-		IdleConnTimeout:       0,                //nolint:gomnd
-		TLSHandshakeTimeout:   10 * time.Second, //nolint:gomnd
-		ExpectContinueTimeout: 1 * time.Second,  //nolint:gomnd
+		MaxIdleConns:          30, //nolint:gomnd // this is the default
+		IdleConnTimeout:       0,
+		TLSHandshakeTimeout:   10 * time.Second, //nolint:gomnd // this is the default
+		ExpectContinueTimeout: time.Second,
 	}
 
 	test()

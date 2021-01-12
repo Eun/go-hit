@@ -250,7 +250,6 @@ func (hit *hitImpl) InsertSteps(steps ...IStep) {
 	}
 }
 
-//nolint:gomnd
 func (hit *hitImpl) RemoveSteps(steps ...IStep) {
 	for j := len(steps) - 1; j >= 0; j-- {
 		for i := len(hit.steps) - 1; i >= 0; i-- {

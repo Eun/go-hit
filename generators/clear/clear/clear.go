@@ -39,7 +39,7 @@ func isExported(method *reflect.Method) bool {
 
 // isSeparator reports whether the rune could mark a word boundary.
 // TODO: update when package unicode captures more of the properties.
-// nolint:gocritic,gomnd
+// nolint:gocritic,gomnd // gomnd reacts on 0x7F, gocritic complains about yoda style expressions
 func isSeparator(r rune) bool {
 	// ASCII alphanumerics and underscore are not separators
 	if r <= 0x7F {

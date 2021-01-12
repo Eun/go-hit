@@ -11,7 +11,7 @@ import (
 	"github.com/lunixbochs/vtclean"
 )
 
-//nolint:unparam
+//nolint:unparam // hide `stringJoin` - `separator` always receives `"\n"
 func stringJoin(separator string, a ...string) string {
 	return strings.Join(a, separator)
 }
