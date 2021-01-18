@@ -138,6 +138,7 @@ func (l *lexer) Lex(lval *yySymType) (tokenType int) {
 				l.token = "?//"
 				return tokDestAltOp
 			}
+			l.offset--
 		}
 	case '+':
 		if l.peek() == '=' {
@@ -224,7 +225,7 @@ func (l *lexer) Lex(lval *yySymType) (tokenType int) {
 		lval.operator = OpLt
 		return tokCompareOp
 	case '@':
-		if isIdent(l.peek(), false) {
+		if isIdent(l.peek(), true) {
 			l.token = string(l.source[l.offset-1 : l.scanIdent()])
 			lval.token = l.token
 			return tokFormat
@@ -317,7 +318,8 @@ func (l *lexer) scanNumber(state int) int {
 				switch ch {
 				case '.':
 					if state != numberStateLead {
-						return l.offset
+						l.offset++
+						return -l.offset
 					}
 					l.offset++
 					state = numberStateFloat

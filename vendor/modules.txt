@@ -20,9 +20,9 @@ github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
 # github.com/gookit/color v1.3.2
 github.com/gookit/color
-# github.com/itchyny/astgen-go v0.0.0-20200815150004-12a293722290
+# github.com/itchyny/astgen-go v0.0.0-20210113000433-0da0671862a3
 github.com/itchyny/astgen-go
-# github.com/itchyny/gojq v0.11.2
+# github.com/itchyny/gojq v0.12.1
 github.com/itchyny/gojq
 # github.com/itchyny/timefmt-go v0.1.1
 github.com/itchyny/timefmt-go
@@ -32,7 +32,7 @@ github.com/json-iterator/go
 github.com/k0kubun/pp
 # github.com/lunixbochs/vtclean v1.0.0
 github.com/lunixbochs/vtclean
-# github.com/mattn/go-colorable v0.1.7
+# github.com/mattn/go-colorable v0.1.8
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.12
 github.com/mattn/go-isatty
@@ -52,7 +52,7 @@ go.uber.org/atomic
 # golang.org/x/mod v0.3.0
 golang.org/x/mod/module
 golang.org/x/mod/semver
-# golang.org/x/sys v0.0.0-20200930185726-fdedc70b468f
+# golang.org/x/sys v0.0.0-20210113181707-4bcb84eeeb78
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
 # golang.org/x/tools v0.0.0-20201026223136-e84cfc6dd5ca
@@ -69,5 +69,5 @@ golang.org/x/tools/internal/imports
 # golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 golang.org/x/xerrors
 golang.org/x/xerrors/internal
-# gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+# gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 gopkg.in/yaml.v3

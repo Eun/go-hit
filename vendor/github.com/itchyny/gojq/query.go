@@ -3,12 +3,11 @@ package gojq
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"strings"
 )
 
-// Query ...
+// Query represents the abstract syntax tree of a jq query.
 type Query struct {
 	Meta     *ConstObject
 	Imports  []*Import
@@ -20,12 +19,14 @@ type Query struct {
 	Func     string
 }
 
-// Run query.
+// Run the query.
+//
+// It is safe to call this method of a *Query in multiple goroutines.
 func (e *Query) Run(v interface{}) Iter {
 	return e.RunWithContext(nil, v)
 }
 
-// RunWithContext query.
+// RunWithContext runs the query with context.
 func (e *Query) RunWithContext(ctx context.Context, v interface{}) Iter {
 	code, err := Compile(e)
 	if err != nil {
@@ -36,17 +37,24 @@ func (e *Query) RunWithContext(ctx context.Context, v interface{}) Iter {
 
 func (e *Query) String() string {
 	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *Query) writeTo(s *strings.Builder) {
 	if e.Meta != nil {
-		fmt.Fprintf(&s, "module %s;\n", e.Meta)
+		s.WriteString("module ")
+		e.Meta.writeTo(s)
+		s.WriteString(";\n")
 	}
 	for _, im := range e.Imports {
-		fmt.Fprint(&s, im)
+		im.writeTo(s)
 	}
 	for i, fd := range e.FuncDefs {
 		if i > 0 {
 			s.WriteByte(' ')
 		}
-		fmt.Fprint(&s, fd)
+		fd.writeTo(s)
 	}
 	if len(e.FuncDefs) > 0 {
 		s.WriteByte(' ')
@@ -54,15 +62,18 @@ func (e *Query) String() string {
 	if e.Func != "" {
 		s.WriteString(e.Func)
 	} else if e.Term != nil {
-		fmt.Fprint(&s, e.Term)
+		e.Term.writeTo(s)
 	} else if e.Right != nil {
+		e.Left.writeTo(s)
 		if e.Op == OpComma {
-			fmt.Fprintf(&s, "%s, %s", e.Left, e.Right)
+			s.WriteString(", ")
 		} else {
-			fmt.Fprintf(&s, "%s %s %s", e.Left, e.Op, e.Right)
+			s.WriteByte(' ')
+			s.WriteString(e.Op.String())
+			s.WriteByte(' ')
 		}
+		e.Right.writeTo(s)
 	}
-	return s.String()
 }
 
 func (e *Query) minify() {
@@ -106,16 +117,25 @@ type Import struct {
 
 func (e *Import) String() string {
 	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *Import) writeTo(s *strings.Builder) {
 	if e.ImportPath != "" {
-		fmt.Fprintf(&s, "import %q as %s", e.ImportPath, e.ImportAlias)
+		s.WriteString("import ")
+		s.WriteString(strconv.Quote(e.ImportPath))
+		s.WriteString(" as ")
+		s.WriteString(e.ImportAlias)
 	} else {
-		fmt.Fprintf(&s, "include %q", e.IncludePath)
+		s.WriteString("include ")
+		s.WriteString(strconv.Quote(e.IncludePath))
 	}
 	if e.Meta != nil {
-		fmt.Fprintf(&s, " %s", e.Meta)
+		s.WriteByte(' ')
+		e.Meta.writeTo(s)
 	}
 	s.WriteString(";\n")
-	return s.String()
 }
 
 // FuncDef ...
@@ -127,19 +147,26 @@ type FuncDef struct {
 
 func (e *FuncDef) String() string {
 	var s strings.Builder
-	fmt.Fprintf(&s, "def %s", e.Name)
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *FuncDef) writeTo(s *strings.Builder) {
+	s.WriteString("def ")
+	s.WriteString(e.Name)
 	if len(e.Args) > 0 {
 		s.WriteByte('(')
 		for i, e := range e.Args {
 			if i > 0 {
 				s.WriteString("; ")
 			}
-			fmt.Fprint(&s, e)
+			s.WriteString(e)
 		}
 		s.WriteByte(')')
 	}
-	fmt.Fprintf(&s, ": %s;", e.Body)
-	return s.String()
+	s.WriteString(": ")
+	e.Body.writeTo(s)
+	s.WriteByte(';')
 }
 
 // Minify ...
@@ -170,9 +197,14 @@ type Term struct {
 
 func (e *Term) String() string {
 	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *Term) writeTo(s *strings.Builder) {
 	switch e.Type {
 	case TermTypeIdentity:
-		s.WriteString(".")
+		s.WriteByte('.')
 	case TermTypeRecurse:
 		s.WriteString("..")
 	case TermTypeNull:
@@ -182,44 +214,46 @@ func (e *Term) String() string {
 	case TermTypeFalse:
 		s.WriteString("false")
 	case TermTypeIndex:
-		fmt.Fprint(&s, e.Index)
+		e.Index.writeTo(s)
 	case TermTypeFunc:
-		fmt.Fprint(&s, e.Func)
+		e.Func.writeTo(s)
 	case TermTypeObject:
-		fmt.Fprint(&s, e.Object)
+		e.Object.writeTo(s)
 	case TermTypeArray:
-		fmt.Fprint(&s, e.Array)
+		e.Array.writeTo(s)
 	case TermTypeNumber:
-		fmt.Fprint(&s, e.Number)
+		s.WriteString(e.Number)
 	case TermTypeUnary:
-		fmt.Fprint(&s, e.Unary)
+		e.Unary.writeTo(s)
 	case TermTypeFormat:
-		if e.Str == nil {
-			s.WriteString(e.Format)
-		} else {
-			fmt.Fprintf(&s, "%s %s", e.Format, e.Str)
+		s.WriteString(e.Format)
+		if e.Str != nil {
+			s.WriteByte(' ')
+			e.Str.writeTo(s)
 		}
 	case TermTypeString:
-		fmt.Fprint(&s, e.Str)
+		e.Str.writeTo(s)
 	case TermTypeIf:
-		fmt.Fprint(&s, e.If)
+		e.If.writeTo(s)
 	case TermTypeTry:
-		fmt.Fprint(&s, e.Try)
+		e.Try.writeTo(s)
 	case TermTypeReduce:
-		fmt.Fprint(&s, e.Reduce)
+		e.Reduce.writeTo(s)
 	case TermTypeForeach:
-		fmt.Fprint(&s, e.Foreach)
+		e.Foreach.writeTo(s)
 	case TermTypeLabel:
-		fmt.Fprint(&s, e.Label)
+		e.Label.writeTo(s)
 	case TermTypeBreak:
-		fmt.Fprintf(&s, "break %s", e.Break)
+		s.WriteString("break ")
+		s.WriteString(e.Break)
 	case TermTypeQuery:
-		fmt.Fprintf(&s, "(%s)", e.Query)
+		s.WriteByte('(')
+		e.Query.writeTo(s)
+		s.WriteByte(')')
 	}
 	for _, e := range e.SuffixList {
-		fmt.Fprint(&s, e)
+		e.writeTo(s)
 	}
-	return s.String()
 }
 
 func (e *Term) minify() {
@@ -309,7 +343,14 @@ type Unary struct {
 }
 
 func (e *Unary) String() string {
-	return fmt.Sprintf("%s%s", e.Op, e.Term)
+	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *Unary) writeTo(s *strings.Builder) {
+	s.WriteString(e.Op.String())
+	e.Term.writeTo(s)
 }
 
 func (e *Unary) minify() {
@@ -325,28 +366,32 @@ type Pattern struct {
 
 func (e *Pattern) String() string {
 	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *Pattern) writeTo(s *strings.Builder) {
 	if e.Name != "" {
 		s.WriteString(e.Name)
 	} else if len(e.Array) > 0 {
-		s.WriteRune('[')
+		s.WriteByte('[')
 		for i, e := range e.Array {
 			if i > 0 {
 				s.WriteString(", ")
 			}
-			fmt.Fprint(&s, e)
+			e.writeTo(s)
 		}
-		s.WriteRune(']')
+		s.WriteByte(']')
 	} else if len(e.Object) > 0 {
-		s.WriteRune('{')
+		s.WriteByte('{')
 		for i, e := range e.Object {
 			if i > 0 {
 				s.WriteString(", ")
 			}
-			fmt.Fprint(&s, e)
+			e.writeTo(s)
 		}
-		s.WriteRune('}')
+		s.WriteByte('}')
 	}
-	return s.String()
 }
 
 // PatternObject ...
@@ -360,21 +405,27 @@ type PatternObject struct {
 
 func (e *PatternObject) String() string {
 	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *PatternObject) writeTo(s *strings.Builder) {
 	if e.Key != "" {
 		s.WriteString(e.Key)
 	} else if e.KeyString != nil {
-		fmt.Fprint(&s, e.KeyString)
+		e.KeyString.writeTo(s)
 	} else if e.KeyQuery != nil {
-		fmt.Fprintf(&s, "(%s)", e.KeyQuery)
+		s.WriteByte('(')
+		e.KeyQuery.writeTo(s)
+		s.WriteByte(')')
 	}
 	if e.Val != nil {
 		s.WriteString(": ")
-		fmt.Fprint(&s, e.Val)
+		e.Val.writeTo(s)
 	}
 	if e.KeyOnly != "" {
 		s.WriteString(e.KeyOnly)
 	}
-	return s.String()
 }
 
 // Index ...
@@ -388,33 +439,50 @@ type Index struct {
 
 func (e *Index) String() string {
 	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *Index) writeTo(s *strings.Builder) {
+	if l := s.Len(); l > 0 {
+		// ". .x" != "..x" and "0 .x" != "0.x"
+		if c := s.String()[l-1]; c == '.' || '0' <= c && c <= '9' {
+			s.WriteByte(' ')
+		}
+	}
 	s.WriteByte('.')
+	e.writeSuffixTo(s)
+}
+
+func (e *Index) writeSuffixTo(s *strings.Builder) {
 	if e.Name != "" {
 		s.WriteString(e.Name)
 	} else {
 		if e.Str != nil {
-			fmt.Fprint(&s, e.Str)
+			e.Str.writeTo(s)
 		} else {
 			s.WriteByte('[')
 			if e.Start != nil {
-				fmt.Fprint(&s, e.Start)
+				e.Start.writeTo(s)
 				if e.IsSlice {
 					s.WriteByte(':')
 					if e.End != nil {
-						fmt.Fprint(&s, e.End)
+						e.End.writeTo(s)
 					}
 				}
 			} else if e.End != nil {
 				s.WriteByte(':')
-				fmt.Fprint(&s, e.End)
+				e.End.writeTo(s)
 			}
 			s.WriteByte(']')
 		}
 	}
-	return s.String()
 }
 
 func (e *Index) minify() {
+	if e.Str != nil {
+		e.Str.minify()
+	}
 	if e.Start != nil {
 		e.Start.minify()
 	}
@@ -438,6 +506,11 @@ type Func struct {
 
 func (e *Func) String() string {
 	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *Func) writeTo(s *strings.Builder) {
 	s.WriteString(e.Name)
 	if len(e.Args) > 0 {
 		s.WriteByte('(')
@@ -445,11 +518,10 @@ func (e *Func) String() string {
 			if i > 0 {
 				s.WriteString("; ")
 			}
-			fmt.Fprint(&s, e)
+			e.writeTo(s)
 		}
 		s.WriteByte(')')
 	}
-	return s.String()
 }
 
 func (e *Func) minify() {
@@ -472,21 +544,27 @@ type String struct {
 }
 
 func (e *String) String() string {
-	if e.Queries == nil {
-		return strconv.Quote(e.Str)
-	}
 	var s strings.Builder
-	s.WriteRune('"')
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *String) writeTo(s *strings.Builder) {
+	if e.Queries == nil {
+		s.WriteString(strconv.Quote(e.Str))
+		return
+	}
+	s.WriteByte('"')
 	for _, e := range e.Queries {
 		if e.Term.Str == nil {
-			fmt.Fprintf(&s, "\\%s", e)
+			s.WriteString(`\`)
+			e.writeTo(s)
 		} else {
 			es := e.String()
-			fmt.Fprint(&s, es[1:len(es)-1])
+			s.WriteString(es[1 : len(es)-1])
 		}
 	}
-	s.WriteRune('"')
-	return s.String()
+	s.WriteByte('"')
 }
 
 func (e *String) minify() {
@@ -501,19 +579,24 @@ type Object struct {
 }
 
 func (e *Object) String() string {
-	if len(e.KeyVals) == 0 {
-		return "{}"
-	}
 	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *Object) writeTo(s *strings.Builder) {
+	if len(e.KeyVals) == 0 {
+		s.WriteString("{}")
+		return
+	}
 	s.WriteString("{ ")
 	for i, kv := range e.KeyVals {
 		if i > 0 {
 			s.WriteString(", ")
 		}
-		fmt.Fprint(&s, kv)
+		kv.writeTo(s)
 	}
 	s.WriteString(" }")
-	return s.String()
 }
 
 func (e *Object) minify() {
@@ -534,30 +617,42 @@ type ObjectKeyVal struct {
 
 func (e *ObjectKeyVal) String() string {
 	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *ObjectKeyVal) writeTo(s *strings.Builder) {
 	if e.Key != "" {
 		s.WriteString(e.Key)
 	} else if e.KeyString != nil {
-		fmt.Fprint(&s, e.KeyString)
+		e.KeyString.writeTo(s)
 	} else if e.KeyQuery != nil {
-		fmt.Fprintf(&s, "(%s)", e.KeyQuery)
+		s.WriteByte('(')
+		e.KeyQuery.writeTo(s)
+		s.WriteByte(')')
 	}
 	if e.Val != nil {
-		fmt.Fprintf(&s, ": %s", e.Val)
+		s.WriteString(": ")
+		e.Val.writeTo(s)
 	}
 	if e.KeyOnly != "" {
 		s.WriteString(e.KeyOnly)
 	} else if e.KeyOnlyString != nil {
-		fmt.Fprint(&s, e.KeyOnlyString)
+		e.KeyOnlyString.writeTo(s)
 	}
-	return s.String()
 }
 
 func (e *ObjectKeyVal) minify() {
-	if e.KeyQuery != nil {
+	if e.KeyString != nil {
+		e.KeyString.minify()
+	} else if e.KeyQuery != nil {
 		e.KeyQuery.minify()
 	}
 	if e.Val != nil {
 		e.Val.minify()
+	}
+	if e.KeyOnlyString != nil {
+		e.KeyOnlyString.minify()
 	}
 }
 
@@ -568,13 +663,17 @@ type ObjectVal struct {
 
 func (e *ObjectVal) String() string {
 	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *ObjectVal) writeTo(s *strings.Builder) {
 	for i, e := range e.Queries {
 		if i > 0 {
 			s.WriteString(" | ")
 		}
-		fmt.Fprint(&s, e)
+		e.writeTo(s)
 	}
-	return s.String()
 }
 
 func (e *ObjectVal) minify() {
@@ -589,10 +688,17 @@ type Array struct {
 }
 
 func (e *Array) String() string {
-	if e.Query == nil {
-		return "[]"
+	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *Array) writeTo(s *strings.Builder) {
+	s.WriteByte('[')
+	if e.Query != nil {
+		e.Query.writeTo(s)
 	}
-	return fmt.Sprintf("[%s]", e.Query)
+	s.WriteByte(']')
 }
 
 func (e *Array) minify() {
@@ -611,20 +717,24 @@ type Suffix struct {
 
 func (e *Suffix) String() string {
 	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *Suffix) writeTo(s *strings.Builder) {
 	if e.Index != nil {
 		if e.Index.Name != "" || e.Index.Str != nil {
-			fmt.Fprint(&s, e.Index)
+			e.Index.writeTo(s)
 		} else {
-			s.WriteString(e.Index.String()[1:])
+			e.Index.writeSuffixTo(s)
 		}
 	} else if e.Iter {
 		s.WriteString("[]")
 	} else if e.Optional {
-		s.WriteString("?")
+		s.WriteByte('?')
 	} else if e.Bind != nil {
-		fmt.Fprint(&s, e.Bind)
+		e.Bind.writeTo(s)
 	}
-	return s.String()
 }
 
 func (e *Suffix) minify() {
@@ -660,15 +770,24 @@ type Bind struct {
 
 func (e *Bind) String() string {
 	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *Bind) writeTo(s *strings.Builder) {
 	for i, p := range e.Patterns {
 		if i == 0 {
-			fmt.Fprintf(&s, " as %s ", p)
+			s.WriteString(" as ")
+			p.writeTo(s)
+			s.WriteByte(' ')
 		} else {
-			fmt.Fprintf(&s, "?// %s ", p)
+			s.WriteString("?// ")
+			p.writeTo(s)
+			s.WriteByte(' ')
 		}
 	}
-	fmt.Fprintf(&s, "| %s", e.Body)
-	return s.String()
+	s.WriteString("| ")
+	e.Body.writeTo(s)
 }
 
 func (e *Bind) minify() {
@@ -685,15 +804,24 @@ type If struct {
 
 func (e *If) String() string {
 	var s strings.Builder
-	fmt.Fprintf(&s, "if %s then %s", e.Cond, e.Then)
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *If) writeTo(s *strings.Builder) {
+	s.WriteString("if ")
+	e.Cond.writeTo(s)
+	s.WriteString(" then ")
+	e.Then.writeTo(s)
 	for _, e := range e.Elif {
-		fmt.Fprintf(&s, " %s", e)
+		s.WriteByte(' ')
+		e.writeTo(s)
 	}
 	if e.Else != nil {
-		fmt.Fprintf(&s, " else %s", e.Else)
+		s.WriteString(" else ")
+		e.Else.writeTo(s)
 	}
 	s.WriteString(" end")
-	return s.String()
 }
 
 func (e *If) minify() {
@@ -714,7 +842,16 @@ type IfElif struct {
 }
 
 func (e *IfElif) String() string {
-	return fmt.Sprintf("elif %s then %s", e.Cond, e.Then)
+	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *IfElif) writeTo(s *strings.Builder) {
+	s.WriteString("elif ")
+	e.Cond.writeTo(s)
+	s.WriteString(" then ")
+	e.Then.writeTo(s)
 }
 
 func (e *IfElif) minify() {
@@ -730,11 +867,17 @@ type Try struct {
 
 func (e *Try) String() string {
 	var s strings.Builder
-	fmt.Fprintf(&s, "try %s", e.Body)
-	if e.Catch != nil {
-		fmt.Fprintf(&s, " catch %s", e.Catch)
-	}
+	e.writeTo(&s)
 	return s.String()
+}
+
+func (e *Try) writeTo(s *strings.Builder) {
+	s.WriteString("try ")
+	e.Body.writeTo(s)
+	if e.Catch != nil {
+		s.WriteString(" catch ")
+		e.Catch.writeTo(s)
+	}
 }
 
 func (e *Try) minify() {
@@ -753,7 +896,21 @@ type Reduce struct {
 }
 
 func (e *Reduce) String() string {
-	return fmt.Sprintf("reduce %s as %s (%s; %s)", e.Term, e.Pattern, e.Start, e.Update)
+	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *Reduce) writeTo(s *strings.Builder) {
+	s.WriteString("reduce ")
+	e.Term.writeTo(s)
+	s.WriteString(" as ")
+	e.Pattern.writeTo(s)
+	s.WriteString(" (")
+	e.Start.writeTo(s)
+	s.WriteString("; ")
+	e.Update.writeTo(s)
+	s.WriteByte(')')
 }
 
 func (e *Reduce) minify() {
@@ -773,12 +930,24 @@ type Foreach struct {
 
 func (e *Foreach) String() string {
 	var s strings.Builder
-	fmt.Fprintf(&s, "foreach %s as %s (%s; %s", e.Term, e.Pattern, e.Start, e.Update)
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *Foreach) writeTo(s *strings.Builder) {
+	s.WriteString("foreach ")
+	e.Term.writeTo(s)
+	s.WriteString(" as ")
+	e.Pattern.writeTo(s)
+	s.WriteString(" (")
+	e.Start.writeTo(s)
+	s.WriteString("; ")
+	e.Update.writeTo(s)
 	if e.Extract != nil {
-		fmt.Fprintf(&s, "; %s", e.Extract)
+		s.WriteString("; ")
+		e.Extract.writeTo(s)
 	}
 	s.WriteByte(')')
-	return s.String()
 }
 
 func (e *Foreach) minify() {
@@ -797,7 +966,16 @@ type Label struct {
 }
 
 func (e *Label) String() string {
-	return fmt.Sprintf("label %s | %s", e.Ident, e.Body)
+	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *Label) writeTo(s *strings.Builder) {
+	s.WriteString("label ")
+	s.WriteString(e.Ident)
+	s.WriteString(" | ")
+	e.Body.writeTo(s)
 }
 
 func (e *Label) minify() {
@@ -817,14 +995,19 @@ type ConstTerm struct {
 
 func (e *ConstTerm) String() string {
 	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *ConstTerm) writeTo(s *strings.Builder) {
 	if e.Object != nil {
-		fmt.Fprint(&s, e.Object)
+		e.Object.writeTo(s)
 	} else if e.Array != nil {
-		fmt.Fprint(&s, e.Array)
+		e.Array.writeTo(s)
 	} else if e.Number != "" {
-		fmt.Fprint(&s, e.Number)
+		s.WriteString(e.Number)
 	} else if e.Str != "" {
-		fmt.Fprint(&s, strconv.Quote(e.Str))
+		s.WriteString(strconv.Quote(e.Str))
 	} else if e.Null {
 		s.WriteString("null")
 	} else if e.True {
@@ -832,7 +1015,6 @@ func (e *ConstTerm) String() string {
 	} else if e.False {
 		s.WriteString("false")
 	}
-	return s.String()
 }
 
 func (e *ConstTerm) toValue() interface{} {
@@ -859,19 +1041,24 @@ type ConstObject struct {
 }
 
 func (e *ConstObject) String() string {
-	if len(e.KeyVals) == 0 {
-		return "{}"
-	}
 	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *ConstObject) writeTo(s *strings.Builder) {
+	if len(e.KeyVals) == 0 {
+		s.WriteString("{}")
+		return
+	}
 	s.WriteString("{ ")
 	for i, kv := range e.KeyVals {
 		if i > 0 {
 			s.WriteString(", ")
 		}
-		fmt.Fprint(&s, kv)
+		kv.writeTo(s)
 	}
 	s.WriteString(" }")
-	return s.String()
 }
 
 // ToValue converts the object to map[string]interface{}.
@@ -899,14 +1086,18 @@ type ConstObjectKeyVal struct {
 
 func (e *ConstObjectKeyVal) String() string {
 	var s strings.Builder
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *ConstObjectKeyVal) writeTo(s *strings.Builder) {
 	if e.Key != "" {
 		s.WriteString(e.Key)
 	} else {
 		s.WriteString(e.KeyString)
 	}
 	s.WriteString(": ")
-	fmt.Fprint(&s, e.Val)
-	return s.String()
+	e.Val.writeTo(s)
 }
 
 // ConstArray ...
@@ -916,15 +1107,19 @@ type ConstArray struct {
 
 func (e *ConstArray) String() string {
 	var s strings.Builder
-	s.WriteString("[")
+	e.writeTo(&s)
+	return s.String()
+}
+
+func (e *ConstArray) writeTo(s *strings.Builder) {
+	s.WriteByte('[')
 	for i, e := range e.Elems {
 		if i > 0 {
 			s.WriteString(", ")
 		}
-		fmt.Fprint(&s, e)
+		e.writeTo(s)
 	}
-	s.WriteString("]")
-	return s.String()
+	s.WriteByte(']')
 }
 
 func (e *ConstArray) toValue() []interface{} {

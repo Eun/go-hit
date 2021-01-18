@@ -11,11 +11,12 @@ require (
 	github.com/dave/jennifer v1.4.1
 	github.com/google/go-cmp v0.5.4
 	github.com/gookit/color v1.3.2
-	github.com/itchyny/gojq v0.11.2
+	github.com/itchyny/gojq v0.12.1
 	github.com/json-iterator/go v1.1.10
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/k0kubun/pp v3.0.1+incompatible
 	github.com/lunixbochs/vtclean v1.0.0
+	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
