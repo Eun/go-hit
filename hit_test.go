@@ -17,6 +17,7 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/goleak"
 	"golang.org/x/xerrors"
 
 	"github.com/lunixbochs/vtclean"
@@ -24,6 +25,11 @@ import (
 
 	. "github.com/Eun/go-hit"
 )
+
+//nolint:interfacer //this signature is required
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
+}
 
 func TestRequest(t *testing.T) {
 	s := EchoServer()
@@ -58,12 +64,17 @@ func TestRequest(t *testing.T) {
 	})
 
 	t.Run("context with timeout", func(t *testing.T) {
+		closeChan := make(chan struct{})
 		mux := http.NewServeMux()
 		mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-			time.Sleep(time.Minute)
-			writer.WriteHeader(http.StatusOK)
+			select {
+			case <-time.After(time.Minute):
+				writer.WriteHeader(http.StatusOK)
+			case <-closeChan:
+			}
 		})
 		s := httptest.NewServer(mux)
+		defer s.Close()
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond)
 		defer cancel()
@@ -77,15 +88,21 @@ func TestRequest(t *testing.T) {
 			),
 			PtrStr(fmt.Sprintf(`unable to perform request: Post "%s": context deadline exceeded`, s.URL)),
 		)
+		closeChan <- struct{}{}
 	})
 
 	t.Run("context with timeout using regular POST method", func(t *testing.T) {
+		closeChan := make(chan struct{})
 		mux := http.NewServeMux()
 		mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-			time.Sleep(time.Minute)
-			writer.WriteHeader(http.StatusOK)
+			select {
+			case <-time.After(time.Minute):
+				writer.WriteHeader(http.StatusOK)
+			case <-closeChan:
+			}
 		})
 		s := httptest.NewServer(mux)
+		defer s.Close()
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond)
 		defer cancel()
@@ -98,6 +115,7 @@ func TestRequest(t *testing.T) {
 			),
 			PtrStr(fmt.Sprintf(`unable to perform request: Post "%s": context deadline exceeded`, s.URL)),
 		)
+		closeChan <- struct{}{}
 	})
 }
 

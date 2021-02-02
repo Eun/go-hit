@@ -409,6 +409,11 @@ func do(steps ...IStep) *Error {
 			return wrapError(hit, err)
 		}
 	}
+	if hit.response.Response.Body != nil {
+		if err := hit.response.Response.Body.Close(); err != nil {
+			return wrapError(hit, err)
+		}
+	}
 	return nil
 }
 
