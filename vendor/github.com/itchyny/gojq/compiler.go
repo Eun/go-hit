@@ -54,12 +54,14 @@ func (c *Code) RunWithContext(ctx context.Context, v interface{}, values ...inte
 }
 
 // ModuleLoader is an interface for loading modules.
+//
+// Implement following optional methods. Use NewModuleLoader to load local modules.
+//  LoadModule(string) (*Query, error)
+//  LoadModuleWithMeta(string, map[string]interface{}) (*Query, error)
+//  LoadInitModules() ([]*Query, error)
+//  LoadJSON(string) (interface{}, error)
+//  LoadJSONWithMeta(string, map[string]interface{}) (interface{}, error)
 type ModuleLoader interface {
-	LoadModule(string) (*Query, error)
-	// (optional) LoadModuleWithMeta(string, map[string]interface{}) (*Query, error)
-	// (optional) LoadInitModules() ([]*Query, error)
-	// (optional) LoadJSON(string) (interface{}, error)
-	// (optional) LoadJSONWithMeta(string, map[string]interface{}) (interface{}, error)
 }
 
 type codeinfo struct {
@@ -188,8 +190,12 @@ func (c *compiler) compileImport(i *Import) error {
 		if q, err = moduleLoader.LoadModuleWithMeta(path, i.Meta.ToValue()); err != nil {
 			return err
 		}
-	} else if q, err = c.moduleLoader.LoadModule(path); err != nil {
-		return err
+	} else if moduleLoader, ok := c.moduleLoader.(interface {
+		LoadModule(string) (*Query, error)
+	}); ok {
+		if q, err = moduleLoader.LoadModule(path); err != nil {
+			return err
+		}
 	}
 	c.appendCodeInfo("module " + path)
 	defer c.appendCodeInfo("end of module " + path)
@@ -809,7 +815,6 @@ func (c *compiler) compileTerm(e *Term) (err error) {
 		c.append(&code{op: opconst, v: e.Break})
 		return c.compileCall("_break", nil)
 	case TermTypeQuery:
-		e.Query.minify()
 		defer c.newScopeDepth()()
 		return c.compileQuery(e.Query)
 	default:
@@ -1014,8 +1019,12 @@ func (c *compiler) funcModulemeta(v interface{}, _ []interface{}) interface{} {
 		if q, err = moduleLoader.LoadModuleWithMeta(s, nil); err != nil {
 			return err
 		}
-	} else if q, err = c.moduleLoader.LoadModule(s); err != nil {
-		return err
+	} else if moduleLoader, ok := c.moduleLoader.(interface {
+		LoadModule(string) (*Query, error)
+	}); ok {
+		if q, err = moduleLoader.LoadModule(s); err != nil {
+			return err
+		}
 	}
 	meta := q.Meta.ToValue()
 	if meta == nil {
@@ -1028,7 +1037,7 @@ func (c *compiler) funcModulemeta(v interface{}, _ []interface{}) interface{} {
 			v = make(map[string]interface{})
 		} else {
 			for k := range v {
-				// dirty hack to remove the extra fields added in the cli package
+				// dirty hack to remove the internal fields
 				if strings.HasPrefix(k, "$$") {
 					delete(v, k)
 				}
@@ -1209,13 +1218,17 @@ func (c *compiler) compileUnary(e *Unary) error {
 }
 
 func (c *compiler) compileFormat(fmt string, str *String) error {
-	if f := formatToFunc(fmt); f != nil {
-		if str == nil {
-			return c.compileFunc(f)
+	f := formatToFunc(fmt)
+	if f == nil {
+		f = &Func{
+			Name: "format",
+			Args: []*Query{{Term: &Term{Type: TermTypeString, Str: &String{Str: fmt[1:]}}}},
 		}
-		return c.compileString(str, f)
 	}
-	return &formatNotFoundError{fmt}
+	if str == nil {
+		return c.compileFunc(f)
+	}
+	return c.compileString(str, f)
 }
 
 func formatToFunc(fmt string) *Func {
