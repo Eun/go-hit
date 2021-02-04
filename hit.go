@@ -13,7 +13,7 @@
 // func main() {
 //     MustDo(
 //         Description("Post to httpbin.org"),
-//         Get("https://httpbin.org/post"),
+//         Get("http://httpbin.org/post"),
 //         Expect().Status().Equal(http.StatusMethodNotAllowed),
 //         Expect().Body().String().Contains("Method Not Allowed"),
 //     )
@@ -30,7 +30,7 @@
 // func TestHttpBin(t *testing.T) {
 //     Test(t,
 //         Description("Post to httpbin.org"),
-//         Get("https://httpbin.org/post"),
+//         Get("http://httpbin.org/post"),
 //         Expect().Status().Equal(http.StatusMethodNotAllowed),
 //         Expect().Body().String().Contains("Method Not Allowed"),
 //     )

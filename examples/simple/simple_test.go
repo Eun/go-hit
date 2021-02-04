@@ -15,14 +15,14 @@ import (
 
 func TestHead(t *testing.T) {
 	Test(t,
-		Head("https://httpbin.org/status/300"),
+		Head("http://httpbin.org/status/300"),
 		Expect().Status().Equal(300),
 	)
 }
 
 func TestPost(t *testing.T) {
 	Test(t,
-		Post("https://httpbin.org/post"),
+		Post("http://httpbin.org/post"),
 		Send().Headers("Content-Type").Add("application/json"),
 		Send().Body().JSON(map[string]interface{}{"Foo": "Bar"}),
 		Expect().Status().Equal(http.StatusOK),
@@ -55,7 +55,7 @@ func TestCookie(t *testing.T) {
 
 	steps := []IStep{
 		HTTPClient(client),
-		BaseURL("https://httpbin.org/cookies"),
+		BaseURL("http://httpbin.org/cookies"),
 		Expect().Status().Equal(http.StatusOK),
 	}
 
@@ -71,7 +71,7 @@ func TestStore(t *testing.T) {
 	var name string
 	var roles []string
 	Test(t,
-		Post("https://httpbin.org/post"),
+		Post("http://httpbin.org/post"),
 		Send().Headers("Content-Type").Add("application/json"),
 		Send().Body().JSON(map[string]interface{}{"Name": "Joe", "Roles": []string{"Admin", "Developer"}}),
 		Expect().Status().Equal(http.StatusOK),
