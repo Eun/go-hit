@@ -12,8 +12,8 @@
 //
 // func main() {
 //     MustDo(
-//         Description("Post to httpbin.org"),
-//         Get("http://httpbin.org/post"),
+//         Description("Post to example.com"),
+//         Get("https://example.com/"),
 //         Expect().Status().Equal(http.StatusMethodNotAllowed),
 //         Expect().Body().String().Contains("Method Not Allowed"),
 //     )
@@ -27,10 +27,10 @@
 //     . "github.com/Eun/go-hit"
 // )
 //
-// func TestHttpBin(t *testing.T) {
+// func TestExample(t *testing.T) {
 //     Test(t,
-//         Description("Post to httpbin.org"),
-//         Get("http://httpbin.org/post"),
+//         Description("Post to example.com"),
+//         Get("https://example.com/"),
 //         Expect().Status().Equal(http.StatusMethodNotAllowed),
 //         Expect().Body().String().Contains("Method Not Allowed"),
 //     )
