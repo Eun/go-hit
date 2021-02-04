@@ -20,7 +20,7 @@ import (
 	maybetls "github.com/aaw/maybe_tls"
 )
 
-//nolint:funlen,gosec // keep the test boilerplate compact and ignore security issues since this is for testing only.
+//nolint:funlen,gosec,gocognit // keep the test boilerplate compact and ignore security issues since this is for testing only.
 // RunTest mocks an test http server.
 func RunTest(expectRequest bool, test func()) {
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
@@ -123,7 +123,7 @@ func RunTest(expectRequest bool, test func()) {
 		gotRequest = true
 		if request.Method != http.MethodPost {
 			writer.WriteHeader(http.StatusMethodNotAllowed)
-			io.WriteString(writer, `
+			_, _ = io.WriteString(writer, `
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
 <title>405 Method Not Allowed</title>
 <h1>Method Not Allowed</h1>
@@ -147,7 +147,7 @@ func RunTest(expectRequest bool, test func()) {
 			_ = json.Unmarshal(body, &jsonData)
 		}
 
-		json.NewEncoder(writer).Encode(map[string]interface{}{
+		_ = json.NewEncoder(writer).Encode(map[string]interface{}{
 			"args":    []interface{}{},
 			"data":    data,
 			"files":   []interface{}{},
