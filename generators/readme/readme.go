@@ -47,7 +47,10 @@ func doit() error {
 				continue
 			}
 			f.Func().Id(fmt.Sprintf("TestReadmeCodePart%d", i)).Params(jen.Id("t").Op("*").Qual("testing", "T")).Block(
-				jen.Op(strings.TrimSpace(string(v.Content))),
+				jen.Qual("github.com/Eun/go-hit/doctest", "RunTest").Call(
+					jen.True(),
+					jen.Func().Params().Block(jen.Op(strings.TrimSpace(string(v.Content)))),
+				),
 			)
 			i++
 		}

@@ -7,9 +7,11 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/json"
 	"encoding/pem"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math/big"
 	"net"
 	"net/http"
@@ -69,6 +71,7 @@ func RunTest(expectRequest bool, test func()) {
 	// echo server
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		gotRequest = true
 		writer.Header()["Date"] = nil
 		for k, v := range request.Header {
 			writer.Header()[k] = v
@@ -88,10 +91,10 @@ func RunTest(expectRequest bool, test func()) {
 		for k, v := range request.Trailer {
 			writer.Header()[k] = v
 		}
-		gotRequest = true
 	})
 
 	mux.HandleFunc("/json", func(writer http.ResponseWriter, request *http.Request) {
+		gotRequest = true
 		writer.Header()["Date"] = nil
 		for k, v := range request.Header {
 			writer.Header()[k] = v
@@ -113,7 +116,47 @@ func RunTest(expectRequest bool, test func()) {
 		for k, v := range request.Trailer {
 			writer.Header()[k] = v
 		}
+	})
+
+	// this endpoint should mimic httpbin.org/post
+	mux.HandleFunc("/post", func(writer http.ResponseWriter, request *http.Request) {
 		gotRequest = true
+		if request.Method != http.MethodPost {
+			writer.WriteHeader(http.StatusMethodNotAllowed)
+			io.WriteString(writer, `
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<title>405 Method Not Allowed</title>
+<h1>Method Not Allowed</h1>
+<p>The method is not allowed for the requested URL.</p
+`)
+			return
+		}
+
+		var jsonData interface{}
+		var data string
+
+		if request.Body != nil {
+			body, err := ioutil.ReadAll(request.Body)
+			if err != nil {
+				writer.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			data = string(body)
+
+			_ = json.Unmarshal(body, &jsonData)
+		}
+
+		json.NewEncoder(writer).Encode(map[string]interface{}{
+			"args":    []interface{}{},
+			"data":    data,
+			"files":   []interface{}{},
+			"form":    []interface{}{},
+			"headers": request.Header,
+			"json":    jsonData,
+			"origin":  request.RemoteAddr,
+			"url":     "/post",
+		})
 	})
 
 	srv := http.Server{
