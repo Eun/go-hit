@@ -19,7 +19,7 @@ import (
 
 	"github.com/dave/jennifer/jen"
 
-	"github.com/Eun/go-hit/doctest"
+	"github.com/Eun/go-testdoc"
 )
 
 func generateDocForFile(tmpFile *jen.File, fileName string, pos int, name, doc string) {
@@ -28,7 +28,7 @@ func generateDocForFile(tmpFile *jen.File, fileName string, pos int, name, doc s
 		return
 	}
 
-	d, err := doctest.ParseDoc(doc)
+	d, err := testdoc.ParseDoc(doc)
 	if err != nil {
 		panic(err)
 	}

@@ -17,6 +17,7 @@ import (
 	"testing"
 
 	. "github.com/Eun/go-hit"
+	_ "github.com/Eun/go-hit/doctest/implicit"
 )
 
 func TestHash(t *testing.T) {

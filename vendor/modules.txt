@@ -2,7 +2,10 @@
 github.com/Eun/go-convert
 # github.com/Eun/go-doppelgangerreader v0.0.0-20190911075941-30f1527f16b2
 github.com/Eun/go-doppelgangerreader
+# github.com/Eun/go-testdoc v0.0.1
+github.com/Eun/go-testdoc
 # github.com/Eun/yaegi-template v1.5.18
+github.com/Eun/yaegi-template
 github.com/Eun/yaegi-template/codebuffer
 # github.com/aaw/maybe_tls v0.0.0-20160803104303-89c499bcc6aa
 github.com/aaw/maybe_tls
@@ -20,6 +23,10 @@ github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
 # github.com/gookit/color v1.3.6
 github.com/gookit/color
+# github.com/hashicorp/errwrap v1.0.0
+github.com/hashicorp/errwrap
+# github.com/hashicorp/go-multierror v1.1.0
+github.com/hashicorp/go-multierror
 # github.com/itchyny/astgen-go v0.0.0-20210113000433-0da0671862a3
 github.com/itchyny/astgen-go
 # github.com/itchyny/gojq v0.12.1
@@ -49,6 +56,9 @@ github.com/stretchr/testify/assert
 github.com/stretchr/testify/require
 # github.com/tidwall/pretty v1.0.2
 github.com/tidwall/pretty
+# github.com/traefik/yaegi v0.9.10
+github.com/traefik/yaegi/interp
+github.com/traefik/yaegi/stdlib
 # go.uber.org/atomic v1.7.0
 go.uber.org/atomic
 # go.uber.org/goleak v1.1.10

@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	. "github.com/Eun/go-hit"
+	_ "github.com/Eun/go-hit/doctest/implicit"
 )
 
 func TestHead(t *testing.T) {
