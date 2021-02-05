@@ -239,8 +239,8 @@ func NewServer() *Server {
 		})
 		writer.Header().Set("Location", "/cookies")
 		writer.WriteHeader(http.StatusFound)
-		io.WriteString(writer, `<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">                                                                                                                                                                                                                                   
-<title>Redirecting...</title>                                                                                                                                                                                                                                                             
+		_, _ = io.WriteString(writer, `<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<title>Redirecting...</title>
 <h1>Redirecting...</h1>
 <p>You should be redirected automatically to target URL: <a href="/cookies">/cookies</a>.  If not click the link.`)
 	})
