@@ -52,7 +52,7 @@ func (s *Server) Transport() *http.Transport {
 // RequestCount returns the count of requests that have been made to the server.
 func (s *Server) RequestCount() uint {
 	s.mu.Lock()
-	defer s.mu.Lock()
+	defer s.mu.Unlock()
 	return s.requestCount
 }
 
