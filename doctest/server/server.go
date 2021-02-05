@@ -116,6 +116,14 @@ func NewServer() *Server {
 
 	// echo server
 	r := mux.NewRouter()
+	r.HandleFunc("/index.html", func(writer http.ResponseWriter, request *http.Request) {
+		s.mu.Lock()
+		s.requestCount++
+		s.mu.Unlock()
+		writer.WriteHeader(http.StatusOK)
+		_, _ = io.WriteString(writer, "Hello World")
+	})
+
 	r.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		s.mu.Lock()
 		s.requestCount++
@@ -199,6 +207,9 @@ func NewServer() *Server {
 			_ = json.Unmarshal(body, &jsonData)
 		}
 
+		writer.Header().Set("Content-Type", "application/json")
+		writer.WriteHeader(http.StatusOK)
+
 		_ = json.NewEncoder(writer).Encode(map[string]interface{}{
 			"args":    []interface{}{},
 			"data":    data,
@@ -206,6 +217,29 @@ func NewServer() *Server {
 			"form":    []interface{}{},
 			"headers": request.Header,
 			"json":    jsonData,
+			"origin":  request.RemoteAddr,
+			"url":     "/post",
+		})
+	})
+
+	r.HandleFunc("/get", func(writer http.ResponseWriter, request *http.Request) {
+		s.mu.Lock()
+		s.requestCount++
+		s.mu.Unlock()
+		if request.Method != http.MethodGet {
+			writer.WriteHeader(http.StatusMethodNotAllowed)
+			_, _ = io.WriteString(writer, `
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<title>405 Method Not Allowed</title>
+<h1>Method Not Allowed</h1>
+<p>The method is not allowed for the requested URL.</p
+`)
+			return
+		}
+
+		_ = json.NewEncoder(writer).Encode(map[string]interface{}{
+			"args":    []interface{}{},
+			"headers": request.Header,
 			"origin":  request.RemoteAddr,
 			"url":     "/post",
 		})
@@ -261,6 +295,22 @@ func NewServer() *Server {
 		}{
 			Cookies: cookies,
 		})
+	})
+
+	r.HandleFunc("/basic-auth/{username}/{password}", func(writer http.ResponseWriter, request *http.Request) {
+		s.mu.Lock()
+		s.requestCount++
+		s.mu.Unlock()
+
+		vars := mux.Vars(request)
+
+		username, password, ok := request.BasicAuth()
+		if !ok || vars["username"] != username || vars["password"] != password {
+			writer.Header().Set("WWW-Authenticate", `Basic realm="test"`)
+			writer.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
 	})
 
 	s.server = &http.Server{
