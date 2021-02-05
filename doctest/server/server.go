@@ -235,7 +235,7 @@ func NewServer() *Server {
 			Name:    vars["cookie"],
 			Value:   vars["value"],
 			Path:    "/",
-			Expires: time.Now().Add(time.Hour * 24 * 365),
+			Expires: time.Now().Add(365 * 24 * time.Hour),
 		})
 		writer.Header().Set("Location", "/cookies")
 		writer.WriteHeader(http.StatusFound)
