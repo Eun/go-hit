@@ -12,6 +12,7 @@ require (
 	github.com/dave/jennifer v1.4.1
 	github.com/google/go-cmp v0.5.4
 	github.com/gookit/color v1.3.6
+	github.com/gorilla/mux v1.8.0
 	github.com/itchyny/gojq v0.12.1
 	github.com/json-iterator/go v1.1.10
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect

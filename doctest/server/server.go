@@ -21,6 +21,7 @@ import (
 	"time"
 
 	maybetls "github.com/aaw/maybe_tls"
+	"github.com/gorilla/mux"
 )
 
 // Server is a test server that can be used for the test environment.
@@ -114,8 +115,8 @@ func NewServer() *Server {
 	}
 
 	// echo server
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+	r := mux.NewRouter()
+	r.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		s.mu.Lock()
 		s.requestCount++
 		s.mu.Unlock()
@@ -140,7 +141,7 @@ func NewServer() *Server {
 		}
 	})
 
-	mux.HandleFunc("/json", func(writer http.ResponseWriter, request *http.Request) {
+	r.HandleFunc("/json", func(writer http.ResponseWriter, request *http.Request) {
 		s.mu.Lock()
 		s.requestCount++
 		s.mu.Unlock()
@@ -168,7 +169,7 @@ func NewServer() *Server {
 	})
 
 	// this endpoint should mimic httpbin.org/post
-	mux.HandleFunc("/post", func(writer http.ResponseWriter, request *http.Request) {
+	r.HandleFunc("/post", func(writer http.ResponseWriter, request *http.Request) {
 		s.mu.Lock()
 		s.requestCount++
 		s.mu.Unlock()
@@ -212,22 +213,59 @@ func NewServer() *Server {
 
 	// this endpoint should mimic httpbin.org/status/
 
-	statusHandler := func(i int) func(writer http.ResponseWriter, request *http.Request) {
-		return func(writer http.ResponseWriter, request *http.Request) {
-			s.mu.Lock()
-			s.requestCount++
-			s.mu.Unlock()
-			writer.WriteHeader(i)
+	statusHandler := func(writer http.ResponseWriter, request *http.Request) {
+		s.mu.Lock()
+		s.requestCount++
+		s.mu.Unlock()
+		i, err := strconv.ParseInt(mux.Vars(request)["code"], 10, 32)
+		if err != nil {
+			writer.WriteHeader(http.StatusBadRequest)
+			return
 		}
+		writer.WriteHeader(int(i))
 	}
 
-	for i := http.StatusContinue; i <= http.StatusNetworkAuthenticationRequired; i++ {
-		mux.HandleFunc("/status/"+strconv.Itoa(i), statusHandler(i))
-	}
+	r.HandleFunc("/status/{code:[0-9]+}", statusHandler)
+	r.HandleFunc("/cookies/set/{cookie}/{value}", func(writer http.ResponseWriter, request *http.Request) {
+		s.mu.Lock()
+		s.requestCount++
+		s.mu.Unlock()
+		vars := mux.Vars(request)
+		http.SetCookie(writer, &http.Cookie{
+			Name:    vars["cookie"],
+			Value:   vars["value"],
+			Path:    "/",
+			Expires: time.Now().Add(time.Hour * 24 * 365),
+		})
+		writer.Header().Set("Location", "/cookies")
+		writer.WriteHeader(http.StatusFound)
+		io.WriteString(writer, `<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">                                                                                                                                                                                                                                   
+<title>Redirecting...</title>                                                                                                                                                                                                                                                             
+<h1>Redirecting...</h1>
+<p>You should be redirected automatically to target URL: <a href="/cookies">/cookies</a>.  If not click the link.`)
+	})
+	r.HandleFunc("/cookies", func(writer http.ResponseWriter, request *http.Request) {
+		s.mu.Lock()
+		s.requestCount++
+		s.mu.Unlock()
+		writer.WriteHeader(http.StatusOK)
+
+		cookies := make(map[string]string)
+
+		for _, cookie := range request.Cookies() {
+			cookies[cookie.Name] = cookie.Value
+		}
+
+		_ = json.NewEncoder(writer).Encode(struct {
+			Cookies map[string]string `json:"cookies"`
+		}{
+			Cookies: cookies,
+		})
+	})
 
 	s.server = &http.Server{
 		Addr:    s.listener.Addr().String(),
-		Handler: mux,
+		Handler: r,
 	}
 
 	go func() {
