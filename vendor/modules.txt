@@ -21,7 +21,7 @@ github.com/google/go-cmp/cmp/internal/diff
 github.com/google/go-cmp/cmp/internal/flags
 github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
-# github.com/gookit/color v1.3.6
+# github.com/gookit/color v1.3.7
 github.com/gookit/color
 # github.com/gorilla/mux v1.8.0
 github.com/gorilla/mux
