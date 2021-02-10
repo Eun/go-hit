@@ -1,7 +1,6 @@
 package gojq
 
 import (
-	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -45,6 +44,7 @@ func init() {
 		"debug":          argFunc0(nil),
 		"stderr":         argFunc0(nil),
 		"env":            argFunc0(nil),
+		"builtins":       argFunc0(nil),
 		"input":          argFunc0(nil),
 		"modulemeta":     argFunc0(nil),
 		"length":         argFunc0(funcLength),
@@ -174,7 +174,6 @@ func init() {
 		"error":          {argcount0 | argcount1, funcError},
 		"halt":           argFunc0(funcHalt),
 		"halt_error":     {argcount0 | argcount1, funcHaltError},
-		"builtins":       argFunc0(funcBuiltins),
 		"_type_error":    argFunc1(internalfuncTypeError),
 	}
 }
@@ -556,31 +555,7 @@ func implode(v []interface{}) interface{} {
 }
 
 func funcToJSON(v interface{}) interface{} {
-	s, err := encodeJSON(v)
-	if err != nil {
-		return err
-	}
-	return s
-}
-
-func encodeJSON(v interface{}) (string, error) {
-	switch v := v.(type) {
-	case int:
-		return strconv.FormatInt(int64(v), 10), nil
-	case *big.Int:
-		return v.String(), nil
-	}
-	buf := new(bytes.Buffer)
-	enc := json.NewEncoder(buf)
-	enc.SetEscapeHTML(false)
-	if err := enc.Encode(v); err != nil {
-		buf.Reset()
-		if err = enc.Encode(normalizeValues(v)); err != nil {
-			return "", err
-		}
-	}
-	s := buf.String()
-	return s[:len(s)-1], nil // trim last newline character
+	return jsonMarshal(v)
 }
 
 func funcFromJSON(v interface{}) interface{} {
@@ -646,14 +621,11 @@ func funcToSh(v interface{}) interface{} {
 		case map[string]interface{}, []interface{}:
 			return &formatShError{x}
 		case string:
-			s.WriteString("'" + strings.ReplaceAll(x, "'", `'\''`) + "'")
+			s.WriteByte('\'')
+			s.WriteString(strings.ReplaceAll(x, "'", `'\''`))
+			s.WriteByte('\'')
 		default:
-			switch v := funcToJSON(x).(type) {
-			case error:
-				return v
-			case string:
-				s.WriteString(v)
-			}
+			s.WriteString(jsonMarshal(x))
 		}
 	}
 	return s.String()
@@ -683,17 +655,10 @@ func toCSVTSV(typ string, v interface{}, escape func(string) string) (string, er
 	case string:
 		return escape(v), nil
 	default:
-		switch v := funcToJSON(v).(type) {
-		case error:
-			return "", v
-		case string:
-			if v != "null" {
-				return v, nil
-			}
-			return "", nil
-		default:
-			panic("unreachable")
+		if s := jsonMarshal(v); s != "null" {
+			return s, nil
 		}
+		return "", nil
 	}
 }
 
@@ -1617,32 +1582,6 @@ func funcHaltError(v interface{}, args []interface{}) interface{} {
 	return &exitCodeError{v, code, true}
 }
 
-func funcBuiltins(interface{}) interface{} {
-	var xs []string
-	for name, fn := range internalFuncs {
-		if name[0] != '_' {
-			for i, cnt := 0, fn.argcount; cnt > 0; i, cnt = i+1, cnt>>1 {
-				if cnt&1 > 0 {
-					xs = append(xs, name+"/"+fmt.Sprint(i))
-				}
-			}
-		}
-	}
-	for _, fds := range builtinFuncDefs {
-		for _, fd := range fds {
-			if fd.Name[0] != '_' {
-				xs = append(xs, fd.Name+"/"+fmt.Sprint(len(fd.Args)))
-			}
-		}
-	}
-	sort.Strings(xs)
-	ys := make([]interface{}, len(xs))
-	for i, x := range xs {
-		ys[i] = x
-	}
-	return ys
-}
-
 func internalfuncTypeError(v, x interface{}) interface{} {
 	if x, ok := x.(string); ok {
 		return &funcTypeError{x, v}
@@ -1688,8 +1627,7 @@ func bigToFloat(x *big.Int) float64 {
 	if x.IsInt64() {
 		return float64(x.Int64())
 	}
-	bs, _ := json.Marshal(x)
-	if f, err := json.Number(string(bs)).Float64(); err == nil {
+	if f, err := strconv.ParseFloat(x.String(), 64); err == nil {
 		return f
 	}
 	return math.Copysign(math.MaxFloat64, float64(x.Sign()))

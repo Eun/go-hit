@@ -63,7 +63,6 @@ func makeCall(frame *runtime.Frame) Call {
 	})
 
 	size := len(parts)
-	//nolint:gomnd
 	if size <= 1 {
 		call.setFullName()
 		return call

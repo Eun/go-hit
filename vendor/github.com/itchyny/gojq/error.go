@@ -1,10 +1,10 @@
 package gojq
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/big"
 	"reflect"
+	"strings"
 )
 
 type expectedObjectError struct {
@@ -97,8 +97,7 @@ func (err *exitCodeError) Error() string {
 	if s, ok := err.value.(string); ok {
 		return fmt.Sprintf("error: %s", s)
 	}
-	bs, _ := json.Marshal(normalizeValues(err.value))
-	return fmt.Sprintf("error: %s", string(bs))
+	return fmt.Sprintf("error: %s", jsonMarshal(err.value))
 }
 
 func (err *exitCodeError) IsEmptyError() bool {
@@ -222,6 +221,10 @@ func (err *breakError) Error() string {
 	return fmt.Sprintf(`label not defined: %q`, err.n)
 }
 
+func (err *breakError) ExitCode() int {
+	return 3
+}
+
 type stringLiteralError struct {
 	s string
 }
@@ -285,7 +288,7 @@ func (err *jsonParseError) JSONParseError() (string, string, error) {
 }
 
 func (err *jsonParseError) Error() string {
-	return fmt.Sprintf("invalid json: %s: %s", err.fname, err.err)
+	return fmt.Sprintf("invalid json: %s: %s", err.fname, strings.TrimPrefix(err.err.Error(), "json: "))
 }
 
 func typeErrorPreview(v interface{}) string {
@@ -326,10 +329,7 @@ func preview(v interface{}) string {
 	if v == nil {
 		return ""
 	}
-	s, err := encodeJSON(v)
-	if err != nil {
-		return ""
-	}
+	s := jsonMarshal(v)
 	if l := 25; len(s) > l {
 		s = s[:l-3] + " ..."
 	}

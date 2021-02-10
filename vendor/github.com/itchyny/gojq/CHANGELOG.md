@@ -1,15 +1,39 @@
 # Changelog
+## [v0.12.1](https://github.com/itchyny/gojq/compare/v0.12.0..v0.12.1) (2021-01-17)
+* skip adding $HOME/.jq to module paths when $HOME is unset
+* fix optional operator followed by division operator (`1?/1`)
+* fix undefined label followed by optional operator (`@foo?`)
+* fix parsing invalid consecutive dots while scanning a number (`0..[empty]`)
+* fix panic on printing a query with `%#v`
+* improve performance and reduce memory allocation of `query.String()`
+* change all methods of `ModuleLoader` optional
+
+## [v0.12.0](https://github.com/itchyny/gojq/compare/v0.11.2..v0.12.0) (2020-12-24)
+* implement tab indentation option (`--tab`)
+* implement a compiler option for adding custom internal functions
+* implement `gojq.Marshal` function for jq-flavored encoding
+* fix slurp option with JSON file arguments
+* fix escaping characters in object keys
+* fix normalizing negative `int64` to `int` on 32-bit architecture
+* fix crash on continuing iteration after emitting an error
+* `iter.Next()` does not normalize `NaN` and infinities anymore. Library users
+  should take care of them. To handle them for encoding as JSON bytes, use
+  `gojq.Marshal`. Also, `iter.Next()` does not clone values deeply anymore for
+  performance reason. Users must not update the elements of the returned arrays
+  and objects
+* improve performance of outputting JSON values by about 3.5 times
+
 ## [v0.11.2](https://github.com/itchyny/gojq/compare/v0.11.1..v0.11.2) (2020-10-01)
 * fix build for 32bit architecture
 * release to [GitHub Container Registry](https://github.com/users/itchyny/packages/container/package/gojq)
 
 ## [v0.11.1](https://github.com/itchyny/gojq/compare/v0.11.0..v0.11.1) (2020-08-22)
-*  improve compatibility of `strftime`, `strptime` functions with jq
-*  fix YAML input with numbers in keys
-*  fix crash on multiplying a large number or `infinite` to a string
-*  fix crash on error while slicing a string (`""[:{}]`)
-*  fix crash on modulo by a number near 0.0 (`1 % 0.1`)
-*  include `CREDITS` file in artifacts
+* improve compatibility of `strftime`, `strptime` functions with jq
+* fix YAML input with numbers in keys
+* fix crash on multiplying a large number or `infinite` to a string
+* fix crash on error while slicing a string (`""[:{}]`)
+* fix crash on modulo by a number near 0.0 (`1 % 0.1`)
+* include `CREDITS` file in artifacts
 
 ## [v0.11.0](https://github.com/itchyny/gojq/compare/v0.10.4..v0.11.0) (2020-07-08)
 * improve parsing performance significantly

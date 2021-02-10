@@ -5,9 +5,6 @@ import (
 
 	"net/url"
 
-	"io"
-	"io/ioutil"
-
 	"github.com/stretchr/testify/require"
 
 	. "github.com/Eun/go-hit"
@@ -263,18 +260,6 @@ func TestStoreBody(t *testing.T) {
 					require.Equal(t, 12, n)
 				})
 			})
-		})
-
-		t.Run("reader", func(t *testing.T) {
-			var v io.Reader
-			Test(t,
-				Post(s.URL),
-				Send().Body().String("Hello World"),
-				storeBody().Reader().In(&v),
-			)
-			buf, err := ioutil.ReadAll(v)
-			require.NoError(t, err)
-			require.Equal(t, []byte(`Hello World`), buf)
 		})
 
 		t.Run("string", func(t *testing.T) {

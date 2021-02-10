@@ -92,13 +92,6 @@ type IStoreBody interface {
 	//     )
 	JSON() IStoreBodyJSON
 
-	// Reader treats the body contents as Reader and stores it
-	//
-	// Usage:
-	//     var body io.Reader
-	//     Store().Response().Body().Reader().In(&body)
-	Reader() IStoreStep
-
 	// String treats the body contents as String data and stores it
 	//
 	// Usage:
@@ -236,13 +229,6 @@ func (s *storeBody) JSON() IStoreBodyJSON {
 	return newStoreBodyJSON(s.mode)
 }
 
-func (s *storeBody) Reader() IStoreStep {
-	return newStoreStep(func(hit Hit, v interface{}) error {
-		return converter.Convert(s.body(hit).Reader(), v)
-	})
-}
-
-// String returns the body as a string.
 func (s *storeBody) String() IStoreStep {
 	return newStoreStep(func(hit Hit, v interface{}) error {
 		return converter.Convert(s.body(hit).MustString(), v)

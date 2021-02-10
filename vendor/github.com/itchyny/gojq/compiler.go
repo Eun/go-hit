@@ -14,6 +14,7 @@ type compiler struct {
 	moduleLoader  ModuleLoader
 	environLoader func() []string
 	variables     []string
+	customFuncs   map[string]function
 	inputIter     Iter
 	codes         []*code
 	codeinfos     []codeinfo
@@ -33,6 +34,8 @@ type Code struct {
 // Run runs the code with the variable values (which should be in the
 // same order as the given variables using WithVariables) and returns
 // a result iterator.
+//
+// It is safe to call this method of a *Code in multiple goroutines.
 func (c *Code) Run(v interface{}, values ...interface{}) Iter {
 	return c.RunWithContext(nil, v, values...)
 }
@@ -51,12 +54,14 @@ func (c *Code) RunWithContext(ctx context.Context, v interface{}, values ...inte
 }
 
 // ModuleLoader is an interface for loading modules.
+//
+// Implement following optional methods. Use NewModuleLoader to load local modules.
+//  LoadModule(string) (*Query, error)
+//  LoadModuleWithMeta(string, map[string]interface{}) (*Query, error)
+//  LoadInitModules() ([]*Query, error)
+//  LoadJSON(string) (interface{}, error)
+//  LoadJSONWithMeta(string, map[string]interface{}) (interface{}, error)
 type ModuleLoader interface {
-	LoadModule(string) (*Query, error)
-	// (optional) LoadModuleWithMeta(string, map[string]interface{}) (*Query, error)
-	// (optional) LoadInitModules() ([]*Query, error)
-	// (optional) LoadJSON(string) (interface{}, error)
-	// (optional) LoadJSONWithMeta(string, map[string]interface{}) (interface{}, error)
 }
 
 type codeinfo struct {
@@ -185,8 +190,12 @@ func (c *compiler) compileImport(i *Import) error {
 		if q, err = moduleLoader.LoadModuleWithMeta(path, i.Meta.ToValue()); err != nil {
 			return err
 		}
-	} else if q, err = c.moduleLoader.LoadModule(path); err != nil {
-		return err
+	} else if moduleLoader, ok := c.moduleLoader.(interface {
+		LoadModule(string) (*Query, error)
+	}); ok {
+		if q, err = moduleLoader.LoadModule(path); err != nil {
+			return err
+		}
 	}
 	c.appendCodeInfo("module " + path)
 	defer c.appendCodeInfo("end of module " + path)
@@ -195,7 +204,8 @@ func (c *compiler) compileImport(i *Import) error {
 
 func (c *compiler) compileModule(q *Query, alias string) error {
 	cc := &compiler{
-		moduleLoader: c.moduleLoader, environLoader: c.environLoader, variables: c.variables, inputIter: c.inputIter,
+		moduleLoader: c.moduleLoader, environLoader: c.environLoader,
+		variables: c.variables, customFuncs: c.customFuncs, inputIter: c.inputIter,
 		codeoffset: c.pc(), scopes: c.scopes, scopecnt: c.scopecnt,
 	}
 	defer cc.newScopeDepth()()
@@ -282,7 +292,8 @@ func (c *compiler) compileFuncDef(e *FuncDef, builtin bool) error {
 	pc, argsorder := c.pc(), getArgsOrder(e.Args)
 	c.funcs = append(c.funcs, &funcinfo{e.Name, pc, e.Args, argsorder})
 	cc := &compiler{
-		moduleLoader: c.moduleLoader, environLoader: c.environLoader, inputIter: c.inputIter,
+		moduleLoader: c.moduleLoader, environLoader: c.environLoader,
+		customFuncs: c.customFuncs, inputIter: c.inputIter,
 		codeoffset: pc, scopecnt: c.scopecnt, funcs: c.funcs,
 	}
 	scope := cc.newScope()
@@ -804,7 +815,6 @@ func (c *compiler) compileTerm(e *Term) (err error) {
 		c.append(&code{op: opconst, v: e.Break})
 		return c.compileCall("_break", nil)
 	case TermTypeQuery:
-		e.Query.minify()
 		defer c.newScopeDepth()()
 		return c.compileQuery(e.Query)
 	default:
@@ -904,6 +914,13 @@ func (c *compiler) compileFunc(e *Func) error {
 		case "stderr":
 			c.append(&code{op: opdebug, v: "STDERR:"})
 			return nil
+		case "builtins":
+			return c.compileCallInternal(
+				[3]interface{}{c.funcBuiltins, 0, e.Name},
+				e.Args,
+				nil,
+				false,
+			)
 		case "input":
 			if c.inputIter == nil {
 				return &inputNotAllowedError{}
@@ -925,7 +942,57 @@ func (c *compiler) compileFunc(e *Func) error {
 			return c.compileCall(e.Name, e.Args)
 		}
 	}
+	if fn, ok := c.customFuncs[e.Name]; ok && fn.accept(len(e.Args)) {
+		return c.compileCallInternal(
+			[3]interface{}{fn.callback, len(e.Args), e.Name},
+			e.Args,
+			nil,
+			false,
+		)
+	}
 	return &funcNotFoundError{e}
+}
+
+func (c *compiler) funcBuiltins(interface{}, []interface{}) interface{} {
+	type funcNameArity struct {
+		name  string
+		arity int
+	}
+	var xs []*funcNameArity
+	for _, fds := range builtinFuncDefs {
+		for _, fd := range fds {
+			if fd.Name[0] != '_' {
+				xs = append(xs, &funcNameArity{fd.Name, len(fd.Args)})
+			}
+		}
+	}
+	for name, fn := range internalFuncs {
+		if name[0] != '_' {
+			for i, cnt := 0, fn.argcount; cnt > 0; i, cnt = i+1, cnt>>1 {
+				if cnt&1 > 0 {
+					xs = append(xs, &funcNameArity{name, i})
+				}
+			}
+		}
+	}
+	for name, fn := range c.customFuncs {
+		if name[0] != '_' {
+			for i, cnt := 0, fn.argcount; cnt > 0; i, cnt = i+1, cnt>>1 {
+				if cnt&1 > 0 {
+					xs = append(xs, &funcNameArity{name, i})
+				}
+			}
+		}
+	}
+	sort.Slice(xs, func(i, j int) bool {
+		return xs[i].name < xs[j].name ||
+			xs[i].name == xs[j].name && xs[i].arity < xs[j].arity
+	})
+	ys := make([]interface{}, len(xs))
+	for i, x := range xs {
+		ys[i] = x.name + "/" + fmt.Sprint(x.arity)
+	}
+	return ys
 }
 
 func (c *compiler) funcInput(interface{}, []interface{}) interface{} {
@@ -952,8 +1019,12 @@ func (c *compiler) funcModulemeta(v interface{}, _ []interface{}) interface{} {
 		if q, err = moduleLoader.LoadModuleWithMeta(s, nil); err != nil {
 			return err
 		}
-	} else if q, err = c.moduleLoader.LoadModule(s); err != nil {
-		return err
+	} else if moduleLoader, ok := c.moduleLoader.(interface {
+		LoadModule(string) (*Query, error)
+	}); ok {
+		if q, err = moduleLoader.LoadModule(s); err != nil {
+			return err
+		}
 	}
 	meta := q.Meta.ToValue()
 	if meta == nil {
@@ -966,7 +1037,7 @@ func (c *compiler) funcModulemeta(v interface{}, _ []interface{}) interface{} {
 			v = make(map[string]interface{})
 		} else {
 			for k := range v {
-				// dirty hack to remove the extra fields added in the cli package
+				// dirty hack to remove the internal fields
 				if strings.HasPrefix(k, "$$") {
 					delete(v, k)
 				}
@@ -1147,13 +1218,17 @@ func (c *compiler) compileUnary(e *Unary) error {
 }
 
 func (c *compiler) compileFormat(fmt string, str *String) error {
-	if f := formatToFunc(fmt); f != nil {
-		if str == nil {
-			return c.compileFunc(f)
+	f := formatToFunc(fmt)
+	if f == nil {
+		f = &Func{
+			Name: "format",
+			Args: []*Query{{Term: &Term{Type: TermTypeString, Str: &String{Str: fmt[1:]}}}},
 		}
-		return c.compileString(str, f)
 	}
-	return &formatNotFoundError{fmt}
+	if str == nil {
+		return c.compileFunc(f)
+	}
+	return c.compileString(str, f)
 }
 
 func formatToFunc(fmt string) *Func {

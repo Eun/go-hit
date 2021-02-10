@@ -75,7 +75,7 @@ func (t *Template) Prepare() *ErrorTrace {
 	var et ErrorTrace
 	et.inheritedTrace = true
 	// skip  runtime.Callers(), ett.currentTraceCalls(...), ett.(*ErrorTrace).Prepare(...), Call to this Function
-	//nolint:gomnd
+	//nolint:gomnd // 4 is the number of func calls that should be skipped
 	et.inheritedPC = currentTraceCalls(4)
 	et.template = t
 	return &et
@@ -177,7 +177,7 @@ func (et *ErrorTrace) SetContext(ctx string) {
 func (et *ErrorTrace) Error() string {
 	// collect the current trace
 	// skip  runtime.Callers(), ett.currentTraceCalls(...), ett.(*ErrorTrace).Format(...), call to this function
-	//nolint:gomnd
+	//nolint:gomnd // 4 is the number of func calls that should be skipped
 	traceCalls := resolveTraceCalls(currentTraceCalls(4))
 
 	// if we have a inherited trace resolve the items and filter the current trace

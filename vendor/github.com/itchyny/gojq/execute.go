@@ -29,6 +29,7 @@ loop:
 		if hasCtx {
 			select {
 			case <-env.ctx.Done():
+				pc, env.forks = len(env.codes), nil
 				return env.ctx.Err(), true
 			default:
 			}
@@ -52,6 +53,9 @@ loop:
 		case opstore:
 			env.values[env.index(code.v.([2]int))] = env.pop()
 		case opobject:
+			if backtrack {
+				break loop
+			}
 			n := code.v.(int)
 			m := make(map[string]interface{}, n)
 			for i := 0; i < n; i++ {
@@ -144,6 +148,9 @@ loop:
 				goto loop
 			}
 		case opcall:
+			if backtrack {
+				break loop
+			}
 			switch v := code.v.(type) {
 			case int:
 				pc, callpc, index = v, pc, env.scopes.index
@@ -196,13 +203,13 @@ loop:
 				env.values = vs
 			}
 		case opret:
-			if backtrack || err != nil {
+			if backtrack {
 				break loop
 			}
 			s := env.scopes.pop().(scope)
 			pc, env.scopes.index = s.pc, s.saveindex
 			if env.scopes.empty() {
-				return normalizeValues(env.pop()), true
+				return env.pop(), true
 			}
 		case opeach:
 			if err != nil {
@@ -266,6 +273,9 @@ loop:
 			env.paths.push([2]interface{}{nil, env.stack.top()})
 			env.expdepth = 0
 		case oppathend:
+			if backtrack {
+				break loop
+			}
 			if env.expdepth > 0 {
 				panic(fmt.Sprintf("unexpected expdepth: %d", env.expdepth))
 			}
@@ -280,7 +290,7 @@ loop:
 			}
 		case opdebug:
 			if !backtrack {
-				return [2]interface{}{code.v, normalizeValues(env.stack.top())}, true
+				return [2]interface{}{code.v, env.stack.top()}, true
 			}
 			backtrack = false
 		default:
