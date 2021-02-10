@@ -80,7 +80,7 @@ func TestRequest(t *testing.T) {
 		s := httptest.NewServer(mux)
 		defer s.Close()
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 		req, err := http.NewRequestWithContext(ctx, http.MethodPost, s.URL, bytes.NewReader([]byte("Hello World")))
 		require.NoError(t, err)
@@ -112,7 +112,7 @@ func TestRequest(t *testing.T) {
 		s := httptest.NewServer(mux)
 		defer s.Close()
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 		ExpectError(t,
 			Do(
