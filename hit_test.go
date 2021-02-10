@@ -67,8 +67,10 @@ func TestRequest(t *testing.T) {
 		closeChan := make(chan struct{})
 		mux := http.NewServeMux()
 		mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+			tmr := time.NewTimer(time.Minute)
+			defer tmr.Stop()
 			select {
-			case <-time.After(time.Minute):
+			case <-tmr.C:
 				writer.WriteHeader(http.StatusOK)
 			case <-closeChan:
 			}
@@ -95,8 +97,10 @@ func TestRequest(t *testing.T) {
 		closeChan := make(chan struct{})
 		mux := http.NewServeMux()
 		mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+			tmr := time.NewTimer(time.Minute)
+			defer tmr.Stop()
 			select {
-			case <-time.After(time.Minute):
+			case <-tmr.C:
 				writer.WriteHeader(http.StatusOK)
 			case <-closeChan:
 			}
