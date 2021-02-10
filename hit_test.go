@@ -68,11 +68,13 @@ func TestRequest(t *testing.T) {
 		mux := http.NewServeMux()
 		mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 			tmr := time.NewTimer(time.Minute)
-			defer tmr.Stop()
 			select {
 			case <-tmr.C:
 				writer.WriteHeader(http.StatusOK)
 			case <-closeChan:
+			}
+			if !tmr.Stop() {
+				<-tmr.C
 			}
 		})
 		s := httptest.NewServer(mux)
@@ -98,11 +100,13 @@ func TestRequest(t *testing.T) {
 		mux := http.NewServeMux()
 		mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 			tmr := time.NewTimer(time.Minute)
-			defer tmr.Stop()
 			select {
 			case <-tmr.C:
 				writer.WriteHeader(http.StatusOK)
 			case <-closeChan:
+			}
+			if !tmr.Stop() {
+				<-tmr.C
 			}
 		})
 		s := httptest.NewServer(mux)
