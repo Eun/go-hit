@@ -1,7 +1,6 @@
 package gojq
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -75,15 +74,22 @@ func (l *moduleLoader) LoadJSONWithMeta(name string, meta map[string]interface{}
 	}
 	defer f.Close()
 	var vals []interface{}
-	var buf bytes.Buffer
-	dec := json.NewDecoder(io.TeeReader(f, &buf))
+	dec := json.NewDecoder(f)
+	dec.UseNumber()
 	for {
 		var val interface{}
 		if err := dec.Decode(&val); err != nil {
 			if err == io.EOF {
 				break
 			}
-			return nil, &jsonParseError{path, buf.String(), err}
+			if _, err := f.Seek(0, io.SeekStart); err != nil {
+				return nil, err
+			}
+			cnt, er := ioutil.ReadAll(f)
+			if er != nil {
+				return nil, er
+			}
+			return nil, &jsonParseError{path, string(cnt), err}
 		}
 		vals = append(vals, val)
 	}

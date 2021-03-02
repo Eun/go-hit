@@ -3,28 +3,18 @@ package timefmt
 import (
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 )
-
-type parseError struct {
-	source, format string
-	err            error
-}
-
-func (err *parseError) Error() string {
-	return fmt.Sprintf("failed to parse %q with %q: %s", err.source, err.format, err.err)
-}
 
 // Parse time string using the format.
 func Parse(source, format string) (t time.Time, err error) {
 	year, month, day, hour, min, sec, nsec, loc := 1900, 1, 1, 0, 0, 0, 0, time.UTC
 	defer func() {
 		if err != nil {
-			err = &parseError{source, format, err}
+			err = fmt.Errorf("failed to parse %q with %q: %w", source, format, err)
 		}
 	}()
-	var j, diff, century, yday int
+	var j, century, yday, colons int
 	var pm bool
 	var pending string
 	for i, l := 0, len(source); i < len(format); i++ {
@@ -38,61 +28,51 @@ func Parse(source, format string) (t time.Time, err error) {
 		L:
 			switch b {
 			case 'Y':
-				if year, diff, err = parseNumber(source[j:], 4, 'Y'); err != nil {
+				if year, j, err = parseNumber(source, j, 4, 'Y'); err != nil {
 					return
 				}
-				j += diff
 			case 'y':
-				if year, diff, err = parseNumber(source[j:], 2, 'y'); err != nil {
+				if year, j, err = parseNumber(source, j, 2, 'y'); err != nil {
 					return
 				}
-				j += diff
 				if year < 69 {
 					year += 2000
 				} else {
 					year += 1900
 				}
 			case 'C':
-				if century, diff, err = parseNumber(source[j:], 2, 'C'); err != nil {
+				if century, j, err = parseNumber(source, j, 2, 'C'); err != nil {
 					return
 				}
-				j += diff
 			case 'g':
-				if year, diff, err = parseNumber(source[j:], 2, b); err != nil {
+				if year, j, err = parseNumber(source, j, 2, b); err != nil {
 					return
 				}
-				j += diff
 				year += 2000
 			case 'G':
-				if year, diff, err = parseNumber(source[j:], 4, b); err != nil {
+				if year, j, err = parseNumber(source, j, 4, b); err != nil {
 					return
 				}
-				j += diff
 			case 'm':
-				if month, diff, err = parseNumber(source[j:], 2, 'm'); err != nil {
+				if month, j, err = parseNumber(source, j, 2, 'm'); err != nil {
 					return
 				}
-				j += diff
 			case 'B':
-				if month, diff, err = lookup(source[j:], longMonthNames, 'B'); err != nil {
+				if month, j, err = lookup(source, j, longMonthNames, 'B'); err != nil {
 					return
 				}
-				j += diff
 			case 'b', 'h':
-				if month, diff, err = lookup(source[j:], shortMonthNames, b); err != nil {
+				if month, j, err = lookup(source, j, shortMonthNames, b); err != nil {
 					return
 				}
-				j += diff
 			case 'A':
-				if _, diff, err = lookup(source[j:], longWeekNames, 'A'); err != nil {
+				if _, j, err = lookup(source, j, longWeekNames, 'A'); err != nil {
 					return
 				}
-				j += diff
 			case 'a':
-				if _, diff, err = lookup(source[j:], shortWeekNames, 'a'); err != nil {
+				if _, j, err = lookup(source, j, shortWeekNames, 'a'); err != nil {
 					return
 				}
-				j += diff
 			case 'w':
 				if j >= l || source[j] < '0' || '6' < source[j] {
 					err = parseFormatError(b)
@@ -106,68 +86,60 @@ func Parse(source, format string) (t time.Time, err error) {
 				}
 				j++
 			case 'V', 'U', 'W':
-				if _, diff, err = parseNumber(source[j:], 2, b); err != nil {
+				if _, j, err = parseNumber(source, j, 2, b); err != nil {
 					return
 				}
-				j += diff
 			case 'e':
 				if j < l && source[j] == ' ' {
 					j++
 				}
 				fallthrough
 			case 'd':
-				if day, diff, err = parseNumber(source[j:], 2, b); err != nil {
+				if day, j, err = parseNumber(source, j, 2, b); err != nil {
 					return
 				}
-				j += diff
 			case 'j':
-				if yday, diff, err = parseNumber(source[j:], 3, 'j'); err != nil {
+				if yday, j, err = parseNumber(source, j, 3, 'j'); err != nil {
 					return
 				}
-				j += diff
 			case 'k':
 				if j < l && source[j] == ' ' {
 					j++
 				}
 				fallthrough
 			case 'H':
-				if hour, diff, err = parseNumber(source[j:], 2, b); err != nil {
+				if hour, j, err = parseNumber(source, j, 2, b); err != nil {
 					return
 				}
-				j += diff
 			case 'l':
 				if j < l && source[j] == ' ' {
 					j++
 				}
 				fallthrough
 			case 'I':
-				if hour, diff, err = parseNumber(source[j:], 2, b); err != nil {
+				if hour, j, err = parseNumber(source, j, 2, b); err != nil {
 					return
 				}
-				j += diff
 				if hour == 12 {
 					hour = 0
 				}
 			case 'p', 'P':
 				var ampm int
-				if ampm, diff, err = lookup(source[j:], []string{"AM", "PM"}, 'p'); err != nil {
+				if ampm, j, err = lookup(source, j, []string{"AM", "PM"}, 'p'); err != nil {
 					return
 				}
-				j += diff
 				pm = ampm == 2
 			case 'M':
-				if min, diff, err = parseNumber(source[j:], 2, 'M'); err != nil {
+				if min, j, err = parseNumber(source, j, 2, 'M'); err != nil {
 					return
 				}
-				j += diff
 			case 'S':
-				if sec, diff, err = parseNumber(source[j:], 2, 'S'); err != nil {
+				if sec, j, err = parseNumber(source, j, 2, 'S'); err != nil {
 					return
 				}
-				j += diff
 			case 's':
 				var unix int
-				if unix, diff, err = parseNumber(source[j:], 10, 's'); err != nil {
+				if unix, j, err = parseNumber(source, j, 10, 's'); err != nil {
 					return
 				}
 				t = time.Unix(int64(unix), 0).In(time.UTC)
@@ -175,17 +147,14 @@ func Parse(source, format string) (t time.Time, err error) {
 				year, mon, day = t.Date()
 				hour, min, sec = t.Clock()
 				month = int(mon)
-				j += diff
 			case 'f':
-				var msec int
-				if msec, diff, err = parseNumber(source[j:], 6, 'f'); err != nil {
+				var msec, k, d int
+				if msec, k, err = parseNumber(source, j, 6, 'f'); err != nil {
 					return
 				}
-				j += diff
 				nsec = msec * 1000
-				for diff < 6 {
+				for j, d = k, k-j; d < 6; d++ {
 					nsec *= 10
-					diff++
 				}
 			case 'Z':
 				k := j
@@ -196,35 +165,96 @@ func Parse(source, format string) (t time.Time, err error) {
 				}
 				t, err = time.Parse("MST", source[j:k])
 				if err != nil {
+					err = fmt.Errorf(`cannot parse %q with "%%Z"`, source[j:k])
 					return
 				}
 				loc = t.Location()
 				j = k
 			case 'z':
-				if j+5 > l {
-					err = parseFormatError(b)
+				if j >= l {
+					err = parseZFormatError(colons)
 					return
 				}
-				var offset int
+				sign := 1
 				switch source[j] {
-				case '+', '-':
-					var hour, min int
-					if hour, err = strconv.Atoi(source[j+1 : j+3]); err != nil {
+				case '-':
+					sign = -1
+					fallthrough
+				case '+':
+					var hour, min, sec, k int
+					if hour, k, _ = parseNumber(source, j+1, 2, 'z'); k != j+3 {
+						err = parseZFormatError(colons)
 						return
 					}
-					if min, err = strconv.Atoi(source[j+3 : j+5]); err != nil {
-						return
+					if j = k; j >= l || source[j] != ':' {
+						switch colons {
+						case 1:
+							err = errors.New("expected ':' for %:z")
+							return
+						case 2:
+							err = errors.New("expected ':' for %::z")
+							return
+						}
+					} else if j++; colons == 0 {
+						colons = 4
 					}
-					offset = (hour*60 + min) * 60
-					if source[j] == '-' {
-						offset = -offset
+					if min, k, _ = parseNumber(source, j, 2, 'z'); k != j+2 {
+						if colons == 0 {
+							k = j
+						} else {
+							err = parseZFormatError(colons & 3)
+							return
+						}
 					}
+					if j = k; colons > 1 {
+						if j >= l || source[j] != ':' {
+							if colons == 2 {
+								err = errors.New("expected ':' for %::z")
+								return
+							}
+						} else if sec, k, _ = parseNumber(source, j+1, 2, 'z'); k != j+3 {
+							if colons == 2 {
+								err = parseZFormatError(colons)
+								return
+							}
+						} else {
+							j = k
+						}
+					}
+					loc, colons = time.FixedZone("", sign*((hour*60+min)*60+sec)), 0
+				case 'Z':
+					loc, colons, j = time.UTC, 0, j+1
 				default:
-					err = parseFormatError(b)
+					err = parseZFormatError(colons)
 					return
 				}
-				loc = time.FixedZone("", offset)
-				j += 5
+			case ':':
+				if pending != "" {
+					if j >= l || source[j] != b {
+						err = expectedFormatError(b)
+						return
+					}
+					j++
+				} else {
+					if i++; i == len(format) {
+						err = errors.New(`expected 'z' after "%:"`)
+						return
+					} else if b = format[i]; b == 'z' {
+						colons = 1
+					} else if b != ':' {
+						err = errors.New(`expected 'z' after "%:"`)
+						return
+					} else if i++; i == len(format) {
+						err = errors.New(`expected 'z' after "%::"`)
+						return
+					} else if b = format[i]; b == 'z' {
+						colons = 2
+					} else {
+						err = errors.New(`expected 'z' after "%::"`)
+						return
+					}
+					goto L
+				}
 			case 't', 'n':
 				k := j
 			K:
@@ -236,13 +266,13 @@ func Parse(source, format string) (t time.Time, err error) {
 					}
 				}
 				if k == j {
-					err = errors.New("expected a space")
+					err = fmt.Errorf("expected a space for %%%c", b)
 					return
 				}
 				j = k
 			case '%':
 				if j >= l || source[j] != b {
-					err = fmt.Errorf("expected %q", b)
+					err = expectedFormatError(b)
 					return
 				}
 				j++
@@ -256,7 +286,7 @@ func Parse(source, format string) (t time.Time, err error) {
 					return
 				}
 				if j >= l || source[j] != b {
-					err = fmt.Errorf("expected %q", b)
+					err = expectedFormatError(b)
 					return
 				}
 				j++
@@ -266,7 +296,7 @@ func Parse(source, format string) (t time.Time, err error) {
 				goto L
 			}
 		} else if j >= len(source) || source[j] != b {
-			err = fmt.Errorf("expected %q", b)
+			err = expectedFormatError(b)
 			return
 		} else {
 			j++
@@ -288,42 +318,65 @@ func Parse(source, format string) (t time.Time, err error) {
 	return time.Date(year, time.Month(month), day, hour, min, sec, nsec, loc), nil
 }
 
-func isDigit(c byte) bool {
-	return '0' <= c && c <= '9'
-}
-
 type parseFormatError byte
 
 func (err parseFormatError) Error() string {
 	return fmt.Sprintf("cannot parse %%%c", byte(err))
 }
 
-func parseNumber(source string, max int, format byte) (int, int, error) {
-	if len(source) > 0 && isDigit(source[0]) {
-		for i := 1; i < max; i++ {
-			if i >= len(source) || !isDigit(source[i]) {
-				val, err := strconv.Atoi(string(source[:i]))
-				return val, i, err
-			}
-		}
-		val, err := strconv.Atoi(string(source[:max]))
-		return val, max, err
-	}
-	return 0, 0, parseFormatError(format)
+type expectedFormatError byte
+
+func (err expectedFormatError) Error() string {
+	return fmt.Sprintf("expected %q", byte(err))
 }
 
-func lookup(source string, candidates []string, format byte) (int, int, error) {
+type parseZFormatError int
+
+func (err parseZFormatError) Error() string {
+	switch int(err) {
+	case 0:
+		return "cannot parse %z"
+	case 1:
+		return "cannot parse %:z"
+	default:
+		return "cannot parse %::z"
+	}
+}
+
+func parseNumber(source string, min, size int, format byte) (int, int, error) {
+	var val int
+	if l := len(source); min+size > l {
+		size = l
+	} else {
+		size += min
+	}
+	i := min
+	for ; i < size; i++ {
+		if b := source[i]; '0' <= b && b <= '9' {
+			val = val*10 + int(b&0x0F)
+		} else {
+			break
+		}
+	}
+	if i == min {
+		return 0, 0, parseFormatError(format)
+	}
+	return val, i, nil
+}
+
+func lookup(source string, min int, candidates []string, format byte) (int, int, error) {
 L:
 	for i, xs := range candidates {
-		for j, x := range []byte(xs) {
+		j := min
+		for k := 0; k < len(xs); k, j = k+1, j+1 {
 			if j >= len(source) {
 				continue L
 			}
-			if y := source[j]; x != y && x|('a'-'A') != y|('a'-'A') {
+			if x, y := xs[k], source[j]; x != y && x|('a'-'A') != y|('a'-'A') {
 				continue L
 			}
 		}
-		return i + 1, len(xs), nil
+		return i + 1, j, nil
 	}
 	return 0, 0, parseFormatError(format)
 }

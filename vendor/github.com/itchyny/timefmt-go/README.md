@@ -1,7 +1,7 @@
 # timefmt-go
 [![CI Status](https://github.com/itchyny/timefmt-go/workflows/CI/badge.svg)](https://github.com/itchyny/timefmt-go/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/itchyny/timefmt-go)](https://goreportcard.com/report/github.com/itchyny/timefmt-go)
-[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/itchyny/timefmt-go/blob/master/LICENSE)
+[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/itchyny/timefmt-go/blob/main/LICENSE)
 [![release](https://img.shields.io/github/release/itchyny/timefmt-go/all.svg)](https://github.com/itchyny/timefmt-go/releases)
 [![pkg.go.dev](https://pkg.go.dev/badge/github.com/itchyny/timefmt-go)](https://pkg.go.dev/github.com/itchyny/timefmt-go)
 
@@ -47,8 +47,9 @@ Note that `E` and `O` modifier characters are not supported.
   - space padding modifier like `%_y-%_m-%_d`,
   - upper case modifier like `%^a %^b`,
   - swapping case modifier like `%#Z`,
+  - time zone offset modifier like `%:z %::z %:::z`,
   - and its performance is very good.
-- `AppendFormat` is provided for zero-allocations in most formats.
+- `AppendFormat` is provided for reducing allocations.
 - `Parse` (`strptime`) allows to parse
   - composed directives like `%F %T`,
   - century years like `%C %y`,

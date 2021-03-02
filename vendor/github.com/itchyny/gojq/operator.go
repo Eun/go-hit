@@ -328,7 +328,7 @@ func funcOpAdd(_, l, r interface{}) interface{} {
 			return append(append(v, l...), r...)
 		},
 		func(l, r map[string]interface{}) interface{} {
-			m := make(map[string]interface{})
+			m := make(map[string]interface{}, len(l)+len(r))
 			for k, v := range l {
 				m[k] = v
 			}
@@ -402,7 +402,7 @@ func funcOpMul(_, l, r interface{}) interface{} {
 }
 
 func deepMergeObjects(l, r map[string]interface{}) interface{} {
-	m := make(map[string]interface{})
+	m := make(map[string]interface{}, len(l)+len(r))
 	for k, v := range l {
 		m[k] = v
 	}
@@ -436,14 +436,6 @@ func funcOpDiv(_, l, r interface{}) interface{} {
 					return math.NaN()
 				}
 				return &zeroDivisionError{l, r}
-			} else if isinf(r) {
-				if isinf(l) {
-					return math.NaN()
-				}
-				if (r >= 0) == (l >= 0) {
-					return 0.0
-				}
-				return math.Copysign(0.0, -1)
 			}
 			return l / r
 		},
@@ -458,14 +450,7 @@ func funcOpDiv(_, l, r interface{}) interface{} {
 			if new(big.Int).Mul(x, r).Cmp(l) == 0 {
 				return x
 			}
-			rf := bigToFloat(r)
-			if isinf(rf) {
-				if l.Sign() == r.Sign() {
-					return 0.0
-				}
-				return math.Copysign(0.0, -1)
-			}
-			return bigToFloat(l) / rf
+			return bigToFloat(l) / bigToFloat(r)
 		},
 		func(l, r string) interface{} {
 			if l == "" {

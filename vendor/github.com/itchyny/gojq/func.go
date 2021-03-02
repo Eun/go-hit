@@ -12,11 +12,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/itchyny/timefmt-go"
 )
 
-//go:generate go run _tools/gen_builtin.go -i builtin.jq -o builtin.go
+//go:generate go run -modfile=go.dev.mod _tools/gen_builtin.go -i builtin.jq -o builtin.go
 var builtinFuncDefs map[string][]*FuncDef
 
 const (
@@ -279,7 +280,7 @@ func funcLength(v interface{}) interface{} {
 func funcUtf8ByteLength(v interface{}) interface{} {
 	switch v := v.(type) {
 	case string:
-		return len([]byte(v))
+		return len(v)
 	default:
 		return &funcTypeError{"utf8bytelength", v}
 	}
@@ -356,7 +357,7 @@ func funcAdd(v interface{}) interface{} {
 		case map[string]interface{}:
 			switch w := v.(type) {
 			case nil:
-				m := make(map[string]interface{})
+				m := make(map[string]interface{}, len(y))
 				for k, e := range y {
 					m[k] = e
 				}
@@ -388,14 +389,12 @@ func funcAdd(v interface{}) interface{} {
 	return v
 }
 
-var numberPattern = regexp.MustCompile(`^[-+]?(?:(?:\d*\.)?\d+|\d+\.)(?:[eE][-+]?\d+)?$`)
-
 func funcToNumber(v interface{}) interface{} {
 	switch v := v.(type) {
 	case int, float64, *big.Int:
 		return v
 	case string:
-		if !numberPattern.MatchString(v) {
+		if !newLexer(v).validNumber() {
 			return fmt.Errorf("invalid number: %q", v)
 		}
 		return normalizeNumbers(json.Number(v))
@@ -543,15 +542,16 @@ func funcSplit(v interface{}, args []interface{}) interface{} {
 }
 
 func implode(v []interface{}) interface{} {
-	var rs []rune
+	var sb strings.Builder
+	sb.Grow(len(v))
 	for _, r := range v {
-		if r, ok := toInt(r); ok {
-			rs = append(rs, rune(r))
-			continue
+		if r, ok := toInt(r); ok && 0 <= r && r <= utf8.MaxRune {
+			sb.WriteRune(rune(r))
+		} else {
+			return &funcTypeError{"implode", v}
 		}
-		return &funcTypeError{"implode", v}
 	}
-	return string(rs)
+	return sb.String()
 }
 
 func funcToJSON(v interface{}) interface{} {
@@ -994,7 +994,7 @@ func sortItems(v, x interface{}) ([]*sortItem, error) {
 }
 
 func funcSignificand(v float64) float64 {
-	if math.IsNaN(v) || isinf(v) || v == 0.0 {
+	if math.IsNaN(v) || math.IsInf(v, 0) || v == 0.0 {
 		return v
 	}
 	return math.Float64frombits((math.Float64bits(v) & 0x800fffffffffffff) | 0x3ff0000000000000)
@@ -1060,20 +1060,17 @@ func funcFma(x, y, z float64) float64 {
 }
 
 func funcInfinite(interface{}) interface{} {
-	return math.MaxFloat64
+	return math.Inf(1)
 }
 
 func funcIsfinite(v interface{}) interface{} {
-	return typeof(v) == "number" && !funcIsinfinite(v).(bool)
+	x, ok := toFloat(v)
+	return ok && !math.IsInf(x, 0)
 }
 
 func funcIsinfinite(v interface{}) interface{} {
 	x, ok := toFloat(v)
-	return ok && isinf(x)
-}
-
-func isinf(f float64) bool {
-	return f >= math.MaxFloat64 || f <= -math.MaxFloat64
+	return ok && math.IsInf(x, 0)
 }
 
 func funcNan(interface{}) interface{} {
@@ -1093,7 +1090,7 @@ func funcIsnan(v interface{}) interface{} {
 
 func funcIsnormal(v interface{}) interface{} {
 	x, ok := toFloat(v)
-	return ok && !math.IsNaN(x) && !isinf(x) && x != 0.0
+	return ok && !math.IsNaN(x) && !math.IsInf(x, 0) && x != 0.0
 }
 
 func funcSetpath(v, p, w interface{}) interface{} {
@@ -1551,7 +1548,7 @@ func compileRegexp(re, flags string) (*regexp.Regexp, error) {
 	}
 	r, err := regexp.Compile(re)
 	if err != nil {
-		return nil, fmt.Errorf("invalid regular expression %q: %v", re, err)
+		return nil, fmt.Errorf("invalid regular expression %q: %s", re, err)
 	}
 	return r, nil
 }
@@ -1630,5 +1627,5 @@ func bigToFloat(x *big.Int) float64 {
 	if f, err := strconv.ParseFloat(x.String(), 64); err == nil {
 		return f
 	}
-	return math.Copysign(math.MaxFloat64, float64(x.Sign()))
+	return math.Inf(x.Sign())
 }
