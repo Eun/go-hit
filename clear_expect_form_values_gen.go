@@ -15,6 +15,10 @@ type IClearExpectFormValues interface {
 	Empty() IStep
 	// Equal clears all matching Equal steps
 	Equal(value ...interface{}) IStep
+	// First clears all matching First steps
+	First() IClearExpectHeaderValue
+	// Last clears all matching Last steps
+	Last() IClearExpectHeaderValue
 	// Len clears all matching Len steps
 	Len() IClearExpectInt
 	// NotContains clears all matching NotContains steps
@@ -25,6 +29,8 @@ type IClearExpectFormValues interface {
 	NotEqual(value ...interface{}) IStep
 	// NotOneOf clears all matching NotOneOf steps
 	NotOneOf(value ...interface{}) IStep
+	// Nth clears all matching Nth steps
+	Nth(value ...int) IClearExpectHeaderValue
 	// OneOf clears all matching OneOf steps
 	OneOf(value ...interface{}) IStep
 }
@@ -60,6 +66,12 @@ func (v *clearExpectFormValues) Empty() IStep {
 func (v *clearExpectFormValues) Equal(value ...interface{}) IStep {
 	return removeStep(v.callPath().Push("Equal", value))
 }
+func (v *clearExpectFormValues) First() IClearExpectHeaderValue {
+	return newClearExpectHeaderValue(v.callPath().Push("First", nil))
+}
+func (v *clearExpectFormValues) Last() IClearExpectHeaderValue {
+	return newClearExpectHeaderValue(v.callPath().Push("Last", nil))
+}
 func (v *clearExpectFormValues) Len() IClearExpectInt {
 	return newClearExpectInt(v.callPath().Push("Len", nil))
 }
@@ -74,6 +86,9 @@ func (v *clearExpectFormValues) NotEqual(value ...interface{}) IStep {
 }
 func (v *clearExpectFormValues) NotOneOf(value ...interface{}) IStep {
 	return removeStep(v.callPath().Push("NotOneOf", value))
+}
+func (v *clearExpectFormValues) Nth(value ...int) IClearExpectHeaderValue {
+	return newClearExpectHeaderValue(v.callPath().Push("Nth", intSliceToInterfaceSlice(value)))
 }
 func (v *clearExpectFormValues) OneOf(value ...interface{}) IStep {
 	return removeStep(v.callPath().Push("OneOf", value))

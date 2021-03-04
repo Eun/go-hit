@@ -59,7 +59,28 @@ type IExpectFormValues interface {
 	//     Expect().Body().FormValues("usernames").NotEqual("joe", "alice")
 	//     Expect().Body().FormValues("length").NotEqual(10)
 	NotEqual(value ...interface{}) IStep
+
+	// First provides assertions for the first value of the specified form value.
+	//
+	// Usage:
+	//     Expect().Body().FormValues("username").First().NotEqual("joe")
+	First() IExpectHeaderValue
+
+	// Last provides assertions for the last value of the specified header.
+	//
+	// Usage:
+	//     Expect().Body().FormValues("username").Last().NotEqual("joe")
+	Last() IExpectHeaderValue
+
+	// Nth provides assertions for the nth value of the specified header. (0 = first value)
+	//
+	// Usage:
+	//     Expect().Body().FormValues("username").Nth(0).NotEqual("joe")
+	Nth(n int) IExpectHeaderValue
 }
+
+// since we reuse IExpectHeaders here, make sure IExpectFormValues has everything IExpectHeader has
+var _ IExpectHeaders = (IExpectFormValues)(nil)
 
 func newExpectFormValues(cleanPath callPath, valueCallback expectHeaderValueCallback) IExpectFormValues {
 	return &expectHeader{
