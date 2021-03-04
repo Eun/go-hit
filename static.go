@@ -158,7 +158,8 @@ func BaseURL(url string, a ...interface{}) IStep {
 		CallPath: newCallPath("BaseURL", nil),
 		Exec: func(hit *hitImpl) error {
 			if len(a) > 0 {
-				url = fmt.Sprintf(url, a...)
+				hit.baseURL = fmt.Sprintf(url, a...)
+				return nil
 			}
 			hit.baseURL = url
 			return nil
@@ -198,13 +199,13 @@ func makeMethodStep(fnName, method, url string, a ...interface{}) IStep {
 		CallPath: newCallPath(fnName, nil),
 		Exec: func(hit *hitImpl) error {
 			hit.request.Method = method
-			url = misc.MakeURL(hit.baseURL, url, a...)
-			if url == "" {
+			u := misc.MakeURL(hit.baseURL, url, a...)
+			if u == "" {
 				hit.request.URL = new(urlpkg.URL)
 				return nil
 			}
 			var err error
-			hit.request.URL, err = urlpkg.Parse(url)
+			hit.request.URL, err = urlpkg.Parse(u)
 			if err != nil {
 				return err
 			}
