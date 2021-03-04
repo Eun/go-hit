@@ -323,6 +323,25 @@ func TestBaseURL(t *testing.T) {
 	)
 }
 
+func TestBaseURLTemplate(t *testing.T) {
+	// this test should ensure that the baseurl is the same for the two test runs
+	mux := http.NewServeMux()
+	mux.HandleFunc("/foo/", func(writer http.ResponseWriter, request *http.Request) {
+		writer.WriteHeader(http.StatusNoContent)
+	})
+	s := httptest.NewServer(mux)
+	defer s.Close()
+
+	steps := []IStep{
+		BaseURL("%s/foo", s.URL),
+		Get("/"),
+		Expect().Status().Equal(http.StatusNoContent),
+	}
+
+	Test(t, steps...)
+	Test(t, steps...)
+}
+
 func TestFormatURL(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/foo", func(writer http.ResponseWriter, request *http.Request) {
