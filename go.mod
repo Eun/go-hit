@@ -11,9 +11,9 @@ require (
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1 // indirect
 	github.com/dave/jennifer v1.4.1
 	github.com/google/go-cmp v0.5.4
-	github.com/gookit/color v1.3.7
+	github.com/gookit/color v1.3.8
 	github.com/gorilla/mux v1.8.0
-	github.com/itchyny/gojq v0.12.1
+	github.com/itchyny/gojq v0.12.2
 	github.com/json-iterator/go v1.1.10
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/k0kubun/pp v3.0.1+incompatible
@@ -23,7 +23,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/stretchr/testify v1.7.0
-	github.com/tidwall/pretty v1.0.2
+	github.com/tidwall/pretty v1.1.0
 	go.uber.org/goleak v1.1.10
 	golang.org/x/tools v0.0.0-20201026223136-e84cfc6dd5ca
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1

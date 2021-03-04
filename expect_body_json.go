@@ -131,6 +131,9 @@ func (v *expectBodyJSON) Len() IExpectInt {
 	return newExpectInt(v.cleanPath.Push("Len", nil), func(hit Hit) int {
 		var obj interface{}
 		hit.Response().body.JSON().MustDecode(&obj)
+		if obj == nil {
+			return 0
+		}
 		rv := reflect.ValueOf(obj)
 		switch rv.Kind() {
 		case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:

@@ -322,6 +322,12 @@ func TestExpectBodyJSONJQ_Len(t *testing.T) {
 		Expect().Body().JSON().JQ(".Name").Len().Equal(3),
 	)
 
+	Test(t,
+		Post(s.URL),
+		Send().Body().String(`{"Name":"Joe", "ID": 10}`),
+		Expect().Body().JSON().JQ(".Group").Len().Equal(0),
+	)
+
 	ExpectError(t,
 		Do(
 			Post(s.URL),
