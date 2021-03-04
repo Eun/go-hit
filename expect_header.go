@@ -4,6 +4,7 @@ import (
 	"github.com/Eun/go-hit/internal/minitest"
 )
 
+//nolint:dupl // the methods of IExpectFormValues and IExpectHeaders are the same however the comments are different.
 // IExpectHeaders provides assertions on the http response header.
 type IExpectHeaders interface {
 	// Contains expects the specific header to contain all of the specified values.
@@ -82,7 +83,7 @@ type IExpectHeaders interface {
 	//     )
 	NotEmpty() IStep
 
-	// Len expects the specified header to be the same length then specified.
+	// Len provides assertions for the length of the specified header.
 	//
 	// Usage:
 	//     Expect().Headers("Content-Type").Len().GreaterThan(0)
@@ -122,6 +123,48 @@ type IExpectHeaders interface {
 	//         Expect().Headers("Content-Type").NotEqual("application/json"),
 	//     )
 	NotEqual(value ...interface{}) IStep
+
+	// First provides assertions for the first value of the specified header.
+	//
+	// Usage:
+	//     Expect().Headers("Content-Type").First().NotEqual("application/json")
+	//     Expect().Headers("Content-Length").First().NotEqual(11)
+	//     Expect().Trailers("X-Trailer1").First().NotEqual("data")
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Headers("Content-Type").First().NotEqual("application/json"),
+	//     )
+	First() IExpectHeaderValue
+
+	// Last provides assertions for the last value of the specified header.
+	//
+	// Usage:
+	//     Expect().Headers("Content-Type").Last().NotEqual("application/json")
+	//     Expect().Headers("Content-Length").Last().NotEqual(11)
+	//     Expect().Trailers("X-Trailer1").Last().NotEqual("data")
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Headers("Content-Type").Last().NotEqual("application/json"),
+	//     )
+	Last() IExpectHeaderValue
+
+	// Nth provides assertions for the nth value of the specified header. (0 = first value)
+	//
+	// Usage:
+	//     Expect().Headers("Content-Type").Nth(0).NotEqual("application/json")
+	//     Expect().Headers("Content-Length").Nth(0).NotEqual(11)
+	//     Expect().Trailers("X-Trailer1").Nth(0).NotEqual("data")
+	//
+	// Example:
+	//     MustDo(
+	//         Get("https://example.com"),
+	//         Expect().Headers("Content-Type").Nth(0).NotEqual("application/json"),
+	//     )
+	Nth(n int) IExpectHeaderValue
 }
 
 type expectHeaderValueCallback func(hit Hit) []string
@@ -230,4 +273,43 @@ func (hdr *expectHeader) NotEqual(values ...interface{}) IStep {
 			return minitest.NotEqual(hdr.valueCallback(hit), values)
 		},
 	}
+}
+
+func (hdr *expectHeader) First() IExpectHeaderValue {
+	return newExpectHeaderValue(hdr.cleanPath.Push("First", nil), func(hit Hit) *string {
+		v := hdr.valueCallback(hit)
+		size := len(v)
+		if size == 0 {
+			return nil
+		}
+		return &v[0]
+	})
+}
+
+func (hdr *expectHeader) Last() IExpectHeaderValue {
+	return newExpectHeaderValue(hdr.cleanPath.Push("Last", nil), func(hit Hit) *string {
+		v := hdr.valueCallback(hit)
+		size := len(v)
+		if size == 0 {
+			return nil
+		}
+		return &v[size-1]
+	})
+}
+
+func (hdr *expectHeader) Nth(n int) IExpectHeaderValue {
+	return newExpectHeaderValue(hdr.cleanPath.Push("Nth", []interface{}{n}), func(hit Hit) *string {
+		if n < 0 {
+			return nil
+		}
+		v := hdr.valueCallback(hit)
+		size := len(v)
+		if size == 0 {
+			return nil
+		}
+		if n+1 > size {
+			return nil
+		}
+		return &v[n]
+	})
 }

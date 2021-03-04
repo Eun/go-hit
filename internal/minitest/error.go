@@ -151,6 +151,9 @@ func NotOneOf(object interface{}, values ...interface{}) error {
 
 // Empty returns an error when the passed in object is not empty.
 func Empty(object interface{}) error {
+	if object == nil {
+		return nil
+	}
 	v := misc.GetValue(object)
 	switch v.Kind() {
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:
@@ -166,6 +169,9 @@ func Empty(object interface{}) error {
 
 // NotEmpty returns an error when the passed in object is empty.
 func NotEmpty(object interface{}) error {
+	if object == nil {
+		return xerrors.New(fmt.Sprintf(`%s should be not empty`, PrintValue(object)))
+	}
 	v := misc.GetValue(object)
 	switch v.Kind() {
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:
@@ -176,35 +182,4 @@ func NotEmpty(object interface{}) error {
 	default:
 		return xerrors.New(fmt.Sprintf("called Len() on %s", PrintValue(object)))
 	}
-}
-
-// Len returns an error when the passed in object is not matching the passed in length.
-func Len(object interface{}, length int) error {
-	v := misc.GetValue(object)
-	switch v.Kind() {
-	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice, reflect.String:
-		l := v.Len()
-		if l != length {
-			return xerrors.New(fmt.Sprintf(`%s should have %d item(s), but has %d`, PrintValue(object), length, l))
-		}
-		return nil
-	default:
-		return xerrors.New(fmt.Sprintf("called Len() on %s", PrintValue(object)))
-	}
-}
-
-// True returns an error when the passed in object is false.
-func True(value bool) error {
-	if !value {
-		return xerrors.New(`Expected bool to be true but is false`)
-	}
-	return nil
-}
-
-// False returns an error when the passed in object is true.
-func False(value bool) error {
-	if value {
-		return xerrors.New(`Expected bool to be false but is true`)
-	}
-	return nil
 }

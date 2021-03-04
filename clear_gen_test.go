@@ -2535,6 +2535,1506 @@ func TestGenClear_Specific_ExpectBodyFormValuesEqual(t *testing.T) {
 		PtrStr("TestOK"),
 	)
 }
+func TestGenClear_Generic_ExpectBodyFormValuesFirst(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Contains("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").First().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Contains("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").First().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().Contains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().Contains()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Contains("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").First().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().Contains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Empty(),
+			Expect().Body().FormValues("Hello-World").First().Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().Empty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().Empty()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().Empty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Empty(),
+			Expect().Body().FormValues("Hello-World").First().Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().Empty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Equal("Foo-Taz"),
+			Expect().Body().FormValues("Hello-World").First().Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().Equal()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Equal("Foo-Taz"),
+			Expect().Body().FormValues("Hello-World").First().Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().Equal("Foo-Taz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstLen(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().Between(2, 2),
+			Expect().Body().FormValues("Hello-World").First().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().Len(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().Len()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().Between(2, 2),
+			Expect().Body().FormValues("Hello-World").First().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().Len().Between(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().Len().Between()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().Between(2, 2),
+			Expect().Body().FormValues("Hello-World").First().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().Len().Between(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().Equal(2),
+			Expect().Body().FormValues("Hello-World").First().Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().Len().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().Equal(2),
+			Expect().Body().FormValues("Hello-World").First().Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().Len().Equal(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().GreaterOrEqualThan(2),
+			Expect().Body().FormValues("Hello-World").First().Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().Len().GreaterOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().GreaterOrEqualThan(2),
+			Expect().Body().FormValues("Hello-World").First().Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().Len().GreaterOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().GreaterThan(2),
+			Expect().Body().FormValues("Hello-World").First().Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().Len().GreaterThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().GreaterThan(2),
+			Expect().Body().FormValues("Hello-World").First().Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().Len().GreaterThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().LessOrEqualThan(2),
+			Expect().Body().FormValues("Hello-World").First().Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().Len().LessOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().LessOrEqualThan(2),
+			Expect().Body().FormValues("Hello-World").First().Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().Len().LessOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().LessThan(2),
+			Expect().Body().FormValues("Hello-World").First().Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().Len().LessThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().LessThan(2),
+			Expect().Body().FormValues("Hello-World").First().Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().Len().LessThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().NotBetween(2, 2),
+			Expect().Body().FormValues("Hello-World").First().Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().Len().NotBetween(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().NotBetween(2, 2),
+			Expect().Body().FormValues("Hello-World").First().Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().Len().NotBetween(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().NotEqual(1, 2),
+			Expect().Body().FormValues("Hello-World").First().Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().Len().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().NotEqual(1, 2),
+			Expect().Body().FormValues("Hello-World").First().Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().Len().NotEqual(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().NotOneOf(1, 2),
+			Expect().Body().FormValues("Hello-World").First().Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().Len().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().NotOneOf(1, 2),
+			Expect().Body().FormValues("Hello-World").First().Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().Len().NotOneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().OneOf(1, 2),
+			Expect().Body().FormValues("Hello-World").First().Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().Len().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().Len().OneOf(1, 2),
+			Expect().Body().FormValues("Hello-World").First().Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().Len().OneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().NotContains("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").First().NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().NotContains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().NotContains()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().NotContains("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").First().NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().NotContains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().NotEmpty(),
+			Expect().Body().FormValues("Hello-World").First().NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().NotEmpty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().NotEmpty()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().NotEmpty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().NotEmpty(),
+			Expect().Body().FormValues("Hello-World").First().NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().NotEmpty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().NotEqual("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").First().NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().NotEqual("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").First().NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().NotEqual("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().NotOneOf("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").First().NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().NotOneOf("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").First().NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().NotOneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesFirstOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().OneOf("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").First().OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().First().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().First().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().First().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesFirstOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").First().OneOf("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").First().OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").First().OneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLast(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Contains("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Last().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Contains("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Last().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().Contains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().Contains()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Contains("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Last().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().Contains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Empty(),
+			Expect().Body().FormValues("Hello-World").Last().Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().Empty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().Empty()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().Empty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Empty(),
+			Expect().Body().FormValues("Hello-World").Last().Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().Empty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Equal("Foo-Taz"),
+			Expect().Body().FormValues("Hello-World").Last().Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().Equal()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Equal("Foo-Taz"),
+			Expect().Body().FormValues("Hello-World").Last().Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().Equal("Foo-Taz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastLen(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().Between(2, 2),
+			Expect().Body().FormValues("Hello-World").Last().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().Len(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().Len()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().Between(2, 2),
+			Expect().Body().FormValues("Hello-World").Last().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().Len().Between(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().Len().Between()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().Between(2, 2),
+			Expect().Body().FormValues("Hello-World").Last().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().Len().Between(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().Equal(2),
+			Expect().Body().FormValues("Hello-World").Last().Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().Len().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().Equal(2),
+			Expect().Body().FormValues("Hello-World").Last().Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().Len().Equal(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().GreaterOrEqualThan(2),
+			Expect().Body().FormValues("Hello-World").Last().Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().Len().GreaterOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().GreaterOrEqualThan(2),
+			Expect().Body().FormValues("Hello-World").Last().Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().Len().GreaterOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().GreaterThan(2),
+			Expect().Body().FormValues("Hello-World").Last().Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().Len().GreaterThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().GreaterThan(2),
+			Expect().Body().FormValues("Hello-World").Last().Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().Len().GreaterThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().LessOrEqualThan(2),
+			Expect().Body().FormValues("Hello-World").Last().Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().Len().LessOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().LessOrEqualThan(2),
+			Expect().Body().FormValues("Hello-World").Last().Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().Len().LessOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().LessThan(2),
+			Expect().Body().FormValues("Hello-World").Last().Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().Len().LessThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().LessThan(2),
+			Expect().Body().FormValues("Hello-World").Last().Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().Len().LessThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().NotBetween(2, 2),
+			Expect().Body().FormValues("Hello-World").Last().Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().Len().NotBetween(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().NotBetween(2, 2),
+			Expect().Body().FormValues("Hello-World").Last().Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().Len().NotBetween(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().NotEqual(1, 2),
+			Expect().Body().FormValues("Hello-World").Last().Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().Len().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().NotEqual(1, 2),
+			Expect().Body().FormValues("Hello-World").Last().Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().Len().NotEqual(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().NotOneOf(1, 2),
+			Expect().Body().FormValues("Hello-World").Last().Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().Len().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().NotOneOf(1, 2),
+			Expect().Body().FormValues("Hello-World").Last().Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().Len().NotOneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().OneOf(1, 2),
+			Expect().Body().FormValues("Hello-World").Last().Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().Len().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().Len().OneOf(1, 2),
+			Expect().Body().FormValues("Hello-World").Last().Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().Len().OneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().NotContains("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Last().NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().NotContains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().NotContains()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().NotContains("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Last().NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().NotContains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().NotEmpty(),
+			Expect().Body().FormValues("Hello-World").Last().NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().NotEmpty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().NotEmpty()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().NotEmpty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().NotEmpty(),
+			Expect().Body().FormValues("Hello-World").Last().NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().NotEmpty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().NotEqual("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Last().NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().NotEqual("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Last().NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().NotEqual("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().NotOneOf("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Last().NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().NotOneOf("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Last().NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().NotOneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesLastOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().OneOf("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Last().OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Last().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Last().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Last().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesLastOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Last().OneOf("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Last().OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Last().OneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
 func TestGenClear_Generic_ExpectBodyFormValuesLen(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
@@ -3101,6 +4601,756 @@ func TestGenClear_Specific_ExpectBodyFormValuesNotOneOf(t *testing.T) {
 			Expect().Body().FormValues("Hello-World").NotOneOf("Hello", "Earth"),
 			storeSteps(&steps),
 			Clear().Expect().Body().FormValues("Foo-Bar").NotOneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNth(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Contains("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Nth(3).Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Contains("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Nth(3).Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().Contains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().Contains()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Contains("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Nth(3).Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).Contains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Empty(),
+			Expect().Body().FormValues("Hello-World").Nth(3).Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().Empty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().Empty()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().Empty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Empty(),
+			Expect().Body().FormValues("Hello-World").Nth(3).Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).Empty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Equal("Foo-Taz"),
+			Expect().Body().FormValues("Hello-World").Nth(3).Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().Equal()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Equal("Foo-Taz"),
+			Expect().Body().FormValues("Hello-World").Nth(3).Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).Equal("Foo-Taz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthLen(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().Between(2, 2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().Len(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().Len()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().Between(2, 2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().Len().Between(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().Len().Between()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().Between(2, 2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).Len().Between(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().Equal(2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().Len().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().Equal(2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).Len().Equal(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().GreaterOrEqualThan(2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().Len().GreaterOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().GreaterOrEqualThan(2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).Len().GreaterOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().GreaterThan(2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().Len().GreaterThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().GreaterThan(2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).Len().GreaterThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().LessOrEqualThan(2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().Len().LessOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().LessOrEqualThan(2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).Len().LessOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().LessThan(2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().Len().LessThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().LessThan(2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).Len().LessThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().NotBetween(2, 2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().Len().NotBetween(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().NotBetween(2, 2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).Len().NotBetween(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().NotEqual(1, 2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().Len().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().NotEqual(1, 2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).Len().NotEqual(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().NotOneOf(1, 2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().Len().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().NotOneOf(1, 2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).Len().NotOneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().OneOf(1, 2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().Len().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).Len().OneOf(1, 2),
+			Expect().Body().FormValues("Hello-World").Nth(3).Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).Len().OneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).NotContains("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Nth(3).NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().NotContains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().NotContains()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).NotContains("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Nth(3).NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).NotContains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).NotEmpty(),
+			Expect().Body().FormValues("Hello-World").Nth(3).NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().NotEmpty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().NotEmpty()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().NotEmpty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).NotEmpty(),
+			Expect().Body().FormValues("Hello-World").Nth(3).NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).NotEmpty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).NotEqual("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Nth(3).NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).NotEqual("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Nth(3).NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).NotEqual("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).NotOneOf("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Nth(3).NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).NotOneOf("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Nth(3).NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).NotOneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyFormValuesNthOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).OneOf("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Nth(3).OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues().Nth().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().FormValues().Nth().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().FormValues().Nth().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyFormValuesNthOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().FormValues("Foo-Bar").Nth(2).OneOf("Foo", "Baz"),
+			Expect().Body().FormValues("Hello-World").Nth(3).OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().FormValues("Foo-Bar").Nth(2).OneOf("Foo", "Baz"),
 			expectSteps(t, &steps, 1)),
 		PtrStr("TestOK"),
 	)
@@ -9513,6 +11763,1506 @@ func TestGenClear_Specific_ExpectHeadersEqual(t *testing.T) {
 		PtrStr("TestOK"),
 	)
 }
+func TestGenClear_Generic_ExpectHeadersFirst(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Contains("Foo", "Baz"),
+			Expect().Headers("Hello-World").First().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First()),
+		PtrStr("unable to find a step with Expect().Headers().First()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Contains("Foo", "Baz"),
+			Expect().Headers("Hello-World").First().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().Contains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().Contains()),
+		PtrStr("unable to find a step with Expect().Headers().First().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Contains("Foo", "Baz"),
+			Expect().Headers("Hello-World").First().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().Contains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Empty(),
+			Expect().Headers("Hello-World").First().Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().Empty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().Empty()),
+		PtrStr("unable to find a step with Expect().Headers().First().Empty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Empty(),
+			Expect().Headers("Hello-World").First().Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().Empty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Equal("Foo-Taz"),
+			Expect().Headers("Hello-World").First().Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().Equal()),
+		PtrStr("unable to find a step with Expect().Headers().First().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Equal("Foo-Taz"),
+			Expect().Headers("Hello-World").First().Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().Equal("Foo-Taz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstLen(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().Between(2, 2),
+			Expect().Headers("Hello-World").First().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().Len(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().Len()),
+		PtrStr("unable to find a step with Expect().Headers().First().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().Between(2, 2),
+			Expect().Headers("Hello-World").First().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().Len().Between(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().Len().Between()),
+		PtrStr("unable to find a step with Expect().Headers().First().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().Between(2, 2),
+			Expect().Headers("Hello-World").First().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().Len().Between(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().Equal(2),
+			Expect().Headers("Hello-World").First().Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().Len().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Headers().First().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().Equal(2),
+			Expect().Headers("Hello-World").First().Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().Len().Equal(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().GreaterOrEqualThan(2),
+			Expect().Headers("Hello-World").First().Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().Len().GreaterOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Headers().First().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().GreaterOrEqualThan(2),
+			Expect().Headers("Hello-World").First().Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().Len().GreaterOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().GreaterThan(2),
+			Expect().Headers("Hello-World").First().Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().Len().GreaterThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Headers().First().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().GreaterThan(2),
+			Expect().Headers("Hello-World").First().Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().Len().GreaterThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().LessOrEqualThan(2),
+			Expect().Headers("Hello-World").First().Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().Len().LessOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Headers().First().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().LessOrEqualThan(2),
+			Expect().Headers("Hello-World").First().Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().Len().LessOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().LessThan(2),
+			Expect().Headers("Hello-World").First().Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().Len().LessThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Headers().First().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().LessThan(2),
+			Expect().Headers("Hello-World").First().Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().Len().LessThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().NotBetween(2, 2),
+			Expect().Headers("Hello-World").First().Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().Len().NotBetween(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Headers().First().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().NotBetween(2, 2),
+			Expect().Headers("Hello-World").First().Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().Len().NotBetween(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().NotEqual(1, 2),
+			Expect().Headers("Hello-World").First().Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().Len().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Headers().First().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().NotEqual(1, 2),
+			Expect().Headers("Hello-World").First().Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().Len().NotEqual(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().NotOneOf(1, 2),
+			Expect().Headers("Hello-World").First().Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().Len().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Headers().First().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().NotOneOf(1, 2),
+			Expect().Headers("Hello-World").First().Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().Len().NotOneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().OneOf(1, 2),
+			Expect().Headers("Hello-World").First().Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().Len().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Headers().First().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().Len().OneOf(1, 2),
+			Expect().Headers("Hello-World").First().Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().Len().OneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().NotContains("Foo", "Baz"),
+			Expect().Headers("Hello-World").First().NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().NotContains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().NotContains()),
+		PtrStr("unable to find a step with Expect().Headers().First().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().NotContains("Foo", "Baz"),
+			Expect().Headers("Hello-World").First().NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().NotContains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().NotEmpty(),
+			Expect().Headers("Hello-World").First().NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().NotEmpty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().NotEmpty()),
+		PtrStr("unable to find a step with Expect().Headers().First().NotEmpty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().NotEmpty(),
+			Expect().Headers("Hello-World").First().NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().NotEmpty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().NotEqual("Foo", "Baz"),
+			Expect().Headers("Hello-World").First().NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().NotEqual()),
+		PtrStr("unable to find a step with Expect().Headers().First().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().NotEqual("Foo", "Baz"),
+			Expect().Headers("Hello-World").First().NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().NotEqual("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().NotOneOf("Foo", "Baz"),
+			Expect().Headers("Hello-World").First().NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Headers().First().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().NotOneOf("Foo", "Baz"),
+			Expect().Headers("Hello-World").First().NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().NotOneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersFirstOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().OneOf("Foo", "Baz"),
+			Expect().Headers("Hello-World").First().OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().First().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().First().OneOf()),
+		PtrStr("unable to find a step with Expect().Headers().First().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersFirstOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").First().OneOf("Foo", "Baz"),
+			Expect().Headers("Hello-World").First().OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").First().OneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLast(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Contains("Foo", "Baz"),
+			Expect().Headers("Hello-World").Last().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last()),
+		PtrStr("unable to find a step with Expect().Headers().Last()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Contains("Foo", "Baz"),
+			Expect().Headers("Hello-World").Last().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().Contains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().Contains()),
+		PtrStr("unable to find a step with Expect().Headers().Last().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Contains("Foo", "Baz"),
+			Expect().Headers("Hello-World").Last().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().Contains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Empty(),
+			Expect().Headers("Hello-World").Last().Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().Empty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().Empty()),
+		PtrStr("unable to find a step with Expect().Headers().Last().Empty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Empty(),
+			Expect().Headers("Hello-World").Last().Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().Empty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Equal("Foo-Taz"),
+			Expect().Headers("Hello-World").Last().Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().Equal()),
+		PtrStr("unable to find a step with Expect().Headers().Last().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Equal("Foo-Taz"),
+			Expect().Headers("Hello-World").Last().Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().Equal("Foo-Taz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastLen(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().Between(2, 2),
+			Expect().Headers("Hello-World").Last().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().Len(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().Len()),
+		PtrStr("unable to find a step with Expect().Headers().Last().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().Between(2, 2),
+			Expect().Headers("Hello-World").Last().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().Len().Between(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().Len().Between()),
+		PtrStr("unable to find a step with Expect().Headers().Last().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().Between(2, 2),
+			Expect().Headers("Hello-World").Last().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().Len().Between(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().Equal(2),
+			Expect().Headers("Hello-World").Last().Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().Len().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Headers().Last().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().Equal(2),
+			Expect().Headers("Hello-World").Last().Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().Len().Equal(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().GreaterOrEqualThan(2),
+			Expect().Headers("Hello-World").Last().Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().Len().GreaterOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Headers().Last().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().GreaterOrEqualThan(2),
+			Expect().Headers("Hello-World").Last().Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().Len().GreaterOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().GreaterThan(2),
+			Expect().Headers("Hello-World").Last().Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().Len().GreaterThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Headers().Last().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().GreaterThan(2),
+			Expect().Headers("Hello-World").Last().Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().Len().GreaterThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().LessOrEqualThan(2),
+			Expect().Headers("Hello-World").Last().Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().Len().LessOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Headers().Last().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().LessOrEqualThan(2),
+			Expect().Headers("Hello-World").Last().Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().Len().LessOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().LessThan(2),
+			Expect().Headers("Hello-World").Last().Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().Len().LessThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Headers().Last().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().LessThan(2),
+			Expect().Headers("Hello-World").Last().Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().Len().LessThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().NotBetween(2, 2),
+			Expect().Headers("Hello-World").Last().Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().Len().NotBetween(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Headers().Last().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().NotBetween(2, 2),
+			Expect().Headers("Hello-World").Last().Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().Len().NotBetween(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().NotEqual(1, 2),
+			Expect().Headers("Hello-World").Last().Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().Len().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Headers().Last().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().NotEqual(1, 2),
+			Expect().Headers("Hello-World").Last().Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().Len().NotEqual(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().NotOneOf(1, 2),
+			Expect().Headers("Hello-World").Last().Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().Len().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Headers().Last().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().NotOneOf(1, 2),
+			Expect().Headers("Hello-World").Last().Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().Len().NotOneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().OneOf(1, 2),
+			Expect().Headers("Hello-World").Last().Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().Len().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Headers().Last().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().Len().OneOf(1, 2),
+			Expect().Headers("Hello-World").Last().Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().Len().OneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().NotContains("Foo", "Baz"),
+			Expect().Headers("Hello-World").Last().NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().NotContains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().NotContains()),
+		PtrStr("unable to find a step with Expect().Headers().Last().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().NotContains("Foo", "Baz"),
+			Expect().Headers("Hello-World").Last().NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().NotContains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().NotEmpty(),
+			Expect().Headers("Hello-World").Last().NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().NotEmpty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().NotEmpty()),
+		PtrStr("unable to find a step with Expect().Headers().Last().NotEmpty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().NotEmpty(),
+			Expect().Headers("Hello-World").Last().NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().NotEmpty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().NotEqual("Foo", "Baz"),
+			Expect().Headers("Hello-World").Last().NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().NotEqual()),
+		PtrStr("unable to find a step with Expect().Headers().Last().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().NotEqual("Foo", "Baz"),
+			Expect().Headers("Hello-World").Last().NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().NotEqual("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().NotOneOf("Foo", "Baz"),
+			Expect().Headers("Hello-World").Last().NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Headers().Last().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().NotOneOf("Foo", "Baz"),
+			Expect().Headers("Hello-World").Last().NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().NotOneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersLastOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().OneOf("Foo", "Baz"),
+			Expect().Headers("Hello-World").Last().OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Last().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Last().OneOf()),
+		PtrStr("unable to find a step with Expect().Headers().Last().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersLastOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Last().OneOf("Foo", "Baz"),
+			Expect().Headers("Hello-World").Last().OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Last().OneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
 func TestGenClear_Generic_ExpectHeadersLen(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
@@ -10079,6 +13829,756 @@ func TestGenClear_Specific_ExpectHeadersNotOneOf(t *testing.T) {
 			Expect().Headers("Hello-World").NotOneOf("Hello", "Earth"),
 			storeSteps(&steps),
 			Clear().Expect().Headers("Foo-Bar").NotOneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNth(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Contains("Foo", "Baz"),
+			Expect().Headers("Hello-World").Nth(3).Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth()),
+		PtrStr("unable to find a step with Expect().Headers().Nth()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Contains("Foo", "Baz"),
+			Expect().Headers("Hello-World").Nth(3).Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().Contains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().Contains()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Contains("Foo", "Baz"),
+			Expect().Headers("Hello-World").Nth(3).Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).Contains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Empty(),
+			Expect().Headers("Hello-World").Nth(3).Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().Empty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().Empty()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().Empty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Empty(),
+			Expect().Headers("Hello-World").Nth(3).Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).Empty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Equal("Foo-Taz"),
+			Expect().Headers("Hello-World").Nth(3).Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().Equal()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Equal("Foo-Taz"),
+			Expect().Headers("Hello-World").Nth(3).Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).Equal("Foo-Taz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthLen(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().Between(2, 2),
+			Expect().Headers("Hello-World").Nth(3).Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().Len(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().Len()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().Between(2, 2),
+			Expect().Headers("Hello-World").Nth(3).Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().Len().Between(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().Len().Between()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().Between(2, 2),
+			Expect().Headers("Hello-World").Nth(3).Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).Len().Between(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().Equal(2),
+			Expect().Headers("Hello-World").Nth(3).Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().Len().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().Equal(2),
+			Expect().Headers("Hello-World").Nth(3).Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).Len().Equal(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().GreaterOrEqualThan(2),
+			Expect().Headers("Hello-World").Nth(3).Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().Len().GreaterOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().GreaterOrEqualThan(2),
+			Expect().Headers("Hello-World").Nth(3).Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).Len().GreaterOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().GreaterThan(2),
+			Expect().Headers("Hello-World").Nth(3).Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().Len().GreaterThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().GreaterThan(2),
+			Expect().Headers("Hello-World").Nth(3).Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).Len().GreaterThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().LessOrEqualThan(2),
+			Expect().Headers("Hello-World").Nth(3).Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().Len().LessOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().LessOrEqualThan(2),
+			Expect().Headers("Hello-World").Nth(3).Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).Len().LessOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().LessThan(2),
+			Expect().Headers("Hello-World").Nth(3).Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().Len().LessThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().LessThan(2),
+			Expect().Headers("Hello-World").Nth(3).Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).Len().LessThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().NotBetween(2, 2),
+			Expect().Headers("Hello-World").Nth(3).Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().Len().NotBetween(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().NotBetween(2, 2),
+			Expect().Headers("Hello-World").Nth(3).Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).Len().NotBetween(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().NotEqual(1, 2),
+			Expect().Headers("Hello-World").Nth(3).Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().Len().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().NotEqual(1, 2),
+			Expect().Headers("Hello-World").Nth(3).Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).Len().NotEqual(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().NotOneOf(1, 2),
+			Expect().Headers("Hello-World").Nth(3).Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().Len().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().NotOneOf(1, 2),
+			Expect().Headers("Hello-World").Nth(3).Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).Len().NotOneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().OneOf(1, 2),
+			Expect().Headers("Hello-World").Nth(3).Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().Len().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).Len().OneOf(1, 2),
+			Expect().Headers("Hello-World").Nth(3).Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).Len().OneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).NotContains("Foo", "Baz"),
+			Expect().Headers("Hello-World").Nth(3).NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().NotContains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().NotContains()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).NotContains("Foo", "Baz"),
+			Expect().Headers("Hello-World").Nth(3).NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).NotContains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).NotEmpty(),
+			Expect().Headers("Hello-World").Nth(3).NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().NotEmpty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().NotEmpty()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().NotEmpty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).NotEmpty(),
+			Expect().Headers("Hello-World").Nth(3).NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).NotEmpty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).NotEqual("Foo", "Baz"),
+			Expect().Headers("Hello-World").Nth(3).NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().NotEqual()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).NotEqual("Foo", "Baz"),
+			Expect().Headers("Hello-World").Nth(3).NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).NotEqual("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).NotOneOf("Foo", "Baz"),
+			Expect().Headers("Hello-World").Nth(3).NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).NotOneOf("Foo", "Baz"),
+			Expect().Headers("Hello-World").Nth(3).NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).NotOneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectHeadersNthOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).OneOf("Foo", "Baz"),
+			Expect().Headers("Hello-World").Nth(3).OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers().Nth().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Headers().Nth().OneOf()),
+		PtrStr("unable to find a step with Expect().Headers().Nth().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectHeadersNthOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Headers("Foo-Bar").Nth(2).OneOf("Foo", "Baz"),
+			Expect().Headers("Hello-World").Nth(3).OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Headers("Foo-Bar").Nth(2).OneOf("Foo", "Baz"),
 			expectSteps(t, &steps, 1)),
 		PtrStr("TestOK"),
 	)
@@ -10677,6 +15177,1506 @@ func TestGenClear_Specific_ExpectTrailersEqual(t *testing.T) {
 		PtrStr("TestOK"),
 	)
 }
+func TestGenClear_Generic_ExpectTrailersFirst(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Contains("Foo", "Baz"),
+			Expect().Trailers("Hello-World").First().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First()),
+		PtrStr("unable to find a step with Expect().Trailers().First()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Contains("Foo", "Baz"),
+			Expect().Trailers("Hello-World").First().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().Contains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().Contains()),
+		PtrStr("unable to find a step with Expect().Trailers().First().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Contains("Foo", "Baz"),
+			Expect().Trailers("Hello-World").First().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().Contains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Empty(),
+			Expect().Trailers("Hello-World").First().Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().Empty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().Empty()),
+		PtrStr("unable to find a step with Expect().Trailers().First().Empty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Empty(),
+			Expect().Trailers("Hello-World").First().Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().Empty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Equal("Foo-Taz"),
+			Expect().Trailers("Hello-World").First().Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().Equal()),
+		PtrStr("unable to find a step with Expect().Trailers().First().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Equal("Foo-Taz"),
+			Expect().Trailers("Hello-World").First().Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().Equal("Foo-Taz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstLen(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().Between(2, 2),
+			Expect().Trailers("Hello-World").First().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().Len(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().Len()),
+		PtrStr("unable to find a step with Expect().Trailers().First().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().Between(2, 2),
+			Expect().Trailers("Hello-World").First().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().Len().Between(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().Len().Between()),
+		PtrStr("unable to find a step with Expect().Trailers().First().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().Between(2, 2),
+			Expect().Trailers("Hello-World").First().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().Len().Between(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().Equal(2),
+			Expect().Trailers("Hello-World").First().Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().Len().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Trailers().First().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().Equal(2),
+			Expect().Trailers("Hello-World").First().Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().Len().Equal(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().GreaterOrEqualThan(2),
+			Expect().Trailers("Hello-World").First().Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().Len().GreaterOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Trailers().First().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().GreaterOrEqualThan(2),
+			Expect().Trailers("Hello-World").First().Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().Len().GreaterOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().GreaterThan(2),
+			Expect().Trailers("Hello-World").First().Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().Len().GreaterThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Trailers().First().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().GreaterThan(2),
+			Expect().Trailers("Hello-World").First().Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().Len().GreaterThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().LessOrEqualThan(2),
+			Expect().Trailers("Hello-World").First().Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().Len().LessOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Trailers().First().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().LessOrEqualThan(2),
+			Expect().Trailers("Hello-World").First().Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().Len().LessOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().LessThan(2),
+			Expect().Trailers("Hello-World").First().Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().Len().LessThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Trailers().First().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().LessThan(2),
+			Expect().Trailers("Hello-World").First().Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().Len().LessThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().NotBetween(2, 2),
+			Expect().Trailers("Hello-World").First().Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().Len().NotBetween(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Trailers().First().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().NotBetween(2, 2),
+			Expect().Trailers("Hello-World").First().Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().Len().NotBetween(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().NotEqual(1, 2),
+			Expect().Trailers("Hello-World").First().Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().Len().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Trailers().First().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().NotEqual(1, 2),
+			Expect().Trailers("Hello-World").First().Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().Len().NotEqual(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().NotOneOf(1, 2),
+			Expect().Trailers("Hello-World").First().Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().Len().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Trailers().First().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().NotOneOf(1, 2),
+			Expect().Trailers("Hello-World").First().Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().Len().NotOneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().OneOf(1, 2),
+			Expect().Trailers("Hello-World").First().Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().Len().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Trailers().First().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().Len().OneOf(1, 2),
+			Expect().Trailers("Hello-World").First().Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().Len().OneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().NotContains("Foo", "Baz"),
+			Expect().Trailers("Hello-World").First().NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().NotContains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().NotContains()),
+		PtrStr("unable to find a step with Expect().Trailers().First().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().NotContains("Foo", "Baz"),
+			Expect().Trailers("Hello-World").First().NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().NotContains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().NotEmpty(),
+			Expect().Trailers("Hello-World").First().NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().NotEmpty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().NotEmpty()),
+		PtrStr("unable to find a step with Expect().Trailers().First().NotEmpty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().NotEmpty(),
+			Expect().Trailers("Hello-World").First().NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().NotEmpty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().NotEqual("Foo", "Baz"),
+			Expect().Trailers("Hello-World").First().NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().NotEqual()),
+		PtrStr("unable to find a step with Expect().Trailers().First().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().NotEqual("Foo", "Baz"),
+			Expect().Trailers("Hello-World").First().NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().NotEqual("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().NotOneOf("Foo", "Baz"),
+			Expect().Trailers("Hello-World").First().NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Trailers().First().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().NotOneOf("Foo", "Baz"),
+			Expect().Trailers("Hello-World").First().NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().NotOneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersFirstOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().OneOf("Foo", "Baz"),
+			Expect().Trailers("Hello-World").First().OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().First().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().First().OneOf()),
+		PtrStr("unable to find a step with Expect().Trailers().First().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersFirstOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").First().OneOf("Foo", "Baz"),
+			Expect().Trailers("Hello-World").First().OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").First().OneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLast(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Contains("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Last().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last()),
+		PtrStr("unable to find a step with Expect().Trailers().Last()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Contains("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Last().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().Contains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().Contains()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Contains("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Last().Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().Contains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Empty(),
+			Expect().Trailers("Hello-World").Last().Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().Empty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().Empty()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().Empty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Empty(),
+			Expect().Trailers("Hello-World").Last().Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().Empty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Equal("Foo-Taz"),
+			Expect().Trailers("Hello-World").Last().Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().Equal()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Equal("Foo-Taz"),
+			Expect().Trailers("Hello-World").Last().Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().Equal("Foo-Taz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastLen(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().Between(2, 2),
+			Expect().Trailers("Hello-World").Last().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().Len(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().Len()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().Between(2, 2),
+			Expect().Trailers("Hello-World").Last().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().Len().Between(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().Len().Between()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().Between(2, 2),
+			Expect().Trailers("Hello-World").Last().Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().Len().Between(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().Equal(2),
+			Expect().Trailers("Hello-World").Last().Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().Len().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().Equal(2),
+			Expect().Trailers("Hello-World").Last().Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().Len().Equal(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().GreaterOrEqualThan(2),
+			Expect().Trailers("Hello-World").Last().Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().Len().GreaterOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().GreaterOrEqualThan(2),
+			Expect().Trailers("Hello-World").Last().Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().Len().GreaterOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().GreaterThan(2),
+			Expect().Trailers("Hello-World").Last().Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().Len().GreaterThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().GreaterThan(2),
+			Expect().Trailers("Hello-World").Last().Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().Len().GreaterThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().LessOrEqualThan(2),
+			Expect().Trailers("Hello-World").Last().Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().Len().LessOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().LessOrEqualThan(2),
+			Expect().Trailers("Hello-World").Last().Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().Len().LessOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().LessThan(2),
+			Expect().Trailers("Hello-World").Last().Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().Len().LessThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().LessThan(2),
+			Expect().Trailers("Hello-World").Last().Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().Len().LessThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().NotBetween(2, 2),
+			Expect().Trailers("Hello-World").Last().Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().Len().NotBetween(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().NotBetween(2, 2),
+			Expect().Trailers("Hello-World").Last().Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().Len().NotBetween(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().NotEqual(1, 2),
+			Expect().Trailers("Hello-World").Last().Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().Len().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().NotEqual(1, 2),
+			Expect().Trailers("Hello-World").Last().Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().Len().NotEqual(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().NotOneOf(1, 2),
+			Expect().Trailers("Hello-World").Last().Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().Len().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().NotOneOf(1, 2),
+			Expect().Trailers("Hello-World").Last().Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().Len().NotOneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().OneOf(1, 2),
+			Expect().Trailers("Hello-World").Last().Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().Len().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().Len().OneOf(1, 2),
+			Expect().Trailers("Hello-World").Last().Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().Len().OneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().NotContains("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Last().NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().NotContains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().NotContains()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().NotContains("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Last().NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().NotContains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().NotEmpty(),
+			Expect().Trailers("Hello-World").Last().NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().NotEmpty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().NotEmpty()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().NotEmpty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().NotEmpty(),
+			Expect().Trailers("Hello-World").Last().NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().NotEmpty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().NotEqual("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Last().NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().NotEqual()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().NotEqual("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Last().NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().NotEqual("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().NotOneOf("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Last().NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().NotOneOf("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Last().NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().NotOneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersLastOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().OneOf("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Last().OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Last().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Last().OneOf()),
+		PtrStr("unable to find a step with Expect().Trailers().Last().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersLastOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Last().OneOf("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Last().OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Last().OneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
 func TestGenClear_Generic_ExpectTrailersLen(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
@@ -11243,6 +17243,756 @@ func TestGenClear_Specific_ExpectTrailersNotOneOf(t *testing.T) {
 			Expect().Trailers("Hello-World").NotOneOf("Hello", "Earth"),
 			storeSteps(&steps),
 			Clear().Expect().Trailers("Foo-Bar").NotOneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNth(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Contains("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Nth(3).Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Contains("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Nth(3).Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().Contains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().Contains()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Contains("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Nth(3).Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).Contains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Empty(),
+			Expect().Trailers("Hello-World").Nth(3).Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().Empty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().Empty()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().Empty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Empty(),
+			Expect().Trailers("Hello-World").Nth(3).Empty(),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).Empty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Equal("Foo-Taz"),
+			Expect().Trailers("Hello-World").Nth(3).Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().Equal()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Equal("Foo-Taz"),
+			Expect().Trailers("Hello-World").Nth(3).Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).Equal("Foo-Taz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthLen(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().Between(2, 2),
+			Expect().Trailers("Hello-World").Nth(3).Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().Len(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().Len()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().Between(2, 2),
+			Expect().Trailers("Hello-World").Nth(3).Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().Len().Between(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().Len().Between()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().Between(2, 2),
+			Expect().Trailers("Hello-World").Nth(3).Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).Len().Between(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().Equal(2),
+			Expect().Trailers("Hello-World").Nth(3).Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().Len().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().Equal(2),
+			Expect().Trailers("Hello-World").Nth(3).Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).Len().Equal(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().GreaterOrEqualThan(2),
+			Expect().Trailers("Hello-World").Nth(3).Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().Len().GreaterOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().GreaterOrEqualThan(2),
+			Expect().Trailers("Hello-World").Nth(3).Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).Len().GreaterOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().GreaterThan(2),
+			Expect().Trailers("Hello-World").Nth(3).Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().Len().GreaterThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().GreaterThan(2),
+			Expect().Trailers("Hello-World").Nth(3).Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).Len().GreaterThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().LessOrEqualThan(2),
+			Expect().Trailers("Hello-World").Nth(3).Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().Len().LessOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().LessOrEqualThan(2),
+			Expect().Trailers("Hello-World").Nth(3).Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).Len().LessOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().LessThan(2),
+			Expect().Trailers("Hello-World").Nth(3).Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().Len().LessThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().LessThan(2),
+			Expect().Trailers("Hello-World").Nth(3).Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).Len().LessThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().NotBetween(2, 2),
+			Expect().Trailers("Hello-World").Nth(3).Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().Len().NotBetween(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().NotBetween(2, 2),
+			Expect().Trailers("Hello-World").Nth(3).Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).Len().NotBetween(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().NotEqual(1, 2),
+			Expect().Trailers("Hello-World").Nth(3).Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().Len().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().NotEqual(1, 2),
+			Expect().Trailers("Hello-World").Nth(3).Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).Len().NotEqual(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().NotOneOf(1, 2),
+			Expect().Trailers("Hello-World").Nth(3).Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().Len().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().NotOneOf(1, 2),
+			Expect().Trailers("Hello-World").Nth(3).Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).Len().NotOneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().OneOf(1, 2),
+			Expect().Trailers("Hello-World").Nth(3).Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().Len().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).Len().OneOf(1, 2),
+			Expect().Trailers("Hello-World").Nth(3).Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).Len().OneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).NotContains("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Nth(3).NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().NotContains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().NotContains()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).NotContains("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Nth(3).NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).NotContains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).NotEmpty(),
+			Expect().Trailers("Hello-World").Nth(3).NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().NotEmpty(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().NotEmpty()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().NotEmpty()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthNotEmpty(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).NotEmpty(),
+			Expect().Trailers("Hello-World").Nth(3).NotEmpty(),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).NotEmpty(),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).NotEqual("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Nth(3).NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().NotEqual()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).NotEqual("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Nth(3).NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).NotEqual("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).NotOneOf("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Nth(3).NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).NotOneOf("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Nth(3).NotOneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).NotOneOf("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectTrailersNthOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).OneOf("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Nth(3).OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers().Nth().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Trailers().Nth().OneOf()),
+		PtrStr("unable to find a step with Expect().Trailers().Nth().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectTrailersNthOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Trailers("Foo-Bar").Nth(2).OneOf("Foo", "Baz"),
+			Expect().Trailers("Hello-World").Nth(3).OneOf("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Trailers("Foo-Bar").Nth(2).OneOf("Foo", "Baz"),
 			expectSteps(t, &steps, 1)),
 		PtrStr("TestOK"),
 	)
