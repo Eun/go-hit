@@ -4,6 +4,7 @@ VERSION_PATH := cli
 CURRENT_REVISION := $(shell git rev-parse --short HEAD)
 BUILD_LDFLAGS := "-s -w -X github.com/itchyny/$(BIN)/cli.revision=$(CURRENT_REVISION)"
 GOBIN ?= $(shell go env GOPATH)/bin
+SHELL := /bin/bash
 export GO111MODULE=on
 
 .PHONY: all
@@ -52,7 +53,11 @@ $(GOBIN)/gobump:
 
 .PHONY: cross
 cross: $(GOBIN)/goxz CREDITS
-	goxz -n $(BIN) -pv=v$(VERSION) -include _$(BIN) -build-ldflags=$(BUILD_LDFLAGS) ./cmd/$(BIN)
+	build() { \
+		goxz -n $(BIN) -pv=v$(VERSION) -os=$$1 -arch=$$2 \
+			-include _$(BIN) -build-ldflags=$(BUILD_LDFLAGS) ./cmd/$(BIN); \
+	}; \
+	build linux,darwin,windows amd64 && build linux,darwin arm64
 
 $(GOBIN)/goxz:
 	cd && go get github.com/Songmu/goxz/cmd/goxz
@@ -92,18 +97,25 @@ clean:
 	rm -rf $(BIN) goxz CREDITS
 	go clean
 
+.PHONY: update
+update:
+	export GOPROXY=direct
+	rm -f go.sum && go get -u -d ./... && go get github.com/mattn/go-runewidth@v0.0.9 && go mod tidy
+	sed -i.bak '/require (/,/)/d' go.dev.mod && rm -f go.dev.{sum,mod.bak}
+	go get -u -d -modfile=go.dev.mod github.com/itchyny/{astgen,timefmt}-go && go generate
+
 .PHONY: bump
 bump: $(GOBIN)/gobump
 ifneq ($(shell git status --porcelain),)
 	$(error git workspace is dirty)
 endif
-ifneq ($(shell git rev-parse --abbrev-ref HEAD),master)
-	$(error current branch is not master)
+ifneq ($(shell git rev-parse --abbrev-ref HEAD),main)
+	$(error current branch is not main)
 endif
 	@gobump up -w "$(VERSION_PATH)"
 	git commit -am "bump up version to $(VERSION)"
 	git tag "v$(VERSION)"
-	git push origin master
+	git push origin main
 	git push origin "refs/tags/v$(VERSION)"
 
 .PHONY: upload

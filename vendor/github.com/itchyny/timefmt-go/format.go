@@ -2,7 +2,6 @@ package timefmt
 
 import (
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -16,7 +15,7 @@ func Format(t time.Time, format string) string {
 func AppendFormat(buf []byte, t time.Time, format string) []byte {
 	year, month, day := t.Date()
 	hour, min, sec := t.Clock()
-	var width int
+	var width, colons int
 	var padding byte
 	var pending string
 	var upper, swap bool
@@ -35,40 +34,35 @@ func AppendFormat(buf []byte, t time.Time, format string) []byte {
 					break
 				}
 				if i++; i == len(format) {
-					buf = appendLast(buf, format, width, padding)
-					break
+					goto K
 				}
 				padding = ^paddingMask
 				b = format[i]
 				goto L
 			case '_':
 				if i++; i == len(format) {
-					buf = appendLast(buf, format, width, padding)
-					break
+					goto K
 				}
 				padding = ' ' | ^paddingMask
 				b = format[i]
 				goto L
 			case '^':
 				if i++; i == len(format) {
-					buf = appendLast(buf, format, width, padding)
-					break
+					goto K
 				}
 				upper = true
 				b = format[i]
 				goto L
 			case '#':
 				if i++; i == len(format) {
-					buf = appendLast(buf, format, width, padding)
-					break
+					goto K
 				}
 				swap = true
 				b = format[i]
 				goto L
 			case '0':
 				if i++; i == len(format) {
-					buf = appendLast(buf, format, width, padding)
-					break
+					goto K
 				}
 				padding = '0' | ^paddingMask
 				b = format[i]
@@ -94,8 +88,7 @@ func AppendFormat(buf []byte, t time.Time, format string) []byte {
 					padding = ' ' | ^paddingMask
 				}
 				if i == len(format) {
-					buf = appendLast(buf, format, width, padding)
-					break
+					goto K
 				}
 				goto L
 			case 'Y':
@@ -260,17 +253,77 @@ func AppendFormat(buf []byte, t time.Time, format string) []byte {
 					buf = appendString(buf, name, width, padding, upper, swap)
 					break
 				}
-				if width < 4 {
-					width = 4
+				i := len(buf)
+				if padding != ^paddingMask {
+					for ; width > 1; width-- {
+						buf = append(buf, padding&paddingMask)
+					}
 				}
+				j := len(buf)
 				if offset < 0 {
 					buf = append(buf, '-')
 					offset = -offset
 				} else {
 					buf = append(buf, '+')
 				}
-				offset /= 60
-				buf = appendInt(buf, (offset/60)*100+offset%60, width, padding)
+				k := len(buf)
+				buf = appendInt(buf, offset/3600, 2, padding)
+				if buf[k] == ' ' {
+					buf[k-1], buf[k] = buf[k], buf[k-1]
+				}
+				if k = offset % 3600; colons <= 2 || k != 0 {
+					if colons != 0 {
+						buf = append(buf, ':')
+					}
+					buf = appendInt(buf, k/60, 2, '0')
+					if k %= 60; colons == 2 || colons == 3 && k != 0 {
+						buf = append(buf, ':')
+						buf = appendInt(buf, k, 2, '0')
+					}
+				}
+				colons = 0
+				if i != j {
+					l := len(buf)
+					k = j + 1 - (l - j)
+					if k < i {
+						l = j + 1 + i - k
+						k = i
+					} else {
+						l = j + 1
+					}
+					copy(buf[k:], buf[j:])
+					buf = buf[:l]
+					if padding&paddingMask == '0' {
+						for ; k > i; k-- {
+							buf[k-1], buf[k] = buf[k], buf[k-1]
+						}
+					}
+				}
+			case ':':
+				if pending != "" {
+					buf = append(buf, ':')
+				} else {
+					colons = 1
+				M:
+					for i++; i < len(format); i++ {
+						switch format[i] {
+						case ':':
+							colons++
+						case 'z':
+							if colons > 3 {
+								i++
+								break M
+							}
+							b = 'z'
+							goto L
+						default:
+							break M
+						}
+					}
+					buf = appendLast(buf, format[:i], width, padding)
+					i--
+					colons = 0
+				}
 			case 't':
 				buf = appendString(buf, "\t", width, padding, false, false)
 			case 'n':
@@ -297,6 +350,8 @@ func AppendFormat(buf []byte, t time.Time, format string) []byte {
 		}
 	}
 	return buf
+K:
+	return appendLast(buf, format, width, padding)
 }
 
 func appendInt(buf []byte, num, width int, padding byte) []byte {
@@ -407,7 +462,13 @@ func appendString(buf []byte, str string, width int, padding byte, upper, swap b
 }
 
 func appendLast(buf []byte, format string, width int, padding byte) []byte {
-	return appendString(buf, format[strings.LastIndexByte(format, '%'):], width, padding, false, false)
+	for i := len(format) - 1; i >= 0; i-- {
+		if format[i] == '%' {
+			buf = appendString(buf, format[i:], width, padding, false, false)
+			break
+		}
+	}
+	return buf
 }
 
 const paddingMask byte = 0x7F
