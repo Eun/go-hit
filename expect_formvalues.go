@@ -81,7 +81,7 @@ type IExpectFormValues interface {
 }
 
 // since we reuse IExpectHeaders here, make sure IExpectFormValues has everything IExpectHeader has
-var _ IExpectHeaders = (IExpectFormValues)(nil)
+var _ IExpectHeaders = IExpectFormValues(nil)
 
 func newExpectFormValues(cleanPath callPath, valueCallback expectHeaderValueCallback) IExpectFormValues {
 	return &expectHeader{
