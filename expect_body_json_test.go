@@ -726,6 +726,12 @@ func TestExpectBodyJSON_Len(t *testing.T) {
 		Expect().Body().JSON().Len().Equal(2),
 	)
 
+	Test(t,
+		Post(s.URL),
+		Send().Body().String(`null`),
+		Expect().Body().JSON().Len().Equal(0),
+	)
+
 	ExpectError(t,
 		Do(
 			Post(s.URL),
