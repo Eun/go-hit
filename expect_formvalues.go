@@ -1,5 +1,6 @@
 package hit
 
+//nolint:dupl // the methods of IExpectFormValues and IExpectHeaders are the same however the comments are different.
 // IExpectFormValues provides assertions on the http response body FormValues.
 type IExpectFormValues interface {
 	// Contains expects the specific header to contain all of the specified values.
