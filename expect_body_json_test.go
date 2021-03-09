@@ -1,12 +1,25 @@
 package hit_test
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
 	. "github.com/Eun/go-hit"
 )
+
+type customType struct {
+	data int
+}
+
+func (c customType) Equal(b customType) bool {
+	return c.data == b.data
+}
+
+func (c *customType) UnmarshalJSON(p []byte) error {
+	return json.Unmarshal(p, &c.data)
+}
 
 func TestExpectBodyJSON_Equal(t *testing.T) {
 	s := EchoServer()
@@ -288,6 +301,35 @@ func TestExpectBodyJSON_Equal(t *testing.T) {
 				Expect().Body().JSON().Equal(nil),
 			),
 			PtrStr("not equal"), nil, nil, nil, nil, nil,
+		)
+	})
+
+	t.Run("custom type", func(t *testing.T) {
+		Test(t,
+			Post(s.URL),
+			Send().Body().String("1"),
+			Expect().Body().JSON().Equal(customType{data: 1}),
+		)
+		Test(t,
+			Post(s.URL),
+			Send().Body().String("1"),
+			Expect().Body().JSON().Equal(&customType{data: 1}),
+		)
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Body().String("2"),
+				Expect().Body().JSON().Equal(customType{data: 1}),
+			),
+			PtrStr("not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+		)
+		ExpectError(t,
+			Do(
+				Post(s.URL),
+				Send().Body().String("2"),
+				Expect().Body().JSON().Equal(&customType{data: 1}),
+			),
+			PtrStr("not equal"), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
 		)
 	})
 }

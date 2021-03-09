@@ -51,6 +51,31 @@ func Equal(object, expected interface{}) error {
 	return nil
 }
 
+func EqualF(decodeFunc func(interface{}) error, expected interface{}) error {
+	// shortcuts
+	if expected == nil && decodeFunc == nil {
+		return nil
+	}
+
+	var compareData interface{}
+	if expected == nil {
+		if err := decodeFunc(&compareData); err != nil {
+			return err
+		}
+	} else {
+		compareDataPtr := misc.MakeTypeCopyPtr(expected)
+		if err := decodeFunc(compareDataPtr.Interface()); err != nil {
+			return err
+		}
+		compareData = compareDataPtr.Elem().Interface()
+	}
+
+	if !cmp.Equal(expected, compareData) {
+		return xerrors.New(stringJoin("\n", "not equal", actualExpectedDiff(compareData, expected)))
+	}
+	return nil
+}
+
 // NotEqual returns an error when the passed in object is not equal to the expected value.
 func NotEqual(object interface{}, values ...interface{}) error {
 	for _, value := range values {

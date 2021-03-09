@@ -55,6 +55,25 @@ func MakeTypeCopy(src interface{}) interface{} {
 	return cpy.Interface()
 }
 
+// MakeTypeCopyPtr creates a copy of src, with the default value(s) for this type.
+func MakeTypeCopyPtr(src interface{}) reflect.Value {
+	if src == nil {
+		return reflect.Value{}
+	}
+
+	// Make the interface a reflect.Value
+	original := reflect.ValueOf(src)
+
+	// Make a copy of the same type as the original.
+	cpy := reflect.New(original.Type())
+
+	// Recursively copy the original.
+	copyRecursive(original, cpy.Elem(), false)
+
+	// Return the copy as an interface.
+	return cpy
+}
+
 // copyRecursive does the actual copying of the interface. It currently has
 // limited support for what it can handle. Add as needed.
 func copyRecursive(original, cpy reflect.Value, zero bool) {

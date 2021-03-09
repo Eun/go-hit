@@ -68,12 +68,9 @@ func (v *expectBodyJSON) Equal(data interface{}) IStep {
 		When:     ExpectStep,
 		CallPath: v.cleanPath.Push("Equal", []interface{}{data}),
 		Exec: func(hit *hitImpl) error {
-			var obj interface{}
-			if err := hit.Response().body.JSON().Decode(&obj); err != nil {
-				return err
-			}
-
-			return minitest.Equal(obj, data)
+			return minitest.EqualF(func(i interface{}) error {
+				return hit.Response().body.JSON().Decode(i)
+			}, data)
 		},
 	}
 }
