@@ -33,7 +33,7 @@ type function struct {
 }
 
 func (fn function) accept(cnt int) bool {
-	return fn.argcount&(1<<uint(cnt)) > 0
+	return fn.argcount&(1<<cnt) != 0
 }
 
 var internalFuncs map[string]function
@@ -1591,7 +1591,13 @@ func toInt(x interface{}) (int, bool) {
 	case int:
 		return x, true
 	case float64:
-		return int(x), true
+		if minInt <= x && x <= maxInt {
+			return int(x), true
+		}
+		if x > 0 {
+			return maxInt, true
+		}
+		return minInt, true
 	case *big.Int:
 		if x.IsInt64() {
 			if i := x.Int64(); minInt <= i && i <= maxInt {

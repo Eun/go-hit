@@ -29,7 +29,7 @@ github.com/gorilla/mux
 github.com/hashicorp/errwrap
 # github.com/hashicorp/go-multierror v1.1.0
 github.com/hashicorp/go-multierror
-# github.com/itchyny/gojq v0.12.2
+# github.com/itchyny/gojq v0.12.3
 github.com/itchyny/gojq
 # github.com/itchyny/timefmt-go v0.1.2
 github.com/itchyny/timefmt-go

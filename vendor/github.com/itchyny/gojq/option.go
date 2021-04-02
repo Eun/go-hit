@@ -23,8 +23,7 @@ func WithEnvironLoader(environLoader func() []string) CompilerOption {
 }
 
 // WithVariables is a compiler option for variable names. The variables can be
-// used in the query. You have to give the values to query.Run or code.Run in
-// the same order.
+// used in the query. You have to give the values to code.Run in the same order.
 func WithVariables(variables []string) CompilerOption {
 	return func(c *compiler) {
 		c.variables = variables
@@ -37,8 +36,8 @@ func WithVariables(variables []string) CompilerOption {
 // On handling numbers, you should take account to int, float64 and *big.Int.
 // Refer to ValueError to return a value error just like built-in error function.
 // If you want to emit multiple values, call the empty function, accept a filter
-// for its argument, or call another built-in function, then prepend the jq
-// function to each query on parsing.
+// for its argument, or call another built-in function, then use LoadInitModules
+// of the module loader.
 func WithFunction(name string, minarity, maxarity int,
 	f func(interface{}, []interface{}) interface{}) CompilerOption {
 	if !(0 <= minarity && minarity <= maxarity && maxarity <= 30) {
