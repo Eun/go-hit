@@ -27,6 +27,7 @@ func (interp *Interpreter) gta(root *node, rpath, importPath string) ([]*node, e
 			// values which may be used in further declarations.
 			if _, err = interp.cfg(n, importPath); err != nil {
 				// No error processing here, to allow recovery in subtree nodes.
+				// TODO(marc): check for a non recoverable error and return it for better diagnostic.
 				err = nil
 			}
 
@@ -208,8 +209,11 @@ func (interp *Interpreter) gta(root *node, rpath, importPath string) ([]*node, e
 					// imports in different source files of the same package. Therefore, we suffix
 					// the key with the basename of the source file.
 					name = filepath.Join(name, baseName)
-					if _, exists := sc.sym[name]; !exists {
+					if sym, exists := sc.sym[name]; !exists {
 						sc.sym[name] = &symbol{kind: pkgSym, typ: &itype{cat: binPkgT, path: ipath, scope: sc}}
+						break
+					} else if sym.kind == pkgSym && sym.typ.cat == srcPkgT && sym.typ.path == ipath {
+						// ignore re-import of identical package
 						break
 					}
 
@@ -232,8 +236,11 @@ func (interp *Interpreter) gta(root *node, rpath, importPath string) ([]*node, e
 						name = pkgName
 					}
 					name = filepath.Join(name, baseName)
-					if _, exists := sc.sym[name]; !exists {
+					if sym, exists := sc.sym[name]; !exists {
 						sc.sym[name] = &symbol{kind: pkgSym, typ: &itype{cat: srcPkgT, path: ipath, scope: sc}}
+						break
+					} else if sym.kind == pkgSym && sym.typ.cat == srcPkgT && sym.typ.path == ipath {
+						// ignore re-import of identical package
 						break
 					}
 
