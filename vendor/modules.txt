@@ -4,7 +4,7 @@ github.com/Eun/go-convert
 github.com/Eun/go-doppelgangerreader
 # github.com/Eun/go-testdoc v0.0.1
 github.com/Eun/go-testdoc
-# github.com/Eun/yaegi-template v1.5.18
+# github.com/Eun/yaegi-template v1.5.19
 github.com/Eun/yaegi-template
 github.com/Eun/yaegi-template/codebuffer
 # github.com/aaw/maybe_tls v0.0.0-20160803104303-89c499bcc6aa
@@ -56,7 +56,7 @@ github.com/stretchr/testify/assert
 github.com/stretchr/testify/require
 # github.com/tidwall/pretty v1.1.0
 github.com/tidwall/pretty
-# github.com/traefik/yaegi v0.9.10
+# github.com/traefik/yaegi v0.9.16
 github.com/traefik/yaegi/interp
 github.com/traefik/yaegi/stdlib
 # go.uber.org/atomic v1.7.0

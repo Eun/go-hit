@@ -134,6 +134,10 @@ func untypedInt() *itype     { return &itype{cat: intT, name: "int", untyped: tr
 func untypedFloat() *itype   { return &itype{cat: float64T, name: "float64", untyped: true} }
 func untypedComplex() *itype { return &itype{cat: complex128T, name: "complex128", untyped: true} }
 
+func errorMethodType(sc *scope) *itype {
+	return &itype{cat: funcT, ret: []*itype{sc.getType("string")}}
+}
+
 // nodeType returns a type definition for the corresponding AST subtree.
 func nodeType(interp *Interpreter, sc *scope, n *node) (*itype, error) {
 	if n.typ != nil && !n.typ.incomplete {
@@ -198,7 +202,7 @@ func nodeType(interp *Interpreter, sc *scope, n *node) (*itype, error) {
 			if sym.kind != constSym {
 				return nil, c0.cfgErrorf("non-constant array bound %q", c0.ident)
 			}
-			if sym.typ == nil || sym.typ.cat != intT {
+			if sym.typ == nil || sym.typ.cat != intT || !sym.rval.IsValid() {
 				t.incomplete = true
 				break
 			}
@@ -274,8 +278,33 @@ func nodeType(interp *Interpreter, sc *scope, n *node) (*itype, error) {
 				t = t1
 			}
 		}
+
+		// Because an empty interface concrete type "mutates" as different values are
+		// assigned to it, we need to make a new itype from scratch everytime a new
+		// assignment is made, and not let different nodes (of the same variable) share the
+		// same itype. Otherwise they would overwrite each other.
+		if n.anc.kind == assignStmt && isInterface(n.anc.child[0].typ) && len(n.anc.child[0].typ.field) == 0 {
+			// TODO(mpl): do the indexes properly for multiple assignments on the same line.
+			// Also, maybe we should use nodeType to figure out dt.cat? but isn't it always
+			// gonna be an interfaceT anyway?
+			dt := new(itype)
+			dt.cat = interfaceT
+			val := new(itype)
+			val.cat = t.cat
+			dt.val = val
+			// TODO(mpl): do the indexes properly for multiple assignments on the same line.
+			// Also, maybe we should use nodeType to figure out dt.cat? but isn't it always
+			// gonna be an interfaceT anyway?
+			n.anc.child[0].typ = dt
+			// TODO(mpl): not sure yet whether we should do that last step. It doesn't seem
+			// to change anything either way though.
+			// t = dt
+			break
+		}
+
 		// If the node is to be assigned or returned, the node type is the destination type.
 		dt := t
+
 		switch a := n.anc; {
 		case a.kind == defineStmt && len(a.child) > a.nleft+a.nright:
 			if dt, err = nodeType(interp, sc, a.child[a.nleft]); err != nil {
@@ -487,21 +516,28 @@ func nodeType(interp *Interpreter, sc *scope, n *node) (*itype, error) {
 			}
 		}
 		for _, field := range n.child[0].child {
+			f0 := field.child[0]
 			if len(field.child) == 1 {
-				typ, err := nodeType(interp, sc, field.child[0])
+				if f0.ident == "error" {
+					// Unwrap error interface inplace rather than embedding it, because
+					// "error" is lower case which may cause problems with reflect for method lookup.
+					t.field = append(t.field, structField{name: "Error", typ: errorMethodType(sc)})
+					continue
+				}
+				typ, err := nodeType(interp, sc, f0)
 				if err != nil {
 					return nil, err
 				}
-				t.field = append(t.field, structField{name: fieldName(field.child[0]), embed: true, typ: typ})
+				t.field = append(t.field, structField{name: fieldName(f0), embed: true, typ: typ})
 				incomplete = incomplete || typ.incomplete
-			} else {
-				typ, err := nodeType(interp, sc, field.child[1])
-				if err != nil {
-					return nil, err
-				}
-				t.field = append(t.field, structField{name: field.child[0].ident, typ: typ})
-				incomplete = incomplete || typ.incomplete
+				continue
 			}
+			typ, err := nodeType(interp, sc, field.child[1])
+			if err != nil {
+				return nil, err
+			}
+			t.field = append(t.field, structField{name: f0.ident, typ: typ})
+			incomplete = incomplete || typ.incomplete
 		}
 		t.incomplete = incomplete
 
@@ -943,6 +979,10 @@ func (t *itype) assignableTo(o *itype) bool {
 		return true
 	}
 
+	if isInterface(o) && t.implements(o) {
+		return true
+	}
+
 	n := t.node
 	if n == nil || !n.rval.IsValid() {
 		return false
@@ -1041,7 +1081,7 @@ func (t *itype) methods() methodSet {
 			}
 		case valueT, errorT:
 			// Get method from corresponding reflect.Type.
-			for i := typ.rtype.NumMethod() - 1; i >= 0; i-- {
+			for i := typ.TypeOf().NumMethod() - 1; i >= 0; i-- {
 				m := typ.rtype.Method(i)
 				res[m.Name] = m.Type.String()
 			}
@@ -1414,7 +1454,7 @@ func (t *itype) refType(defined map[string]*itype, wrapRecursive bool) reflect.T
 		t.rtype = reflect.TypeOf(new(error)).Elem()
 	case funcT:
 		if t.name != "" {
-			defined[name] = t
+			defined[name] = t // TODO(marc): make sure that key is name and not t.name.
 		}
 		variadic := false
 		in := make([]reflect.Type, len(t.arg))
@@ -1435,10 +1475,11 @@ func (t *itype) refType(defined map[string]*itype, wrapRecursive bool) reflect.T
 		t.rtype = reflect.PtrTo(t.val.refType(defined, wrapRecursive))
 	case structT:
 		if t.name != "" {
-			if defined[name] != nil {
+			// Check against local t.name and not name to catch recursive type definitions.
+			if defined[t.name] != nil {
 				recursive = true
 			}
-			defined[name] = t
+			defined[t.name] = t
 		}
 		var fields []reflect.StructField
 		// TODO(mpl): make Anonymous work for recursive types too. Maybe not worth the
@@ -1486,7 +1527,14 @@ func (t *itype) frameType() (r reflect.Type) {
 	case funcT:
 		r = reflect.TypeOf((*node)(nil))
 	case interfaceT:
+		if len(t.field) == 0 {
+			// empty interface, do not wrap it
+			r = reflect.TypeOf((*interface{})(nil)).Elem()
+			break
+		}
 		r = reflect.TypeOf((*valueInterface)(nil)).Elem()
+	case ptrT:
+		r = reflect.PtrTo(t.val.frameType())
 	default:
 		r = t.TypeOf()
 	}
@@ -1501,9 +1549,24 @@ func (t *itype) implements(it *itype) bool {
 }
 
 // defaultType returns the default type of an untyped type.
-func (t *itype) defaultType() *itype {
+func (t *itype) defaultType(v reflect.Value) *itype {
 	if !t.untyped {
 		return t
+	}
+	// The default type can also be derived from a constant value.
+	if v.IsValid() && t.TypeOf().Implements(constVal) {
+		switch v.Interface().(constant.Value).Kind() {
+		case constant.String:
+			t = untypedString()
+		case constant.Bool:
+			t = untypedBool()
+		case constant.Int:
+			t = untypedInt()
+		case constant.Float:
+			t = untypedFloat()
+		case constant.Complex:
+			t = untypedComplex()
+		}
 	}
 	typ := *t
 	typ.untyped = false
@@ -1583,6 +1646,13 @@ func defRecvType(n *node) *itype {
 	return nil
 }
 
+func wrappedType(n *node) *itype {
+	if n.typ.cat != valueT {
+		return nil
+	}
+	return n.typ.val
+}
+
 func isShiftNode(n *node) bool {
 	switch n.action {
 	case aShl, aShr, aShlAssign, aShrAssign:
@@ -1622,6 +1692,10 @@ func isArray(t *itype) bool {
 
 func isInterfaceSrc(t *itype) bool {
 	return t.cat == interfaceT || (t.cat == aliasT && isInterfaceSrc(t.val))
+}
+
+func isInterfaceBin(t *itype) bool {
+	return t.cat == valueT && t.rtype.Kind() == reflect.Interface
 }
 
 func isInterface(t *itype) bool {
