@@ -15,22 +15,16 @@ import (
 	"io"
 	"os"
 	"regexp"
+
+	"github.com/xo/terminfo"
 )
 
-// console color mode
-// const (
-// 	ModeNormal = iota
-// 	Mode256    // 8 bite
-// 	ModeRGB    // 24 bite
-// 	ModeGrayscale
-// )
-
-// TODO console color available level
+// terminal color available level alias of the terminfo.ColorLevel*
 const (
-	LevelNo uint8 = iota // not support color.
-	Level16
-	Level256
-	LevelRgb
+	LevelNo  = terminfo.ColorLevelNone     // not support color.
+	Level16  = terminfo.ColorLevelBasic    // 3/4 bit color supported
+	Level256 = terminfo.ColorLevelHundreds // 8 bit color supported
+	LevelRgb = terminfo.ColorLevelMillions // (24 bit)true color supported
 )
 
 // color render templates
@@ -50,23 +44,56 @@ const CodeExpr = `\033\[[\d;?]+m`
 var (
 	// Enable switch color render and display
 	Enable = true
-	// Level color support level for current terminal
-	Level = Level16
 	// RenderTag render HTML tag on call color.Xprint, color.PrintX
 	RenderTag = true
-	// errors on windows render OR print to io.Writer
-	errors []error
+	// debug mode for development.
+	//
+	// set env:
+	// 	COLOR_DEBUG_MODE=on
+	// or:
+	// 	COLOR_DEBUG_MODE=on go run ./_examples/envcheck.go
+	debugMode = os.Getenv("COLOR_DEBUG_MODE")
+	// inner errors record on detect color level
+	innerErrs []error
 	// output the default io.Writer message print
 	output io.Writer = os.Stdout
 	// mark current env, It's like in `cmd.exe`
-	// if not in windows, is's always is False.
+	// if not in windows, it's always is False.
 	isLikeInCmd bool
+	// the color support level for current terminal
+	// needVTP - need enable VTP, only for windows OS
+	colorLevel, needVTP = detectTermColorLevel()
 	// match color codes
 	codeRegex = regexp.MustCompile(CodeExpr)
 	// mark current env is support color.
 	// Always: isLikeInCmd != supportColor
-	supportColor = IsSupportColor()
+	// supportColor = IsSupportColor()
 )
+
+// TermColorLevel value on current ENV
+func TermColorLevel() terminfo.ColorLevel {
+	return colorLevel
+}
+
+// SupportColor on the current ENV
+func SupportColor() bool {
+	return colorLevel > terminfo.ColorLevelNone
+}
+
+// Support16Color on the current ENV
+// func Support16Color() bool {
+// 	return colorLevel > terminfo.ColorLevelNone
+// }
+
+// Support256Color on the current ENV
+func Support256Color() bool {
+	return colorLevel > terminfo.ColorLevelBasic
+}
+
+// SupportTrueColor on the current ENV
+func SupportTrueColor() bool {
+	return colorLevel > terminfo.ColorLevelHundreds
+}
 
 /*************************************************************
  * global settings
@@ -78,7 +105,7 @@ func Set(colors ...Color) (int, error) {
 		return 0, nil
 	}
 
-	if !supportColor {
+	if !SupportColor() {
 		return 0, nil
 	}
 
@@ -91,7 +118,7 @@ func Reset() (int, error) {
 		return 0, nil
 	}
 
-	if !supportColor {
+	if !SupportColor() {
 		return 0, nil
 	}
 
@@ -127,22 +154,22 @@ func ResetOptions() {
 	output = os.Stdout
 }
 
-// SupportColor of the current ENV
-func SupportColor() bool {
-	return supportColor
+// ForceColor force open color render
+func ForceSetColorLevel(level terminfo.ColorLevel) terminfo.ColorLevel {
+	oldLevelVal := colorLevel
+	colorLevel = level
+	return oldLevelVal
 }
 
 // ForceColor force open color render
-func ForceColor() bool {
+func ForceColor() terminfo.ColorLevel {
 	return ForceOpenColor()
 }
 
 // ForceOpenColor force open color render
-func ForceOpenColor() bool {
-	oldVal := supportColor
-	supportColor = true
-
-	return oldVal
+func ForceOpenColor() terminfo.ColorLevel {
+	// TODO should set level to ?
+	return ForceSetColorLevel(terminfo.ColorLevelMillions)
 }
 
 // IsLikeInCmd check result
@@ -150,9 +177,9 @@ func IsLikeInCmd() bool {
 	return isLikeInCmd
 }
 
-// GetErrors info
-func GetErrors() []error {
-	return errors
+// InnerErrs info
+func InnerErrs() []error {
+	return innerErrs
 }
 
 /*************************************************************
@@ -174,7 +201,7 @@ func RenderCode(code string, args ...interface{}) string {
 	}
 
 	// disabled OR not support color
-	if !Enable || !supportColor {
+	if !Enable || !SupportColor() {
 		return ClearCode(message)
 	}
 
@@ -190,7 +217,7 @@ func RenderWithSpaces(code string, args ...interface{}) string {
 	}
 
 	// disabled OR not support color
-	if !Enable || !supportColor {
+	if !Enable || !SupportColor() {
 		return ClearCode(message)
 	}
 
@@ -206,7 +233,7 @@ func RenderString(code string, str string) string {
 	}
 
 	// disabled OR not support color
-	if !Enable || !supportColor {
+	if !Enable || !SupportColor() {
 		return ClearCode(str)
 	}
 
@@ -218,68 +245,4 @@ func RenderString(code string, str string) string {
 // 		"\033[36;1mText\x1b[0m" -> "Text"
 func ClearCode(str string) string {
 	return codeRegex.ReplaceAllString(str, "")
-}
-
-/*************************************************************
- * colored message Printer
- *************************************************************/
-
-// PrinterFace interface
-type PrinterFace interface {
-	fmt.Stringer
-	Sprint(a ...interface{}) string
-	Sprintf(format string, a ...interface{}) string
-	Print(a ...interface{})
-	Printf(format string, a ...interface{})
-	Println(a ...interface{})
-}
-
-// Printer a generic color message printer.
-// Usage:
-// 	p := &Printer{"32;45;3"}
-// 	p.Print("message")
-type Printer struct {
-	// ColorCode color code string. eg "32;45;3"
-	ColorCode string
-}
-
-// NewPrinter instance
-func NewPrinter(colorCode string) *Printer {
-	return &Printer{colorCode}
-}
-
-// String returns color code string. eg: "32;45;3"
-func (p *Printer) String() string {
-	// panic("implement me")
-	return p.ColorCode
-}
-
-// Sprint returns rendering colored messages
-func (p *Printer) Sprint(a ...interface{}) string {
-	return RenderCode(p.String(), a...)
-}
-
-// Sprintf returns format and rendering colored messages
-func (p *Printer) Sprintf(format string, a ...interface{}) string {
-	return RenderString(p.String(), fmt.Sprintf(format, a...))
-}
-
-// Print rendering colored messages
-func (p *Printer) Print(a ...interface{}) {
-	doPrintV2(p.String(), fmt.Sprint(a...))
-}
-
-// Printf format and rendering colored messages
-func (p *Printer) Printf(format string, a ...interface{}) {
-	doPrintV2(p.String(), fmt.Sprintf(format, a...))
-}
-
-// Println rendering colored messages with newline
-func (p *Printer) Println(a ...interface{}) {
-	doPrintlnV2(p.ColorCode, a)
-}
-
-// IsEmpty color code
-func (p *Printer) IsEmpty() bool {
-	return p.ColorCode == ""
 }

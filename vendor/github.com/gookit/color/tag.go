@@ -35,11 +35,11 @@ var (
  * internal defined color tags
  *************************************************************/
 
-// Some internal defined color tags
+// There are internal defined color tags
 // Usage: <tag>content text</>
 // @notice 加 0 在前面是为了防止之前的影响到现在的设置
 var colorTags = map[string]string{
-	// basic tags,
+	// basic tags
 	"red":      "0;31",
 	"red1":     "1;31", // with bold
 	"blue":     "0;34",
@@ -54,7 +54,7 @@ var colorTags = map[string]string{
 	"normal":   "0;39", // no color
 	"ylw0":     "0;33",
 	"ylw1":     "1;33", // with bold
-	"brown":    "0;33",
+	"brown":    "0;33", // #A52A2A
 	"yellow":   "1;33",
 	"mga":      "0;35", // short name
 	"magenta":  "0;35",
@@ -95,19 +95,22 @@ var colorTags = map[string]string{
 	"light_magenta": "0;95",
 
 	// extra
-	"lightRedEx":     "0;91",
-	"light_red_ex":   "0;91",
-	"lightGreenEx":   "0;92",
-	"light_green_ex": "0;92",
-	"lightBlueEx":    "0;94",
-	"light_blue_ex":  "0;94",
-	"lightCyanEx":    "0;96",
-	"light_cyan_ex":  "0;96",
-	"whiteEx":        "0;97;40",
-	"white_ex":       "0;97;40",
+	"lightRedEx":       "0;91",
+	"light_red_ex":     "0;91",
+	"lightGreenEx":     "0;92",
+	"light_green_ex":   "0;92",
+	"lightBlueEx":      "0;94",
+	"light_blue_ex":    "0;94",
+	"lightMagentaEx":   "0;95",
+	"light_magenta_ex": "0;95",
+	"lightCyanEx":      "0;96",
+	"light_cyan_ex":    "0;96",
+	"whiteEx":          "0;97;40",
+	"white_ex":         "0;97;40",
 
 	// option
 	"bold":       "1",
+	"us":         "4", // short name for 'underscore'
 	"underscore": "4",
 	"reverse":    "7",
 }
@@ -124,25 +127,25 @@ func ReplaceTag(str string) string {
 	}
 
 	// disabled OR not support color
-	if !Enable || !supportColor {
+	if !Enable || !SupportColor() {
 		return ClearTag(str)
 	}
 
-	// find color tags by regex
+	// find color tags by regex. str eg: "<fg=white;bg=blue;op=bold>content</>"
 	matched := matchRegex.FindAllStringSubmatch(str, -1)
 
 	// item: 0 full text 1 tag name 2 tag content
 	for _, item := range matched {
 		full, tag, content := item[0], item[1], item[2]
 
-		// custom color in tag: "<fg=white;bg=blue;op=bold>content</>"
+		// custom color in tag: "fg=white;bg=blue;op=bold"
 		if code := ParseCodeFromAttr(tag); len(code) > 0 {
 			now := RenderString(code, content)
 			str = strings.Replace(str, full, now, 1)
 			continue
 		}
 
-		// use defined tag: "<tag>content</>"
+		// use defined tag: "<tagName>content</>" => "tagName"
 		if code := GetTagCode(tag); len(code) > 0 {
 			now := RenderString(code, content)
 			// old := WrapTag(content, tag) is equals to var 'full'
@@ -163,7 +166,7 @@ func ReplaceTag(str string) string {
 // 		"fg=white;bg=blue;op=bold"
 // 		"fg=white;op=bold,underscore"
 func ParseCodeFromAttr(attr string) (code string) {
-	if !strings.Contains(attr, "=") {
+	if !strings.ContainsRune(attr, '=') {
 		return
 	}
 
