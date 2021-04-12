@@ -25,9 +25,14 @@ func New(colors ...Color) Style {
 	return colors
 }
 
-// Save to styles map
+// Save to global styles map
 func (s Style) Save(name string) {
 	AddStyle(name, s)
+}
+
+// Add to global styles map
+func (s *Style) Add(cs ...Color) {
+	*s = append(*s, cs...)
 }
 
 // Render render text
@@ -248,92 +253,6 @@ func GetStyle(name string) Style {
 
 	// empty style
 	return New()
-}
-
-/*************************************************************
- * quick use style print message
- *************************************************************/
-
-// Infof print message with Info style
-func Infof(format string, a ...interface{}) {
-	Info.Printf(format, a...)
-}
-
-// Infoln print message with Info style
-func Infoln(a ...interface{}) {
-	Info.Println(a...)
-}
-
-// Errorf print message with Error style
-func Errorf(format string, a ...interface{}) {
-	Error.Printf(format, a...)
-}
-
-// Errorln print message with Error style
-func Errorln(a ...interface{}) {
-	Error.Println(a...)
-}
-
-// Warnf print message with Warn style
-func Warnf(format string, a ...interface{}) {
-	Warn.Printf(format, a...)
-}
-
-// Warnln print message with Warn style
-func Warnln(a ...interface{}) {
-	Warn.Println(a...)
-}
-
-/*************************************************************
- * SimplePrinter struct
- *************************************************************/
-
-// SimplePrinter use for quick use color print on inject to struct
-type SimplePrinter struct{}
-
-// Print message
-func (s *SimplePrinter) Print(v ...interface{}) {
-	Print(v...)
-}
-
-// Printf message
-func (s *SimplePrinter) Printf(format string, v ...interface{}) {
-	Printf(format, v...)
-}
-
-// Println message
-func (s *SimplePrinter) Println(v ...interface{}) {
-	Println(v...)
-}
-
-// Infof message
-func (s *SimplePrinter) Infof(format string, a ...interface{}) {
-	Info.Printf(format, a...)
-}
-
-// Infoln message
-func (s *SimplePrinter) Infoln(a ...interface{}) {
-	Info.Println(a...)
-}
-
-// Warnf message
-func (s *SimplePrinter) Warnf(format string, a ...interface{}) {
-	Warn.Printf(format, a...)
-}
-
-// Warnln message
-func (s *SimplePrinter) Warnln(a ...interface{}) {
-	Warn.Println(a...)
-}
-
-// Errorf message
-func (s *SimplePrinter) Errorf(format string, a ...interface{}) {
-	Error.Printf(format, a...)
-}
-
-// Errorln message
-func (s *SimplePrinter) Errorln(a ...interface{}) {
-	Error.Println(a...)
 }
 
 /*************************************************************
