@@ -33,7 +33,7 @@ github.com/hashicorp/go-multierror
 github.com/itchyny/gojq
 # github.com/itchyny/timefmt-go v0.1.2
 github.com/itchyny/timefmt-go
-# github.com/json-iterator/go v1.1.10
+# github.com/json-iterator/go v1.1.11
 github.com/json-iterator/go
 # github.com/k0kubun/pp v3.0.1+incompatible
 github.com/k0kubun/pp
