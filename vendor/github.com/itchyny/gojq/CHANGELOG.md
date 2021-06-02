@@ -1,4 +1,19 @@
 # Changelog
+## [v0.12.4](https://github.com/itchyny/gojq/compare/v0.12.3..v0.12.4) (2021-06-01)
+* fix numeric conversion of large floating-point numbers in modulo operator
+* implement a compiler option for adding custom iterator functions
+* implement `gojq.NewIter` function for creating a new iterator from values
+* implement `$ARGS.named` for listing command line variables
+* remove `debug` and `stderr` functions from the library
+* stop printing newlines on `stderr` function for jq compatibility
+
+## [v0.12.3](https://github.com/itchyny/gojq/compare/v0.12.2..v0.12.3) (2021-04-01)
+* fix array slicing with infinities and large numbers (`[0][-infinite:infinite], [0][:1e20]`)
+* fix multiplying strings and modulo by infinities on MIPS 64 architecture
+* fix git revision information in Docker images
+* release multi-platform Docker images for ARM 64
+* switch to `distroless` image for Docker base image
+
 ## [v0.12.2](https://github.com/itchyny/gojq/compare/v0.12.1..v0.12.2) (2021-03-01)
 * implement `GOJQ_COLORS` environment variable to configure individual colors
 * respect `--color-output` (`-C`) option even if `NO_COLOR` is set

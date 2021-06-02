@@ -1,6 +1,7 @@
 package gojq
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"sort"
@@ -20,7 +21,7 @@ func (env *env) execute(bc *Code, v interface{}, vars ...interface{}) Iter {
 func (env *env) Next() (interface{}, bool) {
 	var err error
 	pc, callpc, index := env.pc, len(env.codes)-1, -1
-	backtrack, hasCtx := env.backtrack, env.ctx != nil
+	backtrack, hasCtx := env.backtrack, env.ctx != context.Background()
 	defer func() { env.pc, env.backtrack = pc, true }()
 loop:
 	for ; pc < len(env.codes); pc++ {
@@ -222,7 +223,8 @@ loop:
 			case [][2]interface{}:
 				xs = v
 			case []interface{}:
-				if !env.paths.empty() && (env.expdepth == 0 && !reflect.DeepEqual(v, env.paths.top().([2]interface{})[1])) {
+				if !env.paths.empty() && env.expdepth == 0 &&
+					!reflect.DeepEqual(v, env.paths.top().([2]interface{})[1]) {
 					err = &invalidPathIterError{v}
 					break loop
 				}
@@ -234,7 +236,8 @@ loop:
 					xs[i] = [2]interface{}{i, v}
 				}
 			case map[string]interface{}:
-				if !env.paths.empty() && (env.expdepth == 0 && !reflect.DeepEqual(v, env.paths.top().([2]interface{})[1])) {
+				if !env.paths.empty() && env.expdepth == 0 &&
+					!reflect.DeepEqual(v, env.paths.top().([2]interface{})[1]) {
 					err = &invalidPathIterError{v}
 					break loop
 				}
@@ -250,6 +253,23 @@ loop:
 				sort.Slice(xs, func(i, j int) bool {
 					return xs[i][0].(string) < xs[j][0].(string)
 				})
+			case Iter:
+				if !env.paths.empty() && env.expdepth == 0 {
+					err = &invalidPathIterError{v}
+					break loop
+				}
+				if w, ok := v.Next(); ok {
+					env.push(v)
+					env.pushfork(code.op, pc)
+					env.pop()
+					if e, ok := w.(error); ok {
+						err = e
+						break loop
+					}
+					env.push(w)
+					continue
+				}
+				break loop
 			default:
 				err = &iteratorError{v}
 				break loop
@@ -260,10 +280,8 @@ loop:
 				env.pop()
 			}
 			env.push(xs[0][1])
-			if !env.paths.empty() {
-				if env.expdepth == 0 {
-					env.paths.push(xs[0])
-				}
+			if !env.paths.empty() && env.expdepth == 0 {
+				env.paths.push(xs[0])
 			}
 		case opexpbegin:
 			env.expdepth++
@@ -289,11 +307,6 @@ loop:
 				err = &invalidPathError{x}
 				break loop
 			}
-		case opdebug:
-			if !backtrack {
-				return [2]interface{}{code.v, env.stack.top()}, true
-			}
-			backtrack = false
 		default:
 			panic(code.op)
 		}
