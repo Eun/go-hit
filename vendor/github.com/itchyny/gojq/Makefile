@@ -74,12 +74,12 @@ test: build
 	go test -v -race ./...
 
 .PHONY: lint
-lint: $(GOBIN)/golint
+lint: $(GOBIN)/staticcheck
 	go vet ./...
-	golint -set_exit_status ./...
+	staticcheck -tags debug ./...
 
-$(GOBIN)/golint:
-	cd && go get golang.org/x/lint/golint
+$(GOBIN)/staticcheck:
+	cd && go get honnef.co/go/tools/cmd/staticcheck
 
 .PHONY: maligned
 maligned: $(GOBIN)/maligned
@@ -98,8 +98,8 @@ clean:
 	go clean
 
 .PHONY: update
+update: export GOPROXY=direct
 update:
-	export GOPROXY=direct
 	rm -f go.sum && go get -u -d ./... && go get github.com/mattn/go-runewidth@v0.0.9 && go mod tidy
 	sed -i.bak '/require (/,/)/d' go.dev.mod && rm -f go.dev.{sum,mod.bak}
 	go get -u -d -modfile=go.dev.mod github.com/itchyny/{astgen,timefmt}-go && go generate

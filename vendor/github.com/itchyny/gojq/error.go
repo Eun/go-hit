@@ -9,7 +9,7 @@ import (
 
 // ValueError is an interface for errors with a value for internal function.
 // Return an error implementing this interface when you want to catch error
-// values (not error messages) by try-catch, just like builtin error function.
+// values (not error messages) by try-catch, just like built-in error function.
 // Refer to WithFunction to add a custom internal function.
 type ValueError interface {
 	error
@@ -72,8 +72,7 @@ func (err *expectedStartEndError) Error() string {
 	return `expected "start" and "end" for slicing but got: ` + typeErrorPreview(err.v)
 }
 
-type inputNotAllowedError struct {
-}
+type inputNotAllowedError struct{}
 
 func (*inputNotAllowedError) Error() string {
 	return "input(s)/0 is not allowed"
@@ -297,6 +296,9 @@ func (err *jsonParseError) Error() string {
 }
 
 func typeErrorPreview(v interface{}) string {
+	if _, ok := v.(Iter); ok {
+		return "gojq.Iter"
+	}
 	p := preview(v)
 	if p != "" {
 		p = " (" + p + ")"

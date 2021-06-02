@@ -5,19 +5,45 @@ type Iter interface {
 	Next() (interface{}, bool)
 }
 
-func unitIterator(v interface{}) Iter {
-	return &unitIter{v: v}
+// NewIter creates a new Iter from values.
+func NewIter(values ...interface{}) Iter {
+	switch len(values) {
+	case 0:
+		return emptyIter{}
+	case 1:
+		return &unitIter{value: values[0]}
+	default:
+		iter := sliceIter(values)
+		return &iter
+	}
+}
+
+type emptyIter struct{}
+
+func (emptyIter) Next() (interface{}, bool) {
+	return nil, false
 }
 
 type unitIter struct {
-	v    interface{}
-	done bool
+	value interface{}
+	done  bool
 }
 
-func (c *unitIter) Next() (interface{}, bool) {
-	if !c.done {
-		c.done = true
-		return c.v, true
+func (iter *unitIter) Next() (interface{}, bool) {
+	if iter.done {
+		return nil, false
 	}
-	return nil, false
+	iter.done = true
+	return iter.value, true
+}
+
+type sliceIter []interface{}
+
+func (iter *sliceIter) Next() (interface{}, bool) {
+	if len(*iter) == 0 {
+		return nil, false
+	}
+	value := (*iter)[0]
+	*iter = (*iter)[1:]
+	return value, true
 }
