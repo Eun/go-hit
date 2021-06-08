@@ -54,7 +54,7 @@ github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.7.0
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/require
-# github.com/tidwall/pretty v1.1.0
+# github.com/tidwall/pretty v1.2.0
 github.com/tidwall/pretty
 # github.com/traefik/yaegi v0.9.10
 github.com/traefik/yaegi/interp
