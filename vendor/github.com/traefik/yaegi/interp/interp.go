@@ -14,6 +14,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path"
+	"path/filepath"
 	"reflect"
 	"runtime"
 	"runtime/debug"
@@ -75,10 +77,10 @@ type frame struct {
 	done      reflect.SelectCase // for cancellation of channel operations
 }
 
-func newFrame(anc *frame, len int, id uint64) *frame {
+func newFrame(anc *frame, length int, id uint64) *frame {
 	f := &frame{
 		anc:  anc,
-		data: make([]reflect.Value, len),
+		data: make([]reflect.Value, length),
 		id:   id,
 	}
 	if anc == nil {
@@ -92,21 +94,29 @@ func newFrame(anc *frame, len int, id uint64) *frame {
 
 func (f *frame) runid() uint64      { return atomic.LoadUint64(&f.id) }
 func (f *frame) setrunid(id uint64) { atomic.StoreUint64(&f.id, id) }
-func (f *frame) clone() *frame {
+func (f *frame) clone(fork bool) *frame {
 	f.mutex.RLock()
 	defer f.mutex.RUnlock()
-	return &frame{
+	nf := &frame{
 		anc:       f.anc,
 		root:      f.root,
-		data:      f.data,
 		deferred:  f.deferred,
 		recovered: f.recovered,
 		id:        f.runid(),
 		done:      f.done,
 	}
+	if fork {
+		nf.data = make([]reflect.Value, len(f.data))
+		copy(nf.data, f.data)
+	} else {
+		nf.data = f.data
+	}
+	return nf
 }
 
 // Exports stores the map of binary packages per package path.
+// The package path is the path joined from the import path and the package name
+// as specified in source files by the "package" statement.
 type Exports map[string]map[string]reflect.Value
 
 // imports stores the map of source packages per package path.
@@ -118,13 +128,14 @@ type opt struct {
 	cfgDot bool // display CFG graph (debug)
 	// dotCmd is the command to process the dot graph produced when astDot and/or
 	// cfgDot is enabled. It defaults to 'dot -Tdot -o <filename>.dot'.
-	dotCmd   string
-	noRun    bool          // compile, but do not run
-	fastChan bool          // disable cancellable chan operations
-	context  build.Context // build context: GOPATH, build constraints
-	stdin    io.Reader     // standard input
-	stdout   io.Writer     // standard output
-	stderr   io.Writer     // standard error
+	dotCmd       string
+	noRun        bool          // compile, but do not run
+	fastChan     bool          // disable cancellable chan operations
+	context      build.Context // build context: GOPATH, build constraints
+	specialStdio bool          // Allows os.Stdin, os.Stdout, os.Stderr to not be file descriptors
+	stdin        io.Reader     // standard input
+	stdout       io.Writer     // standard output
+	stderr       io.Writer     // standard error
 }
 
 // Interpreter contains global resources and state.
@@ -162,7 +173,7 @@ type Interpreter struct {
 const (
 	mainID     = "main"
 	selfPrefix = "github.com/traefik/yaegi"
-	selfPath   = selfPrefix + "/interp"
+	selfPath   = selfPrefix + "/interp/interp"
 	// DefaultSourceName is the name used by default when the name of the input
 	// source file has not been specified for an Eval.
 	// TODO(mpl): something even more special as a name?
@@ -173,6 +184,9 @@ const (
 	// NoTest is the value to pass to EvalPath to skip evaluation of test functions.
 	NoTest = true
 )
+
+// Self points to the current interpreter if accessed from within itself, or is nil.
+var Self *Interpreter
 
 // Symbols exposes interpreter values.
 var Symbols = Exports{
@@ -189,6 +203,7 @@ func init() { Symbols[selfPath]["Symbols"] = reflect.ValueOf(Symbols) }
 
 // _error is a wrapper of error interface type.
 type _error struct {
+	IValue interface{}
 	WError func() string
 }
 
@@ -208,7 +223,7 @@ type Panic struct {
 }
 
 // TODO: Capture interpreter stack frames also and remove
-// fmt.Println(n.cfgErrorf("panic")) in runCfg.
+// fmt.Fprintln(n.interp.stderr, oNode.cfgErrorf("panic")) in runCfg.
 
 func (e Panic) Error() string { return fmt.Sprint(e.Value) }
 
@@ -235,7 +250,7 @@ type Options struct {
 	BuildTags []string
 
 	// Standard input, output and error streams.
-	// They default to os.Stding, os.Stdout and os.Stderr respectively.
+	// They default to os.Stdin, os.Stdout and os.Stderr respectively.
 	Stdin          io.Reader
 	Stdout, Stderr io.Writer
 }
@@ -288,6 +303,10 @@ func New(options Options) *Interpreter {
 
 	// fastChan disables the cancellable version of channel operations in evalWithContext
 	i.opt.fastChan, _ = strconv.ParseBool(os.Getenv("YAEGI_FAST_CHAN"))
+
+	// specialStdio allows to assign directly io.Writer and io.Reader to os.Stdxxx, even if they are not file descriptors.
+	i.opt.specialStdio, _ = strconv.ParseBool(os.Getenv("YAEGI_SPECIAL_STDIO"))
+
 	return &i
 }
 
@@ -635,33 +654,45 @@ func (interp *Interpreter) getWrapper(t reflect.Type) reflect.Type {
 
 // Use loads binary runtime symbols in the interpreter context so
 // they can be used in interpreted code.
-func (interp *Interpreter) Use(values Exports) {
+func (interp *Interpreter) Use(values Exports) error {
 	for k, v := range values {
-		if k == selfPrefix {
+		importPath := path.Dir(k)
+		packageName := path.Base(k)
+
+		if importPath == "." {
+			return fmt.Errorf("export path %[1]q is missing a package name; did you mean '%[1]s/%[1]s'?", k)
+		}
+
+		if importPath == selfPrefix {
 			interp.hooks.Parse(v)
 			continue
 		}
 
-		if interp.binPkg[k] == nil {
-			interp.binPkg[k] = make(map[string]reflect.Value)
+		if interp.binPkg[importPath] == nil {
+			interp.binPkg[importPath] = make(map[string]reflect.Value)
+			interp.pkgNames[importPath] = packageName
 		}
 
 		for s, sym := range v {
-			interp.binPkg[k][s] = sym
+			interp.binPkg[importPath][s] = sym
+		}
+		if k == selfPath {
+			interp.binPkg[importPath]["Self"] = reflect.ValueOf(interp)
 		}
 	}
 
 	// Checks if input values correspond to stdlib packages by looking for one
 	// well known stdlib package path.
-	if _, ok := values["fmt"]; ok {
+	if _, ok := values["fmt/fmt"]; ok {
 		fixStdio(interp)
 	}
+	return nil
 }
 
 // fixStdio redefines interpreter stdlib symbols to use the standard input,
 // output and errror assigned to the interpreter. The changes are limited to
-// the interpreter only. Global values os.Stdin, os.Stdout and os.Stderr are
-// not changed. Note that it is possible to escape the virtualized stdio by
+// the interpreter only.
+// Note that it is possible to escape the virtualized stdio by
 // read/write directly to file descriptors 0, 1, 2.
 func fixStdio(interp *Interpreter) {
 	p := interp.binPkg["fmt"]
@@ -708,9 +739,23 @@ func fixStdio(interp *Interpreter) {
 	}
 
 	if p = interp.binPkg["os"]; p != nil {
-		p["Stdin"] = reflect.ValueOf(&stdin).Elem()
-		p["Stdout"] = reflect.ValueOf(&stdout).Elem()
-		p["Stderr"] = reflect.ValueOf(&stderr).Elem()
+		if interp.specialStdio {
+			// Inherit streams from interpreter even if they do not have a file descriptor.
+			p["Stdin"] = reflect.ValueOf(&stdin).Elem()
+			p["Stdout"] = reflect.ValueOf(&stdout).Elem()
+			p["Stderr"] = reflect.ValueOf(&stderr).Elem()
+		} else {
+			// Inherits streams from interpreter only if they have a file descriptor and preserve original type.
+			if s, ok := stdin.(*os.File); ok {
+				p["Stdin"] = reflect.ValueOf(&s).Elem()
+			}
+			if s, ok := stdout.(*os.File); ok {
+				p["Stdout"] = reflect.ValueOf(&s).Elem()
+			}
+			if s, ok := stderr.(*os.File); ok {
+				p["Stderr"] = reflect.ValueOf(&s).Elem()
+			}
+		}
 	}
 }
 
@@ -730,24 +775,47 @@ func ignoreScannerError(e *scanner.Error, s string) bool {
 	return false
 }
 
+// ImportUsed automatically imports pre-compiled packages included by Use().
+// This is mainly useful for REPLs, or single command lines. In case of an ambiguous default
+// package name, for example "rand" for crypto/rand and math/rand, the package name is
+// constructed by replacing the last "/" by a "_", producing crypto_rand and math_rand.
+// ImportUsed should not be called more than once, and not after a first Eval, as it may
+// rename packages.
+func (interp *Interpreter) ImportUsed() {
+	sc := interp.universe
+	for k := range interp.binPkg {
+		// By construction, the package name is the last path element of the key.
+		name := path.Base(k)
+		if sym, ok := sc.sym[name]; ok {
+			// Handle collision by renaming old and new entries.
+			name2 := key2name(fixKey(sym.typ.path))
+			sc.sym[name2] = sym
+			if name2 != name {
+				delete(sc.sym, name)
+			}
+			name = key2name(fixKey(k))
+		}
+		sc.sym[name] = &symbol{kind: pkgSym, typ: &itype{cat: binPkgT, path: k, scope: sc}}
+	}
+}
+
+func key2name(name string) string {
+	return filepath.Join(name, DefaultSourceName)
+}
+
+func fixKey(k string) string {
+	i := strings.LastIndex(k, "/")
+	if i >= 0 {
+		k = k[:i] + "_" + k[i+1:]
+	}
+	return k
+}
+
 // REPL performs a Read-Eval-Print-Loop on input reader.
 // Results are printed to the output writer of the Interpreter, provided as option
 // at creation time. Errors are printed to the similarly defined errors writer.
 // The last interpreter result value and error are returned.
 func (interp *Interpreter) REPL() (reflect.Value, error) {
-	// Preimport used bin packages, to avoid having to import these packages manually
-	// in REPL mode. These packages are already loaded anyway.
-	sc := interp.universe
-	for k := range interp.binPkg {
-		name := identifier.FindString(k)
-		if name == "" || name == "rand" || name == "scanner" || name == "template" || name == "pprof" {
-			// Skip any package with an ambiguous name (i.e crypto/rand vs math/rand).
-			// Those will have to be imported explicitly.
-			continue
-		}
-		sc.sym[name] = &symbol{kind: pkgSym, typ: &itype{cat: binPkgT, path: k, scope: sc}}
-	}
-
 	in, out, errs := interp.stdin, interp.stdout, interp.stderr
 	ctx, cancel := context.WithCancel(context.Background())
 	end := make(chan struct{})     // channel to terminate the REPL

@@ -170,7 +170,9 @@ func (t *Template) LazyParse(reader io.Reader) error {
 	// if we already have some uses
 	// use them
 	if len(t.use) != 0 {
-		t.interp.Use(t.use)
+		if err := t.interp.Use(t.use); err != nil {
+			return errors.Wrap(err, "unable to use")
+		}
 	}
 
 	// if we already have some imports
@@ -274,11 +276,14 @@ func (t *Template) execCode(code string, out io.Writer, context interface{}) (in
 	}
 	if context != nil {
 		// do we need to
-		t.interp.Use(interp.Exports{
-			"internal": map[string]reflect.Value{
+		err := t.interp.Use(interp.Exports{
+			"internal/internal": map[string]reflect.Value{
 				"context": reflect.ValueOf(context),
 			},
 		})
+		if err != nil {
+			return 0, errors.Wrapf(err, "unable to use context")
+		}
 
 		// always reimport internal
 		if _, err := t.safeEval(`import . "internal"`); err != nil {
@@ -473,7 +478,9 @@ func (t *Template) useExports(values interp.Exports) error {
 	t.use = mergeExports(t.use, values)
 	// if we have an interpreter, use right now
 	if t.interp != nil {
-		t.interp.Use(t.use)
+		if err := t.interp.Use(t.use); err != nil {
+			return errors.Wrap(err, "unable to use")
+		}
 	}
 	return nil
 }
