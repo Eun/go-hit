@@ -24,8 +24,8 @@ require (
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/pretty v1.1.0
-	go.uber.org/goleak v1.1.10
-	golang.org/x/tools v0.0.0-20201026223136-e84cfc6dd5ca
+	go.uber.org/goleak v1.1.11
+	golang.org/x/tools v0.1.5
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 )
