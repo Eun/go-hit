@@ -25,6 +25,8 @@ import (
 const (
 	TplFgRGB = "38;2;%d;%d;%d"
 	TplBgRGB = "48;2;%d;%d;%d"
+	FgRGBPfx = "38;2;"
+	BgRGBPfx = "48;2;"
 )
 
 // mark color is fg or bg.
@@ -142,6 +144,16 @@ func RGBFromString(rgb string, isBg ...bool) RGBColor {
 	return RGB(uint8(ar[0]), uint8(ar[1]), uint8(ar[2]), isBg...)
 }
 
+// Set terminal by rgb/true color code
+func (c RGBColor) Set() error {
+	return SetTerminal(c.String())
+}
+
+// Reset terminal. alias of the ResetTerminal()
+func (c RGBColor) Reset() error {
+	return ResetTerminal()
+}
+
 // Print print message
 func (c RGBColor) Print(a ...interface{}) {
 	doPrintV2(c.String(), fmt.Sprint(a...))
@@ -164,7 +176,7 @@ func (c RGBColor) Sprint(a ...interface{}) string {
 
 // Sprintf returns format and rendered message
 func (c RGBColor) Sprintf(format string, a ...interface{}) string {
-	return RenderString(c.Code(), fmt.Sprintf(format, a...))
+	return RenderString(c.String(), fmt.Sprintf(format, a...))
 }
 
 // Values to RGB values
@@ -172,12 +184,22 @@ func (c RGBColor) Values() []int {
 	return []int{int(c[0]), int(c[1]), int(c[2])}
 }
 
-// Code to color code string
+// Code to color code string without prefix. eg: "204;123;56"
 func (c RGBColor) Code() string {
+	return fmt.Sprintf("%d;%d;%d", c[0], c[1], c[2])
+}
+
+// Hex color rgb to hex string. as in "ff0080".
+func (c RGBColor) Hex() string {
+	return fmt.Sprintf("%02x%02x%02x", c[0], c[1], c[2])
+}
+
+// FullCode to color code string with prefix
+func (c RGBColor) FullCode() string {
 	return c.String()
 }
 
-// String to color code string
+// String to color code string with prefix. eg: "38;2;204;123;56"
 func (c RGBColor) String() string {
 	if c[3] == AsFg {
 		return fmt.Sprintf(TplFgRGB, c[0], c[1], c[2])
@@ -185,10 +207,9 @@ func (c RGBColor) String() string {
 
 	if c[3] == AsBg {
 		return fmt.Sprintf(TplBgRGB, c[0], c[1], c[2])
-
 	}
 
-	// >1 is empty
+	// c[3] > 1 is empty
 	return ""
 }
 
@@ -204,13 +225,20 @@ func (c RGBColor) IsEmpty() bool {
 
 // C256 returns the closest approximate 256 (8 bit) color
 func (c RGBColor) C256() Color256 {
-	return C256(Rgb2short(c[0], c[1], c[2]), c[3] == AsBg)
+	return C256(RgbTo256(c[0], c[1], c[2]), c[3] == AsBg)
 }
 
-// C16 returns the closest approximate 16 (4 bit) color
-func (c RGBColor) C16() Color {
-	return Color(RgbToAnsi(c[0], c[1], c[2], c[3] == AsBg))
+// Basic returns the closest approximate 16 (4 bit) color
+func (c RGBColor) Basic() Color {
+	// return Color(RgbToAnsi(c[0], c[1], c[2], c[3] == AsBg))
+	return Color(Rgb2basic(c[0], c[1], c[2], c[3] == AsBg))
 }
+
+// Color returns the closest approximate 16 (4 bit) color
+func (c RGBColor) Color() Color { return c.Basic() }
+
+// C16 returns the closest approximate 16 (4 bit) color
+func (c RGBColor) C16() Color { return c.Basic() }
 
 /*************************************************************
  * RGB Style
@@ -325,11 +353,16 @@ func (s *RGBStyle) Sprint(a ...interface{}) string {
 
 // Sprintf returns format and rendered message
 func (s *RGBStyle) Sprintf(format string, a ...interface{}) string {
-	return RenderString(s.Code(), fmt.Sprintf(format, a...))
+	return RenderString(s.String(), fmt.Sprintf(format, a...))
 }
 
 // Code convert to color code string
 func (s *RGBStyle) Code() string {
+	return s.String()
+}
+
+// FullCode convert to color code string
+func (s *RGBStyle) FullCode() string {
 	return s.String()
 }
 
