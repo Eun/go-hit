@@ -213,6 +213,8 @@ issues:
         - gocognit
     - path: _gen\.go
       linters:
+        - gofmt
+        - goimports
         - dupl
         - lll
     - text: 'shadow: declaration of "err" shadows declaration at line \d+'
