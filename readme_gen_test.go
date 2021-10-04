@@ -1,4 +1,3 @@
-//go:build doctest
 // +build doctest
 
 package hit_test

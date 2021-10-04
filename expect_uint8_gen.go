@@ -1,4 +1,3 @@
-//go:build !generate_numeric
 // +build !generate_numeric
 
 package hit
