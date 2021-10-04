@@ -367,8 +367,7 @@ func collectForStruct(callPath []string, sv reflect.Value, depth int) []generate
 
 	for i := 0; i < sv.NumMethod(); i++ {
 		m := sv.Method(i)
-		cp := append(callPath, sv.Type().Method(i).Name)
-		sub, err := collectForFunc(cp, m, depth)
+		sub, err := collectForFunc(append(callPath, sv.Type().Method(i).Name), m, depth)
 		if err != nil {
 			continue
 		}

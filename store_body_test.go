@@ -224,7 +224,7 @@ func TestStoreBody(t *testing.T) {
 			t.Run("struct", func(t *testing.T) {
 				type User struct {
 					Name string
-					Id   int //nolint:golint,stylecheck //ignore struct field `Id` should be `ID` (golint)
+					Id   int //nolint:revive,stylecheck //ignore struct field `Id` should be `ID` (revive)
 				}
 				var v User
 				Test(t,

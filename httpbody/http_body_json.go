@@ -10,7 +10,7 @@ import (
 )
 
 // HTTPBodyJSON provides JSON functions for the HTTPBody.
-type HTTPBodyJSON struct { //nolint:golint //ignore type name will be used as httpbody.HTTPBodyJSON by other packages
+type HTTPBodyJSON struct { //nolint:revive //ignore type name will be used as httpbody.HTTPBodyJSON by other packages
 	body    func() io.ReadCloser
 	setBody func([]byte)
 }

@@ -69,14 +69,6 @@ linters-settings:
     # put imports beginning with prefix after 3rd-party packages;
     # it's a comma-separated list of prefixes
     local-prefixes: github.com/Eun/go-hit
-  golint:
-    # minimal confidence for issues, default is 0.8
-    min-confidence: 0.8
-  gomnd:
-    settings:
-      mnd:
-        # the list of enabled checks, see https://github.com/tommy-muehle/go-mnd/#checks for description.
-        checks: argument,case,condition,operation,return,assign
   govet:
     # report about shadowed variables
     check-shadowing: true
@@ -141,6 +133,7 @@ linters:
     - dupl
     - errcheck
     - exhaustive
+    - exportloopref
     - funlen
     - gochecknoinits
     - gocognit
@@ -150,8 +143,6 @@ linters:
     - godot
     - gofmt
     - goimports
-    - golint
-    - gomnd
     - goprintffuncname
     - gosec
     - gosimple
@@ -164,8 +155,8 @@ linters:
     - noctx
     - nolintlint
     - prealloc
+    - revive
     - rowserrcheck
-    - scopelint
     - staticcheck
     - structcheck
     - stylecheck
@@ -190,8 +181,18 @@ issues:
 
   exclude-rules:
     # Exclude some linters from running on tests files.
+    - path: clear.go
+      text: File is not `gofmt`-ed with `-s`
+      linters:
+        - gofmt
+    - path: clear.go
+      text: File is not `goimports`-ed with -local github.com/Eun/go-hit
+      linters:
+        - goimports
     - path: _test\.go
       linters:
+        - gofmt
+        - goimports
         - gocyclo
         - errcheck
         - dupl
@@ -212,6 +213,8 @@ issues:
         - gocognit
     - path: _gen\.go
       linters:
+        - gofmt
+        - goimports
         - dupl
         - lll
     - text: 'shadow: declaration of "err" shadows declaration at line \d+'
