@@ -1,7 +1,7 @@
 # gojq
 [![CI Status](https://github.com/itchyny/gojq/workflows/CI/badge.svg)](https://github.com/itchyny/gojq/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/itchyny/gojq)](https://goreportcard.com/report/github.com/itchyny/gojq)
-[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/itchyny/gojq/blob/main/LICENSE)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/itchyny/gojq/blob/main/LICENSE)
 [![release](https://img.shields.io/github/release/itchyny/gojq/all.svg)](https://github.com/itchyny/gojq/releases)
 [![pkg.go.dev](https://pkg.go.dev/badge/github.com/itchyny/gojq)](https://pkg.go.dev/github.com/itchyny/gojq)
 
@@ -58,12 +58,13 @@ brew install gojq
 
 ### Build from source
 ```sh
-go get github.com/itchyny/gojq/cmd/gojq
+go install github.com/itchyny/gojq/cmd/gojq@latest
 ```
 
 ### Docker
 ```sh
 docker run -i --rm itchyny/gojq
+docker run -i --rm ghcr.io/itchyny/gojq
 ```
 
 ## Difference to jq
@@ -71,8 +72,10 @@ docker run -i --rm itchyny/gojq
 - gojq implements nice error messages for invalid query and JSON input. The error message of jq is sometimes difficult to tell where to fix the query.
 - gojq does not keep the order of object keys. I understand this might cause problems for some scripts but basically, we should not rely on the order of object keys. Due to this limitation, gojq does not have `keys_unsorted` function and `--sort-keys` (`-S`) option. I would implement when ordered map is implemented in the standard library of Go but I'm less motivated. Also, gojq assumes only valid JSON input while jq deals with some JSON extensions; `NaN` and `Infinity`.
 - gojq supports arbitrary-precision integer calculation while jq does not. This is important to keep the precision of numeric IDs or nanosecond values. You can also use gojq to solve some mathematical problems which require big integers. Note that mathematical functions convert integers to floating-point numbers; only addition, subtraction, multiplication, modulo operation, and division (when divisible) keep integer precisions. When you want to calculate floor division of big integers, use `def intdiv($x; $y): ($x - $x % $y) / $y;`, instead of `$x / $y`.
-- gojq fixes some bugs of jq. gojq correctly deletes elements of arrays by `|= empty` ([jq#2051](https://github.com/stedolan/jq/issues/2051)). gojq fixes update assignments including `try` or `//` operator ([jq#1885](https://github.com/stedolan/jq/issues/1885), [jq#2140](https://github.com/stedolan/jq/issues/2140)). gojq consistently counts by characters (not by bytes) in `index`, `rindex`, and `indices` functions; `"１２３４５" | .[index("３"):]` results in `"３４５"` ([jq#1430](https://github.com/stedolan/jq/issues/1430), [jq#1624](https://github.com/stedolan/jq/issues/1624)). gojq can deal with `%f` in `strftime` and `strptime` ([jq#1409](https://github.com/stedolan/jq/issues/1409)).
-- gojq supports reading from YAML input while jq does not. gojq also supports YAML output.
+- gojq fixes various bugs of jq. gojq correctly deletes elements of arrays by `|= empty` ([jq#2051](https://github.com/stedolan/jq/issues/2051)). gojq fixes `try`/`catch` handling ([jq#1859](https://github.com/stedolan/jq/issues/1859), [jq#1885](https://github.com/stedolan/jq/issues/1885), [jq#2140](https://github.com/stedolan/jq/issues/2140)). gojq fixes `nth/2` to output nothing when the count is equal to or larger than the stream size ([jq#1867](https://github.com/stedolan/jq/issues/1867)). gojq consistently counts by characters (not by bytes) in `index`, `rindex`, and `indices` functions; `"１２３４５" | .[index("３"):]` results in `"３４５"` ([jq#1430](https://github.com/stedolan/jq/issues/1430), [jq#1624](https://github.com/stedolan/jq/issues/1624)). gojq accepts indexing query `.e0` ([jq#1526](https://github.com/stedolan/jq/issues/1526), [jq#1651](https://github.com/stedolan/jq/issues/1651)), and allows `gsub` to handle patterns including `"^"` ([jq#2148](https://github.com/stedolan/jq/issues/2148)). gojq improves variable lexer to allow using keywords for variable names, especially in binding patterns, also disallows spaces after `$` ([jq#526](https://github.com/stedolan/jq/issues/526)).
+- gojq implements `@uri` to escape all the reserved characters defined in RFC 3986, Sec. 2.2 ([jq#1506](https://github.com/stedolan/jq/issues/1506)), and fixes `@base64d` to allow binary string as the decoded string ([jq#1931](https://github.com/stedolan/jq/issues/1931)). gojq improves time formatting and parsing, deals with `%f` in `strftime` and `strptime` ([jq#1409](https://github.com/stedolan/jq/issues/1409)), parses timezone offsets with `fromdate` and `fromdateiso8601` ([jq#1053](https://github.com/stedolan/jq/issues/1053)), supports timezone name/offset with `%Z`/`%z` in `strptime` ([jq#929](https://github.com/stedolan/jq/issues/929), [jq#2195](https://github.com/stedolan/jq/issues/2195)), and looks up correct timezone during daylight saving time on formatting with `%Z` ([jq#1912](https://github.com/stedolan/jq/issues/1912)).
+- gojq does not support some functions intentionally; `get_jq_origin`, `get_prog_origin`, `get_search_list` (unstable, not listed in jq document), `input_line_number`, `$__loc__` (performance issue), `recurse_down` (deprecated in jq). gojq does not support some flags; `--args, --jsonargs, $ARGS.positional` (flag parsing difficulty), `--ascii-output, -a` (performance issue), `--seq` (not used commonly), `--sort-keys, -S` (sorts by default because `map[string]interface{}` does not keep the order), `--unbuffered`. gojq normalizes floating-point numbers to fit to double-precision (64-bit) floating-point numbers. gojq does not support BOM (`encoding/json` does not support this).
+- gojq supports reading from YAML input (`--yaml-input`) while jq does not. gojq also supports YAML output (`--yaml-output`).
 
 ### Color configuration
 The gojq command automatically disables coloring output when the output is not a tty.
@@ -121,14 +124,17 @@ func main() {
   - using [`query.Run`](https://pkg.go.dev/github.com/itchyny/gojq#Query.Run) or [`query.RunWithContext`](https://pkg.go.dev/github.com/itchyny/gojq#Query.RunWithContext)
   - or alternatively, compile the query using [`gojq.Compile`](https://pkg.go.dev/github.com/itchyny/gojq#Compile) and then [`code.Run`](https://pkg.go.dev/github.com/itchyny/gojq#Code.Run) or [`code.RunWithContext`](https://pkg.go.dev/github.com/itchyny/gojq#Code.RunWithContext). You can reuse the `*Code` against multiple inputs to avoid compilation of the same query.
   - In either case, you cannot use custom type values as the query input. The type should be `[]interface{}` for an array and `map[string]interface{}` for a map (just like decoded to an `interface{}` using the [encoding/json](https://golang.org/pkg/encoding/json/) package). You can't use `[]int` or `map[string]string`, for example. If you want to query your custom struct, marshal to JSON, unmarshal to `interface{}` and use it as the query input.
-- Thirdly, iterate through the results using [`iter.Next() (interface{}, bool)`](https://pkg.go.dev/github.com/itchyny/gojq#Iter). The iterator can emit an error so make sure to handle it. Termination is notified by the second returned value of `Next()`. The reason why the return type is not `(interface{}, error)` is that the iterator can emit multiple errors and you can continue after an error.
+- Thirdly, iterate through the results using [`iter.Next() (interface{}, bool)`](https://pkg.go.dev/github.com/itchyny/gojq#Iter). The iterator can emit an error so make sure to handle it. The method returns `true` with results, and `false` when the iterator terminates.
+  - The return type is not `(interface{}, error)` because iterators can emit multiple errors and you can continue after an error. It is difficult for the iterator to tell the termination in this situation.
+  - Note that the result iterator may emit infinite number of values; `repeat(0)` and `range(infinite)`. It may stuck with no output value; `def f: f; f`. Use `RunWithContext` when you want to limit the execution time.
 
 [`gojq.Compile`](https://pkg.go.dev/github.com/itchyny/gojq#Compile) allows to configure the following compiler options.
 
 - [`gojq.WithModuleLoader`](https://pkg.go.dev/github.com/itchyny/gojq#WithModuleLoader) allows to load modules. By default, the module feature is disabled. If you want to load modules from the file system, use [`gojq.NewModuleLoader`](https://pkg.go.dev/github.com/itchyny/gojq#NewModuleLoader).
 - [`gojq.WithEnvironLoader`](https://pkg.go.dev/github.com/itchyny/gojq#WithEnvironLoader) allows to configure the environment variables referenced by `env` and `$ENV`. By default, OS environment variables are not accessible due to security reasons. You can use `gojq.WithEnvironLoader(os.Environ)` if you want.
 - [`gojq.WithVariables`](https://pkg.go.dev/github.com/itchyny/gojq#WithVariables) allows to configure the variables which can be used in the query. Pass the values of the variables to [`code.Run`](https://pkg.go.dev/github.com/itchyny/gojq#Code.Run) in the same order.
-- [`gojq.WithFunction`](https://pkg.go.dev/github.com/itchyny/gojq#WithFunction) allows to add a custom internal function. An internal function can return a single value (which can be an error) each invocation. To add a jq function (which may include a comma operator to emit multiple values, `empty` function, accept a filter for its argument, or call another built-in function), prepend the function to each query on parsing.
+- [`gojq.WithFunction`](https://pkg.go.dev/github.com/itchyny/gojq#WithFunction) allows to add a custom internal function. An internal function can return a single value (which can be an error) each invocation. To add a jq function (which may include a comma operator to emit multiple values, `empty` function, accept a filter for its argument, or call another built-in function), use `LoadInitModules` of the module loader.
+- [`gojq.WithIterFunction`](https://pkg.go.dev/github.com/itchyny/gojq#WithIterFunction) allows to add a custom iterator function. An iterator function returns an iterator to emit multiple values. You cannot define both iterator and non-iterator functions of the same name (with possibly different arities). You can use [`gojq.NewIter`](https://pkg.go.dev/github.com/itchyny/gojq#NewIter) to convert values or an error to a [`gojq.Iter`](https://pkg.go.dev/github.com/itchyny/gojq#Iter).
 - [`gojq.WithInputIter`](https://pkg.go.dev/github.com/itchyny/gojq#WithInputIter) allows to use `input` and `inputs` functions. By default, these functions are disabled.
 
 ## Bug Tracker

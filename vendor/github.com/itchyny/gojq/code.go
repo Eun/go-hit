@@ -26,6 +26,7 @@ const (
 	opjump
 	opjumpifnot
 	opcall
+	opcallrec
 	oppushpc
 	opcallpc
 	opscope
@@ -35,7 +36,6 @@ const (
 	opexpend
 	oppathbegin
 	oppathend
-	opdebug
 )
 
 func (op opcode) String() string {
@@ -76,6 +76,8 @@ func (op opcode) String() string {
 		return "jumpifnot"
 	case opcall:
 		return "call"
+	case opcallrec:
+		return "callrec"
 	case oppushpc:
 		return "pushpc"
 	case opcallpc:
@@ -94,8 +96,6 @@ func (op opcode) String() string {
 		return "pathbegin"
 	case oppathend:
 		return "pathend"
-	case opdebug:
-		return "debug"
 	default:
 		panic(op)
 	}

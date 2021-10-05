@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type moduleLoader struct {
@@ -15,7 +16,7 @@ type moduleLoader struct {
 
 // NewModuleLoader creates a new ModuleLoader reading local modules in the paths.
 func NewModuleLoader(paths []string) ModuleLoader {
-	return &moduleLoader{paths}
+	return &moduleLoader{expandHomeDir(paths)}
 }
 
 func (l *moduleLoader) LoadInitModules() ([]*Query, error) {
@@ -136,15 +137,7 @@ func parseModule(path, cnt string) (*Query, error) {
 }
 
 func searchPath(meta map[string]interface{}) string {
-	x, ok := meta["$$path"]
-	if !ok {
-		return ""
-	}
-	path, ok := x.(string)
-	if !ok {
-		return ""
-	}
-	x, ok = meta["search"]
+	x, ok := meta["search"]
 	if !ok {
 		return ""
 	}
@@ -152,5 +145,36 @@ func searchPath(meta map[string]interface{}) string {
 	if !ok {
 		return ""
 	}
+	if filepath.IsAbs(s) {
+		return s
+	}
+	if strings.HasPrefix(s, "~") {
+		if homeDir, err := os.UserHomeDir(); err == nil {
+			return filepath.Join(homeDir, s[1:])
+		}
+	}
+	var path string
+	if x, ok := meta["$$path"]; ok {
+		path, _ = x.(string)
+	}
+	if path == "" {
+		return s
+	}
 	return filepath.Join(filepath.Dir(path), s)
+}
+
+func expandHomeDir(paths []string) []string {
+	var homeDir string
+	var err error
+	for i, path := range paths {
+		if strings.HasPrefix(path, "~") {
+			if homeDir == "" && err == nil {
+				homeDir, err = os.UserHomeDir()
+			}
+			if homeDir != "" {
+				paths[i] = filepath.Join(homeDir, path[1:])
+			}
+		}
+	}
+	return paths
 }

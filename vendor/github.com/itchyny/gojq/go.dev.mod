@@ -1,8 +1,8 @@
 module github.com/itchyny/gojq
 
-go 1.14
+go 1.15
 
 require (
-	github.com/itchyny/astgen-go v0.0.0-20210222032259-bf31276dfbe1 // indirect
-	github.com/itchyny/timefmt-go v0.1.2
+	github.com/itchyny/astgen-go v0.0.0-20210826141707-ade98c634090 // indirect
+	github.com/itchyny/timefmt-go v0.1.3
 )
