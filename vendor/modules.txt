@@ -63,7 +63,7 @@ github.com/traefik/yaegi/stdlib
 github.com/xo/terminfo
 # go.uber.org/atomic v1.7.0
 go.uber.org/atomic
-# go.uber.org/goleak v1.1.11
+# go.uber.org/goleak v1.1.12
 go.uber.org/goleak
 go.uber.org/goleak/internal/stack
 # golang.org/x/mod v0.4.2
