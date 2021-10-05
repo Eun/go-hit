@@ -381,18 +381,29 @@ func (l *lexer) validNumber() bool {
 }
 
 func (l *lexer) scanString(start int) (int, string) {
-	var quote bool
+	var quote, newline bool
+	unquote := func(src string, quote bool) (string, error) {
+		if quote {
+			src = "\"" + src + "\""
+		}
+		if newline {
+			src = strings.ReplaceAll(src, "\n", "\\n")
+		}
+		return strconv.Unquote(src)
+	}
 	for i, m := l.offset, len(l.source); i < m; i++ {
 		ch := l.source[i]
 		switch ch {
 		case '\\':
 			quote = !quote
+		case '\n':
+			newline = true
 		case '"':
 			if !quote {
 				if !l.inString {
 					l.offset = i + 1
 					l.token = l.source[start:l.offset]
-					str, err := strconv.Unquote(l.token)
+					str, err := unquote(l.token, false)
 					if err != nil {
 						return tokInvalid, ""
 					}
@@ -401,7 +412,7 @@ func (l *lexer) scanString(start int) (int, string) {
 				if i > l.offset {
 					l.offset = i
 					l.token = l.source[start:l.offset]
-					str, err := strconv.Unquote("\"" + l.token + "\"")
+					str, err := unquote(l.token, true)
 					if err != nil {
 						return tokInvalid, ""
 					}
@@ -418,7 +429,7 @@ func (l *lexer) scanString(start int) (int, string) {
 					if i > l.offset+1 {
 						l.offset = i - 1
 						l.token = l.source[start:l.offset]
-						str, err := strconv.Unquote("\"" + l.token + "\"")
+						str, err := unquote(l.token, true)
 						if err != nil {
 							return tokInvalid, ""
 						}
@@ -479,7 +490,7 @@ func (err *parseError) Token() (string, int) {
 	return err.token, err.offset
 }
 
-func (l *lexer) Error(e string) {
+func (l *lexer) Error(string) {
 	offset, token := l.offset, l.token
 	switch {
 	case l.tokenType == eof:

@@ -29,9 +29,9 @@ github.com/gorilla/mux
 github.com/hashicorp/errwrap
 # github.com/hashicorp/go-multierror v1.1.0
 github.com/hashicorp/go-multierror
-# github.com/itchyny/gojq v0.12.2
+# github.com/itchyny/gojq v0.12.5
 github.com/itchyny/gojq
-# github.com/itchyny/timefmt-go v0.1.2
+# github.com/itchyny/timefmt-go v0.1.3
 github.com/itchyny/timefmt-go
 # github.com/json-iterator/go v1.1.12
 github.com/json-iterator/go
@@ -41,7 +41,7 @@ github.com/k0kubun/pp
 github.com/lunixbochs/vtclean
 # github.com/mattn/go-colorable v0.1.7
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.12
+# github.com/mattn/go-isatty v0.0.13
 github.com/mattn/go-isatty
 # github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
 github.com/modern-go/concurrent
@@ -69,7 +69,7 @@ go.uber.org/goleak/internal/stack
 # golang.org/x/mod v0.4.2
 golang.org/x/mod/module
 golang.org/x/mod/semver
-# golang.org/x/sys v0.0.0-20210809222454-d867a43fc93e
+# golang.org/x/sys v0.0.0-20210831042530-f4d43177bf5e
 golang.org/x/sys/execabs
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix

@@ -1,4 +1,43 @@
 # Changelog
+## [v0.12.5](https://github.com/itchyny/gojq/compare/v0.12.4..v0.12.5) (2021-09-01)
+* implement `input_filename` function for the command
+* fix priority bug of declared functions and arguments (`def g: 1; def f(g): g; f(2)`)
+* fix label handling to catch the correct break error (`first((0, 0) | first(0))`)
+* fix `null|error` and `error(null) to behave like `empty` (`null | [0, error, error(null), 1]`)
+* fix integer division to keep precision when divisible (`1 / 1 * 1000000000000000000000`)
+* fix modulo operator on negative number and large number (`(-1) % 10000000000`)
+* fix combination of slurp (`--slurp`) and raw input option (`--raw-input`) to keep newlines
+* change the default module paths to `~/.jq`, `$ORIGIN/../lib/gojq`, `$ORIGIN/lib`
+  where `$ORIGIN` is the directory where the executable is located in
+* improve command argument parser to recognize query with leading hyphen,
+  allow hyphen for standard input, and force posix style on Windows
+* improve `@base64d` to allow input without padding characters
+* improve `fromdate`, `fromdateiso8601` to parse date time strings with timezone offset
+* improve `halt_error` to print error values without prefix
+* improve `sub`, `gsub` to allow the replacement string emitting multiple values
+* improve encoding `\b` and `\f` in strings
+* improve module loader for search path in query, and absolute path
+* improve query lexer to support string literal including newlines
+* improve performance of `index`, `rindex`, `indices`, `transpose`, and `walk` functions
+* improve performance of value preview in errors and debug mode
+* improve runtime performance including tail call optimization
+* switch Docker base image to `distroless/static:debug`
+
+## [v0.12.4](https://github.com/itchyny/gojq/compare/v0.12.3..v0.12.4) (2021-06-01)
+* fix numeric conversion of large floating-point numbers in modulo operator
+* implement a compiler option for adding custom iterator functions
+* implement `gojq.NewIter` function for creating a new iterator from values
+* implement `$ARGS.named` for listing command line variables
+* remove `debug` and `stderr` functions from the library
+* stop printing newlines on `stderr` function for jq compatibility
+
+## [v0.12.3](https://github.com/itchyny/gojq/compare/v0.12.2..v0.12.3) (2021-04-01)
+* fix array slicing with infinities and large numbers (`[0][-infinite:infinite], [0][:1e20]`)
+* fix multiplying strings and modulo by infinities on MIPS 64 architecture
+* fix git revision information in Docker images
+* release multi-platform Docker images for ARM 64
+* switch to `distroless` image for Docker base image
+
 ## [v0.12.2](https://github.com/itchyny/gojq/compare/v0.12.1..v0.12.2) (2021-03-01)
 * implement `GOJQ_COLORS` environment variable to configure individual colors
 * respect `--color-output` (`-C`) option even if `NO_COLOR` is set

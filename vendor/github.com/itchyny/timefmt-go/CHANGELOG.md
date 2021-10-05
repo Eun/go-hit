@@ -1,4 +1,7 @@
 # Changelog
+## [v0.1.3](https://github.com/itchyny/timefmt-go/compare/v0.1.2..v0.1.3) (2021-04-14)
+* implement `ParseInLocation` for configuring the default location
+
 ## [v0.1.2](https://github.com/itchyny/timefmt-go/compare/v0.1.1..v0.1.2) (2021-02-22)
 * implement parsing/formatting time zone offset with colons (`%:z`, `%::z`, `%:::z`)
 * recognize `Z` as UTC on parsing time zone offset (`%z`)

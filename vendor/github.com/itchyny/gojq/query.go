@@ -23,14 +23,14 @@ type Query struct {
 //
 // It is safe to call this method of a *Query in multiple goroutines.
 func (e *Query) Run(v interface{}) Iter {
-	return e.RunWithContext(nil, v)
+	return e.RunWithContext(context.Background(), v)
 }
 
 // RunWithContext runs the query with context.
 func (e *Query) RunWithContext(ctx context.Context, v interface{}) Iter {
 	code, err := Compile(e)
 	if err != nil {
-		return unitIterator(err)
+		return NewIter(err)
 	}
 	return code.RunWithContext(ctx, v)
 }
@@ -98,13 +98,6 @@ func (e *Query) toIndices() []interface{} {
 		return nil
 	}
 	return e.Term.toIndices()
-}
-
-func (e *Query) countCommaQueries() int {
-	if e.Op == OpComma {
-		return e.Left.countCommaQueries() + e.Right.countCommaQueries()
-	}
-	return 1
 }
 
 // Import ...
