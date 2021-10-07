@@ -1,60 +1,82 @@
 # github.com/Eun/go-convert v0.0.0-20200421145326-bef6c56666ee
+## explicit
 github.com/Eun/go-convert
 # github.com/Eun/go-doppelgangerreader v0.0.0-20190911075941-30f1527f16b2
+## explicit
 github.com/Eun/go-doppelgangerreader
 # github.com/Eun/go-testdoc v0.0.1
+## explicit
 github.com/Eun/go-testdoc
 # github.com/Eun/yaegi-template v1.5.18
+## explicit
 github.com/Eun/yaegi-template
 github.com/Eun/yaegi-template/codebuffer
 # github.com/aaw/maybe_tls v0.0.0-20160803104303-89c499bcc6aa
+## explicit
 github.com/aaw/maybe_tls
 # github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1
+## explicit
 github.com/araddon/dateparse
 # github.com/dave/jennifer v1.4.1
+## explicit
 github.com/dave/jennifer/jen
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
 # github.com/google/go-cmp v0.5.6
+## explicit
 github.com/google/go-cmp/cmp
 github.com/google/go-cmp/cmp/internal/diff
 github.com/google/go-cmp/cmp/internal/flags
 github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
 # github.com/gookit/color v1.4.2
+## explicit
 github.com/gookit/color
 # github.com/gorilla/mux v1.8.0
+## explicit
 github.com/gorilla/mux
 # github.com/hashicorp/errwrap v1.0.0
 github.com/hashicorp/errwrap
 # github.com/hashicorp/go-multierror v1.1.0
 github.com/hashicorp/go-multierror
 # github.com/itchyny/gojq v0.12.5
+## explicit
 github.com/itchyny/gojq
 # github.com/itchyny/timefmt-go v0.1.3
 github.com/itchyny/timefmt-go
 # github.com/json-iterator/go v1.1.12
+## explicit
 github.com/json-iterator/go
+# github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88
+## explicit
 # github.com/k0kubun/pp v3.0.1+incompatible
+## explicit
 github.com/k0kubun/pp
 # github.com/lunixbochs/vtclean v1.0.0
+## explicit
 github.com/lunixbochs/vtclean
 # github.com/mattn/go-colorable v0.1.7
+## explicit
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.13
 github.com/mattn/go-isatty
 # github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
+## explicit
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.2
 github.com/modern-go/reflect2
+# github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e
+## explicit
 # github.com/pkg/errors v0.9.1
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.7.0
+## explicit
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/require
 # github.com/tidwall/pretty v1.2.0
+## explicit
 github.com/tidwall/pretty
 # github.com/traefik/yaegi v0.9.10
 github.com/traefik/yaegi/interp
@@ -64,6 +86,7 @@ github.com/xo/terminfo
 # go.uber.org/atomic v1.7.0
 go.uber.org/atomic
 # go.uber.org/goleak v1.1.12
+## explicit
 go.uber.org/goleak
 go.uber.org/goleak/internal/stack
 # golang.org/x/mod v0.4.2
@@ -75,6 +98,7 @@ golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 # golang.org/x/tools v0.1.7
+## explicit
 golang.org/x/tools/go/ast/astutil
 golang.org/x/tools/imports
 golang.org/x/tools/internal/event
@@ -87,7 +111,10 @@ golang.org/x/tools/internal/gopathwalk
 golang.org/x/tools/internal/imports
 golang.org/x/tools/internal/typeparams
 # golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
+## explicit
 golang.org/x/xerrors
 golang.org/x/xerrors/internal
+# gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f
+## explicit
 # gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 gopkg.in/yaml.v3

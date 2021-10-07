@@ -1,5 +1,11 @@
-
-# go-hit [![Actions Status](https://github.com/Eun/go-hit/workflows/CI/badge.svg)](https://github.com/Eun/go-hit/actions) [![Coverage Status](https://coveralls.io/repos/github/Eun/go-hit/badge.svg?branch=master)](https://coveralls.io/github/Eun/go-hit?branch=master) [![PkgGoDev](https://img.shields.io/badge/pkg.go.dev-reference-blue)](https://pkg.go.dev/github.com/Eun/go-hit) [![GoDoc](https://godoc.org/github.com/Eun/go-hit?status.svg)](https://godoc.org/github.com/Eun/go-hit) [![go-report](https://goreportcard.com/badge/github.com/Eun/go-hit)](https://goreportcard.com/report/github.com/Eun/go-hit)
+# go-hit
+[![Actions Status](https://github.com/Eun/go-hit/workflows/CI/badge.svg)](https://github.com/Eun/go-hit/actions)
+[![Coverage Status](https://coveralls.io/repos/github/Eun/go-hit/badge.svg?branch=master)](https://coveralls.io/github/Eun/go-hit?branch=master)
+[![PkgGoDev](https://img.shields.io/badge/pkg.go.dev-reference-blue)](https://pkg.go.dev/github.com/Eun/go-hit)
+[![GoDoc](https://godoc.org/github.com/Eun/go-hit?status.svg)](https://godoc.org/github.com/Eun/go-hit)
+[![go-report](https://goreportcard.com/badge/github.com/Eun/go-hit)](https://goreportcard.com/report/github.com/Eun/go-hit)
+[![go1.15](https://img.shields.io/badge/go-1.15-blue)](#)
+---
 hit is an **h**ttp **i**ntegration **t**est framework written in golang.
 
 It is designed to be flexible as possible, but to keep a simple to use interface for developers.
