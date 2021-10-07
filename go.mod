@@ -1,6 +1,6 @@
 module github.com/Eun/go-hit
 
-go 1.12
+go 1.15
 
 require (
 	github.com/Eun/go-convert v0.0.0-20200421145326-bef6c56666ee
