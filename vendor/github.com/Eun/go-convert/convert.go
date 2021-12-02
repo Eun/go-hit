@@ -191,7 +191,8 @@ func (conv defaultConverter) convertNow(src, dst, out reflect.Value, options ...
 		}
 		if src.IsNil() {
 			debug(">> src is nil\n")
-			return nil
+			// make a new instance if src is nil
+			return conv.ConvertReflectValue(reflect.Zero(src.Type().Elem()), dst, options...)
 		}
 	}
 
@@ -292,9 +293,6 @@ func printValue(value reflect.Value) string {
 	for v.IsValid() {
 		switch v.Kind() {
 		case reflect.Ptr, reflect.Interface:
-			if v.IsNil() {
-				return "<nil>"
-			}
 			v = v.Elem()
 		default:
 			if v.CanInterface() {
