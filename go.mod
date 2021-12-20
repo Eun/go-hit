@@ -9,7 +9,7 @@ require (
 	github.com/Eun/yaegi-template v1.5.18
 	github.com/aaw/maybe_tls v0.0.0-20160803104303-89c499bcc6aa
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1 // indirect
-	github.com/dave/jennifer v1.4.1
+	github.com/dave/jennifer v1.5.0
 	github.com/google/go-cmp v0.5.6
 	github.com/gookit/color v1.4.2
 	github.com/gorilla/mux v1.8.0
@@ -24,7 +24,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/pretty v1.2.0
 	go.uber.org/goleak v1.1.12
-	golang.org/x/tools v0.1.7
+	golang.org/x/tools v0.1.8
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 )
