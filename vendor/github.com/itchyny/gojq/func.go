@@ -89,11 +89,13 @@ func init() {
 		"_less":          argFunc2(funcOpLt),
 		"_greatereq":     argFunc2(funcOpGe),
 		"_lesseq":        argFunc2(funcOpLe),
+		"_range":         {argcount3, true, funcRange},
 		"_min_by":        argFunc1(funcMinBy),
 		"_max_by":        argFunc1(funcMaxBy),
 		"_sort_by":       argFunc1(funcSortBy),
 		"_group_by":      argFunc1(funcGroupBy),
 		"_unique_by":     argFunc1(funcUniqueBy),
+		"_join":          argFunc1(funcJoin),
 		"sin":            mathFunc("sin", math.Sin),
 		"cos":            mathFunc("cos", math.Cos),
 		"tan":            mathFunc("tan", math.Tan),
@@ -404,7 +406,7 @@ func funcToNumber(v interface{}) interface{} {
 		if !newLexer(v).validNumber() {
 			return fmt.Errorf("invalid number: %q", v)
 		}
-		return normalizeNumbers(json.Number(v))
+		return normalizeNumber(json.Number(v))
 	default:
 		return &funcTypeError{"tonumber", v}
 	}
@@ -514,6 +516,19 @@ func funcImplode(v interface{}) interface{} {
 	}
 }
 
+func implode(v []interface{}) interface{} {
+	var sb strings.Builder
+	sb.Grow(len(v))
+	for _, r := range v {
+		if r, ok := toInt(r); ok && 0 <= r && r <= utf8.MaxRune {
+			sb.WriteRune(rune(r))
+		} else {
+			return &funcTypeError{"implode", v}
+		}
+	}
+	return sb.String()
+}
+
 func funcSplit(v interface{}, args []interface{}) interface{} {
 	s, ok := v.(string)
 	if !ok {
@@ -548,19 +563,6 @@ func funcSplit(v interface{}, args []interface{}) interface{} {
 	return xs
 }
 
-func implode(v []interface{}) interface{} {
-	var sb strings.Builder
-	sb.Grow(len(v))
-	for _, r := range v {
-		if r, ok := toInt(r); ok && 0 <= r && r <= utf8.MaxRune {
-			sb.WriteRune(rune(r))
-		} else {
-			return &funcTypeError{"implode", v}
-		}
-	}
-	return sb.String()
-}
-
 func funcToJSON(v interface{}) interface{} {
 	return jsonMarshal(v)
 }
@@ -593,6 +595,32 @@ func funcFormat(v, x interface{}) interface{} {
 	}
 }
 
+var htmlEscaper = strings.NewReplacer(
+	`<`, "&lt;",
+	`>`, "&gt;",
+	`&`, "&amp;",
+	`'`, "&apos;",
+	`"`, "&quot;",
+)
+
+func funcToHTML(v interface{}) interface{} {
+	switch x := funcToString(v).(type) {
+	case string:
+		return htmlEscaper.Replace(x)
+	default:
+		return x
+	}
+}
+
+func funcToURI(v interface{}) interface{} {
+	switch x := funcToString(v).(type) {
+	case string:
+		return url.QueryEscape(x)
+	default:
+		return x
+	}
+}
+
 func funcToCSV(v interface{}) interface{} {
 	return funcToCSVTSV("csv", v, ",", func(s string) string {
 		return `"` + strings.ReplaceAll(s, `"`, `""`) + `"`
@@ -610,32 +638,6 @@ func funcToTSV(v interface{}) interface{} {
 	return funcToCSVTSV("tsv", v, "\t", func(s string) string {
 		return tsvEscaper.Replace(s)
 	})
-}
-
-func funcToSh(v interface{}) interface{} {
-	var xs []interface{}
-	if w, ok := v.([]interface{}); ok {
-		xs = w
-	} else {
-		xs = []interface{}{v}
-	}
-	var s strings.Builder
-	for i, x := range xs {
-		if i > 0 {
-			s.WriteByte(' ')
-		}
-		switch x := x.(type) {
-		case map[string]interface{}, []interface{}:
-			return &formatShError{x}
-		case string:
-			s.WriteByte('\'')
-			s.WriteString(strings.ReplaceAll(x, "'", `'\''`))
-			s.WriteByte('\'')
-		default:
-			s.WriteString(jsonMarshal(x))
-		}
-	}
-	return s.String()
 }
 
 func funcToCSVTSV(typ string, v interface{}, sep string, escape func(string) string) interface{} {
@@ -669,30 +671,30 @@ func toCSVTSV(typ string, v interface{}, escape func(string) string) (string, er
 	}
 }
 
-var htmlEscaper = strings.NewReplacer(
-	`<`, "&lt;",
-	`>`, "&gt;",
-	`&`, "&amp;",
-	`'`, "&apos;",
-	`"`, "&quot;",
-)
-
-func funcToHTML(v interface{}) interface{} {
-	switch x := funcToString(v).(type) {
-	case string:
-		return htmlEscaper.Replace(x)
-	default:
-		return x
+func funcToSh(v interface{}) interface{} {
+	var xs []interface{}
+	if w, ok := v.([]interface{}); ok {
+		xs = w
+	} else {
+		xs = []interface{}{v}
 	}
-}
-
-func funcToURI(v interface{}) interface{} {
-	switch x := funcToString(v).(type) {
-	case string:
-		return url.QueryEscape(x)
-	default:
-		return x
+	var s strings.Builder
+	for i, x := range xs {
+		if i > 0 {
+			s.WriteByte(' ')
+		}
+		switch x := x.(type) {
+		case map[string]interface{}, []interface{}:
+			return &formatShError{x}
+		case string:
+			s.WriteByte('\'')
+			s.WriteString(strings.ReplaceAll(x, "'", `'\''`))
+			s.WriteByte('\'')
+		default:
+			s.WriteString(jsonMarshal(x))
+		}
 	}
+	return s.String()
 }
 
 func funcToBase64(v interface{}) interface{} {
@@ -707,11 +709,10 @@ func funcToBase64(v interface{}) interface{} {
 func funcToBase64d(v interface{}) interface{} {
 	switch x := funcToString(v).(type) {
 	case string:
-		y, err := base64.RawStdEncoding.DecodeString(
-			strings.TrimRightFunc(x, func(r rune) bool {
-				return r == base64.StdPadding
-			}),
-		)
+		if i := strings.IndexRune(x, base64.StdPadding); i >= 0 {
+			x = x[:i]
+		}
+		y, err := base64.RawStdEncoding.DecodeString(x)
 		if err != nil {
 			return err
 		}
@@ -957,6 +958,30 @@ func indexFunc(v, x interface{}, f func(_, _ []interface{}) interface{}) interfa
 	}
 }
 
+type rangeIter struct {
+	value, end, step interface{}
+}
+
+func (iter *rangeIter) Next() (interface{}, bool) {
+	if compare(iter.step, 0)*compare(iter.value, iter.end) >= 0 {
+		return nil, false
+	}
+	v := iter.value
+	iter.value = funcOpAdd(nil, v, iter.step)
+	return v, true
+}
+
+func funcRange(_ interface{}, xs []interface{}) interface{} {
+	for _, x := range xs {
+		switch x.(type) {
+		case int, float64, *big.Int:
+		default:
+			return &funcTypeError{"range", x}
+		}
+	}
+	return &rangeIter{xs[0], xs[1], xs[2]}
+}
+
 func funcMinBy(v, x interface{}) interface{} {
 	vs, ok := v.([]interface{})
 	if !ok {
@@ -1048,6 +1073,39 @@ func funcUniqueBy(v, x interface{}) interface{} {
 	return rs
 }
 
+func funcJoin(v, x interface{}) interface{} {
+	vs, ok := v.([]interface{})
+	if !ok {
+		return &expectedArrayError{v}
+	}
+	if len(vs) == 0 {
+		return ""
+	}
+	sep, ok := x.(string)
+	if len(vs) > 1 && !ok {
+		return &funcTypeError{"join", x}
+	}
+	ss := make([]string, len(vs))
+	for i, e := range vs {
+		switch e := e.(type) {
+		case nil:
+		case string:
+			ss[i] = e
+		case bool:
+			if e {
+				ss[i] = "true"
+			} else {
+				ss[i] = "false"
+			}
+		case int, float64, *big.Int:
+			ss[i] = jsonMarshal(e)
+		default:
+			return &unaryTypeError{"join", e}
+		}
+	}
+	return strings.Join(ss, sep)
+}
+
 func sortItems(name string, v, x interface{}) ([]*sortItem, error) {
 	vs, ok := v.([]interface{})
 	if !ok {
@@ -1081,11 +1139,6 @@ func funcExp10(v float64) float64 {
 	return math.Pow(10, v)
 }
 
-func funcLgamma(v float64) float64 {
-	v, _ = math.Lgamma(v)
-	return v
-}
-
 func funcFrexp(v interface{}) interface{} {
 	x, ok := toFloat(v)
 	if !ok {
@@ -1102,6 +1155,11 @@ func funcModf(v interface{}) interface{} {
 	}
 	i, f := math.Modf(x)
 	return []interface{}{f, i}
+}
+
+func funcLgamma(v float64) float64 {
+	v, _ = math.Lgamma(v)
+	return v
 }
 
 func funcDrem(l, r float64) float64 {
@@ -1230,6 +1288,8 @@ func updatePaths(v interface{}, path []interface{}, w interface{}, delpaths bool
 			}
 			vs[x] = u
 			return vs, nil
+		case struct{}:
+			return v, nil
 		default:
 			return nil, &expectedObjectError{v}
 		}
@@ -1276,6 +1336,8 @@ func updatePaths(v interface{}, path []interface{}, w interface{}, delpaths bool
 			copy(vs, uu)
 			vs[y] = u
 			return vs, nil
+		case struct{}:
+			return v, nil
 		default:
 			return nil, &expectedArrayError{v}
 		}
@@ -1359,6 +1421,8 @@ func updatePaths(v interface{}, path []interface{}, w interface{}, delpaths bool
 			default:
 				return nil, &expectedArrayError{v}
 			}
+		case struct{}:
+			return v, nil
 		default:
 			return nil, &expectedArrayError{v}
 		}
@@ -1645,6 +1709,11 @@ func funcMatch(v, re, fs, testing interface{}) interface{} {
 }
 
 func compileRegexp(re, flags string) (*regexp.Regexp, error) {
+	if strings.IndexFunc(flags, func(r rune) bool {
+		return r != 'g' && r != 'i' && r != 'm'
+	}) >= 0 {
+		return nil, fmt.Errorf("unsupported regular expression flag: %q", flags)
+	}
 	re = strings.ReplaceAll(re, "(?<", "(?P<")
 	if strings.ContainsRune(flags, 'i') {
 		re = "(?i)" + re

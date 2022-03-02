@@ -426,8 +426,8 @@ type Index struct {
 	Name    string
 	Str     *String
 	Start   *Query
-	IsSlice bool
 	End     *Query
+	IsSlice bool
 }
 
 func (e *Index) String() string {
@@ -455,17 +455,16 @@ func (e *Index) writeSuffixTo(s *strings.Builder) {
 			e.Str.writeTo(s)
 		} else {
 			s.WriteByte('[')
-			if e.Start != nil {
-				e.Start.writeTo(s)
-				if e.IsSlice {
-					s.WriteByte(':')
-					if e.End != nil {
-						e.End.writeTo(s)
-					}
+			if e.IsSlice {
+				if e.Start != nil {
+					e.Start.writeTo(s)
 				}
-			} else if e.End != nil {
 				s.WriteByte(':')
-				e.End.writeTo(s)
+				if e.End != nil {
+					e.End.writeTo(s)
+				}
+			} else {
+				e.Start.writeTo(s)
 			}
 			s.WriteByte(']')
 		}
@@ -999,14 +998,14 @@ func (e *ConstTerm) writeTo(s *strings.Builder) {
 		e.Array.writeTo(s)
 	} else if e.Number != "" {
 		s.WriteString(e.Number)
-	} else if e.Str != "" {
-		s.WriteString(strconv.Quote(e.Str))
 	} else if e.Null {
 		s.WriteString("null")
 	} else if e.True {
 		s.WriteString("true")
 	} else if e.False {
 		s.WriteString("false")
+	} else {
+		s.WriteString(strconv.Quote(e.Str))
 	}
 }
 
@@ -1016,7 +1015,7 @@ func (e *ConstTerm) toValue() interface{} {
 	} else if e.Array != nil {
 		return e.Array.toValue()
 	} else if e.Number != "" {
-		return normalizeNumbers(json.Number(e.Number))
+		return normalizeNumber(json.Number(e.Number))
 	} else if e.Null {
 		return nil
 	} else if e.True {

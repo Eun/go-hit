@@ -20,40 +20,17 @@ def until(cond; next):
 def repeat(f):
   def _repeat: f, _repeat;
   _repeat;
-def range($x): range(0; $x);
-def range($start; $end):
-  if $start | type != "number" then
-    $start | _type_error("range")
-  elif $end | type != "number" then
-    $end | _type_error("range")
-  else
-    $start | while(. < $end; . + 1)
-  end;
-def range($start; $end; $step):
-  if $start | type != "number" then
-    $start | _type_error("range")
-  elif $end | type != "number" then
-    $end | _type_error("range")
-  elif $step | type != "number" then
-    $step | _type_error("range")
-  elif $step > 0 then
-    $start | while(. < $end; . + $step)
-  elif $step < 0 then
-    $start | while(. > $end; . + $step)
-  else empty end;
+def range($end): _range(0; $end; 1);
+def range($start; $end): _range($start; $end; 1);
+def range($start; $end; $step): _range($start; $end; $step);
 
 def _flatten($x):
-  reduce .[] as $i
-    ( [];
-      if $i | type == "array" and $x != 0
-      then . + ($i | _flatten($x-1))
-      else . + [$i]
-      end);
+  map(if type == "array" and $x != 0 then _flatten($x - 1) else [.] end) | add;
 def flatten($x):
   if $x < 0
   then error("flatten depth must not be negative")
-  else _flatten($x) end;
-def flatten: _flatten(-1);
+  else _flatten($x) // [] end;
+def flatten: _flatten(-1) // [];
 def min: min_by(.);
 def min_by(f): _min_by(map([f]));
 def max: max_by(.);
@@ -118,30 +95,21 @@ def combinations:
   end;
 def combinations(n):
   . as $dot | [range(n) | $dot] | combinations;
-def join($x): reduce .[] as $i (null;
-    if . == null then "" else . + $x end +
-    ($i | if type | . == "boolean" or . == "number" then tostring else . // "" end)
-  ) // "";
+def join($x):
+  if type != "array" then [.[]] end | _join($x);
 def ascii_downcase:
   explode | map(if 65 <= . and . <= 90 then . + 32 end) | implode;
 def ascii_upcase:
   explode | map(if 97 <= . and . <= 122 then . - 32 end) | implode;
 def walk(f):
-  def w:
-    if type == "object" then
-      . as $in | reduce keys[] as $key ({}; . + { ($key): $in[$key] | w }) | f
-    elif type == "array" then
-      map(w) | f
-    else
-      f
-    end;
-  w;
+  def _walk: if type | . == "array" or . == "object" then map_values(_walk) end | f;
+  _walk;
 
 def first: .[0];
 def first(g): label $out | g | ., break $out;
 def last: .[-1];
 def last(g): reduce g as $item (null; $item);
-def isempty(g): first((g|false), true);
+def isempty(g): label $out | (g | false, break $out), true;
 def all: all(.[]; .);
 def all(y): all(.[]; y);
 def all(g; y): isempty(g|y and empty);
@@ -189,7 +157,7 @@ def _assign(ps; $v):
   reduce path(ps) as $p (.; setpath($p; $v));
 def _modify(ps; f):
   reduce path(ps) as $p
-    ([., []]; label $out | (([0] + $p) as $q | setpath($q; getpath($q) | f) | ., break $out), .[1] += [$p])
+    ([., []]; label $out | (([0] + $p) as $q | setpath($q; getpath($q) | f) | ., break $out), setpath([1]; .[1] + [$p]))
       | . as $x | $x[0] | delpaths($x[1]);
 def map_values(f): .[] |= f;
 def del(f): delpaths([path(f)]);
@@ -222,7 +190,7 @@ def splits($re; $flags): split($re; $flags) | .[];
 def sub($re; str): sub($re; str; null);
 def sub($re; str; $flags):
   . as $in
-    | def sub:
+    | def _sub:
         if .matches|length > 0
         then
           . as $x | .matches[0] as $r
@@ -233,11 +201,11 @@ def sub($re; str; $flags):
                 offset: ($r.offset + $r.length),
                 matches: $x.matches[1:]
               }
-            | sub
+            | _sub
         else
           .string + $in[.offset:]
         end;
-  { string: "", offset: 0, matches: [match($re; $flags)] } | sub;
+  { string: "", offset: 0, matches: [match($re; $flags)] } | _sub;
 def gsub($re; str): sub($re; str; "g");
 def gsub($re; str; $flags): sub($re; str; $flags + "g");
 

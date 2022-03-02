@@ -61,11 +61,6 @@ func (c *Code) RunWithContext(ctx context.Context, v interface{}, values ...inte
 //  LoadJSONWithMeta(string, map[string]interface{}) (interface{}, error)
 type ModuleLoader interface{}
 
-type codeinfo struct {
-	name string
-	pc   int
-}
-
 type scopeinfo struct {
 	variables   []*varinfo
 	funcs       []*funcinfo
@@ -117,7 +112,7 @@ func Compile(q *Query, options ...CompilerOption) (*Code, error) {
 	}
 	setscope()
 	c.optimizeTailRec()
-	c.optimizeJumps()
+	c.optimizeCodeOps()
 	return &Code{
 		variables: c.variables,
 		codes:     c.codes,
@@ -315,12 +310,16 @@ func (c *compiler) compileFuncDef(e *FuncDef, builtin bool) error {
 	defer c.appendCodeInfo("end of " + e.Name)
 	pc := c.pc()
 	scope.funcs = append(scope.funcs, &funcinfo{e.Name, pc, len(e.Args)})
-	defer func(l int, variables []string) {
-		c.scopes, c.variables = c.scopes[:l], variables
-	}(len(c.scopes), c.variables)
+	defer func(scopes []*scopeinfo, variables []string) {
+		c.scopes, c.variables = scopes, variables
+	}(c.scopes, c.variables)
 	c.variables = c.variables[len(c.variables):]
 	scope = c.newScope()
-	c.scopes = append(c.scopes, scope)
+	if builtin {
+		c.scopes = []*scopeinfo{c.scopes[0], scope}
+	} else {
+		c.scopes = append(c.scopes, scope)
+	}
 	defer c.lazy(func() *code {
 		return &code{op: opscope, v: [3]int{scope.id, scope.variablecnt, len(e.Args)}}
 	})()
@@ -671,7 +670,9 @@ func (c *compiler) compileIf(e *If) error {
 			// optimize constant results
 			//    opdup, ..., opjumpifnot, opconst, opjump, opconst
 			// => opnop, ..., opjumpifnot, oppush,  opjump, oppush
-			if pcc+4 == len(c.codes) && c.codes[pcc+1].op == opconst && c.codes[pcc+3].op == opconst {
+			if pcc+4 == len(c.codes) &&
+				c.codes[pcc+1] != nil && c.codes[pcc+1].op == opconst &&
+				c.codes[pcc+3] != nil && c.codes[pcc+3].op == opconst {
 				c.codes[pc-2].op = opnop
 				c.codes[pcc+1].op = oppush
 				c.codes[pcc+3].op = oppush
@@ -826,7 +827,7 @@ func (c *compiler) compileTerm(e *Term) error {
 	case TermTypeArray:
 		return c.compileArray(e.Array)
 	case TermTypeNumber:
-		v := normalizeNumbers(json.Number(e.Number))
+		v := normalizeNumber(json.Number(e.Number))
 		if err, ok := v.(error); ok {
 			return err
 		}
@@ -866,16 +867,16 @@ func (c *compiler) compileIndex(e *Term, x *Index) error {
 	if x.Str != nil {
 		return c.compileCall("_index", []*Query{{Term: e}, {Term: &Term{Type: TermTypeString, Str: x.Str}}})
 	}
-	if x.Start != nil {
-		if x.IsSlice {
-			if x.End != nil {
-				return c.compileCall("_slice", []*Query{{Term: e}, x.End, x.Start})
-			}
-			return c.compileCall("_slice", []*Query{{Term: e}, {Term: &Term{Type: TermTypeNull}}, x.Start})
-		}
+	if !x.IsSlice {
 		return c.compileCall("_index", []*Query{{Term: e}, x.Start})
 	}
-	return c.compileCall("_slice", []*Query{{Term: e}, x.End, {Term: &Term{Type: TermTypeNull}}})
+	if x.Start == nil {
+		return c.compileCall("_slice", []*Query{{Term: e}, x.End, {Term: &Term{Type: TermTypeNull}}})
+	}
+	if x.End == nil {
+		return c.compileCall("_slice", []*Query{{Term: e}, {Term: &Term{Type: TermTypeNull}}, x.Start})
+	}
+	return c.compileCall("_slice", []*Query{{Term: e}, x.End, x.Start})
 }
 
 func (c *compiler) compileFunc(e *Func) error {
@@ -1170,6 +1171,10 @@ func (c *compiler) compileObjectKeyVal(v [2]int, kv *ObjectKeyVal) error {
 			if err := c.compileString(kv.KeyString, nil); err != nil {
 				return err
 			}
+			if d := c.codes[len(c.codes)-1]; d.op == opconst {
+				c.codes[len(c.codes)-2] = &code{op: oppush, v: d.v}
+				c.codes = c.codes[:len(c.codes)-1]
+			}
 		} else if kv.Key[0] == '$' {
 			c.append(&code{op: opload, v: v})
 			if err := c.compileFunc(&Func{Name: kv.Key}); err != nil {
@@ -1326,14 +1331,14 @@ func (c *compiler) compileTermSuffix(e *Term, s *Suffix) error {
 		c.append(&code{op: opeach})
 		return nil
 	} else if s.Optional {
-		if len(e.SuffixList) > 1 || len(e.SuffixList) == 1 && !e.SuffixList[0].Iter {
+		if len(e.SuffixList) > 0 {
 			if u, ok := e.SuffixList[len(e.SuffixList)-1].toTerm(); ok {
 				t := *e // clone without changing e
 				(&t).SuffixList = t.SuffixList[:len(e.SuffixList)-1]
 				if err := c.compileTerm(&t); err != nil {
 					return err
 				}
-				return c.compileTermSuffix(u, s)
+				e = u
 			}
 		}
 		return c.compileTry(&Try{Body: &Query{Term: e}})
@@ -1350,12 +1355,19 @@ func (c *compiler) compileTermSuffix(e *Term, s *Suffix) error {
 }
 
 func (c *compiler) compileCall(name string, args []*Query) error {
-	return c.compileCallInternal(
-		[3]interface{}{internalFuncs[name].callback, len(args), name},
+	fn := internalFuncs[name]
+	if err := c.compileCallInternal(
+		[3]interface{}{fn.callback, len(args), name},
 		args,
 		true,
 		name == "_index" || name == "_slice",
-	)
+	); err != nil {
+		return err
+	}
+	if fn.iter {
+		c.append(&code{op: opeach})
+	}
+	return nil
 }
 
 func (c *compiler) compileCallPc(fn *funcinfo, args []*Query) error {
@@ -1481,22 +1493,26 @@ L:
 	}
 }
 
-func (c *compiler) optimizeJumps() {
-	for i := len(c.codes) - 1; i >= 0; i-- {
+func (c *compiler) optimizeCodeOps() {
+	for i, next := len(c.codes)-1, (*code)(nil); i >= 0; i-- {
 		code := c.codes[i]
-		if code.op != opjump {
-			continue
-		}
-		if code.v.(int)-1 == i {
-			c.codes[i].op = opnop
-			continue
-		}
-		for {
-			d := c.codes[code.v.(int)]
-			if d.op != opjump || code.v.(int) == d.v.(int) {
-				break
+		switch code.op {
+		case oppush, opdup, opload:
+			switch next.op {
+			case oppop:
+				code.op = opnop
+				next.op = opnop
+			case opconst:
+				code.op = opnop
+				next.op = oppush
 			}
-			code.v = d.v
+		case opjump, opjumpifnot:
+			if j := code.v.(int); j-1 == i {
+				code.op = opnop
+			} else if next = c.codes[j]; next.op == opjump {
+				code.v = next.v
+			}
 		}
+		next = code
 	}
 }

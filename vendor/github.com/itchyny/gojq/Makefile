@@ -11,15 +11,15 @@ all: build
 
 .PHONY: build
 build:
-	go build -tags forceposix -ldflags=$(BUILD_LDFLAGS) -o $(BIN) ./cmd/$(BIN)
+	go build -ldflags=$(BUILD_LDFLAGS) -o $(BIN) ./cmd/$(BIN)
 
 .PHONY: build-dev
 build-dev: parser.go builtin.go
-	go build -tags forceposix -ldflags=$(BUILD_LDFLAGS) -o $(BIN) ./cmd/$(BIN)
+	go build -ldflags=$(BUILD_LDFLAGS) -o $(BIN) ./cmd/$(BIN)
 
 .PHONY: build-debug
 build-debug: parser.go builtin.go
-	go build -tags forceposix,debug -ldflags=$(BUILD_LDFLAGS) -o $(BIN) ./cmd/$(BIN)
+	go build -tags debug -ldflags=$(BUILD_LDFLAGS) -o $(BIN) ./cmd/$(BIN)
 
 builtin.go: builtin.jq parser.go.y parser.go query.go operator.go _tools/*
 	GOOS= GOARCH= go generate
@@ -29,41 +29,41 @@ parser.go: parser.go.y $(GOBIN)/goyacc
 	goyacc -o $@ $<
 
 $(GOBIN)/goyacc:
-	@cd && go get golang.org/x/tools/cmd/goyacc
+	@go install golang.org/x/tools/cmd/goyacc@latest
 
 .PHONY: install
 install:
-	go install -tags forceposix -ldflags=$(BUILD_LDFLAGS) ./...
+	go install -ldflags=$(BUILD_LDFLAGS) ./...
 
 .PHONY: install-dev
 install-dev: parser.go builtin.go
-	go install -tags forceposix -ldflags=$(BUILD_LDFLAGS) ./...
+	go install -ldflags=$(BUILD_LDFLAGS) ./...
 
 .PHONY: install-debug
 install-debug: parser.go builtin.go
-	go install -tags forceposix,debug -ldflags=$(BUILD_LDFLAGS) ./...
+	go install -tags debug -ldflags=$(BUILD_LDFLAGS) ./...
 
 .PHONY: show-version
 show-version: $(GOBIN)/gobump
 	@gobump show -r $(VERSION_PATH)
 
 $(GOBIN)/gobump:
-	@cd && go get github.com/x-motemen/gobump/cmd/gobump
+	@go install github.com/x-motemen/gobump/cmd/gobump@latest
 
 .PHONY: cross
 cross: $(GOBIN)/goxz CREDITS
-	goxz -n $(BIN) -pv=v$(VERSION) -arch=amd64,arm64 \
+	goxz -n $(BIN) -pv=v$(VERSION) -include _$(BIN) -arch=amd64,arm64 \
 		-build-ldflags=$(BUILD_LDFLAGS) ./cmd/$(BIN)
 
 $(GOBIN)/goxz:
-	cd && go get github.com/Songmu/goxz/cmd/goxz
+	go install github.com/Songmu/goxz/cmd/goxz@latest
 
 CREDITS: $(GOBIN)/gocredits go.sum
 	go mod tidy
 	gocredits -w .
 
 $(GOBIN)/gocredits:
-	cd && go get github.com/Songmu/gocredits/cmd/gocredits
+	go install github.com/Songmu/gocredits/cmd/gocredits@latest
 
 .PHONY: test
 test: build
@@ -72,17 +72,10 @@ test: build
 .PHONY: lint
 lint: $(GOBIN)/staticcheck
 	go vet ./...
-	staticcheck -tags debug ./...
+	staticcheck -checks all,-ST1000 -tags debug ./...
 
 $(GOBIN)/staticcheck:
-	cd && go get honnef.co/go/tools/cmd/staticcheck
-
-.PHONY: fieldalignment
-fieldalignment: $(GOBIN)/fieldalignment
-	! fieldalignment . 2>&1 | grep -v pointer | grep ^
-
-$(GOBIN)/fieldalignment:
-	cd && go get golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment
+	go install honnef.co/go/tools/cmd/staticcheck@latest
 
 .PHONY: check-tools
 check-tools:
@@ -119,4 +112,4 @@ upload: $(GOBIN)/ghr
 	ghr "v$(VERSION)" goxz
 
 $(GOBIN)/ghr:
-	cd && go get github.com/tcnksm/ghr
+	go install github.com/tcnksm/ghr@latest
