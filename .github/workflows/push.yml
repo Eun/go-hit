@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3.0.2
       -
         name: lint
         uses: golangci/golangci-lint-action@v2.5.2
@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3.0.2
       -
         uses: actions/setup-go@v2
       # we cannot use nancy-github-action because it is outdated, so it's better to use the latest
@@ -43,7 +43,7 @@ jobs:
     steps:
       -
         name: Checkout code
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3.0.2
       -
         name: Get go.mod details
         uses: Eun/go-mod-details@v1.0.4
