@@ -5,7 +5,7 @@ import (
 
 	"net/url"
 
-	. "github.com/Eun/go-hit"
+	. "github.com/otto-eng/go-hit"
 )
 
 func mockFormValues() IStep {

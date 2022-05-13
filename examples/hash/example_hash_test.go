@@ -16,7 +16,7 @@ import (
 
 	"testing"
 
-	. "github.com/Eun/go-hit"
+	. "github.com/otto-eng/go-hit"
 )
 
 func TestHash(t *testing.T) {

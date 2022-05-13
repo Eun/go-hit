@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/Eun/go-hit/errortrace"
+	"github.com/otto-eng/go-hit/errortrace"
 )
 
 // StepTime defines when a step should be run.

@@ -1,7 +1,7 @@
 package hit
 
 import (
-	"github.com/Eun/go-hit/internal/minitest"
+	"github.com/otto-eng/go-hit/internal/minitest"
 )
 
 //nolint:dupl // the methods of IExpectFormValues and IExpectHeaders are the same however the comments are different.

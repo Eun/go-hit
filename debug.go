@@ -14,7 +14,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/tidwall/pretty"
 
-	"github.com/Eun/go-hit/errortrace"
+	"github.com/otto-eng/go-hit/errortrace"
 )
 
 // IDebug provides a debug functionality for the Request and Response.

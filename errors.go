@@ -1,7 +1,7 @@
 package hit
 
 import (
-	"github.com/Eun/go-hit/errortrace"
+	"github.com/otto-eng/go-hit/errortrace"
 )
 
 // Error represents the error that will be returned during an execution.

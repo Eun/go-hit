@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	. "github.com/Eun/go-hit"
+	. "github.com/otto-eng/go-hit"
 )
 
 func TestExpect_Custom(t *testing.T) {

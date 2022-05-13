@@ -8,11 +8,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Eun/go-hit/internal/misc"
+	"github.com/otto-eng/go-hit/internal/misc"
 
 	"golang.org/x/xerrors"
 
-	"github.com/Eun/go-hit/errortrace"
+	"github.com/otto-eng/go-hit/errortrace"
 
 	urlpkg "net/url"
 )
@@ -281,6 +281,11 @@ func Head(url string, a ...interface{}) IStep {
 //
 func Post(url string, a ...interface{}) IStep {
 	return makeMethodStep("Post", http.MethodPost, url, a...)
+}
+
+// paul added this
+func Patch(url string, a ...interface{}) IStep {
+	return makeMethodStep("Patch", http.MethodPatch, url, a...)
 }
 
 // Options sets the the method to OPTIONS and the specified url.

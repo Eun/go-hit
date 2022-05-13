@@ -4,7 +4,7 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/Eun/go-hit/errortrace"
+	"github.com/otto-eng/go-hit/errortrace"
 )
 
 // IDebugRequest defines the debug functions that are available for the http request.

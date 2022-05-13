@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/Eun/go-hit/internal/minitest"
+	"github.com/otto-eng/go-hit/internal/minitest"
 )
 
 // IExpectBodyJSON provides assertions on the http response json body.

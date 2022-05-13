@@ -9,9 +9,9 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"golang.org/x/xerrors"
 
-	"github.com/Eun/go-hit/internal/converter"
-	"github.com/Eun/go-hit/internal/minitest/contains"
-	"github.com/Eun/go-hit/internal/misc"
+	"github.com/otto-eng/go-hit/internal/converter"
+	"github.com/otto-eng/go-hit/internal/minitest/contains"
+	"github.com/otto-eng/go-hit/internal/misc"
 )
 
 // Errorf returns an error with the format and the specified message and args.

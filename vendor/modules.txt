@@ -4,6 +4,10 @@ github.com/Eun/go-convert
 # github.com/Eun/go-doppelgangerreader v0.0.0-20190911075941-30f1527f16b2
 ## explicit
 github.com/Eun/go-doppelgangerreader
+# github.com/Eun/go-hit v0.5.23
+## explicit
+github.com/Eun/go-hit/doctest/implicit
+github.com/Eun/go-hit/doctest/server
 # github.com/Eun/go-testdoc v0.0.1
 ## explicit
 github.com/Eun/go-testdoc
@@ -15,7 +19,6 @@ github.com/Eun/yaegi-template/codebuffer
 ## explicit
 github.com/aaw/maybe_tls
 # github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1
-## explicit
 github.com/araddon/dateparse
 # github.com/dave/jennifer v1.4.1
 ## explicit
@@ -47,8 +50,6 @@ github.com/itchyny/timefmt-go
 # github.com/json-iterator/go v1.1.12
 ## explicit
 github.com/json-iterator/go
-# github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88
-## explicit
 # github.com/k0kubun/pp v3.0.1+incompatible
 ## explicit
 github.com/k0kubun/pp
@@ -56,17 +57,13 @@ github.com/k0kubun/pp
 ## explicit
 github.com/lunixbochs/vtclean
 # github.com/mattn/go-colorable v0.1.7
-## explicit
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.13
 github.com/mattn/go-isatty
 # github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
-## explicit
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.2
 github.com/modern-go/reflect2
-# github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e
-## explicit
 # github.com/pkg/errors v0.9.1
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
@@ -114,7 +111,5 @@ golang.org/x/tools/internal/typeparams
 ## explicit
 golang.org/x/xerrors
 golang.org/x/xerrors/internal
-# gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f
-## explicit
 # gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 gopkg.in/yaml.v3

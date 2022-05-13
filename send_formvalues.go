@@ -1,8 +1,8 @@
 package hit
 
 import (
-	"github.com/Eun/go-hit/httpbody"
-	"github.com/Eun/go-hit/internal/converter"
+	"github.com/otto-eng/go-hit/httpbody"
+	"github.com/otto-eng/go-hit/internal/converter"
 )
 
 // ISendFormValues provides methods to send form values.

@@ -3,7 +3,7 @@ package hit_test
 import (
 	"testing"
 
-	. "github.com/Eun/go-hit"
+	. "github.com/otto-eng/go-hit"
 )
 
 func TestExpectBodyJSONJQ_Equal(t *testing.T) {

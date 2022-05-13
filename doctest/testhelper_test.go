@@ -3,7 +3,7 @@ package doctest
 import (
 	"testing"
 
-	. "github.com/Eun/go-hit"
+	. "github.com/otto-eng/go-hit"
 )
 
 func TestRunTest(t *testing.T) {

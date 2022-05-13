@@ -11,7 +11,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	. "github.com/Eun/go-hit"
+	. "github.com/otto-eng/go-hit"
 )
 
 func TestRequestURL_Set(t *testing.T) {

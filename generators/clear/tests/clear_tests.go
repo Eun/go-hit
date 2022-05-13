@@ -6,7 +6,7 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/Eun/go-hit/generators/helpers"
+	"github.com/otto-eng/go-hit/generators/helpers"
 
 	"fmt"
 	"strings"
@@ -18,7 +18,7 @@ import (
 	"github.com/dave/jennifer/jen"
 	"golang.org/x/xerrors"
 
-	"github.com/Eun/go-hit"
+	"github.com/otto-eng/go-hit"
 )
 
 // maximum recursion to generate (e.g JQ().JQ().JQ()...)
@@ -409,7 +409,7 @@ func generateClearExpect(f *jen.File) {
 func main() {
 	f := jen.NewFile("hit_test")
 
-	f.Op(`import . "github.com/Eun/go-hit"`)
+	f.Op(`import . "github.com/otto-eng/go-hit"`)
 	f.Op(`import "github.com/stretchr/testify/require"`)
 	f.Op(`import "errors"`)
 

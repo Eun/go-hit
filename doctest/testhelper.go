@@ -4,7 +4,7 @@ package doctest
 import (
 	"net/http"
 
-	"github.com/Eun/go-hit/doctest/server"
+	"github.com/otto-eng/go-hit/doctest/server"
 )
 
 // RunTest mocks an test http server.

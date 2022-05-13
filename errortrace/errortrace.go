@@ -10,7 +10,7 @@ import (
 
 	"github.com/gookit/color"
 
-	"github.com/Eun/go-hit/internal/minitest"
+	"github.com/otto-eng/go-hit/internal/minitest"
 )
 
 // Template is used as a factory to create a new ErrorTrace when you need it, use New() to create an Template.

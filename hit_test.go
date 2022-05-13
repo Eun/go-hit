@@ -23,7 +23,7 @@ import (
 	"github.com/lunixbochs/vtclean"
 	"github.com/stretchr/testify/require"
 
-	. "github.com/Eun/go-hit"
+	. "github.com/otto-eng/go-hit"
 )
 
 //nolint:interfacer //this signature is required

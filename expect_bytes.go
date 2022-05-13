@@ -3,7 +3,7 @@ package hit
 import (
 	"bytes"
 
-	"github.com/Eun/go-hit/internal/minitest"
+	"github.com/otto-eng/go-hit/internal/minitest"
 )
 
 // IExpectBytes provides assertions for the byte slice type.

@@ -5,7 +5,7 @@ import (
 	"net"
 	"testing"
 
-	. "github.com/Eun/go-hit"
+	. "github.com/otto-eng/go-hit"
 
 	"net/url"
 

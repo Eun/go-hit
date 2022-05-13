@@ -5,7 +5,7 @@ import (
 
 	"errors"
 
-	. "github.com/Eun/go-hit"
+	. "github.com/otto-eng/go-hit"
 	"github.com/stretchr/testify/require"
 )
 

@@ -1,9 +1,9 @@
 # go-hit
-[![Actions Status](https://github.com/Eun/go-hit/workflows/CI/badge.svg)](https://github.com/Eun/go-hit/actions)
-[![Coverage Status](https://coveralls.io/repos/github/Eun/go-hit/badge.svg?branch=master)](https://coveralls.io/github/Eun/go-hit?branch=master)
-[![PkgGoDev](https://img.shields.io/badge/pkg.go.dev-reference-blue)](https://pkg.go.dev/github.com/Eun/go-hit)
-[![GoDoc](https://godoc.org/github.com/Eun/go-hit?status.svg)](https://godoc.org/github.com/Eun/go-hit)
-[![go-report](https://goreportcard.com/badge/github.com/Eun/go-hit)](https://goreportcard.com/report/github.com/Eun/go-hit)
+[![Actions Status](https://github.com/otto-eng/go-hit/workflows/CI/badge.svg)](https://github.com/otto-eng/go-hit/actions)
+[![Coverage Status](https://coveralls.io/repos/github/otto-eng/go-hit/badge.svg?branch=master)](https://coveralls.io/github/otto-eng/go-hit?branch=master)
+[![PkgGoDev](https://img.shields.io/badge/pkg.go.dev-reference-blue)](https://pkg.go.dev/github.com/otto-eng/go-hit)
+[![GoDoc](https://godoc.org/github.com/otto-eng/go-hit?status.svg)](https://godoc.org/github.com/otto-eng/go-hit)
+[![go-report](https://goreportcard.com/badge/github.com/otto-eng/go-hit)](https://goreportcard.com/report/github.com/otto-eng/go-hit)
 [![go1.15](https://img.shields.io/badge/go-1.15-blue)](#)
 ---
 hit is an **h**ttp **i**ntegration **t**est framework written in golang.
@@ -12,14 +12,14 @@ It is designed to be flexible as possible, but to keep a simple to use interface
 
 So lets get started!
 
-> go get -u github.com/Eun/go-hit
+> go get -u github.com/otto-eng/go-hit
 
 ```go //ignore
 package main
 
 import (
     "net/http"
-    . "github.com/Eun/go-hit"
+    . "github.com/otto-eng/go-hit"
 )
 
 func main() {
@@ -38,7 +38,7 @@ package main_test
 import (
     "testing"
     "net/http"
-    . "github.com/Eun/go-hit"
+    . "github.com/otto-eng/go-hit"
 )
 
 func TestHttpBin(t *testing.T) {

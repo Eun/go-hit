@@ -3,7 +3,7 @@ package hit_test
 import (
 	"testing"
 
-	. "github.com/Eun/go-hit"
+	. "github.com/otto-eng/go-hit"
 )
 
 // for convenience we test headers and trailers here

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	. "github.com/Eun/go-hit"
+	. "github.com/otto-eng/go-hit"
 
 	"github.com/lunixbochs/vtclean"
 	"github.com/stretchr/testify/require"

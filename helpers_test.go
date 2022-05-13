@@ -9,13 +9,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Eun/go-hit/errortrace"
+	"github.com/otto-eng/go-hit/errortrace"
 
-	"github.com/Eun/go-hit"
+	"github.com/otto-eng/go-hit"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/Eun/go-hit/internal/minitest"
+	"github.com/otto-eng/go-hit/internal/minitest"
 )
 
 func EchoServer() *httptest.Server {

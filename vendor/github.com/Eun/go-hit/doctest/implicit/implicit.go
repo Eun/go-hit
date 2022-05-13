@@ -5,7 +5,7 @@ package implicit
 import (
 	"net/http"
 
-	"github.com/otto-eng/go-hit/doctest/server"
+	"github.com/Eun/go-hit/doctest/server"
 )
 
 //nolint:gochecknoinits // this is needed so we can overwrite the http.DefaultTransport implicitly.

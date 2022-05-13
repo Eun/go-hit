@@ -10,8 +10,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	. "github.com/Eun/go-hit"
 	_ "github.com/Eun/go-hit/doctest/implicit"
+	. "github.com/otto-eng/go-hit"
 )
 
 func TestHead(t *testing.T) {
@@ -31,9 +31,19 @@ func TestPost(t *testing.T) {
 	)
 }
 
+func TestPatch(t *testing.T) {
+	Test(t,
+		Patch("http://%s/%s", "127.0.0.1:8081/v1", "user"),
+		Send().Headers("Content-Type").Add("application/json"),
+		Send().Headers("Authorization").Add("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI4ZTMzNGMxZC0yYzdjLTRhYTAtYTM2Mi1iNWViNWIwMGJkMmQiLCJleHAiOjE2NTMyODcwMTh9.6oD8LDhftnQ9iIdqo6XSnZWMQCitc5nxTyx0q5cv2wc"),
+		Send().Body().JSON(map[string]interface{}{"firstName": "paultest"}),
+		Expect().Status().Equal(http.StatusNoContent),
+	)
+}
+
 func TestStatusCode(t *testing.T) {
 	Test(t,
-		Head("https://google.com"),
+		Head("http://google.com"),
 		Expect().Custom(func(e Hit) error {
 			if e.Response().StatusCode > 400 {
 				// hit will catch errors

@@ -7,7 +7,7 @@
 //
 // import (
 //     "net/http"
-//     . "github.com/Eun/go-hit"
+//     . "github.com/otto-eng/go-hit"
 // )
 //
 // func main() {
@@ -24,7 +24,7 @@
 // import (
 //     "testing"
 //     "net/http"
-//     . "github.com/Eun/go-hit"
+//     . "github.com/otto-eng/go-hit"
 // )
 //
 // func TestHttpBin(t *testing.T) {

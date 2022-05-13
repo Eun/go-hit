@@ -1,8 +1,8 @@
 package hit
 
 import (
-	"github.com/Eun/go-hit/errortrace"
-	"github.com/Eun/go-hit/httpbody"
+	"github.com/otto-eng/go-hit/errortrace"
+	"github.com/otto-eng/go-hit/httpbody"
 )
 
 // IDebugBody defines the debug functions that are available for the http request/response body.

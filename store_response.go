@@ -4,7 +4,7 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/Eun/go-hit/internal/converter"
+	"github.com/otto-eng/go-hit/internal/converter"
 )
 
 // IStoreResponse defines the functions that can be used to store data from the http response.

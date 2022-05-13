@@ -3,7 +3,7 @@ package hit
 import (
 	"net/http"
 
-	"github.com/Eun/go-hit/httpbody"
+	"github.com/otto-eng/go-hit/httpbody"
 )
 
 // HTTPResponse contains the http.Response and methods to extract/set data for the body.

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"reflect"
 
-	"github.com/Eun/go-hit/generators/helpers"
+	"github.com/otto-eng/go-hit/generators/helpers"
 
 	"fmt"
 	"strings"
@@ -16,7 +16,7 @@ import (
 	"github.com/dave/jennifer/jen"
 	"golang.org/x/xerrors"
 
-	"github.com/Eun/go-hit"
+	"github.com/otto-eng/go-hit"
 )
 
 // maximum recursion to generate (e.g JQ().JQ().JQ()...)
@@ -193,7 +193,7 @@ func generateForStruct(generatedFiles *[]string, options generateOpts) error {
 	// create struct
 	f.Type().Id(name).Struct(
 		jen.Id("cp").Id("callPath"),
-		jen.Id("tr").Op("*").Qual("github.com/Eun/go-hit/errortrace", "ErrorTrace"),
+		jen.Id("tr").Op("*").Qual("github.com/otto-eng/go-hit/errortrace", "ErrorTrace"),
 	)
 
 	// create the constructor
@@ -219,7 +219,7 @@ func generateForStruct(generatedFiles *[]string, options generateOpts) error {
 	// create struct helper functions
 
 	// trace func
-	f.Func().Params(jen.Id("v").Op("*").Id(name)).Id("trace").Params().Op("*").Qual("github.com/Eun/go-hit/errortrace", "ErrorTrace").Block(
+	f.Func().Params(jen.Id("v").Op("*").Id(name)).Id("trace").Params().Op("*").Qual("github.com/otto-eng/go-hit/errortrace", "ErrorTrace").Block(
 		jen.Return(jen.Id("v").Dot("tr")),
 	)
 

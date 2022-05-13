@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/Eun/go-hit/httpbody"
+	"github.com/otto-eng/go-hit/httpbody"
 )
 
 // HTTPRequest contains the http.Request and methods to extract/set data for the body.

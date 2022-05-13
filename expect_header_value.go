@@ -1,7 +1,7 @@
 package hit
 
 import (
-	"github.com/Eun/go-hit/internal/minitest"
+	"github.com/otto-eng/go-hit/internal/minitest"
 )
 
 // IExpectHeaderValue provides assertions on the http response header value.

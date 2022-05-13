@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/Eun/go-hit/internal/converter"
+	"github.com/otto-eng/go-hit/internal/converter"
 )
 
 // IStore provides a store functionality for the Request and Response.

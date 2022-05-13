@@ -1,7 +1,7 @@
 package hit
 
 import (
-	"github.com/Eun/go-hit/httpbody"
+	"github.com/otto-eng/go-hit/httpbody"
 )
 
 // IStoreBodyJSON defines the functions that can be used to store data from the http request/response body

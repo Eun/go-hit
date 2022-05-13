@@ -3,7 +3,7 @@ package hit
 import (
 	"net/url"
 
-	"github.com/Eun/go-hit/internal/converter"
+	"github.com/otto-eng/go-hit/internal/converter"
 )
 
 // IRequestURLQuery provides methods to send header/trailer.

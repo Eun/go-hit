@@ -9,7 +9,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"golang.org/x/xerrors"
 
-	"github.com/Eun/go-hit/internal/misc"
+	"github.com/otto-eng/go-hit/internal/misc"
 )
 
 // NoRecipeFoundError is an error that will be returned when there is no recipe found to check if needle is in an

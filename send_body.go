@@ -3,7 +3,7 @@ package hit
 import (
 	"io"
 
-	"github.com/Eun/go-hit/httpbody"
+	"github.com/otto-eng/go-hit/httpbody"
 )
 
 // ISendBody provides methods to set request body.
