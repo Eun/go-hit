@@ -1,9 +1,11 @@
 package simple_test
 
 import (
+	"io"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
+	"net/http/httptest"
 	"testing"
 
 	"golang.org/x/xerrors"
@@ -31,13 +33,28 @@ func TestPost(t *testing.T) {
 	)
 }
 
+type PatchHandler struct{}
+
+func (h PatchHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPatch {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	io.Copy(w, r.Body)
+}
+
 func TestPatch(t *testing.T) {
+	s := httptest.NewServer(&PatchHandler{})
+	defer s.Close()
+
 	Test(t,
-		Patch("http://%s/%s", "127.0.0.1:8081/v1", "user"),
+		Patch(s.URL),
 		Send().Headers("Content-Type").Add("application/json"),
-		Send().Headers("Authorization").Add("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI4ZTMzNGMxZC0yYzdjLTRhYTAtYTM2Mi1iNWViNWIwMGJkMmQiLCJleHAiOjE2NTMyODcwMTh9.6oD8LDhftnQ9iIdqo6XSnZWMQCitc5nxTyx0q5cv2wc"),
 		Send().Body().JSON(map[string]interface{}{"firstName": "paultest"}),
-		Expect().Status().Equal(http.StatusNoContent),
+		Expect().Status().Equal(http.StatusOK),
+		Expect().Body().JSON().JQ(".firstName").Equal("paultest"),
 	)
 }
 
