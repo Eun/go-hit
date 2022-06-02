@@ -4,19 +4,29 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-type moduleLoader struct {
-	paths []string
-}
+// ModuleLoader is the interface for loading modules.
+//
+// Implement following optional methods. Use NewModuleLoader to load local modules.
+//
+//   LoadModule(string) (*Query, error)
+//   LoadModuleWithMeta(string, map[string]interface{}) (*Query, error)
+//   LoadInitModules() ([]*Query, error)
+//   LoadJSON(string) (interface{}, error)
+//   LoadJSONWithMeta(string, map[string]interface{}) (interface{}, error)
+type ModuleLoader interface{}
 
 // NewModuleLoader creates a new ModuleLoader reading local modules in the paths.
 func NewModuleLoader(paths []string) ModuleLoader {
 	return &moduleLoader{expandHomeDir(paths)}
+}
+
+type moduleLoader struct {
+	paths []string
 }
 
 func (l *moduleLoader) LoadInitModules() ([]*Query, error) {
@@ -35,13 +45,13 @@ func (l *moduleLoader) LoadInitModules() ([]*Query, error) {
 		if fi.IsDir() {
 			continue
 		}
-		cnt, err := ioutil.ReadFile(path)
+		cnt, err := os.ReadFile(path)
 		if err != nil {
 			return nil, err
 		}
 		q, err := parseModule(path, string(cnt))
 		if err != nil {
-			return nil, &queryParseError{"query in module", path, string(cnt), err}
+			return nil, &queryParseError{path, string(cnt), err}
 		}
 		qs = append(qs, q)
 	}
@@ -53,13 +63,13 @@ func (l *moduleLoader) LoadModuleWithMeta(name string, meta map[string]interface
 	if err != nil {
 		return nil, err
 	}
-	cnt, err := ioutil.ReadFile(path)
+	cnt, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 	q, err := parseModule(path, string(cnt))
 	if err != nil {
-		return nil, &queryParseError{"query in module", path, string(cnt), err}
+		return nil, &queryParseError{path, string(cnt), err}
 	}
 	return q, nil
 }
@@ -86,7 +96,7 @@ func (l *moduleLoader) LoadJSONWithMeta(name string, meta map[string]interface{}
 			if _, err := f.Seek(0, io.SeekStart); err != nil {
 				return nil, err
 			}
-			cnt, er := ioutil.ReadAll(f)
+			cnt, er := io.ReadAll(f)
 			if er != nil {
 				return nil, er
 			}
