@@ -57,19 +57,8 @@ func (stdRecipes) structToMap(c Converter, in StructValue, out MapValue) error {
 			valueValue = reflect.New(existingValue.Type())
 			valueValue.Elem().Set(existingValue)
 		} else {
-			// if the source is nil and the destination map does not expect us to have the field
-			// skip
-			switch in.Field(i).Kind() {
-			case reflect.Chan, reflect.Func, reflect.Map, reflect.Ptr, reflect.UnsafePointer,reflect. Interface, reflect.Slice:
-				if in.Field(i).IsNil() {
-					continue
-				}
-			}
-
 			valueValue = reflect.New(valueType)
 		}
-
-
 
 		if err := c.ConvertReflectValue(in.Field(i), valueValue); err != nil {
 			return err
