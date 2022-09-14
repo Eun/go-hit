@@ -7,7 +7,7 @@ github.com/Eun/go-doppelgangerreader
 # github.com/Eun/go-testdoc v0.0.1
 ## explicit
 github.com/Eun/go-testdoc
-# github.com/Eun/yaegi-template v1.5.18
+# github.com/Eun/yaegi-template v1.6.0
 ## explicit
 github.com/Eun/yaegi-template
 github.com/Eun/yaegi-template/codebuffer
@@ -78,12 +78,12 @@ github.com/stretchr/testify/require
 # github.com/tidwall/pretty v1.2.0
 ## explicit
 github.com/tidwall/pretty
-# github.com/traefik/yaegi v0.9.10
+# github.com/traefik/yaegi v0.9.21
 github.com/traefik/yaegi/interp
 github.com/traefik/yaegi/stdlib
 # github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778
 github.com/xo/terminfo
-# go.uber.org/atomic v1.7.0
+# go.uber.org/atomic v1.9.0
 go.uber.org/atomic
 # go.uber.org/goleak v1.1.12
 ## explicit
