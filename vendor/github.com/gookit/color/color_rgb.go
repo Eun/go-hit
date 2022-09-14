@@ -35,27 +35,6 @@ const (
 	AsBg
 )
 
-// values from https://github.com/go-terminfo/terminfo
-// var (
-// RgbaBlack    = image_color.RGBA{0, 0, 0, 255}
-// Red       = color.RGBA{205, 0, 0, 255}
-// Green     = color.RGBA{0, 205, 0, 255}
-// Orange    = color.RGBA{205, 205, 0, 255}
-// Blue      = color.RGBA{0, 0, 238, 255}
-// Magenta   = color.RGBA{205, 0, 205, 255}
-// Cyan      = color.RGBA{0, 205, 205, 255}
-// LightGrey = color.RGBA{229, 229, 229, 255}
-//
-// DarkGrey     = color.RGBA{127, 127, 127, 255}
-// LightRed     = color.RGBA{255, 0, 0, 255}
-// LightGreen   = color.RGBA{0, 255, 0, 255}
-// Yellow       = color.RGBA{255, 255, 0, 255}
-// LightBlue    = color.RGBA{92, 92, 255, 255}
-// LightMagenta = color.RGBA{255, 0, 255, 255}
-// LightCyan    = color.RGBA{0, 255, 255, 255}
-// White        = color.RGBA{255, 255, 255, 255}
-// )
-
 /*************************************************************
  * RGB Color(Bit24Color, TrueColor)
  *************************************************************/
@@ -71,13 +50,14 @@ const (
 // 	RGBColor{30,144,255, 0}
 // 	RGBColor{30,144,255, 1}
 //
-// NOTICE: now support RGB color on windows CMD, PowerShell
+// NOTICE: now support RGB color on Windows CMD, PowerShell
 type RGBColor [4]uint8
 
-// create a empty RGBColor
+// create an empty RGBColor
 var emptyRGBColor = RGBColor{3: 99}
 
 // RGB color create.
+//
 // Usage:
 // 	c := RGB(30,144,255)
 // 	c := RGB(30,144,255, true)
@@ -97,12 +77,18 @@ func Rgb(r, g, b uint8, isBg ...bool) RGBColor { return RGB(r, g, b, isBg...) }
 // Bit24 alias of the RGB()
 func Bit24(r, g, b uint8, isBg ...bool) RGBColor { return RGB(r, g, b, isBg...) }
 
-// RGBFromSlice quick RGBColor from slice
-func RGBFromSlice(rgb []uint8, isBg ...bool) RGBColor {
-	return RGB(rgb[0], rgb[1], rgb[2], isBg...)
+// RgbFromInt create instance from int r,g,b value
+func RgbFromInt(r, g, b int, isBg ...bool) RGBColor {
+	return RGB(uint8(r), uint8(g), uint8(b), isBg...)
+}
+
+// RgbFromInts create instance from []int r,g,b value
+func RgbFromInts(rgb []int, isBg ...bool) RGBColor {
+	return RGB(uint8(rgb[0]), uint8(rgb[1]), uint8(rgb[2]), isBg...)
 }
 
 // HEX create RGB color from a HEX color string.
+//
 // Usage:
 // 	c := HEX("ccc") // rgb: [204 204 204]
 // 	c := HEX("aabbcc") // rgb: [170 187 204]
@@ -121,27 +107,66 @@ func HEX(hex string, isBg ...bool) RGBColor {
 // Hex alias of the HEX()
 func Hex(hex string, isBg ...bool) RGBColor { return HEX(hex, isBg...) }
 
+// RGBFromHEX quick RGBColor from hex string, alias of HEX()
+func RGBFromHEX(hex string, isBg ...bool) RGBColor { return HEX(hex, isBg...) }
+
+// HSL create RGB color from a hsl value.
+// more see HslToRgb()
+func HSL(h, s, l float64, isBg ...bool) RGBColor {
+	rgb := HslToRgb(h, s, l)
+	return RGB(rgb[0], rgb[1], rgb[2], isBg...)
+}
+
+// Hsl alias of the HSL()
+func Hsl(h, s, l float64, isBg ...bool) RGBColor { return HSL(h, s, l, isBg...) }
+
+// HSLInt create RGB color from a hsl int value.
+// more see HslIntToRgb()
+func HSLInt(h, s, l int, isBg ...bool) RGBColor {
+	rgb := HslIntToRgb(h, s, l)
+	return RGB(rgb[0], rgb[1], rgb[2], isBg...)
+}
+
+// HslInt alias of the HSLInt()
+func HslInt(h, s, l int, isBg ...bool) RGBColor { return HSLInt(h, s, l, isBg...) }
+
+// RGBFromSlice quick RGBColor from slice
+func RGBFromSlice(rgb []uint8, isBg ...bool) RGBColor {
+	return RGB(rgb[0], rgb[1], rgb[2], isBg...)
+}
+
 // RGBFromString create RGB color from a string.
+// Support use color name in the {namedRgbMap}
+//
 // Usage:
 // 	c := RGBFromString("170,187,204")
 // 	c.Print("message")
+//
+// 	c := RGBFromString("brown")
+// 	c.Print("message with color brown")
 func RGBFromString(rgb string, isBg ...bool) RGBColor {
+	// use color name in the {namedRgbMap}
+	if rgbVal, ok := namedRgbMap[rgb]; ok {
+		rgb = rgbVal
+	}
+
+	// use rgb string.
 	ss := stringToArr(rgb, ",")
 	if len(ss) != 3 {
 		return emptyRGBColor
 	}
 
-	var ar [3]int
+	var ar [3]uint8
 	for i, val := range ss {
 		iv, err := strconv.Atoi(val)
-		if err != nil {
+		if err != nil || !isValidUint8(iv) {
 			return emptyRGBColor
 		}
 
-		ar[i] = iv
+		ar[i] = uint8(iv)
 	}
 
-	return RGB(uint8(ar[0]), uint8(ar[1]), uint8(ar[2]), isBg...)
+	return RGB(ar[0], ar[1], ar[2], isBg...)
 }
 
 // Set terminal by rgb/true color code
@@ -194,6 +219,11 @@ func (c RGBColor) Hex() string {
 	return fmt.Sprintf("%02x%02x%02x", c[0], c[1], c[2])
 }
 
+// RgbString to color code string without prefix. eg: "204,123,56"
+func (c RGBColor) RgbString() string {
+	return fmt.Sprintf("%d,%d,%d", c[0], c[1], c[2])
+}
+
 // FullCode to color code string with prefix
 func (c RGBColor) FullCode() string {
 	return c.String()
@@ -244,13 +274,13 @@ func (c RGBColor) C16() Color { return c.Basic() }
  * RGB Style
  *************************************************************/
 
-// RGBStyle definition.
+// RGBStyle supports set foreground and background color
 //
-// Foreground/Background color
 // All are composed of 4 digits uint8, the first three digits are the color value;
 // The last bit is different from RGBColor, here it indicates whether the value is set.
-// - 1  Has been set
-// - ^1 Not set
+//
+// 	1    Has been set
+// 	^1   Not set
 type RGBStyle struct {
 	// Name of the style
 	Name string
@@ -271,6 +301,7 @@ func NewRGBStyle(fg RGBColor, bg ...RGBColor) *RGBStyle {
 }
 
 // HEXStyle create a RGBStyle from HEX color string.
+//
 // Usage:
 // 	s := HEXStyle("aabbcc", "eee")
 // 	s.Print("message")
@@ -283,11 +314,11 @@ func HEXStyle(fg string, bg ...string) *RGBStyle {
 	if len(fg) > 0 {
 		s.SetFg(HEX(fg))
 	}
-
 	return s
 }
 
 // RGBStyleFromString create a RGBStyle from color value string.
+//
 // Usage:
 // 	s := RGBStyleFromString("170,187,204", "70,87,4")
 // 	s.Print("message")
