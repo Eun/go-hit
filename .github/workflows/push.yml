@@ -10,12 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
+        name: Checkout code
         uses: actions/checkout@v3.0.2
       -
-        name: lint
-        uses: golangci/golangci-lint-action@v2.5.2
+        name: Get go.mod details
+        uses: Eun/go-mod-details@v1.0.4
+        id: go-mod-details
+      -
+        name: Install Go
+        uses: actions/setup-go@v3
         with:
-          version: latest
+          go-version: ${{ steps.go-mod-details.outputs.go_version }}
+      -
+        name: Lint
+        uses: golangci/golangci-lint-action@v3.2.0
+        with:
+          version: v1.42.1
           # optional: show only new issues if it's a pull request. The default value is `false`.
           # only-new-issues: true
 
