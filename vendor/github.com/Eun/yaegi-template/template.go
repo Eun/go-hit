@@ -44,8 +44,10 @@
 package yaegi_template
 
 import (
+	"bufio"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -170,7 +172,9 @@ func (t *Template) LazyParse(reader io.Reader) error {
 	// if we already have some uses
 	// use them
 	if len(t.use) != 0 {
-		t.interp.Use(t.use)
+		if err := t.interp.Use(t.use); err != nil {
+			return errors.Wrap(err, "unable to use")
+		}
 	}
 
 	// if we already have some imports
@@ -231,34 +235,50 @@ func (t *Template) Exec(writer io.Writer, context interface{}) (int, error) {
 		return 0, err
 	}
 
-	total := 0
+	var buf bytes.Buffer
 
 	for it.Next() {
 		part := it.Value()
 		switch part.Type {
 		case codebuffer.CodePartType:
-			n, err := t.execCode(string(part.Content), writer, context)
-			if err != nil {
-				return total, err
+			if _, err := buf.Write(part.Content); err != nil {
+				return 0, errors.Wrap(err, "unable to write code part")
 			}
-			if n > 0 {
-				total += n
+			if _, err := buf.WriteRune('\n'); err != nil {
+				return 0, errors.Wrap(err, "unable to write code part")
 			}
 		case codebuffer.TextPartType:
-			var n int
-			if writer != nil {
-				n, err = writer.Write(part.Content)
+			if _, err := buf.WriteString("print("); err != nil {
+				return 0, errors.Wrap(err, "unable to write text part")
 			}
-			if err != nil {
-				return total, err
+			if _, err := buf.WriteString(strconv.Quote(string(part.Content))); err != nil {
+				return 0, errors.Wrap(err, "unable to write text part")
 			}
-			if n > 0 {
-				total += n
+			if _, err := buf.WriteString(")\n"); err != nil {
+				return 0, errors.Wrap(err, "unable to write text part")
 			}
 		}
 	}
+	if err := it.Error(); err != nil {
+		return 0, err
+	}
 
-	return total, it.Error()
+	n, err := t.execCode(buf.String(), writer, context)
+	if err != nil {
+		var errWriter strings.Builder
+		scnr := bufio.NewScanner(&buf)
+		i := 1
+		for scnr.Scan() {
+			fmt.Fprintf(&errWriter, "%d\t%s\n", i, scnr.Text())
+			i++
+		}
+		if err := scnr.Err(); err != nil {
+			return 0, errors.Wrap(err, "unable to scan source")
+		}
+
+		return 0, errors.Wrapf(err, "error during execution of\n%s", errWriter.String())
+	}
+	return n, nil
 }
 
 // MustExec is like Exec, except it panics on failure.
@@ -274,11 +294,14 @@ func (t *Template) execCode(code string, out io.Writer, context interface{}) (in
 	}
 	if context != nil {
 		// do we need to
-		t.interp.Use(interp.Exports{
-			"internal": map[string]reflect.Value{
+		err := t.interp.Use(interp.Exports{
+			"internal/internal": map[string]reflect.Value{
 				"context": reflect.ValueOf(context),
 			},
 		})
+		if err != nil {
+			return 0, errors.Wrapf(err, "unable to use context")
+		}
 
 		// always reimport internal
 		if _, err := t.safeEval(`import . "internal"`); err != nil {
@@ -473,7 +496,9 @@ func (t *Template) useExports(values interp.Exports) error {
 	t.use = mergeExports(t.use, values)
 	// if we have an interpreter, use right now
 	if t.interp != nil {
-		t.interp.Use(t.use)
+		if err := t.interp.Use(t.use); err != nil {
+			return errors.Wrap(err, "unable to use")
+		}
 	}
 	return nil
 }
