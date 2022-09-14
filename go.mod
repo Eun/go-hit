@@ -11,7 +11,7 @@ require (
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1 // indirect
 	github.com/dave/jennifer v1.4.1
 	github.com/google/go-cmp v0.5.6
-	github.com/gookit/color v1.4.2
+	github.com/gookit/color v1.5.2
 	github.com/gorilla/mux v1.8.0
 	github.com/itchyny/gojq v0.12.5
 	github.com/json-iterator/go v1.1.12

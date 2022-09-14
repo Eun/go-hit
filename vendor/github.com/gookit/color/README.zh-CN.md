@@ -2,14 +2,14 @@
 
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/gookit/color?style=flat-square)
 [![Actions Status](https://github.com/gookit/color/workflows/action-tests/badge.svg)](https://github.com/gookit/color/actions)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/51b28c5f7ffe4cc2b0f12ecf25ed247f)](https://app.codacy.com/app/inhere/color)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/7fef8d74c1d64afc99ce0f2c6d3f8af1)](https://www.codacy.com/gh/gookit/color/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gookit/color&amp;utm_campaign=Badge_Grade)
 [![GoDoc](https://godoc.org/github.com/gookit/color?status.svg)](https://pkg.go.dev/github.com/gookit/color?tab=overview)
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/gookit/color)](https://github.com/gookit/color)
 [![Build Status](https://travis-ci.org/gookit/color.svg?branch=master)](https://travis-ci.org/gookit/color)
 [![Coverage Status](https://coveralls.io/repos/github/gookit/color/badge.svg?branch=master)](https://coveralls.io/github/gookit/color?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gookit/color)](https://goreportcard.com/report/github.com/gookit/color)
 
-Golang下的命令行色彩使用库, 拥有丰富的色彩渲染输出，通用的API方法，兼容Windows系统
+Golang下的命令行色彩使用库, 拥有丰富的色彩(16/256/True)渲染输出，通用的API方法，兼容Windows系统
 
 > **[EN README](README.md)**
 
@@ -28,9 +28,10 @@ Golang下的命令行色彩使用库, 拥有丰富的色彩渲染输出，通用
     - 16色(4bit)是最常用和支持最广的，支持Windows `cmd.exe`
     - 自 `v1.2.4` 起 **256色(8bit)，RGB色彩(24bit)均支持Windows CMD和PowerShell终端**
     - 请查看 [this gist](https://gist.github.com/XVilka/8346728) 了解支持RGB色彩的终端
+  - 支持转换 `HEX` `HSL` 等为RGB色彩
   - 提供通用的API方法：`Print` `Printf` `Println` `Sprint` `Sprintf`
   - 同时支持html标签式的颜色渲染，除了使用内置标签，同时支持自定义颜色属性
-    - 例如: `this an <green>message</>` 标签内部的文本将会渲染为绿色字体
+    - 例如: `this an <green>message</> <fg=red;bg=blue>text</>` 标签内部文本将会渲染对应色彩
     - 自定义颜色属性: 支持使用16色彩名称，256色彩值，rgb色彩值以及hex色彩值
   - 基础色彩: `Bold` `Black` `White` `Gray` `Red` `Green` `Yellow` `Blue` `Magenta` `Cyan`
   - 扩展风格: `Info` `Note` `Light` `Error` `Danger` `Notice` `Success` `Comment` `Primary` `Warning` `Question` `Secondary`
@@ -124,12 +125,7 @@ func main() {
 color.Bold.Println("bold message")
 color.Black.Println("bold message")
 color.White.Println("bold message")
-color.Gray.Println("bold message")
-color.Red.Println("yellow message")
-color.Blue.Println("yellow message")
-color.Cyan.Println("yellow message")
-color.Yellow.Println("yellow message")
-color.Magenta.Println("yellow message")
+// ...
 
 // Only use foreground color
 color.FgCyan.Printf("Simple to use %s\n", "color")
@@ -185,13 +181,7 @@ color.Reset()
 color.Info.Println("Info message")
 color.Note.Println("Note message")
 color.Notice.Println("Notice message")
-color.Error.Println("Error message")
-color.Danger.Println("Danger message")
-color.Warn.Println("Warn message")
-color.Debug.Println("Debug message")
-color.Primary.Println("Primary message")
-color.Question.Println("Question message")
-color.Secondary.Println("Secondary message")
+// ...
 ```
 
 Run demo: `go run ./_examples/theme_basic.go`
@@ -202,15 +192,9 @@ Run demo: `go run ./_examples/theme_basic.go`
 
 ```go
 color.Info.Tips("Info tips message")
-color.Note.Tips("Note tips message")
 color.Notice.Tips("Notice tips message")
 color.Error.Tips("Error tips message")
-color.Danger.Tips("Danger tips message")
-color.Warn.Tips("Warn tips message")
-color.Debug.Tips("Debug tips message")
-color.Primary.Tips("Primary tips message")
-color.Question.Tips("Question tips message")
-color.Secondary.Tips("Secondary tips message")
+// ...
 ```
 
 Run demo: `go run ./_examples/theme_tips.go`
@@ -221,8 +205,6 @@ Run demo: `go run ./_examples/theme_tips.go`
 
 ```go
 color.Info.Prompt("Info prompt message")
-color.Note.Prompt("Note prompt message")
-color.Notice.Prompt("Notice prompt message")
 color.Error.Prompt("Error prompt message")
 color.Danger.Prompt("Danger prompt message")
 ```
@@ -236,9 +218,7 @@ Run demo: `go run ./_examples/theme_prompt.go`
 ```go
 color.Warn.Block("Warn block message")
 color.Debug.Block("Debug block message")
-color.Primary.Block("Primary block message")
 color.Question.Block("Question block message")
-color.Secondary.Block("Secondary block message")
 ```
 
 Run demo: `go run ./_examples/theme_block.go`
@@ -251,7 +231,7 @@ Run demo: `go run ./_examples/theme_block.go`
 
 ### 使用前景或后景色
  
-  - `color.C256(val uint8, isBg ...bool) Color256`
+- `color.C256(val uint8, isBg ...bool) Color256`
 
 ```go
 c := color.C256(132) // fg color
@@ -339,7 +319,7 @@ c.Printf("format %s", "message")
 
 ### 使用RGB风格
 
-> 可同时设置前景和背景色
+> TIP: 可同时设置前景和背景色
 
 - `color.NewRGBStyle(fg RGBColor, bg ...RGBColor) *RGBStyle`
 
@@ -369,7 +349,32 @@ s.Printf("style with %s\n", "options")
 
 ## 使用颜色标签
 
+`Print,Printf,Println` 等方法支持自动解析并渲染 HTML 风格的颜色标签
+
 > **支持** 在windows `cmd.exe` `PowerShell` 使用
+
+简单示例:
+
+```go
+	text := `
+  <mga1>gookit/color:</>
+     A <green>command-line</> 
+     <cyan>color library</> with <fg=167;bg=232>256-color</>
+     and <fg=11aa23;op=bold>True-color</> support,
+     <fg=mga;op=i>universal API</> methods
+     and <cyan>Windows</> support.
+`
+	color.Print(text)
+```
+
+输出效果, 示例代码请看 [_examples/demo_tag.go](_examples/demo_tag.go):
+
+![demo_tag](_examples/images/demo_tag.png)
+
+**颜色标签格式:**
+
+- 直接使用内置风格标签: `<TAG_NAME>CONTENT</>` e.g: `<info>message</>`
+- 自定义标签属性: `<fg=VALUE;bg=VALUE;op=VALUES>CONTENT</>` e.g: `<fg=167;bg=232>wel</>`
 
 使用内置的颜色标签，可以非常方便简单的构建自己需要的任何格式
 
@@ -389,9 +394,56 @@ color.Print("<fg=yellow;bg=black;op=underscore;>hello, welcome</>\n")
 color.Println("<fg=11aa23>he</><bg=120,35,156>llo</>, <fg=167;bg=232>wel</><fg=red>come</>")
 ```
 
-- 使用 `color.Tag`
+### 自定义标签属性
 
-给后面输出的文本信息加上给定的颜色风格标签
+标签属性格式:
+
+```text
+attr format:
+ // VALUE please see var: FgColors, BgColors, AllOptions
+ "fg=VALUE;bg=VALUE;op=VALUE"
+
+16 color:
+ "fg=yellow"
+ "bg=red"
+ "op=bold,underscore" // option is allow multi value
+ "fg=white;bg=blue;op=bold"
+ "fg=white;op=bold,underscore"
+
+256 color:
+ "fg=167"
+ "fg=167;bg=23"
+ "fg=167;bg=23;op=bold"
+ 
+True color:
+ // hex
+ "fg=fc1cac"
+ "fg=fc1cac;bg=c2c3c4"
+ // r,g,b
+ "fg=23,45,214"
+ "fg=23,45,214;bg=109,99,88"
+```
+
+> tag attributes parse please see `func ParseCodeFromAttr()`
+
+### 内置标签
+
+内置标签请参见变量 `colorTags` 定义, 源文件 [color_tag.go](color_tag.go)
+
+```go
+// use style tag
+color.Print("<suc>he</><comment>llo</>, <cyan>wel</><red>come</>")
+color.Println("<suc>hello</>")
+color.Println("<error>hello</>")
+```
+
+> 运行 demo: `go run ./_examples/color_tag.go`
+
+![color-tags](_examples/images/color-tags.png)
+
+**使用 `color.Tag` 包装标签**:
+
+可以使用通用的输出API方法,给后面输出的文本信息加上给定的颜色风格标签
 
 ```go
 // set a style tag
@@ -399,10 +451,6 @@ color.Tag("info").Print("info style text")
 color.Tag("info").Printf("%s style text", "info")
 color.Tag("info").Println("info style text")
 ```
-
-> 运行 demo: `go run ./_examples/color_tag.go`
-
-![color-tags](_examples/images/color-tags.png)
 
 ## 颜色转换
 
@@ -421,26 +469,96 @@ rgb.Println("rgb color")
 rgb.C256().Println("256 color")
 ```
 
-## 方法参考
+### 颜色转换方法
+
+`color` 内置了许多颜色转换工具方法
+
+```go
+func Basic2hex(val uint8) string
+
+func Bg2Fg(val uint8) uint8
+func Fg2Bg(val uint8) uint8
+
+func C256ToRgb(val uint8) (rgb []uint8)
+func C256ToRgbV1(val uint8) (rgb []uint8)
+
+func Hex2basic(hex string, asBg ...bool) uint8
+func Hex2rgb(hex string) []int
+func HexToRGB(hex string) []int
+func HexToRgb(hex string) (rgb []int)
+
+func HslIntToRgb(h, s, l int) (rgb []uint8)
+func HslToRgb(h, s, l float64) (rgb []uint8)
+func HsvToRgb(h, s, v int) (rgb []uint8)
+
+func Rgb2ansi(r, g, b uint8, isBg bool) uint8
+func Rgb2basic(r, g, b uint8, isBg bool) uint8
+func Rgb2hex(rgb []int) string
+func Rgb2short(r, g, b uint8) uint8
+func RgbTo256(r, g, b uint8) uint8
+func RgbTo256Table() map[string]uint8
+func RgbToAnsi(r, g, b uint8, isBg bool) uint8
+func RgbToHex(rgb []int) string
+func RgbToHsl(r, g, b uint8) []float64
+func RgbToHslInt(r, g, b uint8) []int
+```
+
+**转换为 `RGBColor`**:
+
+- `func RGBFromSlice(rgb []uint8, isBg ...bool) RGBColor`
+- `func RGBFromString(rgb string, isBg ...bool) RGBColor`
+- `func HEX(hex string, isBg ...bool) RGBColor`
+- `func HSL(h, s, l float64, isBg ...bool) RGBColor`
+- `func HSLInt(h, s, l int, isBg ...bool) RGBColor`
+
+## 工具方法参考
 
 一些有用的工具方法参考
 
-- `Disable()` disable color render
-- `SetOutput(io.Writer)` custom set the colored text output writer
-- `ForceOpenColor()` force open color render
+- `Disable()` 禁用颜色渲染输出
+- `SetOutput(io.Writer)` 自定义设置渲染后的彩色文本输出位置
+- `ForceOpenColor()` 强制开启颜色渲染
 - `ClearCode(str string) string` Use for clear color codes
 - `Colors2code(colors ...Color) string` Convert colors to code. return like "32;45;3"
 - `ClearTag(s string) string` clear all color html-tag for a string
 - `IsConsole(w io.Writer)` Determine whether w is one of stderr, stdout, stdin
-- `HexToRgb(hex string) (rgb []int)` Convert hex color string to RGB numbers
-- `RgbToHex(rgb []int) string` Convert RGB to hex code
 - 更多请查看文档 https://pkg.go.dev/github.com/gookit/color
 
-## 使用color的项目
+### 检测支持的颜色级别
+
+`color` 会自动检查当前环境支持的颜色级别
+
+```go
+// Level is the color level supported by a terminal.
+type Level = terminfo.ColorLevel
+
+// terminal color available level alias of the terminfo.ColorLevel*
+const (
+	LevelNo  = terminfo.ColorLevelNone     // not support color.
+	Level16  = terminfo.ColorLevelBasic    // basic - 3/4 bit color supported
+	Level256 = terminfo.ColorLevelHundreds // hundreds - 8-bit color supported
+	LevelRgb = terminfo.ColorLevelMillions // millions - (24 bit)true color supported
+)
+```
+
+- `func SupportColor() bool` 当前环境是否支持色彩输出
+- `func Support256Color() bool` 当前环境是否支持256色彩输出
+- `func SupportTrueColor() bool` 当前环境是否支持(RGB)True色彩输出
+- `func TermColorLevel() Level` 获取当前支持的颜色级别
+
+## 使用Color的项目
 
 看看这些使用了 https://github.com/gookit/color 的项目:
 
 - https://github.com/Delta456/box-cli-maker Make Highly Customized Boxes for your CLI
+- https://github.com/flipped-aurora/gin-vue-admin 基于gin+vue搭建的（中）后台系统框架
+- https://github.com/JanDeDobbeleer/oh-my-posh A prompt theme engine for any shell.
+- https://github.com/jesseduffield/lazygit Simple terminal UI for git commands
+- https://github.com/olivia-ai/olivia 💁‍♀️Your new best friend powered by an artificial neural network
+- https://github.com/pterm/pterm PTerm is a modern Go module to beautify console output. Featuring charts, progressbars, tables, trees, etc.
+- https://github.com/securego/gosec Golang security checker
+- https://github.com/TNK-Studio/lazykube ⎈ The lazier way to manage kubernetes.
+- [+ See More](https://pkg.go.dev/github.com/gookit/color?tab=importedby)
 
 ## Gookit 工具包
 
