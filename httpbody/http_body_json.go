@@ -250,7 +250,6 @@ func (jsn *HTTPBodyJSON) Dasel(container interface{}, expression ...string) erro
 
 		return json.NewDecoder(&buf).Decode(container)
 	}
-
 }
 
 // MustDasel runs an dasel expression on the JSON body the result will be stored into container, if an error occurs it will
