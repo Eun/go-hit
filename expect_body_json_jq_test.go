@@ -149,19 +149,20 @@ func TestExpectBodyJSONJQ_Equal(t *testing.T) {
 				PtrStr("not equal"), nil, nil, nil, nil, nil,
 			)
 		})
-		//TODO
-		//t.Run("array", func(t *testing.T) {
-		//	Test(t,
-		//		Post(s.URL),
-		//		Description("first expression returning an array"),
-		//		Expect().Body().JSON().JQ(".Bills", ".[].ID").Equal([]int{21, 25}),
-		//	)
-		//	Test(t,
-		//		Post(s.URL),
-		//		Description("first expression returning single json objects"),
-		//		Expect().Body().JSON().JQ(".Bills[]", ".ID").Equal([]int{21, 25}),
-		//	)
-		//})
+		//nolint:gocritic // allow fixme comment
+		// FIXME
+		// t.Run("array", func(t *testing.T) {
+		// 	Test(t,
+		// 		Post(s.URL),
+		// 		Description("first expression returning an array"),
+		// 		Expect().Body().JSON().JQ(".Bills", ".[].ID").Equal([]int{21, 25}),
+		// 	)
+		// 	Test(t,
+		// 		Post(s.URL),
+		// 		Description("first expression returning single json objects"),
+		// 		Expect().Body().JSON().JQ(".Bills[]", ".ID").Equal([]int{21, 25}),
+		// 	)
+		// })
 	})
 
 	t.Run("stream", func(t *testing.T) {

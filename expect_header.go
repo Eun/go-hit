@@ -4,7 +4,6 @@ import (
 	"github.com/Eun/go-hit/internal/minitest"
 )
 
-//nolint:dupl // the methods of IExpectFormValues and IExpectHeaders are the same however the comments are different.
 // IExpectHeaders provides assertions on the http response header.
 type IExpectHeaders interface {
 	// Contains expects the specific header to contain all of the specified values.

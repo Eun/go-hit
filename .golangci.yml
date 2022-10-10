@@ -2,9 +2,6 @@ linters-settings:
   dogsled:
     # checks assignments with too many blank identifiers; default is 2
     max-blank-identifiers: 2
-  dupl:
-    # tokens count to trigger issue, 150 by default
-    threshold: 100
   errcheck:
     # report about not checking of errors in type assertions: `a := b.(MyStruct)`;
     # default is false: such cases aren't reported by default.
@@ -130,7 +127,6 @@ linters:
     - deadcode
     - depguard
     - dogsled
-    - dupl
     - errcheck
     - exhaustive
     - exportloopref
@@ -195,7 +191,6 @@ issues:
         - goimports
         - gocyclo
         - errcheck
-        - dupl
         - gosec
         - funlen
         - goconst
@@ -207,7 +202,6 @@ issues:
         - goimports
     - path: generators/
       linters:
-        - dupl
         - lll
         - funlen
         - gocognit
@@ -215,7 +209,6 @@ issues:
       linters:
         - gofmt
         - goimports
-        - dupl
         - lll
     - text: 'shadow: declaration of "err" shadows declaration at line \d+'
       linters:
