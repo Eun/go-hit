@@ -7527,6 +7527,1104 @@ func TestGenClear_Specific_ExpectBodyJSONContains(t *testing.T) {
 		PtrStr("TestOK"),
 	)
 }
+func TestGenClear_Generic_ExpectBodyJSONDasel(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Contains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Contains()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").Contains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselDasel(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Dasel("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").Dasel("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Dasel(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Dasel()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Dasel()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselDaselContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Dasel("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").Dasel("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Dasel().Contains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Dasel().Contains()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Dasel().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselDaselContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Dasel("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").Dasel("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").Dasel("Foo", "Bar").Contains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselDaselDasel(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Dasel("Foo", "Bar").Dasel("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").Dasel("Hello", "World").Dasel("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Dasel().Dasel(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Dasel().Dasel()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Dasel().Dasel()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselDaselEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Dasel("Foo", "Bar").Equal("Foo-Taz"),
+			Expect().Body().JSON().Dasel("Hello", "World").Dasel("Hello", "World").Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Dasel().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Dasel().Equal()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Dasel().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselDaselEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Dasel("Foo", "Bar").Equal("Foo-Taz"),
+			Expect().Body().JSON().Dasel("Hello", "World").Dasel("Hello", "World").Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").Dasel("Foo", "Bar").Equal("Foo-Taz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselDaselJQ(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Dasel("Foo", "Bar").JQ("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").Dasel("Hello", "World").JQ("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Dasel().JQ(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Dasel().JQ()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Dasel().JQ()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselDaselLen(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Dasel("Foo", "Bar").Len().Between(2, 2),
+			Expect().Body().JSON().Dasel("Hello", "World").Dasel("Hello", "World").Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Dasel().Len(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Dasel().Len()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Dasel().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselDaselNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Dasel("Foo", "Bar").NotContains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").Dasel("Hello", "World").NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Dasel().NotContains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Dasel().NotContains()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Dasel().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselDaselNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Dasel("Foo", "Bar").NotContains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").Dasel("Hello", "World").NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").Dasel("Foo", "Bar").NotContains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselDaselNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Dasel("Foo", "Bar").NotEqual("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").Dasel("Hello", "World").NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Dasel().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Dasel().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Dasel().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselDaselNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Dasel("Foo", "Bar").NotEqual("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").Dasel("Hello", "World").NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").Dasel("Foo", "Bar").NotEqual("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Equal("Foo-Taz"),
+			Expect().Body().JSON().Dasel("Hello", "World").Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Equal()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Equal("Foo-Taz"),
+			Expect().Body().JSON().Dasel("Hello", "World").Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").Equal("Foo-Taz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselJQ(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").JQ("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").JQ("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().JQ(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().JQ()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().JQ()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselJQContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").JQ("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").JQ("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().JQ().Contains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().JQ().Contains()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().JQ().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselJQContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").JQ("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").JQ("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").JQ("Foo", "Bar").Contains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselJQDasel(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").JQ("Foo", "Bar").Dasel("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").JQ("Hello", "World").Dasel("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().JQ().Dasel(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().JQ().Dasel()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().JQ().Dasel()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselJQEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").JQ("Foo", "Bar").Equal("Foo-Taz"),
+			Expect().Body().JSON().Dasel("Hello", "World").JQ("Hello", "World").Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().JQ().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().JQ().Equal()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().JQ().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselJQEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").JQ("Foo", "Bar").Equal("Foo-Taz"),
+			Expect().Body().JSON().Dasel("Hello", "World").JQ("Hello", "World").Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").JQ("Foo", "Bar").Equal("Foo-Taz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselJQJQ(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").JQ("Foo", "Bar").JQ("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").JQ("Hello", "World").JQ("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().JQ().JQ(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().JQ().JQ()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().JQ().JQ()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselJQLen(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").JQ("Foo", "Bar").Len().Between(2, 2),
+			Expect().Body().JSON().Dasel("Hello", "World").JQ("Hello", "World").Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().JQ().Len(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().JQ().Len()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().JQ().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselJQNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").JQ("Foo", "Bar").NotContains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").JQ("Hello", "World").NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().JQ().NotContains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().JQ().NotContains()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().JQ().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselJQNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").JQ("Foo", "Bar").NotContains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").JQ("Hello", "World").NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").JQ("Foo", "Bar").NotContains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselJQNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").JQ("Foo", "Bar").NotEqual("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").JQ("Hello", "World").NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().JQ().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().JQ().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().JQ().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselJQNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").JQ("Foo", "Bar").NotEqual("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").JQ("Hello", "World").NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").JQ("Foo", "Bar").NotEqual("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselLen(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().Between(2, 2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Len(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Len()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().Between(2, 2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Len().Between(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Len().Between()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Len().Between()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselLenBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().Between(2, 2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").Len().Between(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().Equal(2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Len().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Len().Equal()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Len().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselLenEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().Equal(2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().Equal(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").Len().Equal(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().GreaterOrEqualThan(2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Len().GreaterOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Len().GreaterOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Len().GreaterOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselLenGreaterOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().GreaterOrEqualThan(2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().GreaterOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").Len().GreaterOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().GreaterThan(2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Len().GreaterThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Len().GreaterThan()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Len().GreaterThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselLenGreaterThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().GreaterThan(2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().GreaterThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").Len().GreaterThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().LessOrEqualThan(2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Len().LessOrEqualThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Len().LessOrEqualThan()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Len().LessOrEqualThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselLenLessOrEqualThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().LessOrEqualThan(2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().LessOrEqualThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").Len().LessOrEqualThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().LessThan(2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Len().LessThan(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Len().LessThan()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Len().LessThan()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselLenLessThan(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().LessThan(2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().LessThan(3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").Len().LessThan(2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().NotBetween(2, 2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Len().NotBetween(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Len().NotBetween()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Len().NotBetween()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselLenNotBetween(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().NotBetween(2, 2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().NotBetween(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").Len().NotBetween(2, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().NotEqual(1, 2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Len().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Len().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Len().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselLenNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().NotEqual(1, 2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().NotEqual(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").Len().NotEqual(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().NotOneOf(1, 2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Len().NotOneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Len().NotOneOf()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Len().NotOneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselLenNotOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().NotOneOf(1, 2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().NotOneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").Len().NotOneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().OneOf(1, 2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().Len().OneOf(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().Len().OneOf()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().Len().OneOf()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselLenOneOf(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").Len().OneOf(1, 2),
+			Expect().Body().JSON().Dasel("Hello", "World").Len().OneOf(3, 4),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").Len().OneOf(1, 2),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").NotContains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().NotContains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().NotContains()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").NotContains("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").NotContains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONDaselNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").NotEqual("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().Dasel().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().JSON().Dasel().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONDaselNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().Dasel("Foo", "Bar").NotEqual("Foo", "Baz"),
+			Expect().Body().JSON().Dasel("Hello", "World").NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().Dasel("Foo", "Bar").NotEqual("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
 func TestGenClear_Generic_ExpectBodyJSONEqual(t *testing.T) {
 	s := EchoServer()
 	defer s.Close()
@@ -7625,6 +8723,258 @@ func TestGenClear_Specific_ExpectBodyJSONJQContains(t *testing.T) {
 			Expect().Body().JSON().JQ("Hello", "World").Contains("Hello", "Earth"),
 			storeSteps(&steps),
 			Clear().Expect().Body().JSON().JQ("Foo", "Bar").Contains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONJQDasel(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().JQ("Foo", "Bar").Dasel("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().JQ("Hello", "World").Dasel("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().JQ().Dasel(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Dasel()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Dasel()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONJQDaselContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().JQ("Foo", "Bar").Dasel("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().JQ("Hello", "World").Dasel("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().JQ().Dasel().Contains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Dasel().Contains()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Dasel().Contains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONJQDaselContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().JQ("Foo", "Bar").Dasel("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().JQ("Hello", "World").Dasel("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().JQ("Foo", "Bar").Dasel("Foo", "Bar").Contains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONJQDaselDasel(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().JQ("Foo", "Bar").Dasel("Foo", "Bar").Dasel("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().JQ("Hello", "World").Dasel("Hello", "World").Dasel("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().JQ().Dasel().Dasel(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Dasel().Dasel()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Dasel().Dasel()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONJQDaselEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().JQ("Foo", "Bar").Dasel("Foo", "Bar").Equal("Foo-Taz"),
+			Expect().Body().JSON().JQ("Hello", "World").Dasel("Hello", "World").Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().JQ().Dasel().Equal(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Dasel().Equal()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Dasel().Equal()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONJQDaselEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().JQ("Foo", "Bar").Dasel("Foo", "Bar").Equal("Foo-Taz"),
+			Expect().Body().JSON().JQ("Hello", "World").Dasel("Hello", "World").Equal("Hello-Universe"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().JQ("Foo", "Bar").Dasel("Foo", "Bar").Equal("Foo-Taz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONJQDaselJQ(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().JQ("Foo", "Bar").Dasel("Foo", "Bar").JQ("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().JQ("Hello", "World").Dasel("Hello", "World").JQ("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().JQ().Dasel().JQ(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Dasel().JQ()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Dasel().JQ()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONJQDaselLen(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().JQ("Foo", "Bar").Dasel("Foo", "Bar").Len().Between(2, 2),
+			Expect().Body().JSON().JQ("Hello", "World").Dasel("Hello", "World").Len().Between(3, 3),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().JQ().Dasel().Len(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Dasel().Len()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Dasel().Len()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONJQDaselNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().JQ("Foo", "Bar").Dasel("Foo", "Bar").NotContains("Foo", "Baz"),
+			Expect().Body().JSON().JQ("Hello", "World").Dasel("Hello", "World").NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().JQ().Dasel().NotContains(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Dasel().NotContains()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Dasel().NotContains()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONJQDaselNotContains(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().JQ("Foo", "Bar").Dasel("Foo", "Bar").NotContains("Foo", "Baz"),
+			Expect().Body().JSON().JQ("Hello", "World").Dasel("Hello", "World").NotContains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().JQ("Foo", "Bar").Dasel("Foo", "Bar").NotContains("Foo", "Baz"),
+			expectSteps(t, &steps, 1)),
+		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONJQDaselNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().JQ("Foo", "Bar").Dasel("Foo", "Bar").NotEqual("Foo", "Baz"),
+			Expect().Body().JSON().JQ("Hello", "World").Dasel("Hello", "World").NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().JQ().Dasel().NotEqual(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().Dasel().NotEqual()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().Dasel().NotEqual()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
+	)
+}
+func TestGenClear_Specific_ExpectBodyJSONJQDaselNotEqual(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().JQ("Foo", "Bar").Dasel("Foo", "Bar").NotEqual("Foo", "Baz"),
+			Expect().Body().JSON().JQ("Hello", "World").Dasel("Hello", "World").NotEqual("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().JQ("Foo", "Bar").Dasel("Foo", "Bar").NotEqual("Foo", "Baz"),
 			expectSteps(t, &steps, 1)),
 		PtrStr("TestOK"),
 	)
@@ -7729,6 +9079,30 @@ func TestGenClear_Specific_ExpectBodyJSONJQJQContains(t *testing.T) {
 			Clear().Expect().Body().JSON().JQ("Foo", "Bar").JQ("Foo", "Bar").Contains("Foo", "Baz"),
 			expectSteps(t, &steps, 1)),
 		PtrStr("TestOK"),
+	)
+}
+func TestGenClear_Generic_ExpectBodyJSONJQJQDasel(t *testing.T) {
+	s := EchoServer()
+	defer s.Close()
+	var steps []IStep
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Expect().Body().JSON().JQ("Foo", "Bar").JQ("Foo", "Bar").Dasel("Foo", "Bar").Contains("Foo", "Baz"),
+			Expect().Body().JSON().JQ("Hello", "World").JQ("Hello", "World").Dasel("Hello", "World").Contains("Hello", "Earth"),
+			storeSteps(&steps),
+			Clear().Expect().Body().JSON().JQ().JQ().Dasel(),
+			expectSteps(t, &steps, 2)),
+		PtrStr("TestOK"),
+	)
+	// test unable to find a step
+	ExpectError(t,
+		Do(
+			Post(s.URL),
+			Clear().Expect().Body().JSON().JQ().JQ().Dasel()),
+		PtrStr("unable to find a step with Expect().Body().JSON().JQ().JQ().Dasel()"),
+		PtrStr("got these steps:"),
+		PtrStr("Post()"),
 	)
 }
 func TestGenClear_Generic_ExpectBodyJSONJQJQEqual(t *testing.T) {

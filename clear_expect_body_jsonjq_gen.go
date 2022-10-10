@@ -11,6 +11,8 @@ type IClearExpectBodyJSONJQ interface {
 	IStep
 	// Contains clears all matching Contains steps
 	Contains(value ...interface{}) IStep
+	// Dasel clears all matching Dasel steps
+	Dasel(value ...string) IClearExpectBodyJSONDasel
 	// Equal clears all matching Equal steps
 	Equal(value ...interface{}) IStep
 	// JQ clears all matching JQ steps
@@ -47,6 +49,9 @@ func (v *clearExpectBodyJSONJQ) exec(hit *hitImpl) error {
 }
 func (v *clearExpectBodyJSONJQ) Contains(value ...interface{}) IStep {
 	return removeStep(v.callPath().Push("Contains", value))
+}
+func (v *clearExpectBodyJSONJQ) Dasel(value ...string) IClearExpectBodyJSONDasel {
+	return newClearExpectBodyJSONDasel(v.callPath().Push("Dasel", stringSliceToInterfaceSlice(value)))
 }
 func (v *clearExpectBodyJSONJQ) Equal(value ...interface{}) IStep {
 	return removeStep(v.callPath().Push("Equal", value))

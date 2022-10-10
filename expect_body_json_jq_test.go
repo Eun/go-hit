@@ -22,6 +22,19 @@ func TestExpectBodyJSONJQ_Equal(t *testing.T) {
 			1,
 			"Wood Inc",
 		},
+		"Bills": []struct {
+			ID    int
+			Total float64
+		}{
+			{
+				ID:    21,
+				Total: 124.23,
+			},
+			{
+				ID:    25,
+				Total: 42.55,
+			},
+		},
 	}
 	s := PrintJSONServer(payload)
 	defer s.Close()
@@ -136,6 +149,19 @@ func TestExpectBodyJSONJQ_Equal(t *testing.T) {
 				PtrStr("not equal"), nil, nil, nil, nil, nil,
 			)
 		})
+		//TODO
+		//t.Run("array", func(t *testing.T) {
+		//	Test(t,
+		//		Post(s.URL),
+		//		Description("first expression returning an array"),
+		//		Expect().Body().JSON().JQ(".Bills", ".[].ID").Equal([]int{21, 25}),
+		//	)
+		//	Test(t,
+		//		Post(s.URL),
+		//		Description("first expression returning single json objects"),
+		//		Expect().Body().JSON().JQ(".Bills[]", ".ID").Equal([]int{21, 25}),
+		//	)
+		//})
 	})
 
 	t.Run("stream", func(t *testing.T) {
@@ -162,6 +188,22 @@ func TestExpectBodyJSONJQ_Equal(t *testing.T) {
 			}),
 			Expect().Body().JSON().JQ(`.[] | select(.role == "Admin") | .name`).Equal([]string{"Joe", "Bob"}),
 		)
+	})
+
+	t.Run("dasel", func(t *testing.T) {
+		t.Run("func", func(t *testing.T) {
+			Test(t,
+				Post(s.URL),
+				Expect().Body().JSON().JQ(".Details").Dasel(".Email").Equal("joe@example.com"),
+			)
+			ExpectError(t,
+				Do(
+					Post(s.URL),
+					Expect().Body().JSON().JQ(".Details").Dasel(".NotExistent").Equal("Hello World"),
+				),
+				PtrStr("not equal"), nil, nil, nil, nil, nil,
+			)
+		})
 	})
 }
 

@@ -43,6 +43,15 @@ type IExpectBodyJSON interface {
 	//     Expect().Body().JSON().JQ(".Roles.[0]").Equal("Admin")
 	JQ(expression ...string) IExpectBodyJSONJQ
 
+	// Dasel runs an dasel expression on the JSON body, the result can be asserted
+	//
+	// given the following response: { "ID": 10, "Name": "Joe", "Roles": ["Admin", "User"] }
+	// Usage:
+	//     Expect().Body().JSON().Dasel(".Name").Equal("Joe")
+	//     Expect().Body().JSON().Dasel(".Roles").Equal([]string{"Admin", "User"})
+	//     Expect().Body().JSON().Dasel(".Roles.[0]").Equal("Admin")
+	Dasel(expression ...string) IExpectBodyJSONDasel
+
 	// Len provides assertions to the json body size
 	//
 	// Usage:
@@ -125,6 +134,10 @@ func (v *expectBodyJSON) NotContains(data ...interface{}) IStep {
 
 func (v *expectBodyJSON) JQ(expression ...string) IExpectBodyJSONJQ {
 	return newExpectBodyJSONJQ(v.expectBody, v.cleanPath.Push("JQ", stringSliceToInterfaceSlice(expression)), expression)
+}
+
+func (v *expectBodyJSON) Dasel(expression ...string) IExpectBodyJSONDasel {
+	return newExpectBodyJSONDasel(v.expectBody, v.cleanPath.Push("Dasel", stringSliceToInterfaceSlice(expression)), expression)
 }
 
 func (v *expectBodyJSON) Len() IExpectInt {
