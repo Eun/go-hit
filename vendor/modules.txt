@@ -62,7 +62,7 @@ github.com/araddon/dateparse
 github.com/clbanning/mxj/v2
 # github.com/danwakefield/fnmatch v0.0.0-20160403171240-cbb64ac3d964
 github.com/danwakefield/fnmatch
-# github.com/dave/jennifer v1.5.1
+# github.com/dave/jennifer v1.6.0
 ## explicit
 github.com/dave/jennifer/jen
 # github.com/davecgh/go-spew v1.1.1
