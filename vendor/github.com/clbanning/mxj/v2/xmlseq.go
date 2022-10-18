@@ -447,6 +447,18 @@ func (mv MapSeq) Xml(rootTag ...string) ([]byte, error) {
 		err = mapToXmlSeqIndent(false, s, DefaultRootTag, m, p)
 	}
 done:
+	if xmlCheckIsValid {
+		d := xml.NewDecoder(bytes.NewReader([]byte(*s)))
+		for {
+			_, err = d.Token()
+			if err == io.EOF {
+				err = nil
+				break
+			} else if err != nil {
+				return nil, err
+			}
+		}
+	}
 	return []byte(*s), err
 }
 
@@ -534,6 +546,21 @@ func (mv MapSeq) XmlIndent(prefix, indent string, rootTag ...string) ([]byte, er
 		err = mapToXmlSeqIndent(true, s, rootTag[0], m, p)
 	} else {
 		err = mapToXmlSeqIndent(true, s, DefaultRootTag, m, p)
+	}
+	if xmlCheckIsValid {
+		if _, err = NewMapXml([]byte(*s)); err != nil {
+			return nil, err
+		}
+		d := xml.NewDecoder(bytes.NewReader([]byte(*s)))
+		for {
+			_, err = d.Token()
+			if err == io.EOF {
+				err = nil
+				break
+			} else if err != nil {
+				return nil, err
+			}
+		}
 	}
 	return []byte(*s), err
 }
