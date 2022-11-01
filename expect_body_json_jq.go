@@ -66,6 +66,9 @@ type IExpectBodyJSONJQ interface {
 
 	// JQ runs an additional jq expression
 	JQ(expression ...string) IExpectBodyJSONJQ
+
+	// Dasel runs an additional dasel expression (https://github.com/TomWright/dasel)
+	Dasel(expression ...string) IExpectBodyJSONDasel
 }
 
 type expectBodyJSONJQ struct {
@@ -163,5 +166,12 @@ func (v *expectBodyJSONJQ) JQ(expression ...string) IExpectBodyJSONJQ {
 	return newExpectBodyJSONJQ(
 		v.expectBody,
 		v.cleanPath.Push("JQ", stringSliceToInterfaceSlice(expression)), append(v.expression, expression...),
+	)
+}
+
+func (v *expectBodyJSONJQ) Dasel(expression ...string) IExpectBodyJSONDasel {
+	return newExpectBodyJSONDasel(
+		v.expectBody,
+		v.cleanPath.Push("Dasel", stringSliceToInterfaceSlice(expression)), append(v.expression, expression...),
 	)
 }

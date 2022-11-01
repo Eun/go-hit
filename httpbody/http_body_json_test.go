@@ -261,3 +261,130 @@ func TestHttpBodyJson_JQ(t *testing.T) {
 		})
 	})
 }
+
+func TestHttpBodyJson_Dasel(t *testing.T) {
+	type User struct {
+		Name string
+	}
+
+	type UserRenamedFields struct {
+		SomeName string `json:"name"`
+	}
+
+	t.Run("expression - string", func(t *testing.T) {
+		testServer(`{"Name":"Joe","Id":10}`, func(body *HTTPBody) {
+			container := ""
+			expression := ".Name"
+			wantErr := false
+			want := "Joe"
+			if err := body.JSON().Dasel(&container, expression); (err != nil) != wantErr {
+				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
+			}
+			require.Equal(t, want, container, want)
+		})
+	})
+
+	t.Run("expression - float64", func(t *testing.T) {
+		testServer(`{"Name":"Joe","Id":10}`, func(body *HTTPBody) {
+			container := float64(0)
+			expression := ".Id"
+			wantErr := false
+			want := float64(10)
+			if err := body.JSON().Dasel(&container, expression); (err != nil) != wantErr {
+				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
+			}
+			require.Equal(t, want, container, want)
+		})
+	})
+
+	t.Run("expression - int", func(t *testing.T) {
+		testServer(`{"Name":"Joe","Id":10}`, func(body *HTTPBody) {
+			container := 0
+			expression := ".Id"
+			wantErr := false
+			want := 10
+			if err := body.JSON().Dasel(&container, expression); (err != nil) != wantErr {
+				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
+			}
+			require.Equal(t, want, container, want)
+		})
+	})
+
+	t.Run("unable to get expr value", func(t *testing.T) {
+		testServer(`"Hello World"`, func(body *HTTPBody) {
+			container := []string{}
+			expression := "A"
+			wantErr := true
+			want := []string{}
+			if err := body.JSON().Dasel(&container, expression); (err != nil) != wantErr {
+				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
+			}
+			require.Equal(t, want, container, want)
+		})
+	})
+
+	t.Run("nil expr value", func(t *testing.T) {
+		testServer(`{"Name":"Joe","Id":10}`, func(body *HTTPBody) {
+			container := ""
+			expression := ".Address"
+			wantErr := false
+			want := ""
+			if err := body.JSON().Dasel(&container, expression); (err != nil) != wantErr {
+				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
+			}
+			require.Equal(t, want, container, want)
+		})
+	})
+
+	t.Run("array", func(t *testing.T) {
+		testServer(`[{"Name":"Joe"}]`, func(body *HTTPBody) {
+			container := ""
+			expression := ".[0].Name"
+			wantErr := false
+			want := "Joe"
+			if err := body.JSON().Dasel(&container, expression); (err != nil) != wantErr {
+				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
+			}
+			require.Equal(t, want, container, want)
+		})
+	})
+
+	t.Run("struct with missing data", func(t *testing.T) {
+		testServer(`{"Name":"Joe","Id":10}`, func(body *HTTPBody) {
+			container := User{}
+			expression := "."
+			wantErr := false
+			want := User{"Joe"}
+			if err := body.JSON().Dasel(&container, expression); (err != nil) != wantErr {
+				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
+			}
+			require.Equal(t, want, container, want)
+		})
+	})
+
+	t.Run("struct with other names and missing data", func(t *testing.T) {
+		testServer(`{"Name":"Joe","Id":10}`, func(body *HTTPBody) {
+			container := UserRenamedFields{}
+			expression := "."
+			wantErr := false
+			want := UserRenamedFields{"Joe"}
+			if err := body.JSON().Dasel(&container, expression); (err != nil) != wantErr {
+				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
+			}
+			require.Equal(t, want, container, want)
+		})
+	})
+
+	t.Run("return array", func(t *testing.T) {
+		testServer(`{"users":[{"Name":"Joe","Id":10},{"Name":"Alice","Id":11},{"Name":"Bob","Id":12}]}`, func(body *HTTPBody) {
+			container := []User{}
+			expression := ".users"
+			wantErr := false
+			want := []User{{"Joe"}, {"Alice"}, {"Bob"}}
+			if err := body.JSON().Dasel(&container, expression); (err != nil) != wantErr {
+				t.Fatalf("Decode() error = %v, wantErr %v", err, wantErr)
+			}
+			require.Equal(t, want, container, want)
+		})
+	})
+}

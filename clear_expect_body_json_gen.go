@@ -1,3 +1,4 @@
+//go:build !generate
 // +build !generate
 
 package hit
@@ -11,6 +12,8 @@ type IClearExpectBodyJSON interface {
 	IStep
 	// Contains clears all matching Contains steps
 	Contains(value ...interface{}) IStep
+	// Dasel clears all matching Dasel steps
+	Dasel(value ...string) IClearExpectBodyJSONDasel
 	// Equal clears all matching Equal steps
 	Equal(value ...interface{}) IStep
 	// JQ clears all matching JQ steps
@@ -47,6 +50,9 @@ func (v *clearExpectBodyJSON) exec(hit *hitImpl) error {
 }
 func (v *clearExpectBodyJSON) Contains(value ...interface{}) IStep {
 	return removeStep(v.callPath().Push("Contains", value))
+}
+func (v *clearExpectBodyJSON) Dasel(value ...string) IClearExpectBodyJSONDasel {
+	return newClearExpectBodyJSONDasel(v.callPath().Push("Dasel", stringSliceToInterfaceSlice(value)))
 }
 func (v *clearExpectBodyJSON) Equal(value ...interface{}) IStep {
 	return removeStep(v.callPath().Push("Equal", value))
