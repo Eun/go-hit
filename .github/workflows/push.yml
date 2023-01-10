@@ -87,6 +87,9 @@ jobs:
   # the configuration is at /.github/release-drafter.yml.
   update_release_draft:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
     steps:
       - uses: release-drafter/release-drafter@v5
         if: github.ref == 'refs/heads/master'
