@@ -3,7 +3,7 @@ module github.com/Eun/go-hit
 go 1.15
 
 require (
-	github.com/Eun/go-convert v0.0.0-20200421145326-bef6c56666ee
+	github.com/Eun/go-convert v1.2.12
 	github.com/Eun/go-doppelgangerreader v0.0.0-20190911075941-30f1527f16b2
 	github.com/Eun/go-testdoc v0.0.1
 	github.com/Eun/yaegi-template v1.6.0

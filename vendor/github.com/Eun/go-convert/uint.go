@@ -101,15 +101,16 @@ func (s stdRecipes) structToUint(c Converter, in StructValue, out *uint) error {
 	return err
 }
 
+type toUint interface {
+	Uint() uint
+}
+type toUintWithErr interface {
+	Uint() (uint, error)
+}
+
 func (s stdRecipes) baseStructToUint(_ Converter, in reflect.Value, out *uint) error {
 	if !in.CanInterface() {
 		return errors.New("unable to make interface")
-	}
-	type toUint interface {
-		Uint() uint
-	}
-	type toUintWithErr interface {
-		Uint() (uint, error)
 	}
 
 	// check for struct.Uint()
@@ -121,6 +122,14 @@ func (s stdRecipes) baseStructToUint(_ Converter, in reflect.Value, out *uint) e
 		var err error
 		*out, err = i.Uint()
 		return err
+	}
+
+	if ok, i, err := genericIntConvert(in); ok {
+		if err != nil {
+			return err
+		}
+		*out = uint(i)
+		return nil
 	}
 
 	return fmt.Errorf("%s has no Uint() function", in.Type().String())

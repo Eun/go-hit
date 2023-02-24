@@ -102,15 +102,16 @@ func (s stdRecipes) structToFloat64(c Converter, in StructValue, out *float64) e
 	return err
 }
 
+type toFloat64 interface {
+	Float64() float64
+}
+type toFloat64WithErr interface {
+	Float64() (float64, error)
+}
+
 func (s stdRecipes) baseStructToFloat64(_ Converter, in reflect.Value, out *float64) error {
 	if !in.CanInterface() {
 		return errors.New("unable to make interface")
-	}
-	type toFloat64 interface {
-		Float64() float64
-	}
-	type toFloat64WithErr interface {
-		Float64() (float64, error)
 	}
 
 	// check for struct.Float64()
@@ -121,6 +122,17 @@ func (s stdRecipes) baseStructToFloat64(_ Converter, in reflect.Value, out *floa
 	if i, ok := in.Interface().(toFloat64WithErr); ok {
 		var err error
 		*out, err = i.Float64()
+		return err
+	}
+
+	// check for struct.Float32()
+	if i, ok := in.Interface().(toFloat32); ok {
+		*out = float64(i.Float32())
+		return nil
+	}
+	if i, ok := in.Interface().(toFloat32WithErr); ok {
+		f, err := i.Float32()
+		*out = float64(f)
 		return err
 	}
 
