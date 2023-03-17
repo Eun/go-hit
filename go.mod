@@ -24,7 +24,7 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/tidwall/pretty v1.2.1
 	go.uber.org/goleak v1.1.12
-	golang.org/x/tools v0.1.12
+	golang.org/x/tools v0.7.0
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 )
