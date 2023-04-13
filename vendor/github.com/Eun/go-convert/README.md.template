@@ -1,0 +1,40 @@
+<$
+import (
+    "fmt"
+    "io/ioutil"
+)
+func printFile(f string) {
+	buf, err := ioutil.ReadFile(f)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Print(string(buf))
+}
+$># go-convert [![Actions Status](https://github.com/Eun/go-convert/workflows/CI/badge.svg)](https://github.com/Eun/go-convert/actions) [![Coverage Status](https://coveralls.io/repos/github/Eun/go-convert/badge.svg?branch=master)](https://coveralls.io/github/Eun/go-convert?branch=master) [![PkgGoDev](https://img.shields.io/badge/pkg.go.dev-reference-blue)](https://pkg.go.dev/github.com/Eun/go-convert) [![GoDoc](https://godoc.org/github.com/Eun/go-convert?status.svg)](https://godoc.org/github.com/Eun/go-convert) [![go-report](https://goreportcard.com/badge/github.com/Eun/go-convert)](https://goreportcard.com/report/github.com/Eun/go-convert)
+Convert a value into another type.
+
+```bash
+go get -u github.com/Eun/go-convert
+```
+## Usage
+```go
+<$ printFile("./examples/usage/usage.go") $>
+```
+
+## Recipe system
+_go-convert_ uses a recipe system that defines how and which types should be converted in which type.
+A lot of recipes are already builtin (see [recipes.go](recipes.go)), however you can add your own or overwrite the builtin ones.
+```go
+<$ printFile("./examples/recipes/recipes.go") $>
+```
+
+## Adding inline recipes
+You can also add recipes inline by implementing a `ConvertRecipes() []Recipe` function.  
+Example:
+```go
+<$ printFile("./examples/inline_recipes/inline_recipes.go") $>
+```
+
+
+### Notice
+This library is using reflection so be aware it might be slow in your usecase.  

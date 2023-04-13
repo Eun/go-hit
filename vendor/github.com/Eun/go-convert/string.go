@@ -121,7 +121,7 @@ func (stdRecipes) int16SliceToString(c Converter, in []int16, out *string) error
 func (stdRecipes) int32SliceToString(c Converter, in []int32, out *string) error {
 	var sb strings.Builder
 	for _, i := range in {
-		sb.WriteRune(rune(i))
+		sb.WriteRune(i)
 	}
 	*out = sb.String()
 	return nil

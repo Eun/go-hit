@@ -101,15 +101,16 @@ func (s stdRecipes) structToInt32(c Converter, in StructValue, out *int32) error
 	return err
 }
 
+type toInt32 interface {
+	Int32() int32
+}
+type toInt32WithErr interface {
+	Int32() (int32, error)
+}
+
 func (s stdRecipes) baseStructToInt32(_ Converter, in reflect.Value, out *int32) error {
 	if !in.CanInterface() {
 		return errors.New("unable to make interface")
-	}
-	type toInt32 interface {
-		Int32() int32
-	}
-	type toInt32WithErr interface {
-		Int32() (int32, error)
 	}
 
 	// check for struct.Int32()
@@ -121,6 +122,14 @@ func (s stdRecipes) baseStructToInt32(_ Converter, in reflect.Value, out *int32)
 		var err error
 		*out, err = i.Int32()
 		return err
+	}
+
+	if ok, i, err := genericIntConvert(in); ok {
+		if err != nil {
+			return err
+		}
+		*out = int32(i)
+		return nil
 	}
 
 	return fmt.Errorf("%s has no Int32() function", in.Type().String())

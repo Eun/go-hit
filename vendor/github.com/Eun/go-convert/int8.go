@@ -101,15 +101,16 @@ func (s stdRecipes) structToInt8(c Converter, in StructValue, out *int8) error {
 	return err
 }
 
+type toInt8 interface {
+	Int8() int8
+}
+type toInt8WithErr interface {
+	Int8() (int8, error)
+}
+
 func (s stdRecipes) baseStructToInt8(_ Converter, in reflect.Value, out *int8) error {
 	if !in.CanInterface() {
 		return errors.New("unable to make interface")
-	}
-	type toInt8 interface {
-		Int8() int8
-	}
-	type toInt8WithErr interface {
-		Int8() (int8, error)
 	}
 
 	// check for struct.Int8()
@@ -121,6 +122,14 @@ func (s stdRecipes) baseStructToInt8(_ Converter, in reflect.Value, out *int8) e
 		var err error
 		*out, err = i.Int8()
 		return err
+	}
+
+	if ok, i, err := genericIntConvert(in); ok {
+		if err != nil {
+			return err
+		}
+		*out = int8(i)
+		return nil
 	}
 
 	return fmt.Errorf("%s has no Int8() function", in.Type().String())

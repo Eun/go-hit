@@ -101,15 +101,16 @@ func (s stdRecipes) structToInt64(c Converter, in StructValue, out *int64) error
 	return err
 }
 
+type toInt64 interface {
+	Int64() int64
+}
+type toInt64WithErr interface {
+	Int64() (int64, error)
+}
+
 func (s stdRecipes) baseStructToInt64(_ Converter, in reflect.Value, out *int64) error {
 	if !in.CanInterface() {
 		return errors.New("unable to make interface")
-	}
-	type toInt64 interface {
-		Int64() int64
-	}
-	type toInt64WithErr interface {
-		Int64() (int64, error)
 	}
 
 	// check for struct.Int64()
@@ -121,6 +122,14 @@ func (s stdRecipes) baseStructToInt64(_ Converter, in reflect.Value, out *int64)
 		var err error
 		*out, err = i.Int64()
 		return err
+	}
+
+	if ok, i, err := genericIntConvert(in); ok {
+		if err != nil {
+			return err
+		}
+		*out = i
+		return nil
 	}
 
 	return fmt.Errorf("%s has no Int64() function", in.Type().String())

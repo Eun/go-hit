@@ -1,4 +1,4 @@
-# go-convert [![Travis](https://img.shields.io/travis/Eun/go-convert.svg)](https://travis-ci.org/Eun/go-convert) [![Codecov](https://img.shields.io/codecov/c/github/Eun/go-convert.svg)](https://codecov.io/gh/Eun/go-convert) [![GoDoc](https://godoc.org/github.com/Eun/go-convert?status.svg)](https://godoc.org/github.com/Eun/go-convert) [![go-report](https://goreportcard.com/badge/github.com/Eun/go-convert)](https://goreportcard.com/report/github.com/Eun/go-convert)
+# go-convert [![Actions Status](https://github.com/Eun/go-convert/workflows/CI/badge.svg)](https://github.com/Eun/go-convert/actions) [![Coverage Status](https://coveralls.io/repos/github/Eun/go-convert/badge.svg?branch=master)](https://coveralls.io/github/Eun/go-convert?branch=master) [![PkgGoDev](https://img.shields.io/badge/pkg.go.dev-reference-blue)](https://pkg.go.dev/github.com/Eun/go-convert) [![GoDoc](https://godoc.org/github.com/Eun/go-convert?status.svg)](https://godoc.org/github.com/Eun/go-convert) [![go-report](https://goreportcard.com/badge/github.com/Eun/go-convert)](https://goreportcard.com/report/github.com/Eun/go-convert)
 Convert a value into another type.
 
 ```bash
@@ -144,13 +144,13 @@ func (user *User) ConvertRecipes() []convert.Recipe {
 	return convert.MustMakeRecipes(
 		// convert string into Roles
 		func(_ convert.Converter, in string, out *Roles) error {
-			(*out).IsAdmin = false
-			(*out).IsDeveloper = false
+			out.IsAdmin = false
+			out.IsDeveloper = false
 			if strings.Contains(in, "A") {
-				(*out).IsAdmin = true
+				out.IsAdmin = true
 			}
 			if strings.Contains(in, "D") {
-				(*out).IsDeveloper = true
+				out.IsDeveloper = true
 			}
 			return nil
 		},

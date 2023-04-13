@@ -78,7 +78,7 @@ func (stdRecipes) stringToUint64(c Converter, in string, out *uint64) error {
 	if err != nil {
 		return err
 	}
-	*out = uint64(i)
+	*out = i
 	return nil
 }
 func (stdRecipes) timeToUint64(c Converter, in time.Time, out *uint64) error {
@@ -101,15 +101,16 @@ func (s stdRecipes) structToUint64(c Converter, in StructValue, out *uint64) err
 	return err
 }
 
+type toUint64 interface {
+	Uint64() uint64
+}
+type toUint64WithErr interface {
+	Uint64() (uint64, error)
+}
+
 func (s stdRecipes) baseStructToUint64(_ Converter, in reflect.Value, out *uint64) error {
 	if !in.CanInterface() {
 		return errors.New("unable to make interface")
-	}
-	type toUint64 interface {
-		Uint64() uint64
-	}
-	type toUint64WithErr interface {
-		Uint64() (uint64, error)
 	}
 
 	// check for struct.Uint64()
@@ -121,6 +122,14 @@ func (s stdRecipes) baseStructToUint64(_ Converter, in reflect.Value, out *uint6
 		var err error
 		*out, err = i.Uint64()
 		return err
+	}
+
+	if ok, i, err := genericIntConvert(in); ok {
+		if err != nil {
+			return err
+		}
+		*out = uint64(i)
+		return nil
 	}
 
 	return fmt.Errorf("%s has no Uint64() function", in.Type().String())

@@ -101,15 +101,16 @@ func (s stdRecipes) structToInt(c Converter, in StructValue, out *int) error {
 	return err
 }
 
+type toInt interface {
+	Int() int
+}
+type toIntWithErr interface {
+	Int() (int, error)
+}
+
 func (s stdRecipes) baseStructToInt(_ Converter, in reflect.Value, out *int) error {
 	if !in.CanInterface() {
 		return errors.New("unable to make interface")
-	}
-	type toInt interface {
-		Int() int
-	}
-	type toIntWithErr interface {
-		Int() (int, error)
 	}
 
 	// check for struct.Int()
@@ -123,5 +124,105 @@ func (s stdRecipes) baseStructToInt(_ Converter, in reflect.Value, out *int) err
 		return err
 	}
 
+	if ok, i, err := genericIntConvert(in); ok {
+		if err != nil {
+			return err
+		}
+		*out = int(i)
+		return nil
+	}
+
 	return fmt.Errorf("%s has no Int() function", in.Type().String())
+}
+
+func genericIntConvert(in reflect.Value) (bool, int64, error) {
+	// check for struct.Int()
+	if i, ok := in.Interface().(toInt); ok {
+		return true, int64(i.Int()), nil
+	}
+	if i, ok := in.Interface().(toIntWithErr); ok {
+		v, err := i.Int()
+		return true, int64(v), err
+	}
+
+	// check for struct.Int8()
+	if i, ok := in.Interface().(toInt8); ok {
+		return true, int64(i.Int8()), nil
+	}
+	if i, ok := in.Interface().(toInt8WithErr); ok {
+		v, err := i.Int8()
+		return true, int64(v), err
+	}
+
+	// check for struct.Int16()
+	if i, ok := in.Interface().(toInt16); ok {
+		return true, int64(i.Int16()), nil
+	}
+	if i, ok := in.Interface().(toInt16WithErr); ok {
+		v, err := i.Int16()
+		return true, int64(v), err
+	}
+
+	// check for struct.Int32()
+	if i, ok := in.Interface().(toInt32); ok {
+		return true, int64(i.Int32()), nil
+	}
+	if i, ok := in.Interface().(toInt32WithErr); ok {
+		v, err := i.Int32()
+		return true, int64(v), err
+	}
+
+	// check for struct.Int64()
+	if i, ok := in.Interface().(toInt64); ok {
+		return true, i.Int64(), nil
+	}
+	if i, ok := in.Interface().(toInt64WithErr); ok {
+		v, err := i.Int64()
+		return true, v, err
+	}
+
+	// check for struct.Uint()
+	if i, ok := in.Interface().(toUint); ok {
+		return true, int64(i.Uint()), nil
+	}
+	if i, ok := in.Interface().(toUintWithErr); ok {
+		v, err := i.Uint()
+		return true, int64(v), err
+	}
+
+	// check for struct.Uint8()
+	if i, ok := in.Interface().(toUint8); ok {
+		return true, int64(i.Uint8()), nil
+	}
+	if i, ok := in.Interface().(toUint8WithErr); ok {
+		v, err := i.Uint8()
+		return true, int64(v), err
+	}
+
+	// check for struct.Uint16()
+	if i, ok := in.Interface().(toUint16); ok {
+		return true, int64(i.Uint16()), nil
+	}
+	if i, ok := in.Interface().(toUint16WithErr); ok {
+		v, err := i.Uint16()
+		return true, int64(v), err
+	}
+
+	// check for struct.Uint32()
+	if i, ok := in.Interface().(toUint32); ok {
+		return true, int64(i.Uint32()), nil
+	}
+	if i, ok := in.Interface().(toUint32WithErr); ok {
+		v, err := i.Uint32()
+		return true, int64(v), err
+	}
+	// check for struct.Uint64()
+	if i, ok := in.Interface().(toUint64); ok {
+		return true, int64(i.Uint64()), nil
+	}
+	if i, ok := in.Interface().(toUint64WithErr); ok {
+		v, err := i.Uint64()
+		return true, int64(v), err
+	}
+	return false, 0, nil
 }

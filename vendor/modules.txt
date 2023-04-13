@@ -1,4 +1,4 @@
-# github.com/Eun/go-convert v0.0.0-20200421145326-bef6c56666ee
+# github.com/Eun/go-convert v1.2.12
 ## explicit
 github.com/Eun/go-convert
 # github.com/Eun/go-doppelgangerreader v0.0.0-20190911075941-30f1527f16b2

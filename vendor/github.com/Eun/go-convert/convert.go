@@ -6,6 +6,7 @@ import (
 	"reflect"
 )
 
+//nolint:golint // silence consider calling this Recipes
 // ConvertRecipes can be used to add recipes to a type in a convenient way
 type ConvertRecipes interface {
 	ConvertRecipes() []Recipe
@@ -191,8 +192,7 @@ func (conv defaultConverter) convertNow(src, dst, out reflect.Value, options ...
 		}
 		if src.IsNil() {
 			debug(">> src is nil\n")
-			// make a new instance if src is nil
-			return conv.ConvertReflectValue(reflect.Zero(src.Type().Elem()), dst, options...)
+			return nil
 		}
 	}
 
@@ -270,6 +270,7 @@ func MustConvert(src, dst interface{}, options ...Options) {
 	defaultConverterInstance.MustConvert(src, dst, options...)
 }
 
+//nolint:golint // silence consider calling this ReflectValue
 // ConvertReflectValue converts the specified reflect value to the specified type
 // The behavior can be influenced by using the options
 func ConvertReflectValue(src, dstTyp reflect.Value, options ...Options) error {
@@ -293,6 +294,9 @@ func printValue(value reflect.Value) string {
 	for v.IsValid() {
 		switch v.Kind() {
 		case reflect.Ptr, reflect.Interface:
+			if v.IsNil() {
+				return "<nil>"
+			}
 			v = v.Elem()
 		default:
 			if v.CanInterface() {

@@ -31,7 +31,7 @@ func (stdRecipes) int32ToTime(c Converter, in int32, out *time.Time) error {
 }
 
 func (stdRecipes) int64ToTime(_ Converter, in int64, out *time.Time) error {
-	*out = time.Unix(int64(in), 0)
+	*out = time.Unix(in, 0)
 	return nil
 }
 

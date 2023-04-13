@@ -1,6 +1,6 @@
 package convert
 
-// Options can be used to alter the behaviour of the converter
+// Options can be used to alter the behavior of the converter
 type Options struct {
 	// SkipUnknownFields can be used to ignore fields that are not existent in the destination type
 	//

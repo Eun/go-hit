@@ -101,15 +101,16 @@ func (s stdRecipes) structToInt16(c Converter, in StructValue, out *int16) error
 	return err
 }
 
+type toInt16 interface {
+	Int16() int16
+}
+type toInt16WithErr interface {
+	Int16() (int16, error)
+}
+
 func (s stdRecipes) baseStructToInt16(_ Converter, in reflect.Value, out *int16) error {
 	if !in.CanInterface() {
 		return errors.New("unable to make interface")
-	}
-	type toInt16 interface {
-		Int16() int16
-	}
-	type toInt16WithErr interface {
-		Int16() (int16, error)
 	}
 
 	// check for struct.Int16()
@@ -121,6 +122,14 @@ func (s stdRecipes) baseStructToInt16(_ Converter, in reflect.Value, out *int16)
 		var err error
 		*out, err = i.Int16()
 		return err
+	}
+
+	if ok, i, err := genericIntConvert(in); ok {
+		if err != nil {
+			return err
+		}
+		*out = int16(i)
+		return nil
 	}
 
 	return fmt.Errorf("%s has no Int16() function", in.Type().String())
