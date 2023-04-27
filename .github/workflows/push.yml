@@ -68,7 +68,7 @@ jobs:
         run: go test -v -count=1 -coverprofile="coverage-${{ matrix.platform }}-${{ steps.go-mod-details.outputs.go_version }}.cov" -covermode=atomic ./...
       -
         name: Send coverage
-        uses: shogo82148/actions-goveralls@v1.6.0
+        uses: shogo82148/actions-goveralls@v1.7.0
         with:
           path-to-profile: coverage-${{ matrix.platform }}-${{ steps.go-mod-details.outputs.go_version }}.cov
           flag-name: ${{ matrix.platform }}-${{ steps.go-mod-details.outputs.go_version }}
@@ -79,7 +79,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: shogo82148/actions-goveralls@v1.6.0
+      - uses: shogo82148/actions-goveralls@v1.7.0
         with:
           parallel-finished: true
 
