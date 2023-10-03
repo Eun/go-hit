@@ -29,7 +29,7 @@ github.com/google/go-cmp/cmp/internal/diff
 github.com/google/go-cmp/cmp/internal/flags
 github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
-# github.com/gookit/color v1.5.2
+# github.com/gookit/color v1.5.4
 ## explicit
 github.com/gookit/color
 # github.com/gorilla/mux v1.8.0
@@ -71,7 +71,7 @@ github.com/modern-go/reflect2
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
-# github.com/stretchr/testify v1.8.2
+# github.com/stretchr/testify v1.8.4
 ## explicit
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/require
@@ -93,7 +93,7 @@ go.uber.org/goleak/internal/stack
 golang.org/x/mod/internal/lazyregexp
 golang.org/x/mod/module
 golang.org/x/mod/semver
-# golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f
+# golang.org/x/sys v0.10.0
 golang.org/x/sys/execabs
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
