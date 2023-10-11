@@ -10,7 +10,7 @@ require (
 	github.com/aaw/maybe_tls v0.0.0-20160803104303-89c499bcc6aa
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1 // indirect
 	github.com/dave/jennifer v1.6.1
-	github.com/google/go-cmp v0.5.9
+	github.com/google/go-cmp v0.6.0
 	github.com/gookit/color v1.5.2
 	github.com/gorilla/mux v1.8.0
 	github.com/itchyny/gojq v0.12.5
