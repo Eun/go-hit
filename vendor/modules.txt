@@ -32,7 +32,7 @@ github.com/google/go-cmp/cmp/internal/value
 # github.com/gookit/color v1.5.2
 ## explicit
 github.com/gookit/color
-# github.com/gorilla/mux v1.8.0
+# github.com/gorilla/mux v1.8.1
 ## explicit
 github.com/gorilla/mux
 # github.com/hashicorp/errwrap v1.0.0
