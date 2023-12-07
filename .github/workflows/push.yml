@@ -18,7 +18,7 @@ jobs:
         id: go-mod-details
       -
         name: Install Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ steps.go-mod-details.outputs.go_version }}
       -
@@ -37,7 +37,7 @@ jobs:
       -
         uses: actions/checkout@v4.1.1
       -
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
       # we cannot use nancy-github-action because it is outdated, so it's better to use the latest
       # docker image for the validation
       -
@@ -60,7 +60,7 @@ jobs:
         id: go-mod-details
       -
         name: Install Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ steps.go-mod-details.outputs.go_version }}
       -
