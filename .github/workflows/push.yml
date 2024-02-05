@@ -91,7 +91,7 @@ jobs:
       contents: write
       pull-requests: read
     steps:
-      - uses: release-drafter/release-drafter@v5
+      - uses: release-drafter/release-drafter@v6
         if: github.ref_name == github.event.repository.default_branch
         with:
           config-name: release-drafter.yml
