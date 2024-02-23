@@ -14,23 +14,27 @@ import (
 
 // Marshal returns the jq-flavored JSON encoding of v.
 //
-// This method only accepts limited types (nil, bool, int, float64, *big.Int,
-// string, []interface{} and map[string]interface{}) because these are the
-// possible types a gojq iterator can emit. This method marshals NaN to null,
-// truncates infinities to (+|-) math.MaxFloat64, uses \b and \f in strings,
-// and does not escape '<' and '>' for embedding in HTML. These behaviors are
-// based on the marshaler of jq command and different from Go standard library
-// method json.Marshal.
-func Marshal(v interface{}) ([]byte, error) {
+// This method accepts only limited types (nil, bool, int, float64, *big.Int,
+// string, []any, and map[string]any) because these are the possible types a
+// gojq iterator can emit. This method marshals NaN to null, truncates
+// infinities to (+|-) math.MaxFloat64, uses \b and \f in strings, and does not
+// escape '<', '>', '&', '\u2028', and '\u2029'. These behaviors are based on
+// the marshaler of jq command, and different from json.Marshal in the Go
+// standard library. Note that the result is not safe to embed in HTML.
+func Marshal(v any) ([]byte, error) {
 	var b bytes.Buffer
 	(&encoder{w: &b}).encode(v)
 	return b.Bytes(), nil
 }
 
-func jsonMarshal(v interface{}) string {
+func jsonMarshal(v any) string {
 	var sb strings.Builder
 	(&encoder{w: &sb}).encode(v)
 	return sb.String()
+}
+
+func jsonEncodeString(sb *strings.Builder, v string) {
+	(&encoder{w: sb}).encodeString(v)
 }
 
 type encoder struct {
@@ -42,7 +46,7 @@ type encoder struct {
 	buf [64]byte
 }
 
-func (e *encoder) encode(v interface{}) {
+func (e *encoder) encode(v any) {
 	switch v := v.(type) {
 	case nil:
 		e.w.WriteString("null")
@@ -60,12 +64,12 @@ func (e *encoder) encode(v interface{}) {
 		e.w.Write(v.Append(e.buf[:0], 10))
 	case string:
 		e.encodeString(v)
-	case []interface{}:
+	case []any:
 		e.encodeArray(v)
-	case map[string]interface{}:
-		e.encodeMap(v)
+	case map[string]any:
+		e.encodeObject(v)
 	default:
-		panic(fmt.Sprintf("invalid value: %v", v))
+		panic(fmt.Sprintf("invalid type: %[1]T (%[1]v)", v))
 	}
 }
 
@@ -80,12 +84,12 @@ func (e *encoder) encodeFloat64(f float64) {
 	} else if f <= -math.MaxFloat64 {
 		f = -math.MaxFloat64
 	}
-	fmt := byte('f')
+	format := byte('f')
 	if x := math.Abs(f); x != 0 && x < 1e-6 || x >= 1e21 {
-		fmt = 'e'
+		format = 'e'
 	}
-	buf := strconv.AppendFloat(e.buf[:0], f, fmt, -1, 64)
-	if fmt == 'e' {
+	buf := strconv.AppendFloat(e.buf[:0], f, format, -1, 64)
+	if format == 'e' {
 		// clean up e-09 to e-9
 		if n := len(buf); n >= 4 && buf[n-4] == 'e' && buf[n-3] == '-' && buf[n-2] == '0' {
 			buf[n-2] = buf[n-1]
@@ -101,30 +105,31 @@ func (e *encoder) encodeString(s string) {
 	start := 0
 	for i := 0; i < len(s); {
 		if b := s[i]; b < utf8.RuneSelf {
-			if ']' <= b && b <= '~' || '#' <= b && b <= '[' || b == ' ' || b == '!' {
+			if ' ' <= b && b <= '~' && b != '"' && b != '\\' {
 				i++
 				continue
 			}
 			if start < i {
 				e.w.WriteString(s[start:i])
 			}
-			e.w.WriteByte('\\')
 			switch b {
-			case '\\', '"':
-				e.w.WriteByte(b)
+			case '"':
+				e.w.WriteString(`\"`)
+			case '\\':
+				e.w.WriteString(`\\`)
 			case '\b':
-				e.w.WriteByte('b')
+				e.w.WriteString(`\b`)
 			case '\f':
-				e.w.WriteByte('f')
+				e.w.WriteString(`\f`)
 			case '\n':
-				e.w.WriteByte('n')
+				e.w.WriteString(`\n`)
 			case '\r':
-				e.w.WriteByte('r')
+				e.w.WriteString(`\r`)
 			case '\t':
-				e.w.WriteByte('t')
+				e.w.WriteString(`\t`)
 			default:
 				const hex = "0123456789abcdef"
-				e.w.WriteString("u00")
+				e.w.WriteString(`\u00`)
 				e.w.WriteByte(hex[b>>4])
 				e.w.WriteByte(hex[b&0xF])
 			}
@@ -150,7 +155,7 @@ func (e *encoder) encodeString(s string) {
 	e.w.WriteByte('"')
 }
 
-func (e *encoder) encodeArray(vs []interface{}) {
+func (e *encoder) encodeArray(vs []any) {
 	e.w.WriteByte('[')
 	for i, v := range vs {
 		if i > 0 {
@@ -161,11 +166,11 @@ func (e *encoder) encodeArray(vs []interface{}) {
 	e.w.WriteByte(']')
 }
 
-func (e *encoder) encodeMap(vs map[string]interface{}) {
+func (e *encoder) encodeObject(vs map[string]any) {
 	e.w.WriteByte('{')
 	type keyVal struct {
 		key string
-		val interface{}
+		val any
 	}
 	kvs := make([]keyVal, len(vs))
 	var i int

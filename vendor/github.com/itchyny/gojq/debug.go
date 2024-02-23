@@ -1,5 +1,5 @@
-//go:build debug
-// +build debug
+//go:build gojq_debug
+// +build gojq_debug
 
 package gojq
 
@@ -27,7 +27,12 @@ func init() {
 	}
 }
 
-func (c *compiler) appendCodeInfo(x interface{}) {
+type codeinfo struct {
+	name string
+	pc   int
+}
+
+func (c *compiler) appendCodeInfo(x any) {
 	if !debug {
 		return
 	}
@@ -42,7 +47,7 @@ func (c *compiler) appendCodeInfo(x interface{}) {
 	if c.codes[len(c.codes)-1] != nil && c.codes[len(c.codes)-1].op == opret && strings.HasPrefix(name, "end of ") {
 		diff = -1
 	}
-	c.codeinfos = append(c.codeinfos, codeinfo{name, c.pc() + diff})
+	c.codeinfos = append(c.codeinfos, codeinfo{name, len(c.codes) + diff})
 }
 
 func (c *compiler) deleteCodeInfo(name string) {
@@ -177,7 +182,7 @@ func debugOperand(c *code) string {
 		switch v := c.v.(type) {
 		case int:
 			return strconv.Itoa(v)
-		case [3]interface{}:
+		case [3]any:
 			return fmt.Sprintf("%s/%d", v[2], v[1])
 		default:
 			panic(c)
@@ -187,17 +192,21 @@ func debugOperand(c *code) string {
 	}
 }
 
-func debugValue(v interface{}) string {
+func debugValue(v any) string {
 	switch v := v.(type) {
 	case Iter:
 		return fmt.Sprintf("gojq.Iter(%#v)", v)
+	case []pathValue:
+		return fmt.Sprintf("[]gojq.pathValue(%v)", v)
 	case [2]int:
 		return fmt.Sprintf("[%d,%d]", v[0], v[1])
 	case [3]int:
 		return fmt.Sprintf("[%d,%d,%d]", v[0], v[1], v[2])
-	case [3]interface{}:
+	case [3]any:
 		return fmt.Sprintf("[%v,%v,%v]", v[0], v[1], v[2])
+	case allocator:
+		return fmt.Sprintf("%v", v)
 	default:
-		return previewValue(v)
+		return Preview(v)
 	}
 }
