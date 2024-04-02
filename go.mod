@@ -13,7 +13,7 @@ require (
 	github.com/google/go-cmp v0.6.0
 	github.com/gookit/color v1.5.2
 	github.com/gorilla/mux v1.8.1
-	github.com/itchyny/gojq v0.12.5
+	github.com/itchyny/gojq v0.12.15
 	github.com/json-iterator/go v1.1.12
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/k0kubun/pp v3.0.1+incompatible

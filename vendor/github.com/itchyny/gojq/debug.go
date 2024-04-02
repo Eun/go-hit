@@ -1,5 +1,5 @@
-//go:build debug
-// +build debug
+//go:build gojq_debug
+// +build gojq_debug
 
 package gojq
 
@@ -27,7 +27,12 @@ func init() {
 	}
 }
 
-func (c *compiler) appendCodeInfo(x interface{}) {
+type codeinfo struct {
+	name string
+	pc   int
+}
+
+func (c *compiler) appendCodeInfo(x any) {
 	if !debug {
 		return
 	}
@@ -42,7 +47,7 @@ func (c *compiler) appendCodeInfo(x interface{}) {
 	if c.codes[len(c.codes)-1] != nil && c.codes[len(c.codes)-1].op == opret && strings.HasPrefix(name, "end of ") {
 		diff = -1
 	}
-	c.codeinfos = append(c.codeinfos, codeinfo{name, c.pc() + diff})
+	c.codeinfos = append(c.codeinfos, codeinfo{name, len(c.codes) + diff})
 }
 
 func (c *compiler) deleteCodeInfo(name string) {
@@ -98,7 +103,7 @@ func (env *env) debugCodes() {
 				s = "\t## " + name
 			}
 		}
-		fmt.Fprintf(debugOut, "\t%d\t%s%s%s\n", i, formatOp(c.op, false), debugOperand(c), s)
+		fmt.Fprintf(debugOut, "\t%d\t%-*s%s%s\n", i, 25, c.op, debugOperand(c), s)
 	}
 	fmt.Fprintln(debugOut, "\t"+strings.Repeat("-", 40)+"+")
 }
@@ -109,7 +114,11 @@ func (env *env) debugState(pc int, backtrack bool) {
 	}
 	var sb strings.Builder
 	c := env.codes[pc]
-	fmt.Fprintf(&sb, "\t%d\t%s%s\t|", pc, formatOp(c.op, backtrack), debugOperand(c))
+	op := c.op.String()
+	if backtrack {
+		op += " <backtrack>"
+	}
+	fmt.Fprintf(&sb, "\t%d\t%-*s%s\t|", pc, 25, op, debugOperand(c))
 	var xs []int
 	for i := env.stack.index; i >= 0; i = env.stack.data[i].next {
 		xs = append(xs, i)
@@ -144,13 +153,6 @@ func (env *env) debugState(pc int, backtrack bool) {
 	fmt.Fprintln(debugOut, sb.String())
 }
 
-func formatOp(c opcode, backtrack bool) string {
-	if backtrack {
-		return c.String() + " <backtrack>" + strings.Repeat(" ", 13-len(c.String()))
-	}
-	return c.String() + strings.Repeat(" ", 25-len(c.String()))
-}
-
 func (env *env) debugForks(pc int, op string) {
 	if !debug {
 		return
@@ -168,7 +170,7 @@ func (env *env) debugForks(pc int, op string) {
 			sb.WriteByte('>')
 		}
 	}
-	fmt.Fprintf(debugOut, "\t-\t%s%s%d\t|\t%s\n", op, strings.Repeat(" ", 22), pc, sb.String())
+	fmt.Fprintf(debugOut, "\t-\t%-*s%d\t|\t%s\n", 25, op, pc, sb.String())
 }
 
 func debugOperand(c *code) string {
@@ -177,7 +179,7 @@ func debugOperand(c *code) string {
 		switch v := c.v.(type) {
 		case int:
 			return strconv.Itoa(v)
-		case [3]interface{}:
+		case [3]any:
 			return fmt.Sprintf("%s/%d", v[2], v[1])
 		default:
 			panic(c)
@@ -187,17 +189,21 @@ func debugOperand(c *code) string {
 	}
 }
 
-func debugValue(v interface{}) string {
+func debugValue(v any) string {
 	switch v := v.(type) {
 	case Iter:
 		return fmt.Sprintf("gojq.Iter(%#v)", v)
+	case []pathValue:
+		return fmt.Sprintf("[]gojq.pathValue(%v)", v)
 	case [2]int:
 		return fmt.Sprintf("[%d,%d]", v[0], v[1])
 	case [3]int:
 		return fmt.Sprintf("[%d,%d,%d]", v[0], v[1], v[2])
-	case [3]interface{}:
+	case [3]any:
 		return fmt.Sprintf("[%v,%v,%v]", v[0], v[1], v[2])
+	case allocator:
+		return fmt.Sprintf("%v", v)
 	default:
-		return previewValue(v)
+		return Preview(v)
 	}
 }
