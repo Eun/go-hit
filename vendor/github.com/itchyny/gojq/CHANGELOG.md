@@ -1,9 +1,118 @@
 # Changelog
+## [v0.12.16](https://github.com/itchyny/gojq/compare/v0.12.15..v0.12.16) (2024-06-01)
+* fix offset of query parsing error on multi-byte characters
+* fix tests of `exp10` and `atan2` failing on some platforms
+* fix `debug/1` to be available only when `debug/0` is defined
+* improve parser to allow binary operators as object values
+* improve compiler to emit error if query is missing
+
+## [v0.12.15](https://github.com/itchyny/gojq/compare/v0.12.14..v0.12.15) (2024-04-01)
+* implement `ltrim`, `rtrim`, and `trim` functions
+* implement `gojq.ParseError` for getting the offset and token of query parsing error
+* implement `gojq.HaltError` for detecting halt errors and stopping outer iteration
+* fix object construction with duplicate keys (`{x:0,y:1} | {a:.x,a:.y}`)
+* fix `halt` and `halt_error` functions to stop the command execution immediately
+* fix variable scope of binding syntax (`"a" as $v | def f: $v; "b" as $v | f`)
+* fix pre-defined variables to be available in initial modules (`$ARGS` in `~/.jq`)
+* fix `ltrimstr` and `rtrimstr` functions to emit error on non-string input
+* fix `nearbyint` and `rint` functions to round ties to even
+* improve parser to allow `reduce`, `foreach`, `if`, `try`-`catch` syntax as object values
+* remove `pow10` in favor of `exp10`, define `scalbn` and `scalbln` by `ldexp`
+
+## [v0.12.14](https://github.com/itchyny/gojq/compare/v0.12.13..v0.12.14) (2023-12-01)
+* implement `abs`, `pick`, and `debug/1` functions
+* implement `--raw-output0` option, and remove `--nul-output` (`-0`) option
+* fix string multiplication by zero to emit an empty string
+* fix zero divided by zero to emit an error, not `nan`
+* fix modulo operator to emit `nan` if either side is `nan`
+* fix `implode` function to emit replacement characters on invalid code points
+* fix `stderr` function to output strings in raw format
+* fix `error` function to throw an error even for `null`
+* fix `walk` function on multiple outputs arguments
+* fix `--from-file` option to work with `--args` and `--jsonargs` options
+* fix the default module search path `../lib` relative to the executable
+* improve query parser to support comment continuation with backslash
+* improve `modulemeta` function to include defined function names in the module
+* improve search path of `import` and `include` directives to support `$ORIGIN` expansion
+* remove deprecated `leaf_paths` function
+
+## [v0.12.13](https://github.com/itchyny/gojq/compare/v0.12.12..v0.12.13) (2023-06-01)
+* implement `@urid` format string to decode URI values
+* fix functions returning arrays not to emit nil slices (`flatten`, `group_by`,
+  `unique`, `unique_by`, `nth`, `indices`, `path`, and `modulemeta.deps`)
+
+## [v0.12.12](https://github.com/itchyny/gojq/compare/v0.12.11..v0.12.12) (2023-03-01)
+* fix assignment operator (`=`) with overlapping paths and multiple values (`[[]] | .. = ..`)
+* fix crash on multiplying large numbers to an empty string (`9223372036854775807 * ""`)
+* improve zsh completion file
+
+## [v0.12.11](https://github.com/itchyny/gojq/compare/v0.12.10..v0.12.11) (2022-12-24)
+* fix crash on assignment operator (`=`) with multiple values (`. = (0,0)`)
+* fix `isnormal` and `normals` functions against subnormal numbers
+
+## [v0.12.10](https://github.com/itchyny/gojq/compare/v0.12.9..v0.12.10) (2022-12-01)
+* fix `break` in `try`-`catch` query (`label $x | try break $x catch .`)
+* fix path value validation for `getpath` function (`path(getpath([[0]][0]))`)
+* fix path value validation for custom iterator functions
+* fix `walk` function with argument emitting multiple values (`[1],{x:1} | walk(.,0)`)
+* fix `@csv`, `@tsv`, `@sh` to escape the null character (`["\u0000"] | @csv,@tsv,@sh`)
+* improve performance of assignment operator (`=`), update-assignment operator (`|=`),
+  `map_values`, `del`, `delpaths`, `walk`, `ascii_downcase`, and `ascii_upcase` functions
+
+## [v0.12.9](https://github.com/itchyny/gojq/compare/v0.12.8..v0.12.9) (2022-09-01)
+* fix `fromjson` to emit error on unexpected trailing string
+* fix path analyzer on variable argument evaluation (`def f($x): .y; path(f(.x))`)
+* fix raw input option `--raw-input` (`-R`) to keep carriage returns and support 64KiB+ lines
+
+## [v0.12.8](https://github.com/itchyny/gojq/compare/v0.12.7..v0.12.8) (2022-06-01)
+* implement `gojq.Compare` for comparing values in custom internal functions
+* implement `gojq.TypeOf` for obtaining type name of values in custom internal functions
+* implement `gojq.Preview` for previewing values for error messages of custom internal functions
+* fix query lexer to parse string literals as JSON to support surrogate pairs (`"\ud83d\ude04"`)
+* fix priority bug of declared and builtin functions (`def empty: .; null | select(.)`)
+* fix string indexing by index out of bounds to emit `null` (`"abc" | .[3]`)
+* fix array binding pattern not to match against strings (`"abc" as [$a] ?// $a | $a`)
+* fix `sub` and `gsub` functions to emit results in the same order of jq
+* fix `fromjson` to keep integer precision (`"10000000000000000" | fromjson + 1`)
+* fix stream option to raise error against incomplete JSON input
+* improve array updating index and string repetition to increase limitations
+* improve `mktime` to support nanoseconds, just like `gmtime` and `now`
+* improve query lexer to report unterminated string literals
+* improve performance of string indexing and slicing by reducing allocations
+* improve performance of object and array indexing, slicing, and iteration,
+  by validating path values by comparing data addresses. This change improves jq
+  compatibility of path value validation (`{} | {}.x = 0`, `[0] | [.[]][] = 1`).
+  Also optimize constant indexing and slicing by specialized instruction
+* improve performance of `add` (on array of strings), `flatten`, `min`, `max`,
+  `sort`, `unique`, `join`, `to_entries`, `from_entries`, `indices`, `index`,
+  `rindex`, `startswith`, `endswith`, `ltrimstr`, `rtrimstr`, `explode`,
+  `capture`, `sub`, and `gsub` functions
+
+## [v0.12.7](https://github.com/itchyny/gojq/compare/v0.12.6..v0.12.7) (2022-03-01)
+* fix precedence of try expression against operators (`try 0 * error(0)`)
+* fix iterator suffix with optional operator (`0 | .x[]?`)
+* fix stream option with slurp option or `input`, `inputs` functions
+* fix the command flag parser to support equal sign in short options with argument
+* fix string conversion of query including empty strings in module and import metadata
+* improve performance of `isempty` function
+
+## [v0.12.6](https://github.com/itchyny/gojq/compare/v0.12.5..v0.12.6) (2021-12-01)
+* implement options for consuming remaining arguments (`--args`, `--jsonargs`, `$ARGS.positional`)
+* fix `delpaths` function with overlapped paths
+* fix `--exit-status` flag with `halt`, `halt_error` functions
+* fix `input_filename` function with null input option
+* fix path value validation for `nan`
+* fix crash on branch optimization (`if 0 then . else 0|0 end`)
+* add validation on regular expression flags to reject unsupported ones
+* improve performance of `range`, `join`, `flatten` functions
+* improve constant value optimization for object with quoted keys
+* remove dependency on forked `go-flags` package
+
 ## [v0.12.5](https://github.com/itchyny/gojq/compare/v0.12.4..v0.12.5) (2021-09-01)
 * implement `input_filename` function for the command
 * fix priority bug of declared functions and arguments (`def g: 1; def f(g): g; f(2)`)
 * fix label handling to catch the correct break error (`first((0, 0) | first(0))`)
-* fix `null|error` and `error(null) to behave like `empty` (`null | [0, error, error(null), 1]`)
+* fix `null|error` and `error(null)` to behave like `empty` (`null | [0, error, error(null), 1]`)
 * fix integer division to keep precision when divisible (`1 / 1 * 1000000000000000000000`)
 * fix modulo operator on negative number and large number (`(-1) % 10000000000`)
 * fix combination of slurp (`--slurp`) and raw input option (`--raw-input`) to keep newlines
@@ -167,7 +276,7 @@
 ## [v0.7.0](https://github.com/itchyny/gojq/compare/v0.6.0..v0.7.0) (2019-12-22)
 * implement YAML input (`--yaml-input`) and output (`--yaml-output`)
 * fix pipe in object value
-* fix precedence of if, try, reduce and foreach expressions
+* fix precedence of `if`, `try`, `reduce` and `foreach` expressions
 * release from GitHub Actions
 
 ## [v0.6.0](https://github.com/itchyny/gojq/compare/v0.5.0..v0.6.0) (2019-08-26)
