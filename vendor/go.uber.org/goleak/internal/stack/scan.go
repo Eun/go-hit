@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Uber Technologies, Inc.
+// Copyright (c) 2023 Uber Technologies, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,21 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-//go:build !go1.16
-// +build !go1.16
-
-package goleak
+package stack
 
 import (
-	"strings"
-
-	"go.uber.org/goleak/internal/stack"
+	"bufio"
+	"io"
 )
 
-func isTraceStack(s stack.Stack) bool {
-	if f := s.FirstFunction(); f != "runtime.goparkunlock" {
-		return false
-	}
+// scanner provides a bufio.Scanner the ability to Unscan,
+// which allows the current token to be read again
+// after the next Scan.
+type scanner struct {
+	*bufio.Scanner
 
-	return strings.Contains(s.Full(), "runtime.ReadTrace")
+	unscanned bool
+}
+
+func newScanner(r io.Reader) *scanner {
+	return &scanner{Scanner: bufio.NewScanner(r)}
+}
+
+func (s *scanner) Scan() bool {
+	if s.unscanned {
+		s.unscanned = false
+		return true
+	}
+	return s.Scanner.Scan()
+}
+
+// Unscan stops the scanner from advancing its position
+// for the next Scan.
+//
+// Bytes and Text will return the same token after next Scan
+// that they do right now.
+func (s *scanner) Unscan() {
+	s.unscanned = true
 }
